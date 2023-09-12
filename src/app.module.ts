@@ -14,6 +14,12 @@ import { CompaniesModule } from './companies/companies.module';
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
+      ssl: process.env.STAGE === 'prod' ? true : false,
+      extra: {
+        ssl: process.env.STAGE === 'prod'
+          ? { rejectUnauthorized: false }
+          : null,
+      },
       type: 'mysql',
       host: process.env.DB_HOST,
       port: +process.env.DB_PORT,
@@ -33,4 +39,4 @@ import { CompaniesModule } from './companies/companies.module';
     CompaniesModule
   ],
 })
-export class AppModule {}
+export class AppModule { }
