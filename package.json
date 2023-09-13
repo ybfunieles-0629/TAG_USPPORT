@@ -5,12 +5,9 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
-<<<<<<< HEAD
   "engines": {
     "node": "18.x"
   },
-=======
->>>>>>> 776f188d2ce83a9e7716fe15874bc031ed4bc305
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
