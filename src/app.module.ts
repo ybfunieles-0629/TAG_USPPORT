@@ -9,6 +9,7 @@ import { PrivilegesModule } from './privileges/privileges.module';
 import { AccessModule } from './access/access.module';
 import { CommonModule } from './common/common.module';
 import { CompaniesModule } from './companies/companies.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import { CompaniesModule } from './companies/companies.module';
     PrivilegesModule,
     AccessModule,
     CommonModule,
-    CompaniesModule
+    CompaniesModule,
+    ProductsModule
   ],
 })
 export class AppModule { }
