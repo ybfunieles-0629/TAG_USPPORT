@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Permission } from '../../permissions/entities/permission.entity';
 import { User } from 'src/users/entities/user.entity';
+import { Privilege } from 'src/privileges/entities/privilege.entity';
 
 @Entity({ name: 'roles' })
 export class Role {
@@ -43,4 +44,18 @@ export class Role {
     },
   })
   permissions?: Permission[];
+
+  @ManyToMany(() => Privilege, (privilege) => privilege.roles)
+  @JoinTable({
+    name: 'role_privilege',
+    joinColumn: {
+      name: 'roleId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'privilegeId',
+      referencedColumnName: 'id',
+    },
+  })
+  privileges?: Privilege[];
 }
