@@ -45,7 +45,6 @@ export class CompaniesService {
         newCompany,
       };
     } catch (error) {
-      console.log(error);
       this.handleDbExceptions(error);
     }
   }
