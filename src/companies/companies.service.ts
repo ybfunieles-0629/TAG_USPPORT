@@ -116,7 +116,17 @@ export class CompaniesService {
   }
 
   async remove(id: string) {
-    const company = await this.findOne(id);
+    const company = await this.companyRepository.findOne({
+      where: {
+        id
+      },
+      relations: {
+        user: true,
+      },
+    });
+
+    if (company.user.length > 0)
+      throw new BadRequestException(`You can't delete a company if the company has a relation with an user`);
 
     await this.companyRepository.remove(company);
 
