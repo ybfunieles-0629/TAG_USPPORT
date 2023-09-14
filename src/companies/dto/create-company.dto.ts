@@ -22,14 +22,14 @@ export class CreateCompanyDto {
   @IsString()
   address: string;
 
-  // @IsString()
-  // dniRepresentativeDocument: string;
+  @IsString()
+  dniRepresentativeDocument: string;
 
-  // @IsString()
-  // commerceChamberDocument: string;
+  @IsString()
+  commerceChamberDocument: string;
   
-  // @IsString()
-  // rutCompanyDocument: string;
+  @IsString()
+  rutCompanyDocument: string;
 
   @IsEmail()
   billingEmail: string;
