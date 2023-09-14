@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 import { PrivilegesService } from './privileges.service';
 import { CreatePrivilegeDto } from './dto/create-privilege.dto';
 import { UpdatePrivilegeDto } from './dto/update-privilege.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('privileges')
 export class PrivilegesController {
@@ -13,8 +14,10 @@ export class PrivilegesController {
   }
 
   @Get()
-  findAll() {
-    return this.privilegesService.findAll();
+  findAll(
+    @Query() paginationDto: PaginationDto
+  ) {
+    return this.privilegesService.findAll(paginationDto);
   }
 
   @Get(':term')

@@ -2,8 +2,11 @@ import { BadRequestException, Injectable, Logger, NotFoundException } from '@nes
 import { CreatePrivilegeDto } from './dto/create-privilege.dto';
 import { UpdatePrivilegeDto } from './dto/update-privilege.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Privilege } from './entities/privilege.entity';
+import { isUUID } from 'class-validator';
 import { Repository } from 'typeorm';
+
+import { Privilege } from './entities/privilege.entity';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class PrivilegesService {
@@ -28,26 +31,52 @@ export class PrivilegesService {
     }
   }
 
-  async findAll() {
-    return this.privilegeRepository.find();
+  findAll(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    return this.privilegeRepository.find({
+      take: limit,
+      skip: offset
+    });
   }
 
-  findOne(term: string) {
-    return `This action returns a #${term} privilege`;
+  async findOne(term: string) {
+    let privilege: Privilege;
+
+    if (isUUID(term)) {
+      privilege = await this.privilegeRepository.findOneBy({ id: term });
+    } else {
+      const queryBuilder = this.privilegeRepository.createQueryBuilder();
+
+      privilege = await queryBuilder
+        .where('LOWER(name) =: name', {
+          name: term.toLowerCase(),
+        })
+        .getOne();
+    }
+
+    if (!privilege)
+      throw new NotFoundException(`Privilege with ${term} not found`)
+
+    return privilege;
   }
 
   async update(id: string, updatePrivilegeDto: UpdatePrivilegeDto) {
-    const privilege = await this.privilegeRepository.preload({
-      id,
-      ...UpdatePrivilegeDto
-    });
+    try {
+      const privilege = await this.privilegeRepository.preload({
+        id,
+        ...UpdatePrivilegeDto
+      });
 
-    if (!privilege)
-      throw new NotFoundException(`Privilege with id ${id} not found`);
+      if (!privilege)
+        throw new NotFoundException(`Privilege with id ${id} not found`);
 
-    await this.privilegeRepository.save(privilege);
+      await this.privilegeRepository.save(privilege);
 
-    return privilege;
+      return privilege;
+    } catch (error) {
+      this.handleDbExceptions(error);
+    }
   }
 
   remove(id: number) {
