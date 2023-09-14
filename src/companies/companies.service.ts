@@ -84,6 +84,10 @@ export class CompaniesService {
   }
 
   async update(id: string, updateCompanyDto: UpdateCompanyDto, files: Record<string, Express.Multer.File>) {
+    updateCompanyDto.ivaResponsable = Boolean(updateCompanyDto.ivaResponsable);
+    updateCompanyDto.taxPayer = Boolean(updateCompanyDto.taxPayer);
+    updateCompanyDto.selfRetaining = Boolean(updateCompanyDto.selfRetaining);
+
     if (updateCompanyDto.nit)
       throw new BadRequestException(`You can't update the NIT of the company`);
 
