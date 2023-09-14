@@ -77,17 +77,17 @@ export class Company {
   deliveryAddress: string;
 
   @Column('boolean', {
-
+    default: false,
   })
   ivaResponsable: boolean;
 
   @Column('boolean', {
-
+    default: false,
   })
   taxPayer: boolean;
 
   @Column('boolean', {
-
+    default: false,
   })
   selfRetaining: boolean;
 
