@@ -22,14 +22,14 @@ export class CreateCompanyDto {
   @IsString()
   address: string;
 
-  @IsString()
-  dniRepresentativeDocument: string;
+  // @IsString()
+  // dniRepresentativeDocument: string;
 
-  @IsString()
-  commerceChamberDocument: string;
+  // @IsString()
+  // commerceChamberDocument: string;
   
-  @IsString()
-  rutCompanyDocument: string;
+  // @IsString()
+  // rutCompanyDocument: string;
 
   @IsEmail()
   billingEmail: string;
@@ -43,12 +43,15 @@ export class CreateCompanyDto {
   @IsString()
   deliveryAddress: string;
 
+  @IsOptional()
   @IsBoolean()
-  ivaResponsable?: boolean;
+  ivaResponsable?: boolean = false;
 
+  @IsOptional()
   @IsBoolean()
-  taxPayer?: boolean;
+  taxPayer?: boolean = false;
 
+  @IsOptional()
   @IsBoolean()
-  selfRetaining?: boolean;
+  selfRetaining?: boolean = false;
 }
