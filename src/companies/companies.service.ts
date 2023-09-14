@@ -133,9 +133,9 @@ export class CompaniesService {
     })
   }
 
-  private handleDbExceptions(error) {
-    if (error.code === '23505')
-      throw new BadRequestException(error.detail);
+  private handleDbExceptions(error: any) {
+    if (error.code === '23505' || error.code === 'ER_DUP_ENTRY')
+      throw new BadRequestException(error.sqlMessage);
 
     this.logger.error(error);
 
