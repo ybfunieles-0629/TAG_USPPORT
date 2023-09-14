@@ -97,15 +97,15 @@ export class AccessService {
       }
     });
 
-    const { id: userId, name: username, dni: userDni, city, address } = user;
+    const { id: userId, name: username, dni, city, address } = user;
     const { id: companyId, billingEmail, nit } = user.company;
-    const { id: roleId, name: roleName } = user.role;
+    const { id: roleId, name: rolename } = user.role;
 
     const payloadToSend = {
       user: {
         userId,
         username,
-        userDni,
+        dni,
         city,
         address,
       },
@@ -116,7 +116,7 @@ export class AccessService {
       },
       role: {
         roleId,
-        roleName
+        rolename
       },
     };
 
