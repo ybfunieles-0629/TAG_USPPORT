@@ -1,12 +1,15 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { isUUID } from 'class-validator';
+import { v4 as uuidv4 } from 'uuid';
+import * as AWS from 'aws-sdk';
 
 import { Company } from './entities/company.entity';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
-import { isUUID } from 'class-validator';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class CompaniesService {
@@ -17,14 +20,29 @@ export class CompaniesService {
     private readonly companyRepository: Repository<Company>
   ) { }
 
-  async create(createCompanyDto: CreateCompanyDto) {
+  async create(createCompanyDto: CreateCompanyDto, files: Record<string, Express.Multer.File>) {
     try {
-      const company = this.companyRepository.create(createCompanyDto);
+      const newCompany = plainToClass(Company, createCompanyDto);
 
-      await this.companyRepository.save(company);
+      for (const [fieldName, fileInfo] of Object.entries(files)) {
+        const uniqueFilename = `${uuidv4()}-${fileInfo[0].originalname}`;
+        fileInfo[0].originalname = uniqueFilename;
+
+        await this.uploadToAws(fileInfo[0]);
+
+        if (fileInfo[0].fieldname === 'rutCompanyDocument') {
+          newCompany.rutCompanyDocument = uniqueFilename;
+        } else if (fileInfo[0].fieldname === 'dniRepresentativeDocument') {
+          newCompany.dniRepresentativeDocument = uniqueFilename;
+        } else if (fileInfo[0].fieldname === 'commerceChamberDocument') {
+          newCompany.commerceChamberDocument = uniqueFilename;
+        }
+      }
+
+      await this.companyRepository.save(newCompany);
 
       return {
-        company
+        newCompany,
       };
     } catch (error) {
       this.handleDbExceptions(error);
@@ -83,6 +101,32 @@ export class CompaniesService {
     return {
       company
     }
+  }
+
+  private async uploadToAws(file: Express.Multer.File) {
+    AWS.config.update({
+      accessKeyId: 'AKIAT4TACBZFK2MS62VU',
+      secretAccessKey: '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',
+      region: 'us-east-2',
+    });
+
+    const s3 = new AWS.S3();
+
+    const params = {
+      Bucket: 'tag-support-storage',
+      Key: file.originalname,
+      Body: file.buffer,
+    }
+
+    return new Promise<string>((resolve, reject) => {
+      s3.upload(params, (err: any, data: any) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data.Location);
+        }
+      })
+    })
   }
 
   private handleDbExceptions(error) {

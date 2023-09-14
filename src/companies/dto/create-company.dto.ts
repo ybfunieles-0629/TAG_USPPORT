@@ -1,4 +1,4 @@
-import { IsBoolean, IsEmail, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class CreateCompanyDto {
   @IsString()
@@ -22,24 +22,36 @@ export class CreateCompanyDto {
   @IsString()
   address: string;
 
-  @IsString()
-  documentRepresentativeDni: string;
+  // @IsString()
+  // dniRepresentativeDocument: string;
 
-  @IsString()
-  commerceChamberDocument: string;
+  // @IsString()
+  // commerceChamberDocument: string;
+  
+  // @IsString()
+  // rutCompanyDocument: string;
 
   @IsEmail()
   billingEmail: string;
 
   @IsString()
-  companyDocumentRut: string;
+  companyType: string;
 
-  @IsBoolean()
-  ivaResponsable: boolean;
+  @IsString()
+  documentType: string;
 
-  @IsBoolean()
-  taxPayer: boolean;
+  @IsString()
+  deliveryAddress: string;
 
+  @IsOptional()
   @IsBoolean()
-  selfRetaining: boolean;
+  ivaResponsable?: boolean = true;
+
+  @IsOptional()
+  @IsBoolean()
+  taxPayer?: boolean = true;
+
+  @IsOptional()
+  @IsBoolean()
+  selfRetaining?: boolean = true;
 }

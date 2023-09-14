@@ -1,15 +1,17 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { isUUID } from 'class-validator';
 
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { Permission } from './entities/permission.entity';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class PermissionsService {
   private readonly logger = new Logger('PermissionsService');
-  
+
   constructor(
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>
@@ -29,12 +31,34 @@ export class PermissionsService {
     }
   }
 
-  findAll() {
-    return this.permissionRepository.find();
+  findAll(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    return this.permissionRepository.find({
+      take: limit,
+      skip: offset
+    });
   }
 
-  findOne(term: string) {
-    return `This action returns a #${term} permission`;
+  async findOne(term: string) {
+    let permission: Permission;
+
+    if (isUUID(term)) {
+      permission = await this.permissionRepository.findOneBy({ id: term });
+    } else {
+      const queryBuilder = this.permissionRepository.createQueryBuilder();
+
+      permission = await queryBuilder
+        .where('LOWER(name) =:name', {
+          name: term.toLowerCase(),
+        })
+        .getOne();
+    }
+
+    if (!permission)
+      throw new NotFoundException(`Permission with ${term} not found`);
+
+    return permission;
   }
 
   async update(id: string, updatePermissionDto: UpdatePermissionDto) {

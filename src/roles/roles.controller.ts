@@ -1,11 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('roles')
 export class RolesController {
-  constructor(private readonly rolesService: RolesService) {}
+  constructor(private readonly rolesService: RolesService) { }
 
   @Post()
   create(@Body() createRoleDto: CreateRoleDto) {
@@ -13,12 +15,16 @@ export class RolesController {
   }
 
   @Get()
-  findAll() {
-    return this.rolesService.findAll();
+  findAll(
+    @Query() paginationDto: PaginationDto
+  ) {
+    return this.rolesService.findAll(paginationDto);
   }
 
   @Get(':term')
-  findOne(@Param('term') term: string) {
+  findOne(
+    @Param('term') term: string
+  ) {
     return this.rolesService.findOne(term);
   }
 

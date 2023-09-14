@@ -1,10 +1,12 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { isUUID } from 'class-validator';
 
 import { Role } from './entities/role.entity';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class RolesService {
@@ -29,12 +31,37 @@ export class RolesService {
     }
   }
 
-  findAll() {
-    return this.roleRepository.find();
+  findAll(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    return this.roleRepository.find({
+      take: limit,
+      skip: offset,
+      relations: {
+        permissions: true,
+      },
+    });
   }
 
-  findOne(term: string) {
-    
+  async findOne(term: string) {
+    let role: Role;
+
+    if (isUUID(term)) {
+      role = await this.roleRepository.findOneBy({ id: term });
+    } else {
+      const queryBuilder = this.roleRepository.createQueryBuilder();
+
+      role = await queryBuilder
+        .where('LOWER(name) =:name', {
+          name: term.toLowerCase()
+        })
+        .getOne()
+    }
+
+    if (!role)
+      throw new NotFoundException(`Role with ${term} not found`);
+
+    return role;
   }
 
   update(id: string, updateRoleDto: UpdateRoleDto) {
