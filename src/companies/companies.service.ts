@@ -21,6 +21,10 @@ export class CompaniesService {
   ) { }
 
   async create(createCompanyDto: CreateCompanyDto, files: Record<string, Express.Multer.File>) {
+    createCompanyDto.ivaResponsable = Boolean(createCompanyDto.ivaResponsable);
+    createCompanyDto.taxPayer = Boolean(createCompanyDto.taxPayer);
+    createCompanyDto.selfRetaining = Boolean(createCompanyDto.selfRetaining);
+    
     try {
       const newCompany = plainToClass(Company, createCompanyDto);
 
