@@ -44,7 +44,7 @@ export class Company {
   @Column('varchar', {
 
   })
-  documentRepresentativeDni: string;
+  dniRepresentativeDocument: string;
 
   @Column('varchar', {
     
@@ -59,25 +59,40 @@ export class Company {
   @Column('varchar', {
 
   })
-  companyDocumentRut: string;
+  rutCompanyDocument: string;
+
+  @Column('varchar', {
+
+  })
+  companyType: string;
+
+  @Column('varchar', {
+
+  })
+  documentType: string;
+
+  @Column('varchar', {
+    
+  })
+  deliveryAddress: string;
 
   @Column('boolean', {
-
+    default: true,
   })
   ivaResponsable: boolean;
 
   @Column('boolean', {
-
+    default: true,
   })
   taxPayer: boolean;
 
   @Column('boolean', {
-
+    default: true,
   })
   selfRetaining: boolean;
 
   @Column('boolean', {
-    default: true
+    default: true,
   })
   isActive: boolean;
 
