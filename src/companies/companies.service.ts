@@ -24,7 +24,7 @@ export class CompaniesService {
     createCompanyDto.ivaResponsable = Boolean(createCompanyDto.ivaResponsable);
     createCompanyDto.taxPayer = Boolean(createCompanyDto.taxPayer);
     createCompanyDto.selfRetaining = Boolean(createCompanyDto.selfRetaining);
-    
+
     try {
       const newCompany = plainToClass(Company, createCompanyDto);
 
@@ -83,7 +83,10 @@ export class CompaniesService {
     return company;
   }
 
-  async update(id: string, updateCompanyDto: UpdateCompanyDto) {
+  async update(id: string, updateCompanyDto: UpdateCompanyDto, files: Record<string, Express.Multer.File>) {
+    if (updateCompanyDto.nit)
+      throw new BadRequestException(`You can't update the NIT of the company`);
+
     const company = await this.companyRepository.preload({
       id,
       ...updateCompanyDto
@@ -91,6 +94,21 @@ export class CompaniesService {
 
     if (!company)
       throw new NotFoundException(`Company with id ${id} not found`);
+
+    for (const [fieldName, fileInfo] of Object.entries(files)) {
+      const uniqueFilename = `${uuidv4()}-${fileInfo[0].originalname}`;
+      fileInfo[0].originalname = uniqueFilename;
+
+      await this.uploadToAws(fileInfo[0]);
+
+      if (fileInfo[0].fieldname === 'rutCompanyDocument') {
+        company.rutCompanyDocument = uniqueFilename;
+      } else if (fileInfo[0].fieldname === 'dniRepresentativeDocument') {
+        company.dniRepresentativeDocument = uniqueFilename;
+      } else if (fileInfo[0].fieldname === 'commerceChamberDocument') {
+        company.commerceChamberDocument = uniqueFilename;
+      }
+    }
 
     await this.companyRepository.save(company);
 
