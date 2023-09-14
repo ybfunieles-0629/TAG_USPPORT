@@ -125,7 +125,7 @@ export class CompaniesService {
     if (!company)
       throw new NotFoundException(`Company with id ${id} not found`);
 
-    company.isActive = false;
+    company.isActive = !company.isActive;
 
     await this.companyRepository.save(company);
 

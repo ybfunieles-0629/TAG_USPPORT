@@ -122,7 +122,7 @@ export class UsersService {
     if (!user)
       throw new NotFoundException(`User with id ${id} not found`);
 
-    user.isActive = false;
+    user.isActive = !user.isActive;
 
     await this.userRepository.save(user);
 
