@@ -44,14 +44,14 @@ export class CreateCompanyDto {
   deliveryAddress: string;
 
   @IsOptional()
-  @IsBoolean()
+  // @IsBoolean()
   ivaResponsable?: boolean = false;
 
   @IsOptional()
-  @IsBoolean()
+  // @IsBoolean()
   taxPayer?: boolean = false;
 
   @IsOptional()
-  @IsBoolean()
+  // @IsBoolean()
   selfRetaining?: boolean = false;
 }
