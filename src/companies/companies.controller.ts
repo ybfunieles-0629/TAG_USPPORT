@@ -35,17 +35,25 @@ export class CompaniesController {
 
   @Get(':term')
   findOne(
-    @Param('term') term: string
+    @Param('term') term: string,
   ) {
     return this.companiesService.findOne(term);
   }
 
   @Patch(':id')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'rutCompanyDocument', maxCount: 1 },
+      { name: 'dniRepresentativeDocument', maxCount: 1 },
+      { name: 'commerceChamberDocument', maxCount: 1 },
+    ])
+  )
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateCompanyDto: UpdateCompanyDto
+    @Body() updateCompanyDto: UpdateCompanyDto,
+    @UploadedFiles() files: Record<string, Express.Multer.File>
   ) {
-    return this.companiesService.update(id, updateCompanyDto);
+    return this.companiesService.update(id, updateCompanyDto, files);
   }
 
   @Delete(':id')
