@@ -115,6 +115,21 @@ export class CompaniesService {
     return company;
   }
 
+  async desactivate(id: string) {
+    const company = await this.companyRepository.findOneBy({ id });
+
+    if (!company)
+      throw new NotFoundException(`Company with id ${id} not found`);
+
+    company.isActive = false;
+
+    await this.companyRepository.save(company);
+
+    return {
+      company
+    };
+  }
+
   async remove(id: string) {
     const company = await this.companyRepository.findOne({
       where: {

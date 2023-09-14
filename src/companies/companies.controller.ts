@@ -56,6 +56,13 @@ export class CompaniesController {
     return this.companiesService.update(id, updateCompanyDto, files);
   }
 
+  @Patch('/desactivate/:id')
+  desactivate(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.companiesService.desactivate(id);
+  }
+
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.companiesService.remove(id);

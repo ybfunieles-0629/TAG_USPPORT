@@ -116,6 +116,21 @@ export class UsersService {
     }
   }
 
+  async desactivate(id: string) {
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user)
+      throw new NotFoundException(`User with id ${id} not found`);
+
+    user.isActive = false;
+
+    await this.userRepository.save(user);
+
+    return {
+      user
+    };
+  }
+
   private handleDbExceptions(error: any) {
     if (error.code === '23505')
       throw new BadRequestException(error.detail);
