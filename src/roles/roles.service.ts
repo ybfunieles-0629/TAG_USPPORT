@@ -154,12 +154,44 @@ export class RolesService {
     return role;
   }
 
-  update(id: string, updateRoleDto: UpdateRoleDto) {
-    return `This action updates a #${id} role`;
+  async update(id: string, updateRoleDto: UpdateRoleDto) {
+    const role = await this.roleRepository.preload({
+      id,
+      ...updateRoleDto
+    });
+
+    if (!role)
+      throw new NotFoundException(`Role with id ${id} not found`);
+
+    await this.roleRepository.save(role);
+
+    return role;
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} role`;
+  async desactivate(id: string) {
+    const role = await this.roleRepository.findOneBy({ id });
+
+    if (!role)
+      throw new NotFoundException(`Role with id ${id} not found`);
+
+    role.isActive = !role.isActive;
+
+    await this.roleRepository.save(role);
+
+    return {
+      role
+    };
+  }
+
+  async remove(id: string) {
+    const role = await this.roleRepository.findOneBy({ id });
+
+    if (!role)
+      throw new NotFoundException(`Role with id ${id} not found`);
+
+    await this.roleRepository.remove(role);
+
+    return role;
   }
 
   private handleDbExceptions(error: any) {

@@ -33,8 +33,15 @@ export class PrivilegesController {
     return this.privilegesService.update(id, updatePrivilegeDto);
   }
 
+  @Patch('/desactivate/:id')
+  desactivate(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.privilegesService.desactivate(id);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.privilegesService.remove(+id);
+    return this.privilegesService.remove(id);
   }
 }

@@ -75,8 +75,30 @@ export class PermissionsService {
     return permission;
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} permission`;
+  async remove(id: string) {
+    const permission = await this.permissionRepository.findOneBy({ id });
+
+    if (!permission)
+      throw new NotFoundException(`Permission with id ${id} not found`);
+
+    await this.permissionRepository.remove(permission);
+
+    return permission;
+  }
+
+  async desactivate(id: string) {
+    const permission = await this.permissionRepository.findOneBy({ id });
+
+    if (!permission)
+      throw new NotFoundException(`permission with id ${id} not found`);
+
+    permission.isActive = !permission.isActive;
+
+    await this.permissionRepository.save(permission);
+
+    return {
+      permission
+    };
   }
 
   private handleDbExceptions(error: any) {
