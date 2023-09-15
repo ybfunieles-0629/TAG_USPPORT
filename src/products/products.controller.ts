@@ -9,4 +9,9 @@ export class ProductsController {
   findAll() {
     return this.productsService.findAll();
   }
+
+  @Get('/marpico')
+  apiMarpico() {
+    return this.productsService.apiMarpico();
+  }
 }
