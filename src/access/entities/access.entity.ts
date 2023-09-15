@@ -1,6 +1,7 @@
+import { Client } from 'src/clients/entities/client.entity';
 import { Role } from 'src/roles/entities/role.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('access')
 export class Access {
@@ -19,11 +20,17 @@ export class Access {
   password: string;
 
   //* --- FK --- *//
-  @OneToMany(
+  @OneToOne(
     () => User,
     (user) => user.access
   )
   user: User;
+
+  @OneToOne(
+    () => Client,
+    (client) => client.access
+  )
+  client: Client;
 
   @ManyToOne(
     () => Role,
