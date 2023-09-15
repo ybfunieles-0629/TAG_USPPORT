@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Role } from 'src/roles/entities/role.entity';
+import { User } from 'src/users/entities/user.entity';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('access')
 export class Access {
@@ -17,4 +19,15 @@ export class Access {
   password: string;
 
   //* --- FK --- *//
+  @OneToMany(
+    () => User,
+    (user) => user.access
+  )
+  user: User;
+
+  @ManyToOne(
+    () => Role,
+    (role) => role.access
+  )
+  role: Role;
 }

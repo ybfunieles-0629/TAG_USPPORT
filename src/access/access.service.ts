@@ -126,6 +126,22 @@ export class AccessService {
     }
   }
 
+  async delete(id: string) {
+    const access = await this.accessRepository.findOne({
+      where: {
+        id
+      },
+      relations: {
+        user: true
+      },
+    });
+
+    if (!access)
+      throw new NotFoundException(`Access with id ${id} not found`);
+
+    console.log(access);
+  }
+
   private getJwtToken(payload: any) {
     const token = this.jwtService.sign(payload);
     return token;

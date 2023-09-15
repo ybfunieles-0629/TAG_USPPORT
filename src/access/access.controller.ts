@@ -22,4 +22,11 @@ export class AccessController {
   ) {
     return this.accessService.login(loginUserDto);
   }
+
+  @Delete(':id')
+  delete(
+    @Param(':id', ParseUUIDPipe) id: string
+  ) {
+    this.accessService.delete(id);
+  }
 }
