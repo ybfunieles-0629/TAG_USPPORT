@@ -28,6 +28,13 @@ export class ClientsController {
     return this.clientsService.update(id, updateClientDto);
   }
 
+  @Patch('/coorporative/:id')
+  changeIsCoorporative(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.clientsService.changeIsCoorporative(id);
+  }
+
   @Patch('/desactivate/:id')
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,

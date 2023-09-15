@@ -45,7 +45,7 @@ export class ClientsService {
     if (isUUID(term)) {
       client = await this.clientRepository.findOneBy({ id: term });
     }
-    
+
     const queryBuilder = this.clientRepository.createQueryBuilder();
 
     client = await queryBuilder
@@ -61,15 +61,28 @@ export class ClientsService {
   }
 
   async update(id: string, updateClientDto: UpdateClientDto) {
-    const client = await this.clientRepository.preload({ 
+    const client = await this.clientRepository.preload({
       id,
-      ...updateClientDto 
+      ...updateClientDto
     });
 
     if (!client)
       throw new NotFoundException(`Client with id ${id} not found`);
 
     await this.clientRepository.save(client);
+  }
+
+  async changeIsCoorporative(id: string) {
+    const client = await this.clientRepository.findOneBy({ id });
+
+    if (!client)
+      throw new NotFoundException(`Client with id ${id} not found`);
+
+    client.isCoorporative = !client.isCoorporative;
+
+    return {
+      client
+    };
   }
 
   async desactivate(id: string) {
