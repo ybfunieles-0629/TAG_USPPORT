@@ -10,6 +10,8 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { plainToClass } from 'class-transformer';
 import { Company } from 'src/companies/entities/company.entity';
 import { Role } from 'src/roles/entities/role.entity';
+import { Access } from 'src/access/entities/access.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -24,42 +26,63 @@ export class UsersService {
 
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
+
+    // @InjectRepository(Access)
+    // private readonly accessRepository: Repository<Access>,
   ) { }
 
-  async create(createUserDto: CreateUserDto) {    
-    // try {
-    //   const newUser = plainToClass(User, createUserDto);
+  async create(createUserDto: CreateUserDto) {
+  //   const { password } = createUserDto;
 
-    //   const company = await this.companyRepository.findBy({
-    //     id: createUserDto.company
-    //   });
+  //   const newUser = plainToClass(User, createUserDto);
 
-    //   if (!company)
-    //     throw new NotFoundException(`Company with id ${createUserDto.company} not found`);
+  //   const company = await this.companyRepository.findOne({
+  //     where: {
+  //       id: createUserDto.company
+  //     }
+  //   });
 
-    //   newUser.company = company;
+  //   if (!company)
+  //     throw new NotFoundException(`Company with id ${createUserDto.company} not found`);
 
-    //   const role = await this.roleRepository.findBy({
-    //     id: createUserDto.role
-    //   });
+  //   if (!company.isActive)
+  //     throw new BadRequestException(`The company isn't active`);
 
-    //   if (!role)
-    //     throw new NotFoundException(`Role with id ${createUserDto.role} not found`);
+  //   newUser.company = company;
 
-    //   newUser.role = role;
+  //   const role = await this.roleRepository.findOne({
+  //     where: {
+  //       id: createUserDto.role
+  //     }
+  //   });
 
-    //   console.log(newUser);
+  //   if (!role)
+  //     throw new NotFoundException(`Role with id ${createUserDto.role} not found`);
 
-    //   const user = this.userRepository.create(newUser);
+  //   if (!role.isActive)
+  //     throw new BadRequestException(`The role isn't active`);
 
-    //   await this.userRepository.save(user);
+  //   newUser.role = role;
 
-    //   return {
-    //     user
-    //   };
-    // } catch (error) {
-    //   this.handleDbExceptions(error);
-    // }
+  //   const encryptedPassword = bcrypt.hashSync(password, 10);
+    
+  //   const access = this.accessRepository.create({
+  //     email: newUser.email,
+  //     password: encryptedPassword
+  //   });
+    
+  //   access.role = role;
+
+  //   await this.accessRepository.save(access);
+    
+  //   newUser.access = access;
+    
+  //   await this.userRepository.save(newUser);
+
+  //   return {
+  //     newUser,
+  //     access
+  //   }
   }
 
   findAll(paginationDto: PaginationDto) {
@@ -69,8 +92,9 @@ export class UsersService {
       take: limit,
       skip: offset,
       relations: {
+        access: true,
         company: true,
-        role: true
+        role: true,
       }
     });
   }
@@ -82,7 +106,7 @@ export class UsersService {
       user = await this.userRepository.findOneBy({ id: term });
     } else {
       const queryBuilder = this.userRepository.createQueryBuilder();
-      
+
       user = await queryBuilder
         .where('LOWER(name) =:name', {
           name: term.toLowerCase(),
@@ -98,14 +122,49 @@ export class UsersService {
     return user;
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  //* IMPORTANTE
+  //* IMPORTANTE
+  //* IMPORTANTE
+  // TODO: Verificar el tipo de dato del updateUserDto ya que da error, por ahora se deja en any
+  async update(id: string, updateUserDto: any) {
+    const user = await this.userRepository.preload({
+      id,
+      ...updateUserDto
+    });
+
+    if (!user)
+      throw new NotFoundException(`User with id ${id} not found`);
+
+    if (updateUserDto.dni)
+      throw new BadRequestException(`You can't update the dni of an user`);
+
+    if (updateUserDto.company) {
+      const company = await this.companyRepository.findOneBy({ id: updateUserDto.company });
+
+      if (!company)
+        throw new NotFoundException(`Company with id ${updateUserDto.company} not found`);
+
+      user.company = company;
+    }
+
+    if (updateUserDto.role) {
+      const role = await this.roleRepository.findOneBy({ id: updateUserDto.role });
+
+      if (!role)
+        throw new NotFoundException(`Role with id ${updateUserDto.role} not found`);
+
+      user.role = role;
+    }
+
+    await this.userRepository.save(user);
+
+    return user;
   }
 
   async remove(id: string) {
     try {
       const user = await this.findOne(id);
-    
+
       await this.userRepository.remove(user);
 
       return {
