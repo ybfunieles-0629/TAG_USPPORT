@@ -36,7 +36,7 @@ export class Role {
     () => Access,
     (access) => access.role
   )
-  access: Access;
+  access: Access[];
 
   @ManyToMany(() => Permission, (permission) => permission.roles)
   @JoinTable({
