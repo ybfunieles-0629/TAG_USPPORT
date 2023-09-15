@@ -84,6 +84,10 @@ export class CompaniesService {
   }
 
   async update(id: string, updateCompanyDto: UpdateCompanyDto, files: Record<string, Express.Multer.File>) {
+    updateCompanyDto.ivaResponsable = Boolean(updateCompanyDto.ivaResponsable);
+    updateCompanyDto.taxPayer = Boolean(updateCompanyDto.taxPayer);
+    updateCompanyDto.selfRetaining = Boolean(updateCompanyDto.selfRetaining);
+
     if (updateCompanyDto.nit)
       throw new BadRequestException(`You can't update the NIT of the company`);
 
@@ -113,6 +117,21 @@ export class CompaniesService {
     await this.companyRepository.save(company);
 
     return company;
+  }
+
+  async desactivate(id: string) {
+    const company = await this.companyRepository.findOneBy({ id });
+
+    if (!company)
+      throw new NotFoundException(`Company with id ${id} not found`);
+
+    company.isActive = !company.isActive;
+
+    await this.companyRepository.save(company);
+
+    return {
+      company
+    };
   }
 
   async remove(id: string) {
