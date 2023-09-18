@@ -14,6 +14,7 @@ import { Company } from 'src/companies/entities/company.entity';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { CreateClientDto } from 'src/clients/dto/create-client.dto';
 import { Client } from 'src/clients/entities/client.entity';
+import { AssignRolesDto } from './dto/assign-roles.dto';
 
 @Injectable()
 export class AccessService {
@@ -45,9 +46,44 @@ export class AccessService {
       take: limit,
       skip: offset,
       relations: {
-        role: true
+        roles: true
       },
     });
+  }
+
+  async assignRolesToAccess(id: string, assignRolesDto: AssignRolesDto) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        access: true,
+      },
+    });
+
+    const roles: Role[] = [];
+
+    if (!user)
+      throw new NotFoundException(`User with id ${id} not found`);
+
+    const access = await this.accessRepository.findOneBy({ id: user.access.id });
+
+    for (const roleId of assignRolesDto.rolesId) {
+      const role = await this.roleRepository.findOneBy({ id: roleId });
+
+      if (!role)
+        throw new NotFoundException(`Role with id ${roleId} not found`);
+
+      roles.push(role);
+    }
+
+    access.roles = roles;
+
+    await this.accessRepository.save(access);
+
+    return {
+      access
+    };
   }
 
   async signup(createClientDto: CreateClientDto) {
@@ -71,7 +107,7 @@ export class AccessService {
       password: encryptedPassword
     });
 
-    access.role = role;
+    access.roles.push(role);
 
     await this.accessRepository.save(access);
 
@@ -120,12 +156,14 @@ export class AccessService {
 
     const encryptedPassword = bcrypt.hashSync(password, 10);
 
+    const roles: Role[] = [];
+    roles.push(role);
+
     const access = this.accessRepository.create({
       email: newUser.email,
-      password: encryptedPassword
+      password: encryptedPassword,
+      roles: roles
     });
-
-    access.role = role;
 
     await this.accessRepository.save(access);
 
@@ -148,7 +186,7 @@ export class AccessService {
         email
       },
       relations: {
-        role: true,
+        roles: true,
         user: true,
         client: true,
       },
@@ -172,20 +210,21 @@ export class AccessService {
     if (!bcrypt.compareSync(password, access.password))
       throw new UnauthorizedException('Incorrect credentials');
 
-    if (access.role.name.toLowerCase().trim() === 'administrador' || access.role.name.toLowerCase().trim() === 'super-administrador') {
+    if (access.roles.some(role => role.name.toLowerCase().trim() === 'administrador') || access.roles.some(role => role.name.toLowerCase().trim() === 'super-administrador')) {
       const { id: userId, name: username, dni, city, address } = access.user;
       const { id: companyId, billingEmail, nit } = user.company;
-      const { id: roleId, name: rolename } = access.role;
-      
+      console.log(access.roles);
+      // const { id: roleId, name: rolename } = access.roles;
+
       payloadToSend = {
         user: { userId, username, dni, city, address },
         company: { companyId, billingEmail, nit },
-        role: { roleId, rolename },
+        // role: { roleId, rolename },
       };
     } else {
       payloadToSend = {
         client: access.client,
-        role: access.role,
+        // role: access.role,
       };
     }
 

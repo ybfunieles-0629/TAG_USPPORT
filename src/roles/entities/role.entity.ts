@@ -32,11 +32,19 @@ export class Role {
   )
   user: User[];
 
-  @OneToMany(
-    () => Access,
-    (access) => access.role
-  )
-  access: Access[];
+  @ManyToMany(() => Access, (access) => access.roles)
+  @JoinTable({
+    name: 'role_access',
+    joinColumn: {
+      name: 'roleId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'accessId',
+      referencedColumnName: 'id',
+    },
+  })
+  accesses?: Access[];
 
   @ManyToMany(() => Permission, (permission) => permission.roles)
   @JoinTable({

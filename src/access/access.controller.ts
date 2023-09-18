@@ -4,6 +4,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { CreateClientDto } from 'src/clients/dto/create-client.dto';
+import { AssignRolesDto } from './dto/assign-roles.dto';
 
 @Controller('access')
 export class AccessController {
@@ -37,5 +38,13 @@ export class AccessController {
     @Body() loginUserDto: LoginUserDto
   ) {
     return this.accessService.login(loginUserDto);
+  }
+
+  @Patch('/roles/assign/:id')
+  assignRoles(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() assignRolesDto: AssignRolesDto,
+  ) {
+    return this.accessService.assignRolesToAccess(id, assignRolesDto);
   }
 }
