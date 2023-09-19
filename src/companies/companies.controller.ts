@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, UploadedFile, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, Res, UploadedFile, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
 
 import { CompaniesService } from './companies.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
@@ -38,6 +39,18 @@ export class CompaniesController {
     @Param('term') term: string,
   ) {
     return this.companiesService.findOne(term);
+  }
+
+  @Get('/download/:file')
+  async downloadFile(
+    @Param('file') file: string,
+    @Res() res: Response,
+  ) {
+    const fileStream = await this.companiesService.downloadFromAws(file, res);
+  
+    fileStream.on('end', () => {
+      res.end();
+    });
   }
 
   @Patch(':id')
