@@ -10,6 +10,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersModule } from 'src/users/users.module';
 import { CompaniesModule } from 'src/companies/companies.module';
 import { RolesModule } from 'src/roles/roles.module';
+import { ClientsModule } from 'src/clients/clients.module';
 
 @Module({
   controllers: [AccessController],
@@ -18,6 +19,7 @@ import { RolesModule } from 'src/roles/roles.module';
     UsersModule,
     CompaniesModule,
     RolesModule,
+    ClientsModule,
     TypeOrmModule.forFeature([Access]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({

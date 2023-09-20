@@ -79,8 +79,30 @@ export class PrivilegesService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} privilege`;
+  async desactivate(id: string) {
+    const privilege = await this.privilegeRepository.findOneBy({ id });
+
+    if (!privilege)
+      throw new NotFoundException(`Privilege with id ${id} not found`);
+
+    privilege.isActive = !privilege.isActive;
+
+    await this.privilegeRepository.save(privilege);
+
+    return {
+      privilege
+    };
+  }
+
+  async remove(id: string) {
+    const privilege = await this.privilegeRepository.findOneBy({ id });
+
+    if (!privilege)
+      throw new NotFoundException(`Privilege with id ${id} not found`);
+
+    await this.privilegeRepository.remove(privilege);
+
+    return privilege;
   }
 
   private handleDbExceptions(error) {

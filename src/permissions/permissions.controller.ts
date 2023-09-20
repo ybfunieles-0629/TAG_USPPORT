@@ -33,6 +33,13 @@ export class PermissionsController {
     return this.permissionsService.update(id, updatePermissionDto);
   }
 
+  @Patch('/desactivate/:id')
+  desactivate(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.permissionsService.desactivate(id);
+  }
+
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.permissionsService.remove(id);

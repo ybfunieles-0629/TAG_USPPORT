@@ -51,6 +51,13 @@ export class RolesController {
     return this.rolesService.update(id, updateRoleDto);
   }
 
+  @Patch('/desactivate/:id')
+  desactivate(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.rolesService.desactivate(id);
+  }
+
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.rolesService.remove(id);

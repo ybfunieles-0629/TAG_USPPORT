@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, One
 import { Permission } from '../../permissions/entities/permission.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Privilege } from 'src/privileges/entities/privilege.entity';
+import { Access } from 'src/access/entities/access.entity';
 
 @Entity({ name: 'roles' })
 export class Role {
@@ -30,6 +31,20 @@ export class Role {
     (user) => user.role
   )
   user: User[];
+
+  @ManyToMany(() => Access, (access) => access.roles)
+  @JoinTable({
+    name: 'role_access',
+    joinColumn: {
+      name: 'roleId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'accessId',
+      referencedColumnName: 'id',
+    },
+  })
+  accesses?: Access[];
 
   @ManyToMany(() => Permission, (permission) => permission.roles)
   @JoinTable({

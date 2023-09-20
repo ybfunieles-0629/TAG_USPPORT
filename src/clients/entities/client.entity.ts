@@ -1,5 +1,6 @@
+import { Access } from 'src/access/entities/access.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('clients')
 export class Client {
@@ -12,7 +13,7 @@ export class Client {
   legalStatus: string;
 
   @Column('boolean', {
-
+    default: false,
   })
   isCoorporative: boolean;
 
@@ -89,7 +90,7 @@ export class Client {
   @Column('varchar', {
     
   })
-  insideUsers: User[];
+  insideUsers: string;
 
   @Column('boolean', {
     default: true,
@@ -103,4 +104,12 @@ export class Client {
   updatedAt: Date;
 
   //* --- FK --- *//
+  @OneToOne(
+    () => Access,
+    (access) => access.client, {
+      onDelete: 'CASCADE'
+    },
+  )
+  @JoinColumn()
+  access: Access;
 }

@@ -1,6 +1,7 @@
+import { Access } from 'src/access/entities/access.entity';
 import { Company } from 'src/companies/entities/company.entity';
 import { Role } from 'src/roles/entities/role.entity';
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity({ name: 'users' })
 export class User {
@@ -64,6 +65,15 @@ export class User {
   updatedAt: Date;
 
   //* --- Foreign Keys --- *//
+  @OneToOne(
+    () => Access,
+    (access) => access.user, {
+      onDelete: 'CASCADE',
+    },
+  )
+  @JoinColumn()
+  access: Access;
+
   @ManyToOne(
     () => Company,
     (company) => company.user

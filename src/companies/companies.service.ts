@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Response } from 'express';
 import { isUUID } from 'class-validator';
 import { v4 as uuidv4 } from 'uuid';
 import * as AWS from 'aws-sdk';
@@ -178,6 +179,30 @@ export class CompaniesService {
         }
       })
     })
+  }
+
+  async downloadFromAws(file: string, res: Response) {
+    AWS.config.update({
+      accessKeyId: 'AKIAT4TACBZFK2MS62VU',
+      secretAccessKey: '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',
+      region: 'us-east-2',
+    });
+
+    const s3 = new AWS.S3();
+
+    const params = {
+      Bucket: 'tag-support-storage',
+      Key: file
+    };
+
+    const s3Stream = s3.getObject(params).createReadStream();
+
+    s3Stream.on('error', (err) => {
+      this.handleDbExceptions(err);
+    });
+
+    s3Stream.pipe(res);
+    return s3Stream;
   }
 
   private handleDbExceptions(error: any) {
