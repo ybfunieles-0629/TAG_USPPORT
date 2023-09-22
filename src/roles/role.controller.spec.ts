@@ -4,6 +4,7 @@ import { RolesController } from './roles.controller';
 import { RolesService } from './roles.service';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
 
 describe('RolesController', () => {
   let rolesController: RolesController;
@@ -60,9 +61,25 @@ describe('RolesController', () => {
 
       describe('update', () => {
         it('Should update a role', async () => {
-          
+          const roleId = '2214d37b-79e8-40f5-a55a-a63cf1e4b4f4';
+
+          const updateRoleDto: UpdateRoleDto = {
+            name: 'admin-tester-updated',
+            permissions: [],
+          };
+
+          const updateRole = {
+            id: roleId,
+            ...updateRoleDto,
+          };
+
+          jest.spyOn(rolesService, 'update').mockResolvedValue(updateRole);
+
+          const result = await rolesController.update(roleId, updateRoleDto);
+
+          expect(result).toEqual(updatedRole);
         });
-      })
+      });
     });
   });
 });
