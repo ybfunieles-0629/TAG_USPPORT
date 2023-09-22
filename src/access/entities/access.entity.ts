@@ -1,6 +1,6 @@
-import { Client } from 'src/clients/entities/client.entity';
-import { Role } from 'src/roles/entities/role.entity';
-import { User } from 'src/users/entities/user.entity';
+import { Client } from '../../clients/entities/client.entity';
+import { Role } from '../../roles/entities/role.entity';
+import { User } from '../../users/entities/user.entity';
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('access')

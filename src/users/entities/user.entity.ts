@@ -1,7 +1,8 @@
-import { Access } from 'src/access/entities/access.entity';
-import { Company } from 'src/companies/entities/company.entity';
-import { Role } from 'src/roles/entities/role.entity';
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+
+import { Access } from '../../access/entities/access.entity';
+import { Company } from '../../companies/entities/company.entity';
+import { Role } from '../../roles/entities/role.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -79,10 +80,4 @@ export class User {
     (company) => company.user
   )
   company: Company;
-
-  @ManyToOne(
-    () => Role,
-    (role) => role.user
-  )
-  role: Role;
 }

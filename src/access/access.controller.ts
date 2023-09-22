@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 import { AccessService } from './access.service';
 import { LoginUserDto } from './dto/login-user.dto';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { CreateUserDto } from '../users/dto/create-user.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateClientDto } from 'src/clients/dto/create-client.dto';
 import { AssignRolesDto } from './dto/assign-roles.dto';
 

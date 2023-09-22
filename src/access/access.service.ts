@@ -2,18 +2,18 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger, 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
+import { plainToClass } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 
 import { LoginUserDto } from './dto/login-user.dto';
 import { Access } from './entities/access.entity';
-import { User } from 'src/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import { plainToClass } from 'class-transformer';
-import { Role } from 'src/roles/entities/role.entity';
-import { Company } from 'src/companies/entities/company.entity';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { CreateClientDto } from 'src/clients/dto/create-client.dto';
-import { Client } from 'src/clients/entities/client.entity';
+import { Role } from '../roles/entities/role.entity';
+import { Company } from '../companies/entities/company.entity';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { CreateClientDto } from '../clients/dto/create-client.dto';
+import { Client } from '../clients/entities/client.entity';
 import { AssignRolesDto } from './dto/assign-roles.dto';
 
 @Injectable()
@@ -151,8 +151,6 @@ export class AccessService {
 
     if (!role.isActive)
       throw new BadRequestException(`The role isn't active`);
-
-    newUser.role = role;
 
     const encryptedPassword = bcrypt.hashSync(password, 10);
 

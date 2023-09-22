@@ -2,16 +2,16 @@ import { BadRequestException, Inject, Injectable, InternalServerErrorException, 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { validate as isUUID } from 'uuid';
+import { plainToClass } from 'class-transformer';
+import * as bcrypt from 'bcrypt';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { plainToClass } from 'class-transformer';
-import { Company } from 'src/companies/entities/company.entity';
-import { Role } from 'src/roles/entities/role.entity';
-import { Access } from 'src/access/entities/access.entity';
-import * as bcrypt from 'bcrypt';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { Company } from '../companies/entities/company.entity';
+import { Role } from '../roles/entities/role.entity';
+import { Access } from '../access/entities/access.entity';
 
 @Injectable()
 export class UsersService {
@@ -94,7 +94,6 @@ export class UsersService {
       relations: {
         access: true,
         company: true,
-        role: true,
       }
     });
   }
@@ -145,15 +144,6 @@ export class UsersService {
         throw new NotFoundException(`Company with id ${updateUserDto.company} not found`);
 
       user.company = company;
-    }
-
-    if (updateUserDto.role) {
-      const role = await this.roleRepository.findOneBy({ id: updateUserDto.role });
-
-      if (!role)
-        throw new NotFoundException(`Role with id ${updateUserDto.role} not found`);
-
-      user.role = role;
     }
 
     await this.userRepository.save(user);

@@ -7,10 +7,10 @@ import { AccessService } from './access.service';
 import { AccessController } from './access.controller';
 import { Access } from './entities/access.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { UsersModule } from 'src/users/users.module';
+import { UsersModule } from '../users/users.module';
 import { CompaniesModule } from 'src/companies/companies.module';
-import { RolesModule } from 'src/roles/roles.module';
-import { ClientsModule } from 'src/clients/clients.module';
+import { RolesModule } from '../roles/roles.module';
+import { ClientsModule } from '../clients/clients.module';
 
 @Module({
   controllers: [AccessController],

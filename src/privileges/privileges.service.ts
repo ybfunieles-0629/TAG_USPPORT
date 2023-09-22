@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { CreatePrivilegeDto } from './dto/create-privilege.dto';
-import { UpdatePrivilegeDto } from './dto/update-privilege.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isUUID } from 'class-validator';
 import { Repository } from 'typeorm';
 
+import { CreatePrivilegeDto } from './dto/create-privilege.dto';
+import { UpdatePrivilegeDto } from './dto/update-privilege.dto';
 import { Privilege } from './entities/privilege.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 

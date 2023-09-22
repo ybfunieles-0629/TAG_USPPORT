@@ -6,7 +6,7 @@ import { isUUID } from 'class-validator';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { Permission } from './entities/permission.entity';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class PermissionsService {

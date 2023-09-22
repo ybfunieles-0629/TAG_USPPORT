@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { ClientsModule } from './clients/clients.module';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
@@ -10,6 +11,9 @@ import { AccessModule } from './access/access.module';
 import { CommonModule } from './common/common.module';
 import { CompaniesModule } from './companies/companies.module';
 import { ProductsModule } from './products/products.module';
+import { ImagesModule } from './images/images.module';
+import { CategoriesModule } from './categories/categories.module';
+import { PricesModule } from './prices/prices.module';
 
 @Module({
   imports: [
@@ -38,7 +42,10 @@ import { ProductsModule } from './products/products.module';
     AccessModule,
     CommonModule,
     CompaniesModule,
-    ProductsModule
+    ProductsModule,
+    ImagesModule,
+    CategoriesModule,
+    PricesModule,
   ],
 })
 export class AppModule { }

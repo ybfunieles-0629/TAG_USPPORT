@@ -1,6 +1,7 @@
-import { Access } from 'src/access/entities/access.entity';
-import { User } from 'src/users/entities/user.entity';
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+
+import { Access } from '../../access/entities/access.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('clients')
 export class Client {
