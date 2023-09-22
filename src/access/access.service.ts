@@ -140,27 +140,26 @@ export class AccessService {
 
     newUser.company = company;
 
-    const role = await this.roleRepository.findOne({
-      where: {
-        id: createUserDto.role
-      }
-    });
+    const roles: Role[] = [];
 
-    if (!role)
-      throw new NotFoundException(`Role with id ${createUserDto.role} not found`);
+    for (const roleId of createUserDto.roles) {
+      const role = await this.roleRepository.findOneBy({ id: roleId });
 
-    if (!role.isActive)
-      throw new BadRequestException(`The role isn't active`);
+      if (!role)
+        throw new NotFoundException(`Role with id ${roleId} not found`);
+
+      if (!role.isActive)
+        throw new BadRequestException(`Role with id ${roleId} is currently inactive`);
+
+      roles.push(role);
+    }
 
     const encryptedPassword = bcrypt.hashSync(password, 10);
-
-    const roles: Role[] = [];
-    roles.push(role);
 
     const access = this.accessRepository.create({
       email: newUser.email,
       password: encryptedPassword,
-      roles: roles
+      roles
     });
 
     await this.accessRepository.save(access);
