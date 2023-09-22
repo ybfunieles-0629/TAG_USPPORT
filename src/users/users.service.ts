@@ -91,10 +91,11 @@ export class UsersService {
     return this.userRepository.find({
       take: limit,
       skip: offset,
-      relations: {
-        access: true,
-        company: true,
-      }
+      relations: [
+        'access',
+        'access.roles',
+        'company'
+      ]
     });
   }
 

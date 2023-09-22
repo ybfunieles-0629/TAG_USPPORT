@@ -49,7 +49,7 @@ export class User {
   })
   email: string;
 
-  @Column('int', {
+  @Column('varchar', {
     unique: true,
   })
   phone: number;
