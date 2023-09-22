@@ -52,7 +52,7 @@ export class User {
   @Column('varchar', {
     unique: true,
   })
-  phone: number;
+  phone: string;
 
   @Column('boolean', {
     default: true,
