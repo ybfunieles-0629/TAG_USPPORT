@@ -7,9 +7,9 @@ import { Role } from './entities/role.entity';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { Permission } from 'src/permissions/entities/permission.entity';
+import { Permission } from '../permissions/entities/permission.entity';
 import { AssignToRoleDto } from './dto/assign-to-role.dto';
-import { Privilege } from 'src/privileges/entities/privilege.entity';
+import { Privilege } from '../privileges/entities/privilege.entity';
 
 @Injectable()
 export class RolesService {

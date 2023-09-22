@@ -1,5 +1,5 @@
-import { Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
-import { Role } from "./role.entity";
+import { Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Role } from './role.entity';
 
 @Entity('role_privilege')
 export class RolePrivilege {

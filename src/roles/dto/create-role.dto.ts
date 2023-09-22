@@ -1,5 +1,6 @@
 import { IsOptional, IsString, MinLength } from 'class-validator';
-import { Permission } from 'src/permissions/entities/permission.entity';
+
+import { Permission } from '../../permissions/entities/permission.entity';
 
 export class CreateRoleDto {
   @IsString()

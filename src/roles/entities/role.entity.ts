@@ -1,8 +1,7 @@
 import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Permission } from '../../permissions/entities/permission.entity';
-import { User } from 'src/users/entities/user.entity';
-import { Privilege } from 'src/privileges/entities/privilege.entity';
-import { Access } from 'src/access/entities/access.entity';
+import { Privilege } from '../../privileges/entities/privilege.entity';
+import { Access } from '../../access/entities/access.entity';
 
 @Entity({ name: 'roles' })
 export class Role {
@@ -26,12 +25,6 @@ export class Role {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @OneToMany(
-    () => User,
-    (user) => user.role
-  )
-  user: User[];
-
   @ManyToMany(() => Access, (access) => access.roles)
   @JoinTable({
     name: 'role_access',
