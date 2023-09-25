@@ -1,7 +1,8 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { Access } from '../../access/entities/access.entity';
 import { Company } from '../../companies/entities/company.entity';
+import { Client } from '../../clients/entities/client.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -79,4 +80,18 @@ export class User {
     (company) => company.user
   )
   company: Company;
+
+  @ManyToMany(() => Client, (client) => client.users)
+  @JoinTable({
+    name: 'user_client',
+    joinColumn: {
+      name: 'userId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'clientId',
+      referencedColumnName: 'id',
+    },
+  })
+  clients?: Client[];
 }
