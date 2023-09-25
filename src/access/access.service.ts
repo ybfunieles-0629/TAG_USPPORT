@@ -89,11 +89,20 @@ export class AccessService {
   async signup(createClientDto: CreateClientDto) {
     const { password } = createClientDto;
 
+    const emailInUse = await this.clientRepository.findOne({
+      where: {
+        contactPersonEmail: createClientDto.contactPersonEmail
+      }
+    });
+
+    if (emailInUse)
+      throw new BadRequestException(`Client with email ${createClientDto.contactPersonEmail} already registered`);
+
     const newClient = plainToClass(Client, createClientDto);
 
     const role = await this.roleRepository.findOne({
       where: {
-        name: 'client'
+        name: 'cliente'
       },
     });
 
@@ -102,27 +111,58 @@ export class AccessService {
 
     const encryptedPassword = bcrypt.hashSync(password, 10);
 
-    const access = this.accessRepository.create({
-      email: newClient.contactPersonEmail,
-      password: encryptedPassword
+    const existAccess = await this.accessRepository.findOne({
+      where: {
+        email: newClient.contactPersonEmail
+      }
     });
 
-    access.roles.push(role);
+    if (existAccess)
+      throw new BadRequestException(`Access with email ${newClient.contactPersonEmail} already registered`)
 
-    await this.accessRepository.save(access);
+    try {
+      const access = this.accessRepository.create({
+        email: newClient.contactPersonEmail,
+        password: encryptedPassword
+      });
 
-    newClient.access = access;
+      access.roles.push(role);
 
-    await this.clientRepository.save(newClient);
+      await this.accessRepository.save(access);
 
-    return {
-      newClient,
-      access
+      newClient.access = access;
+
+      await this.clientRepository.save(newClient);
+
+      return {
+        newClient,
+        access
+      }
+    } catch (error) {
+      this.handleDbExceptions(error);
     }
   }
 
   async createUser(createUserDto: CreateUserDto) {
     const { password } = createUserDto;
+
+    const emailInUse = await this.userRepository.findOne({
+      where: {
+        email: createUserDto.email
+      }
+    });
+
+    if (emailInUse)
+      throw new BadRequestException(`User with email ${createUserDto.email} already registered`);
+
+    const dniInUse = await this.userRepository.findOne({
+      where: {
+        dni: createUserDto.dni
+      }
+    });
+
+    if (dniInUse)
+      throw new BadRequestException(`User with dni ${createUserDto.dni} already registered`);
 
     const newUser = plainToClass(User, createUserDto);
 
@@ -156,21 +196,34 @@ export class AccessService {
 
     const encryptedPassword = bcrypt.hashSync(password, 10);
 
-    const access = this.accessRepository.create({
-      email: newUser.email,
-      password: encryptedPassword,
-      roles
+    const existAccess = await this.accessRepository.findOne({
+      where: {
+        email: newUser.email
+      }
     });
 
-    await this.accessRepository.save(access);
+    if (existAccess)
+      throw new BadRequestException(`Access with email ${newUser.email} already registered`)
 
-    newUser.access = access;
+    try {
+      const access = this.accessRepository.create({
+        email: newUser.email,
+        password: encryptedPassword,
+        roles
+      });
 
-    await this.userRepository.save(newUser);
+      await this.accessRepository.save(access);
 
-    return {
-      newUser,
-      access
+      newUser.access = access;
+
+      await this.userRepository.save(newUser);
+
+      return {
+        newUser,
+        access
+      }
+    } catch (error) {
+      this.handleDbExceptions(error);
     }
   }
 
@@ -182,11 +235,13 @@ export class AccessService {
       where: {
         email
       },
-      relations: {
-        roles: true,
-        user: true,
-        client: true,
-      },
+      relations: [
+        'roles',
+        'roles.permissions',
+        'roles.privileges',
+        'user',
+        'client',
+      ],
     });
 
     if (!access)
@@ -207,21 +262,29 @@ export class AccessService {
     if (!bcrypt.compareSync(password, access.password))
       throw new UnauthorizedException('Incorrect credentials');
 
+    const rolesToSend = access.roles.map(role => ({
+      name: role.name,
+      permissions: role.permissions.map(permission => ({
+        name: permission.name
+      })),
+      privileges: role.privileges.map(privilege => ({
+        name: privilege.name
+      })),
+    }));
+
     if (access.roles.some(role => role.name.toLowerCase().trim() === 'administrador') || access.roles.some(role => role.name.toLowerCase().trim() === 'super-administrador')) {
       const { id: userId, name: username, dni, city, address } = access.user;
       const { id: companyId, billingEmail, nit } = user.company;
-      console.log(access.roles);
-      // const { id: roleId, name: rolename } = access.roles;
 
       payloadToSend = {
         user: { userId, username, dni, city, address },
         company: { companyId, billingEmail, nit },
-        // role: { roleId, rolename },
+        roles: rolesToSend
       };
     } else {
       payloadToSend = {
         client: access.client,
-        // role: access.role,
+        roles: rolesToSend
       };
     }
 
@@ -236,12 +299,12 @@ export class AccessService {
   }
 
   private handleDbExceptions(error: any) {
-    if (error.code === '23505')
-      throw new BadRequestException(error.detail);
+    console.log(error);
+
+    if (error.code === '23505' || error.code === 'ER_DUP_ENTRY')
+      throw new BadRequestException(error.sqlMessage);
 
     this.logger.error(error);
-
-    console.log(error);
 
     throw new InternalServerErrorException('Unexpected error, check server logs');
   }
