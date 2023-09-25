@@ -1,7 +1,10 @@
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+
 import { Client } from '../../clients/entities/client.entity';
 import { Role } from '../../roles/entities/role.entity';
 import { User } from '../../users/entities/user.entity';
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Permission } from '../../permissions/entities/permission.entity';
+import { Privilege } from '../../privileges/entities/privilege.entity';
 
 @Entity('access')
 export class Access {
@@ -49,4 +52,32 @@ export class Access {
     },
   })
   roles?: Role[];
+
+  @ManyToMany(() => Permission, (permission) => permission.accesses)
+  @JoinTable({
+    name: 'access_permission',
+    joinColumn: {
+      name: 'accessId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'permissionId',
+      referencedColumnName: 'id',
+    },
+  })
+  permissions?: Permission[];
+
+  @ManyToMany(() => Privilege, (privilege) => privilege.accesses)
+  @JoinTable({
+    name: 'access_privilege',
+    joinColumn: {
+      name: 'accessId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'privilegeId',
+      referencedColumnName: 'id',
+    },
+  })
+  privileges?: Privilege[];
 }

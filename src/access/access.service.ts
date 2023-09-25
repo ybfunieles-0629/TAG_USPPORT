@@ -15,6 +15,9 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateClientDto } from '../clients/dto/create-client.dto';
 import { Client } from '../clients/entities/client.entity';
 import { AssignRolesDto } from './dto/assign-roles.dto';
+import { AssignPermissionsDto } from './dto/assign-permissions.dto';
+import { Permission } from '../permissions/entities/permission.entity';
+import { Privilege } from '../privileges/entities/privilege.entity';
 
 @Injectable()
 export class AccessService {
@@ -36,6 +39,12 @@ export class AccessService {
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
 
+    @InjectRepository(Permission)
+    private readonly permissionRepository: Repository<Permission>,
+
+    @InjectRepository(Privilege)
+    private readonly privilegeRepository: Repository<Privilege>,
+
     private readonly jwtService: JwtService,
   ) { }
 
@@ -46,7 +55,9 @@ export class AccessService {
       take: limit,
       skip: offset,
       relations: {
-        roles: true
+        roles: true,
+        permissions: true,
+        privileges: true,
       },
     });
   }
@@ -85,6 +96,93 @@ export class AccessService {
       access
     };
   }
+
+  async assignPermissions(id: string, assignPermissionsDto: AssignPermissionsDto) {
+    let permissions: Permission[] = [];
+
+    const user = await this.userRepository.findOne({
+      where: {
+        id
+      },
+      relations: {
+        access: true
+      }
+    });
+
+    if (!user)
+      throw new NotFoundException(`User with id ${id} not found`);
+
+    const access = await this.accessRepository.findOne({
+      where: {
+        id: user.access.id,
+      },
+      relations: {
+        permissions: true
+      }
+    });
+
+    if (!access)
+      throw new NotFoundException(`Access for the user with id ${id} not found`);
+
+    for (const permissionId of assignPermissionsDto.permissionsId) {
+      const permission = await this.permissionRepository.findOneBy({ id: permissionId });
+
+      if (!permission)
+        throw new NotFoundException(`Permission with id ${permissionId} not found`);
+
+      if (!permission.isActive)
+        throw new BadRequestException(`Permission with id ${permissionId} is currently inactive`);
+
+      permissions.push(permission);
+    }
+
+    if (permissions.length <= 0)
+      throw new BadRequestException(`There are no permissions to assign`);
+
+    access.permissions = permissions;
+
+    await this.accessRepository.save(access);
+
+    return {
+      access
+    };
+  }
+
+  // async assignPrivileges(id: string, assignToRoleDto: AssignToRoleDto) {
+  //   const privileges: Privilege[] = [];
+
+  //   const role = await this.roleRepository.findOne({
+  //     where: {
+  //       id
+  //     },
+  //     relations: {
+  //       privileges: true
+  //     },
+  //   });
+
+  //   if (!role)
+  //     throw new NotFoundException(`Role with id ${id} not found`);
+
+  //   for (const privilegeId of assignToRoleDto.privilegesId) {
+  //     const privilege = await this.privilegeRepository.findOneBy({ id: privilegeId });
+
+  //     if (!privilege)
+  //       throw new NotFoundException(`Privilege with id ${id} not found`);
+
+  //     privileges.push(privilege);
+  //   }
+
+  //   if (privileges.length <= 0)
+  //     throw new BadRequestException(`There are no privileges to assign`);
+
+  //   role.privileges = privileges;
+
+  //   await this.roleRepository.save(role);
+
+  //   return {
+  //     role
+  //   };
+  // }
 
   async signup(createClientDto: CreateClientDto) {
     const { password } = createClientDto;
@@ -181,6 +279,7 @@ export class AccessService {
     newUser.company = company;
 
     const roles: Role[] = [];
+    const permissions: Permission[] = [];
 
     for (const roleId of createUserDto.roles) {
       const role = await this.roleRepository.findOneBy({ id: roleId });
@@ -192,6 +291,18 @@ export class AccessService {
         throw new BadRequestException(`Role with id ${roleId} is currently inactive`);
 
       roles.push(role);
+    }
+
+    for (const permissionId of createUserDto.permissions) {
+      const permission = await this.permissionRepository.findOneBy({ id: permissionId });
+
+      if (!permission)
+        throw new NotFoundException(`Permission with id ${permissionId} not found`);
+
+      if (!permission.isActive)
+        throw new BadRequestException(`Permission with id ${permissionId} is currently inactive`);
+
+      permissions.push(permission);
     }
 
     const encryptedPassword = bcrypt.hashSync(password, 10);
@@ -209,7 +320,8 @@ export class AccessService {
       const access = this.accessRepository.create({
         email: newUser.email,
         password: encryptedPassword,
-        roles
+        roles,
+        permissions,
       });
 
       await this.accessRepository.save(access);
@@ -237,8 +349,8 @@ export class AccessService {
       },
       relations: [
         'roles',
-        'roles.permissions',
-        'roles.privileges',
+        'permissions',
+        'privileges',
         'user',
         'client',
       ],
@@ -262,16 +374,6 @@ export class AccessService {
     if (!bcrypt.compareSync(password, access.password))
       throw new UnauthorizedException('Incorrect credentials');
 
-    const rolesToSend = access.roles.map(role => ({
-      name: role.name,
-      permissions: role.permissions.map(permission => ({
-        name: permission.name
-      })),
-      privileges: role.privileges.map(privilege => ({
-        name: privilege.name
-      })),
-    }));
-
     if (access.roles.some(role => role.name.toLowerCase().trim() === 'administrador') || access.roles.some(role => role.name.toLowerCase().trim() === 'super-administrador')) {
       const { id: userId, name: username, dni, city, address } = access.user;
       const { id: companyId, billingEmail, nit } = user.company;
@@ -279,12 +381,14 @@ export class AccessService {
       payloadToSend = {
         user: { userId, username, dni, city, address },
         company: { companyId, billingEmail, nit },
-        roles: rolesToSend
+        roles: access.roles.map(role => ({name: role.name})),
+        permissions: access.permissions.map(permission => (({name: permission.name}))),
       };
     } else {
       payloadToSend = {
         client: access.client,
-        roles: rolesToSend
+        roles: access.roles.map(role => ({name: role.name})),
+        permissions: access.permissions.map(permission => ({name: permission.name})),
       };
     }
 

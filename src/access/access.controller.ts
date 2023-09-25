@@ -1,10 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+
 import { AccessService } from './access.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateClientDto } from 'src/clients/dto/create-client.dto';
 import { AssignRolesDto } from './dto/assign-roles.dto';
+import { AssignPermissionsDto } from './dto/assign-permissions.dto';
 
 @Controller('access')
 export class AccessController {
@@ -18,6 +20,15 @@ export class AccessController {
   ) {
     return this.accessService.findAll(paginationDto);
   }
+
+  @Patch('/permissions/assign/:id')
+  assignPermissions(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() assignPermissionsDto: AssignPermissionsDto,
+  ) {
+    return this.accessService.assignPermissions(id, assignPermissionsDto);
+  }
+  
 
   @Post('signup')
   create(

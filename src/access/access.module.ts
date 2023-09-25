@@ -11,6 +11,8 @@ import { UsersModule } from '../users/users.module';
 import { CompaniesModule } from 'src/companies/companies.module';
 import { RolesModule } from '../roles/roles.module';
 import { ClientsModule } from '../clients/clients.module';
+import { PermissionsModule } from 'src/permissions/permissions.module';
+import { PrivilegesModule } from 'src/privileges/privileges.module';
 
 @Module({
   controllers: [AccessController],
@@ -20,6 +22,8 @@ import { ClientsModule } from '../clients/clients.module';
     CompaniesModule,
     RolesModule,
     ClientsModule,
+    PermissionsModule,
+    PrivilegesModule,
     TypeOrmModule.forFeature([Access]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
