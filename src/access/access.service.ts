@@ -18,6 +18,7 @@ import { AssignRolesDto } from './dto/assign-roles.dto';
 import { AssignPermissionsDto } from './dto/assign-permissions.dto';
 import { Permission } from '../permissions/entities/permission.entity';
 import { Privilege } from '../privileges/entities/privilege.entity';
+import { AssignPrivilegesDto } from './dto/assign-privileges.dto';
 
 @Injectable()
 export class AccessService {
@@ -148,41 +149,53 @@ export class AccessService {
     };
   }
 
-  // async assignPrivileges(id: string, assignToRoleDto: AssignToRoleDto) {
-  //   const privileges: Privilege[] = [];
+  async assignPrivileges(id: string, assignPrivilegesDto: AssignPrivilegesDto) {
+    const privileges: Privilege[] = [];
 
-  //   const role = await this.roleRepository.findOne({
-  //     where: {
-  //       id
-  //     },
-  //     relations: {
-  //       privileges: true
-  //     },
-  //   });
+    const user = await this.userRepository.findOne({
+      where: {
+        id
+      },
+      relations: {
+        access: true
+      }
+    });
 
-  //   if (!role)
-  //     throw new NotFoundException(`Role with id ${id} not found`);
+    if (!user)
+      throw new NotFoundException(`User with id ${id} not found`);
 
-  //   for (const privilegeId of assignToRoleDto.privilegesId) {
-  //     const privilege = await this.privilegeRepository.findOneBy({ id: privilegeId });
+    const access = await this.accessRepository.findOne({
+      where: {
+        id: user.access.id,
+      },
+      relations: {
+        privileges: true
+      }
+    });
 
-  //     if (!privilege)
-  //       throw new NotFoundException(`Privilege with id ${id} not found`);
+    if (!access)
+      throw new NotFoundException(`Access for the user with id ${id} not found`);
 
-  //     privileges.push(privilege);
-  //   }
+    for (const privilegeId of assignPrivilegesDto.privilegesId) {
+      const privilege = await this.privilegeRepository.findOneBy({ id: privilegeId });
 
-  //   if (privileges.length <= 0)
-  //     throw new BadRequestException(`There are no privileges to assign`);
+      if (!privilege)
+        throw new NotFoundException(`Privilege with id ${id} not found`);
 
-  //   role.privileges = privileges;
+      privileges.push(privilege);
+    }
 
-  //   await this.roleRepository.save(role);
+    if (privileges.length <= 0)
+      throw new BadRequestException(`There are no privileges to assign`);
 
-  //   return {
-  //     role
-  //   };
-  // }
+    access.privileges = privileges;
+
+    await this.accessRepository.save(privileges);
+
+    return {
+      access
+    };
+  }
 
   async signup(createClientDto: CreateClientDto) {
     const { password } = createClientDto;
@@ -381,14 +394,14 @@ export class AccessService {
       payloadToSend = {
         user: { userId, username, dni, city, address },
         company: { companyId, billingEmail, nit },
-        roles: access.roles.map(role => ({name: role.name})),
-        permissions: access.permissions.map(permission => (({name: permission.name}))),
+        roles: access.roles.map(role => ({ name: role.name })),
+        permissions: access.permissions.map(permission => (({ name: permission.name }))),
       };
     } else {
       payloadToSend = {
         client: access.client,
-        roles: access.roles.map(role => ({name: role.name})),
-        permissions: access.permissions.map(permission => ({name: permission.name})),
+        roles: access.roles.map(role => ({ name: role.name })),
+        permissions: access.permissions.map(permission => ({ name: permission.name })),
       };
     }
 

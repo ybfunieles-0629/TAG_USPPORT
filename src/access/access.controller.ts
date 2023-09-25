@@ -7,6 +7,7 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateClientDto } from 'src/clients/dto/create-client.dto';
 import { AssignRolesDto } from './dto/assign-roles.dto';
 import { AssignPermissionsDto } from './dto/assign-permissions.dto';
+import { AssignPrivilegesDto } from './dto/assign-privileges.dto';
 
 @Controller('access')
 export class AccessController {
@@ -29,6 +30,13 @@ export class AccessController {
     return this.accessService.assignPermissions(id, assignPermissionsDto);
   }
   
+  @Patch('/privileges/assign/:id')
+  assignPrivileges(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() assignPrivilegesDto: AssignPrivilegesDto,
+  ) {
+    return this.accessService.assignPrivileges(id, assignPrivilegesDto);
+  }
 
   @Post('signup')
   create(
