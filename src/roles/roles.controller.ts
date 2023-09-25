@@ -4,7 +4,6 @@ import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { AssignToRoleDto } from './dto/assign-to-role.dto';
 
 @Controller('roles')
 export class RolesController {
@@ -14,23 +13,6 @@ export class RolesController {
   create(@Body() createRoleDto: CreateRoleDto) {
     return this.rolesService.create(createRoleDto);
   }
-
-  @Patch('/permissions/assign/:id')
-  assignPermissions(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() assignToRoleDto: AssignToRoleDto
-  ) {
-    return this.rolesService.assignPermissions(id, assignToRoleDto);
-  }
-
-  @Patch('/privileges/assign/:id')
-  assignPrivileges(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() assignToRoleDto: AssignToRoleDto
-  ) {
-    return this.rolesService.assignPrivileges(id, assignToRoleDto);
-  }
-
 
   @Get()
   findAll(
