@@ -34,6 +34,10 @@ export class CreateUserDto {
   @MinLength(3)
   password: string;
 
+  @IsOptional()
+  @IsString()
+  adminType: string;
+
   @IsString()
   @IsOptional()
   company?: string;
