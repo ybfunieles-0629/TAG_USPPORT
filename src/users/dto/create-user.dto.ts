@@ -11,8 +11,9 @@ export class CreateUserDto {
   companyPosition: string;
 
   @IsString()
+  @IsOptional()
   @MinLength(9)
-  dni: string;
+  dni?: string;
 
   @IsString()
   country: string;
@@ -34,7 +35,8 @@ export class CreateUserDto {
   password: string;
 
   @IsString()
-  company: string;
+  @IsOptional()
+  company?: string;
 
   @IsArray()
   @IsString({ each: true })
