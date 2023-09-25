@@ -54,6 +54,11 @@ export class User {
   })
   phone: string;
 
+  @Column('varchar', {
+
+  })
+  adminType: string;
+
   @Column('boolean', {
     default: true,
   })
