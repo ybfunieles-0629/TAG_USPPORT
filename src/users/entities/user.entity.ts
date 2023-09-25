@@ -2,7 +2,6 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, One
 
 import { Access } from '../../access/entities/access.entity';
 import { Company } from '../../companies/entities/company.entity';
-import { Role } from '../../roles/entities/role.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -50,7 +49,7 @@ export class User {
   email: string;
 
   @Column('varchar', {
-    unique: true,
+
   })
   phone: string;
 
