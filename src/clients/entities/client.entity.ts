@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { Access } from '../../access/entities/access.entity';
 import { User } from '../../users/entities/user.entity';
@@ -113,4 +113,7 @@ export class Client {
   )
   @JoinColumn()
   access: Access;
+
+  @ManyToMany(() => User, (user) => user.clients)
+  users?: User[];
 }
