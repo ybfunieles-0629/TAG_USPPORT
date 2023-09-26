@@ -38,6 +38,11 @@ export class CreateUserDto {
   @IsString()
   adminType: string;
 
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  clients?: string[];
+
   @IsString()
   @IsOptional()
   company?: string;
