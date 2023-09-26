@@ -36,7 +36,10 @@ export class ClientsService {
 
     return this.clientRepository.find({
       take: limit,
-      skip: offset
+      skip: offset,
+      relations: {
+        users: true
+      }
     });
   }
 
