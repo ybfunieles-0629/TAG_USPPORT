@@ -220,6 +220,9 @@ export class AccessService {
     if (!role)
       throw new NotFoundException(`Role client not found`);
 
+    const roles: Role[] = [];
+    roles.push(role);
+
     const encryptedPassword = bcrypt.hashSync(password, 10);
 
     const existAccess = await this.accessRepository.findOne({
@@ -231,26 +234,21 @@ export class AccessService {
     if (existAccess)
       throw new BadRequestException(`Access with email ${newClient.contactPersonEmail} already registered`)
 
-    try {
-      const access = this.accessRepository.create({
-        email: newClient.contactPersonEmail,
-        password: encryptedPassword
-      });
+    const access = this.accessRepository.create({
+      email: newClient.contactPersonEmail,
+      password: encryptedPassword,
+      roles
+    });
 
-      access.roles.push(role);
+    await this.accessRepository.save(access);
 
-      await this.accessRepository.save(access);
+    newClient.access = access;
 
-      newClient.access = access;
+    await this.clientRepository.save(newClient);
 
-      await this.clientRepository.save(newClient);
-
-      return {
-        newClient,
-        access
-      }
-    } catch (error) {
-      this.handleDbExceptions(error);
+    return {
+      newClient,
+      access
     }
   }
 
@@ -316,6 +314,27 @@ export class AccessService {
         throw new BadRequestException(`Permission with id ${permissionId} is currently inactive`);
 
       permissions.push(permission);
+    }
+
+    if (roles.find(role => role.name.toString().toLowerCase() === 'comercial')) {
+      const clients: Client[] = [];
+
+      if (!createUserDto.clients)
+        throw new BadRequestException(`The clients are required when you are comercial`)
+
+      for (const clientId of createUserDto.clients) {
+        const client = await this.clientRepository.findOneBy({ id: clientId });
+
+        if (!client)
+          throw new NotFoundException(`Client with id ${clientId} not found`);
+
+        if (!client.isActive)
+          throw new BadRequestException(`Client with id ${clientId} is currently inactive`);
+
+        clients.push(client);
+      }
+
+      newUser.clients = clients;
     }
 
     const encryptedPassword = bcrypt.hashSync(password, 10);
