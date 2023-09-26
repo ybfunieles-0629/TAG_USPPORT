@@ -7,12 +7,14 @@ import { User } from './entities/user.entity';
 import { CompaniesModule } from '../companies/companies.module';
 import { RolesModule } from '../roles/roles.module';
 import { AccessModule } from '../access/access.module';
+import { ClientsModule } from '../clients/clients.module';
 
 @Module({
   controllers: [UsersController],
   providers: [UsersService],
   imports: [
     // AccessModule,
+    ClientsModule,
     CompaniesModule,
     RolesModule,
     TypeOrmModule.forFeature([User])

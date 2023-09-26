@@ -4,6 +4,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { AssignClientsDto } from './dto/assign-clients.dto';
 
 @Controller('users')
 export class UsersController {
@@ -31,6 +32,14 @@ export class UsersController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
+  }
+
+  @Patch('/clients/assign/:id')
+  assignClients(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() assignClientsDto: AssignClientsDto,
+  ) {
+    return this.usersService.assignClients(id, assignClientsDto);
   }
 
   @Patch('/desactivate/:id')

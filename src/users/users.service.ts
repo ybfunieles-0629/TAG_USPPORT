@@ -12,6 +12,8 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { Company } from '../companies/entities/company.entity';
 import { Role } from '../roles/entities/role.entity';
 import { Access } from '../access/entities/access.entity';
+import { AssignClientsDto } from './dto/assign-clients.dto';
+import { Client } from '../clients/entities/client.entity';
 
 @Injectable()
 export class UsersService {
@@ -20,6 +22,9 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(Client)
+    private readonly clientRepository: Repository<Client>,
 
     @InjectRepository(Company)
     private readonly companyRepository: Repository<Company>,
@@ -30,6 +35,42 @@ export class UsersService {
     // @InjectRepository(Access)
     // private readonly accessRepository: Repository<Access>,
   ) { }
+
+  async assignClients(id: string, assignClientsDto: AssignClientsDto) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id: id
+      },
+      relations: {
+        clients: true,
+      },
+    });
+
+    if (!user)
+      throw new NotFoundException(`User with id ${id} not found`);
+
+    const clients: Client[] = [];
+    
+    for (const clientId of assignClientsDto.clientsId) {
+      const client = await this.clientRepository.findOneBy({ id: clientId });
+
+      if (!client)
+        throw new NotFoundException(`Client with id ${clientId} not found`);
+
+      if (!client.isActive)
+        throw new BadRequestException(`Client with id ${id} is inactive`);
+
+      clients.push(client);
+    }
+
+    user.clients = clients;
+
+    await this.userRepository.save(user);
+
+    return {
+      user
+    };
+  }
 
   async create(createUserDto: CreateUserDto) {
   //   const { password } = createUserDto;
@@ -94,7 +135,8 @@ export class UsersService {
       relations: [
         'access',
         'access.roles',
-        'company'
+        'company',
+        'clients'
       ]
     });
   }
@@ -137,6 +179,24 @@ export class UsersService {
 
     if (updateUserDto.dni)
       throw new BadRequestException(`You can't update the dni of an user`);
+
+    if (updateUserDto.clients) {
+      const clients: Client[] = [];
+      
+      for (const clientId of updateUserDto.clients) {
+        const client = await this.clientRepository.findOneBy({ id: clientId });
+
+        if (!client)
+          throw new NotFoundException(`Client with id ${clientId} not found`);
+
+        if (!client.isActive)
+          throw new BadRequestException(`Client with id ${clientId} is inactive`);
+
+        clients.push(client);
+      }
+
+      user.clients = clients;
+    }
 
     if (updateUserDto.company) {
       const company = await this.companyRepository.findOneBy({ id: updateUserDto.company });
