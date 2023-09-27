@@ -4,7 +4,7 @@ import { AccessService } from './access.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { CreateClientDto } from 'src/clients/dto/create-client.dto';
+import { CreateClientDto } from '../clients/dto/create-client.dto';
 import { AssignRolesDto } from './dto/assign-roles.dto';
 import { AssignPermissionsDto } from './dto/assign-permissions.dto';
 import { AssignPrivilegesDto } from './dto/assign-privileges.dto';

@@ -220,6 +220,15 @@ export class AccessService {
     if (!role)
       throw new NotFoundException(`Role client not found`);
 
+    const company = await this.companyRepository.findOne({
+      where: {
+        id: createClientDto.company
+      }
+    });
+
+    if (!company)
+      throw new NotFoundException(`Company with id ${company} not found`);
+
     const roles: Role[] = [];
     roles.push(role);
 
@@ -237,7 +246,8 @@ export class AccessService {
     const access = this.accessRepository.create({
       email: newClient.contactPersonEmail,
       password: encryptedPassword,
-      roles
+      roles,
+      company
     });
 
     await this.accessRepository.save(access);
@@ -277,7 +287,7 @@ export class AccessService {
 
     const company = await this.companyRepository.findOne({
       where: {
-        id: createUserDto.company
+        name: 'tag'
       }
     });
 
@@ -286,8 +296,6 @@ export class AccessService {
 
     if (!company.isActive)
       throw new BadRequestException(`The company isn't active`);
-
-    newUser.company = company;
 
     const roles: Role[] = [];
     const permissions: Permission[] = [];
@@ -354,6 +362,7 @@ export class AccessService {
         password: encryptedPassword,
         roles,
         permissions,
+        company
       });
 
       await this.accessRepository.save(access);
@@ -385,6 +394,7 @@ export class AccessService {
         'privileges',
         'user',
         'client',
+        'company'
       ],
     });
 
@@ -394,9 +404,6 @@ export class AccessService {
     const user = await this.userRepository.findOne({
       where: {
         id: access.user.id
-      },
-      relations: {
-        company: true,
       },
     });
 
@@ -408,7 +415,7 @@ export class AccessService {
 
     if (access.roles.some(role => role.name.toLowerCase().trim() === 'administrador') || access.roles.some(role => role.name.toLowerCase().trim() === 'super-administrador')) {
       const { id: userId, name: username, dni, city, address } = access.user;
-      const { id: companyId, billingEmail, nit } = user.company;
+      const { id: companyId, billingEmail, nit } = access.company;
 
       payloadToSend = {
         user: { userId, username, dni, city, address },

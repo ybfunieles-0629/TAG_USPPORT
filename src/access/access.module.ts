@@ -8,11 +8,11 @@ import { AccessController } from './access.controller';
 import { Access } from './entities/access.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersModule } from '../users/users.module';
-import { CompaniesModule } from 'src/companies/companies.module';
+import { CompaniesModule } from '../companies/companies.module';
 import { RolesModule } from '../roles/roles.module';
 import { ClientsModule } from '../clients/clients.module';
-import { PermissionsModule } from 'src/permissions/permissions.module';
-import { PrivilegesModule } from 'src/privileges/privileges.module';
+import { PermissionsModule } from '../permissions/permissions.module';
+import { PrivilegesModule } from '../privileges/privileges.module';
 
 @Module({
   controllers: [AccessController],

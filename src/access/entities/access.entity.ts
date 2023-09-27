@@ -5,6 +5,8 @@ import { Role } from '../../roles/entities/role.entity';
 import { User } from '../../users/entities/user.entity';
 import { Permission } from '../../permissions/entities/permission.entity';
 import { Privilege } from '../../privileges/entities/privilege.entity';
+import { Company } from '../../companies/entities/company.entity';
+import { Brand } from '../../brands/entities/brand.entity';
 
 @Entity('access')
 export class Access {
@@ -38,6 +40,12 @@ export class Access {
     },
   )
   client: Client;
+
+  @OneToMany(() => Brand, brand => brand.access)
+  brands: Brand[];
+
+  @ManyToOne(() => Company, (company) => company.access)
+  company: Company;
 
   @ManyToMany(() => Role, (role) => role.accesses)
   @JoinTable({
