@@ -137,7 +137,7 @@ export class UsersService {
         'access.roles',
         'access.permissions',
         'access.privileges',
-        'company',
+        'access.company',
         'clients'
       ]
     });
@@ -156,7 +156,7 @@ export class UsersService {
           'access.roles',
           'access.permissions',
           'access.privileges',
-          'company',
+          'access.company',
           'clients'
         ]
       });
