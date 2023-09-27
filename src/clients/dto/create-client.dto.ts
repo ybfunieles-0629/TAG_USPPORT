@@ -37,6 +37,9 @@ export class CreateClientDto {
   @IsString()
   contactPersonPhone: string;
 
+  @IsString()
+  company: string;
+
   @IsInt()
   margin: number;
 
