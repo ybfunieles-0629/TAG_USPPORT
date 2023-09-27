@@ -1,4 +1,4 @@
-import { IsBoolean, IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class CreateCompanyDto {
   @IsString()
@@ -19,8 +19,9 @@ export class CreateCompanyDto {
   @IsString()
   city: string;
 
-  @IsString()
-  address: string;
+  @IsArray()
+  @IsString({ each: true })
+  address: string[];
 
   // @IsString()
   // dniRepresentativeDocument: string;

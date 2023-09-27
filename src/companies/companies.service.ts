@@ -1,16 +1,17 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Response } from 'express';
 import { isUUID } from 'class-validator';
+import { plainToClass } from 'class-transformer';
 import { v4 as uuidv4 } from 'uuid';
 import * as AWS from 'aws-sdk';
 
 import { Company } from './entities/company.entity';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
-import { plainToClass } from 'class-transformer';
+import { Address } from '../addresses/entities/address.entity';
 
 @Injectable()
 export class CompaniesService {
@@ -18,7 +19,10 @@ export class CompaniesService {
 
   constructor(
     @InjectRepository(Company)
-    private readonly companyRepository: Repository<Company>
+    private readonly companyRepository: Repository<Company>,
+
+    @InjectRepository(Address)
+    private readonly addressRepository: Repository<Address>,
   ) { }
 
   async create(createCompanyDto: CreateCompanyDto, files: Record<string, Express.Multer.File>) {
@@ -44,6 +48,22 @@ export class CompaniesService {
         }
       }
 
+      const addresses: Address[] = [];
+
+      for (const addressId of createCompanyDto.address) {
+        const address = await this.addressRepository.findOneBy({ id: addressId });
+
+        if (!address)
+          throw new NotFoundException(`Address with id ${addressId} not found`);
+
+        if (!address.isActive)
+          throw new BadRequestException(`Address with id ${addressId} is inactive`);
+
+        addresses.push(address);
+      }
+
+      newCompany.address = addresses;
+
       await this.companyRepository.save(newCompany);
 
       return {
@@ -59,7 +79,10 @@ export class CompaniesService {
 
     return this.companyRepository.find({
       take: limit,
-      skip: offset
+      skip: offset,
+      relations: {
+        address: true,
+      },
     });
   }
 
@@ -92,13 +115,35 @@ export class CompaniesService {
     if (updateCompanyDto.nit)
       throw new BadRequestException(`You can't update the NIT of the company`);
 
-    const company = await this.companyRepository.preload({
-      id,
-      ...updateCompanyDto
+    const company = await this.companyRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        address: true,
+      },
     });
 
     if (!company)
       throw new NotFoundException(`Company with id ${id} not found`);
+
+    if (updateCompanyDto.address) {
+      const addresses: Address[] = [];
+
+      for (const addressId of updateCompanyDto.address) {
+        const address = await this.addressRepository.findOneBy({ id: addressId });
+
+        if (!address)
+          throw new NotFoundException(`Address with id ${addressId} not found`);
+
+        if (!address.isActive)
+          throw new BadRequestException(`Address with id ${addressId} is inactive`);
+
+        addresses.push(address);
+      }
+
+      company.address = addresses;
+    }
 
     for (const [fieldName, fileInfo] of Object.entries(files)) {
       const uniqueFilename = `${uuidv4()}-${fileInfo[0].originalname}`;
@@ -106,18 +151,20 @@ export class CompaniesService {
 
       await this.uploadToAws(fileInfo[0]);
 
-      if (fileInfo[0].fieldname === 'rutCompanyDocument') {
+      if (fieldName === 'rutCompanyDocument') {
         company.rutCompanyDocument = uniqueFilename;
-      } else if (fileInfo[0].fieldname === 'dniRepresentativeDocument') {
+      } else if (fieldName === 'dniRepresentativeDocument') {
         company.dniRepresentativeDocument = uniqueFilename;
-      } else if (fileInfo[0].fieldname === 'commerceChamberDocument') {
+      } else if (fieldName === 'commerceChamberDocument') {
         company.commerceChamberDocument = uniqueFilename;
       }
     }
 
     await this.companyRepository.save(company);
 
-    return company;
+    return {
+      company
+    };
   }
 
   async desactivate(id: string) {
@@ -139,14 +186,8 @@ export class CompaniesService {
     const company = await this.companyRepository.findOne({
       where: {
         id
-      },
-      relations: {
-        user: true,
-      },
+      }
     });
-
-    if (company.user.length > 0)
-      throw new BadRequestException(`You can't delete a company if the company has a relation with an user`);
 
     await this.companyRepository.remove(company);
 
@@ -203,6 +244,33 @@ export class CompaniesService {
 
     s3Stream.pipe(res);
     return s3Stream;
+  }
+
+  async deleteFromAws(files: string[]) {
+    AWS.config.update({
+      accessKeyId: 'AKIAT4TACBZFK2MS62VU',
+      secretAccessKey: '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',
+      region: 'us-east-2',
+    });
+
+    const s3 = new AWS.S3();
+
+    for (const file in files) {
+      const params = {
+        Bucket: 'tag-support-storage',
+        Key: file
+      };
+
+      return new Promise<void>((resolve, reject) => {
+        s3.deleteObject(params, (err: any, data: any) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      });
+    }
   }
 
   private handleDbExceptions(error: any) {

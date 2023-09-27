@@ -1,6 +1,8 @@
-import { Column, CreateDateColumn, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { User } from '../../users/entities/user.entity';
+import { Access } from '../../access/entities/access.entity';
+import { Address } from '../../addresses/entities/address.entity';
 
 @Entity({ name: 'companies' })
 export class Company {
@@ -36,11 +38,6 @@ export class Company {
 
   })
   city: string;
-
-  @Column('varchar', {
-    
-  })
-  address: string;
 
   @Column('varchar', {
 
@@ -104,9 +101,9 @@ export class Company {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @OneToMany(
-    () => User,
-    (user) => user.company
-  )
-  user: User[];
+  @OneToMany(() => Access, (access) => access.company)
+  access: Access[];
+
+  @OneToMany(() => Address, (address) => address.company)
+  address: Address[];
 }
