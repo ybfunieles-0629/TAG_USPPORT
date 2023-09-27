@@ -50,7 +50,7 @@ export class UsersService {
       throw new NotFoundException(`User with id ${id} not found`);
 
     const clients: Client[] = [];
-    
+
     for (const clientId of assignClientsDto.clientsId) {
       const client = await this.clientRepository.findOneBy({ id: clientId });
 
@@ -73,57 +73,57 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto) {
-  //   const { password } = createUserDto;
+    //   const { password } = createUserDto;
 
-  //   const newUser = plainToClass(User, createUserDto);
+    //   const newUser = plainToClass(User, createUserDto);
 
-  //   const company = await this.companyRepository.findOne({
-  //     where: {
-  //       id: createUserDto.company
-  //     }
-  //   });
+    //   const company = await this.companyRepository.findOne({
+    //     where: {
+    //       id: createUserDto.company
+    //     }
+    //   });
 
-  //   if (!company)
-  //     throw new NotFoundException(`Company with id ${createUserDto.company} not found`);
+    //   if (!company)
+    //     throw new NotFoundException(`Company with id ${createUserDto.company} not found`);
 
-  //   if (!company.isActive)
-  //     throw new BadRequestException(`The company isn't active`);
+    //   if (!company.isActive)
+    //     throw new BadRequestException(`The company isn't active`);
 
-  //   newUser.company = company;
+    //   newUser.company = company;
 
-  //   const role = await this.roleRepository.findOne({
-  //     where: {
-  //       id: createUserDto.role
-  //     }
-  //   });
+    //   const role = await this.roleRepository.findOne({
+    //     where: {
+    //       id: createUserDto.role
+    //     }
+    //   });
 
-  //   if (!role)
-  //     throw new NotFoundException(`Role with id ${createUserDto.role} not found`);
+    //   if (!role)
+    //     throw new NotFoundException(`Role with id ${createUserDto.role} not found`);
 
-  //   if (!role.isActive)
-  //     throw new BadRequestException(`The role isn't active`);
+    //   if (!role.isActive)
+    //     throw new BadRequestException(`The role isn't active`);
 
-  //   newUser.role = role;
+    //   newUser.role = role;
 
-  //   const encryptedPassword = bcrypt.hashSync(password, 10);
-    
-  //   const access = this.accessRepository.create({
-  //     email: newUser.email,
-  //     password: encryptedPassword
-  //   });
-    
-  //   access.role = role;
+    //   const encryptedPassword = bcrypt.hashSync(password, 10);
 
-  //   await this.accessRepository.save(access);
-    
-  //   newUser.access = access;
-    
-  //   await this.userRepository.save(newUser);
+    //   const access = this.accessRepository.create({
+    //     email: newUser.email,
+    //     password: encryptedPassword
+    //   });
 
-  //   return {
-  //     newUser,
-  //     access
-  //   }
+    //   access.role = role;
+
+    //   await this.accessRepository.save(access);
+
+    //   newUser.access = access;
+
+    //   await this.userRepository.save(newUser);
+
+    //   return {
+    //     newUser,
+    //     access
+    //   }
   }
 
   findAll(paginationDto: PaginationDto) {
@@ -135,6 +135,8 @@ export class UsersService {
       relations: [
         'access',
         'access.roles',
+        'access.permissions',
+        'access.privileges',
         'company',
         'clients'
       ]
@@ -145,7 +147,19 @@ export class UsersService {
     let user: User;
 
     if (isUUID(term)) {
-      user = await this.userRepository.findOneBy({ id: term });
+      user = await this.userRepository.findOne({
+        where: {
+          id: term
+        },
+        relations: [
+          'access',
+          'access.roles',
+          'access.permissions',
+          'access.privileges',
+          'company',
+          'clients'
+        ]
+      });
     } else {
       const queryBuilder = this.userRepository.createQueryBuilder();
 
@@ -182,7 +196,7 @@ export class UsersService {
 
     if (updateUserDto.clients) {
       const clients: Client[] = [];
-      
+
       for (const clientId of updateUserDto.clients) {
         const client = await this.clientRepository.findOneBy({ id: clientId });
 
@@ -196,15 +210,6 @@ export class UsersService {
       }
 
       user.clients = clients;
-    }
-
-    if (updateUserDto.company) {
-      const company = await this.companyRepository.findOneBy({ id: updateUserDto.company });
-
-      if (!company)
-        throw new NotFoundException(`Company with id ${updateUserDto.company} not found`);
-
-      user.company = company;
     }
 
     await this.userRepository.save(user);

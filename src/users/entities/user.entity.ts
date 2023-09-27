@@ -80,12 +80,6 @@ export class User {
   @JoinColumn()
   access: Access;
 
-  @ManyToOne(
-    () => Company,
-    (company) => company.user
-  )
-  company: Company;
-
   @ManyToMany(() => Client, (client) => client.users)
   @JoinTable({
     name: 'user_client',
