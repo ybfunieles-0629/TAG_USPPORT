@@ -76,7 +76,9 @@ export class RolesService {
 
     await this.roleRepository.save(role);
 
-    return role;
+    return {
+      role
+    };
   }
 
   async desactivate(id: string) {
