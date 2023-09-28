@@ -1,7 +1,6 @@
 import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { Permission } from '../../permissions/entities/permission.entity';
-import { Privilege } from '../../privileges/entities/privilege.entity';
-import { Access } from '../../access/entities/access.entity';
+
+import { User } from 'src/users/entities/user.entity';
 
 @Entity({ name: 'roles' })
 export class Role {
@@ -25,9 +24,9 @@ export class Role {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @ManyToMany(() => Access, (access) => access.roles)
+  @ManyToMany(() => User, (user) => user.roles)
   @JoinTable({
-    name: 'role_access',
+    name: 'users_have_roles',
     joinColumn: {
       name: 'roleId',
       referencedColumnName: 'id',
@@ -37,33 +36,5 @@ export class Role {
       referencedColumnName: 'id',
     },
   })
-  accesses?: Access[];
-
-  @ManyToMany(() => Permission, (permission) => permission.roles)
-  @JoinTable({
-    name: 'role_permission',
-    joinColumn: {
-      name: 'roleId',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'permissionId',
-      referencedColumnName: 'id',
-    },
-  })
-  permissions?: Permission[];
-
-  @ManyToMany(() => Privilege, (privilege) => privilege.roles)
-  @JoinTable({
-    name: 'role_privilege',
-    joinColumn: {
-      name: 'roleId',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'privilegeId',
-      referencedColumnName: 'id',
-    },
-  })
-  privileges?: Privilege[];
+  users?: User[];
 }

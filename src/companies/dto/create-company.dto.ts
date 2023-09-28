@@ -19,10 +19,20 @@ export class CreateCompanyDto {
   @IsString()
   city: string;
 
-  @IsArray()
-  @IsString({ each: true })
-  address: string[];
+  @IsString()
+  address: string;
 
+  @IsString()
+  postalCode: string;
+
+  @IsString()
+  gpsLocation: string;
+
+  @IsString()
+  deliveryAddress: string;
+
+  @IsString()
+  mainAddress: string;
   // @IsString()
   // dniRepresentativeDocument: string;
 
@@ -40,10 +50,7 @@ export class CreateCompanyDto {
 
   @IsString()
   documentType: string;
-
-  @IsString()
-  deliveryAddress: string;
-
+  
   @IsOptional()
   // @IsBoolean()
   ivaResponsable?: boolean = false;

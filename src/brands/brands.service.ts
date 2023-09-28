@@ -6,7 +6,6 @@ import { plainToClass } from 'class-transformer';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 import { Brand } from './entities/brand.entity';
-import { Access } from '../access/entities/access.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { isUUID } from 'class-validator';
 
@@ -17,21 +16,11 @@ export class BrandsService {
   constructor(
     @InjectRepository(Brand)
     private readonly brandRepository: Repository<Brand>,
-
-    @InjectRepository(Access)
-    private readonly accessRepository: Repository<Access>,
   ) { }
 
   async create(createBrandDto: CreateBrandDto) {
     try {
       const newBrand = plainToClass(Brand, createBrandDto);
-
-      const access = await this.accessRepository.findOneBy({ id: createBrandDto.access });
-
-      if (!access)
-        throw new NotFoundException(`Access with id ${createBrandDto.access} not found`);
-
-      newBrand.access = access;
 
       await this.brandRepository.save(newBrand);
 
@@ -49,11 +38,6 @@ export class BrandsService {
     return this.brandRepository.find({
       take: limit,
       skip: offset,
-      relations: [
-        'access',
-        'access.user',
-        'access.client',
-      ],
     });
   }
 
@@ -89,19 +73,6 @@ export class BrandsService {
 
     if (!brand)
       throw new NotFoundException(`Brand with id ${id} not found`);
-
-    if (updateBrandDto.access) {
-      const access = await this.accessRepository.findOne({
-        where: {
-          id: updateBrandDto.access
-        },
-      });
-
-      if (!access)
-        throw new NotFoundException(`Access with id ${access} not found`);
-
-      brand.access = access;
-    }
 
     await this.brandRepository.save(brand);
 

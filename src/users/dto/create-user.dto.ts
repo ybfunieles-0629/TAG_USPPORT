@@ -1,6 +1,12 @@
-import { IsArray, IsEmail, IsInt, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsArray, IsEmail, IsInt, IsNumber, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateUserDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  password: string;
+
   @IsString()
   name: string;
 
@@ -24,24 +30,14 @@ export class CreateUserDto {
   @IsString()
   address: string;
 
-  @IsEmail()
-  email: string;
-
   @IsString()
   phone: string;
 
-  @IsOptional()
-  @MinLength(3)
-  password: string;
+  @IsNumber()
+  manageCommercial: number;
 
-  @IsOptional()
-  @IsString()
-  adminType: string;
-
-  @IsArray()
-  @IsString({ each: true })
-  @IsOptional()
-  clients?: string[];
+  @IsNumber()
+  mainSecondaryUser: number;
 
   @IsString()
   @IsOptional()
@@ -54,4 +50,8 @@ export class CreateUserDto {
   @IsArray()
   @IsString({ each: true })
   permissions: string[];
+  
+  @IsArray()
+  @IsString({ each: true })
+  privileges: string[];
 }

@@ -7,7 +7,6 @@ import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { PrivilegesModule } from './privileges/privileges.module';
-import { AccessModule } from './access/access.module';
 import { CommonModule } from './common/common.module';
 import { CompaniesModule } from './companies/companies.module';
 import { ProductsModule } from './products/products.module';
@@ -16,6 +15,10 @@ import { CategoriesModule } from './categories/categories.module';
 import { PricesModule } from './prices/prices.module';
 import { AddressesModule } from './addresses/addresses.module';
 import { BrandsModule } from './brands/brands.module';
+import { SuppliersModule } from './suppliers/suppliers.module';
+import { AdminModule } from './admin/admin.module';
+import { SupplierTypesModule } from './supplier-types/supplier-types.module';
+import { SubSupplierProductTypesModule } from './sub-supplier-product-types/sub-supplier-product-types.module';
 
 @Module({
   imports: [
@@ -41,7 +44,6 @@ import { BrandsModule } from './brands/brands.module';
     RolesModule,
     PermissionsModule,
     PrivilegesModule,
-    AccessModule,
     CommonModule,
     CompaniesModule,
     ProductsModule,
@@ -50,6 +52,10 @@ import { BrandsModule } from './brands/brands.module';
     PricesModule,
     AddressesModule,
     BrandsModule,
+    SuppliersModule,
+    AdminModule,
+    SupplierTypesModule,
+    SubSupplierProductTypesModule,
   ],
 })
 export class AppModule { }

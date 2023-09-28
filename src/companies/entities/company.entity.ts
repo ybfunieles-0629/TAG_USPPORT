@@ -1,8 +1,6 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { User } from '../../users/entities/user.entity';
-import { Access } from '../../access/entities/access.entity';
-import { Address } from '../../addresses/entities/address.entity';
 
 @Entity({ name: 'companies' })
 export class Company {
@@ -10,9 +8,19 @@ export class Company {
   id: string;
 
   @Column('varchar', {
+
+  })
+  companyType: string;
+
+  @Column('varchar', {
     unique: true,
   })
   name: string;
+
+  @Column('varchar', {
+
+  })
+  logo: string;
 
   @Column('varchar', {
 
@@ -28,16 +36,6 @@ export class Company {
 
   })
   nit: string;
-
-  @Column('varchar', {
-
-  })
-  country: string;
-
-  @Column('varchar', {
-
-  })
-  city: string;
 
   @Column('varchar', {
 
@@ -59,35 +57,60 @@ export class Company {
   })
   rutCompanyDocument: string;
 
+  @Column('int', {
+
+  })
+  ivaResponsable: number;
+
+  @Column('int', {
+
+  })
+  taxPayer: number;
+
+  @Column('int', {
+
+  })
+  selfRetaining: number;
+
+  @Column('int', {
+
+  })
+  fee: number;
+
   @Column('varchar', {
 
   })
-  companyType: string;
+  country: string;
 
   @Column('varchar', {
 
   })
-  documentType: string;
+  city: string;
 
   @Column('varchar', {
-    
+
+  })
+  address: string;
+
+  @Column('varchar', {
+
+  })
+  postalCode: string;
+
+  @Column('varchar', {
+
+  })
+  gpsLocation: string;
+
+  @Column('varchar', {
+
   })
   deliveryAddress: string;
 
-  @Column('boolean', {
-    default: false,
-  })
-  ivaResponsable: boolean;
+  @Column('varchar', {
 
-  @Column('boolean', {
-    default: false,
   })
-  taxPayer: boolean;
-
-  @Column('boolean', {
-    default: false,
-  })
-  selfRetaining: boolean;
+  mainAddress: string;
 
   @Column('boolean', {
     default: true,
@@ -101,9 +124,6 @@ export class Company {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @OneToMany(() => Access, (access) => access.company)
-  access: Access[];
-
-  @OneToMany(() => Address, (address) => address.company)
-  address: Address[];
+  @OneToMany(() => User, (user) => user.company)
+  users: User[];
 }

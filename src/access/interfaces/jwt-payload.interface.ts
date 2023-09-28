@@ -1,5 +1,5 @@
-export interface JwtPayload {
-  email: string;
+// export interface JwtPayload {
+//   email: string;
 
-  //TODO: añadir todo lo que va a contener el payload
-}
+//   //TODO: añadir todo lo que va a contener el payload
+// }

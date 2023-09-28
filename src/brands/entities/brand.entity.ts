@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { Access } from '../../access/entities/access.entity';
+import { Client } from 'src/clients/entities/client.entity';
 
 @Entity('brands')
 export class Brand {
@@ -29,6 +29,6 @@ export class Brand {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @ManyToOne(() => Access, (access) => access.brands)
-  access: Access;
+  @ManyToOne(() => Client, (client) => client.brands)
+  client: Client;
 }

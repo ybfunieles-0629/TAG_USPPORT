@@ -1,44 +1,17 @@
-import { IsArray, IsEmail, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsEmail, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateClientDto {
-  @IsString()
-  legalStatus: string;
-  
   @IsOptional()
   isCoorporative?: boolean;
 
   @IsInt()
   employeesNumber: number;
 
-  @IsString()
-  contactName: string;
-
-  @IsString()
-  contactPersonPicture: string;
-
-  @IsString()
-  contactPersonPosition: string;
-
-  @IsString()
-  contactPersonDni: string;
-
-  @IsString()
-  contactPersonCountry: string;
-
-  @IsString()
-  contactPersonCity: string;
-
-  @IsString()
-  contactPersonAddress: string;
-
   @IsEmail()
-  contactPersonEmail: string;
+  billingEmail: string;
 
   @IsString()
-  contactPersonPhone: string;
-
-  @IsString()
-  company: string;
+  deliveryAddress: string;
 
   @IsInt()
   margin: number;
@@ -52,9 +25,17 @@ export class CreateClientDto {
   @IsInt()
   annualMonthlyGoals: number;
 
-  @IsString()
-  insideUsers: string;
+  @IsNumber()
+  manageBrands: number;
 
-  @IsOptional()
-  password: string;
+  @IsString()
+  user: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  addresses: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  brands: string[];
 }

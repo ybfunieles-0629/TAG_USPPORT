@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { Company } from '../../companies/entities/company.entity';
+import { Client } from '../../clients/entities/client.entity';
 
 @Entity('addresses')
 export class Address {
@@ -54,6 +54,6 @@ export class Address {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @ManyToOne(() => Company, (company) => company.address)
-  company: Company;
+  @ManyToOne(() => Client, (client) => client.addresses)
+  client: Client;
 }

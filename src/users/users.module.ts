@@ -6,17 +6,18 @@ import { UsersController } from './users.controller';
 import { User } from './entities/user.entity';
 import { CompaniesModule } from '../companies/companies.module';
 import { RolesModule } from '../roles/roles.module';
-import { AccessModule } from '../access/access.module';
 import { ClientsModule } from '../clients/clients.module';
+import { PermissionsModule } from '../permissions/permissions.module';
+import { PrivilegesModule } from '../privileges/privileges.module';
 
 @Module({
   controllers: [UsersController],
   providers: [UsersService],
   imports: [
-    // AccessModule,
-    ClientsModule,
     CompaniesModule,
     RolesModule,
+    PermissionsModule,
+    PrivilegesModule,
     TypeOrmModule.forFeature([User])
   ],
   exports: [TypeOrmModule, UsersService]

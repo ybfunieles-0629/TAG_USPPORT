@@ -11,7 +11,6 @@ import { Company } from './entities/company.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
-import { Address } from '../addresses/entities/address.entity';
 
 @Injectable()
 export class CompaniesService {
@@ -20,9 +19,6 @@ export class CompaniesService {
   constructor(
     @InjectRepository(Company)
     private readonly companyRepository: Repository<Company>,
-
-    @InjectRepository(Address)
-    private readonly addressRepository: Repository<Address>,
   ) { }
 
   async create(createCompanyDto: CreateCompanyDto, files: Record<string, Express.Multer.File>) {
@@ -48,22 +44,6 @@ export class CompaniesService {
         }
       }
 
-      const addresses: Address[] = [];
-
-      for (const addressId of createCompanyDto.address) {
-        const address = await this.addressRepository.findOneBy({ id: addressId });
-
-        if (!address)
-          throw new NotFoundException(`Address with id ${addressId} not found`);
-
-        if (!address.isActive)
-          throw new BadRequestException(`Address with id ${addressId} is inactive`);
-
-        addresses.push(address);
-      }
-
-      newCompany.address = addresses;
-
       await this.companyRepository.save(newCompany);
 
       return {
@@ -80,9 +60,6 @@ export class CompaniesService {
     return this.companyRepository.find({
       take: limit,
       skip: offset,
-      relations: {
-        address: true,
-      },
     });
   }
 
@@ -118,32 +95,29 @@ export class CompaniesService {
     const company = await this.companyRepository.findOne({
       where: {
         id,
-      },
-      relations: {
-        address: true,
-      },
+      }
     });
 
     if (!company)
       throw new NotFoundException(`Company with id ${id} not found`);
 
-    if (updateCompanyDto.address) {
-      const addresses: Address[] = [];
+    // if (updateCompanyDto.address) {
+    //   const addresses: Address[] = [];
 
-      for (const addressId of updateCompanyDto.address) {
-        const address = await this.addressRepository.findOneBy({ id: addressId });
+    //   for (const addressId of updateCompanyDto.address) {
+    //     const address = await this.addressRepository.findOneBy({ id: addressId });
 
-        if (!address)
-          throw new NotFoundException(`Address with id ${addressId} not found`);
+    //     if (!address)
+    //       throw new NotFoundException(`Address with id ${addressId} not found`);
 
-        if (!address.isActive)
-          throw new BadRequestException(`Address with id ${addressId} is inactive`);
+    //     if (!address.isActive)
+    //       throw new BadRequestException(`Address with id ${addressId} is inactive`);
 
-        addresses.push(address);
-      }
+    //     addresses.push(address);
+    //   }
 
-      company.address = addresses;
-    }
+    //   company.address = addresses;
+    // }
 
     for (const [fieldName, fileInfo] of Object.entries(files)) {
       const uniqueFilename = `${uuidv4()}-${fileInfo[0].originalname}`;

@@ -6,14 +6,12 @@ import { plainToClass } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { Company } from '../companies/entities/company.entity';
 import { Role } from '../roles/entities/role.entity';
-import { Access } from '../access/entities/access.entity';
-import { AssignClientsDto } from './dto/assign-clients.dto';
-import { Client } from '../clients/entities/client.entity';
+import { Permission } from '../permissions/entities/permission.entity';
+import { Privilege } from '../privileges/entities/privilege.entity';
 
 @Injectable()
 export class UsersService {
@@ -23,107 +21,141 @@ export class UsersService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
 
-    @InjectRepository(Client)
-    private readonly clientRepository: Repository<Client>,
-
     @InjectRepository(Company)
     private readonly companyRepository: Repository<Company>,
 
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
 
+    @InjectRepository(Permission)
+    private readonly permissionRepository: Repository<Permission>,
+
+    @InjectRepository(Privilege)
+    private readonly privilegeRepository: Repository<Privilege>,
+
     // @InjectRepository(Access)
     // private readonly accessRepository: Repository<Access>,
   ) { }
 
-  async assignClients(id: string, assignClientsDto: AssignClientsDto) {
-    const user = await this.userRepository.findOne({
+  // async assignClients(id: string, assignClientsDto: AssignClientsDto) {
+  //   const user = await this.userRepository.findOne({
+  //     where: {
+  //       id: id
+  //     },
+  //     relations: {
+  //       clients: true,
+  //     },
+  //   });
+
+  //   if (!user)
+  //     throw new NotFoundException(`User with id ${id} not found`);
+
+  //   const clients: Client[] = [];
+
+  //   for (const clientId of assignClientsDto.clientsId) {
+  //     const client = await this.clientRepository.findOneBy({ id: clientId });
+
+  //     if (!client)
+  //       throw new NotFoundException(`Client with id ${clientId} not found`);
+
+  //     if (!client.isActive)
+  //       throw new BadRequestException(`Client with id ${id} is inactive`);
+
+  //     clients.push(client);
+  //   }
+
+  //   user.clients = clients;
+
+  //   await this.userRepository.save(user);
+
+  //   return {
+  //     user
+  //   };
+  // }
+
+  async createUser(createUserDto: CreateUserDto) {
+    const emailInUse = await this.userRepository.findOne({
       where: {
-        id: id
-      },
-      relations: {
-        clients: true,
+        email: createUserDto.email
       },
     });
 
-    if (!user)
-      throw new NotFoundException(`User with id ${id} not found`);
+    if (emailInUse)
+      throw new BadRequestException(`User with email ${createUserDto.email} is already registered`);
 
-    const clients: Client[] = [];
+    const dniInUse = await this.userRepository.findOne({
+      where: {
+        dni: createUserDto.dni,
+      },
+    });
 
-    for (const clientId of assignClientsDto.clientsId) {
-      const client = await this.clientRepository.findOneBy({ id: clientId });
+    if (dniInUse)
+      throw new BadRequestException(`User with dni ${createUserDto.dni} is already registered`);
 
-      if (!client)
-        throw new NotFoundException(`Client with id ${clientId} not found`);
+    const newUser = plainToClass(User, createUserDto);
 
-      if (!client.isActive)
-        throw new BadRequestException(`Client with id ${id} is inactive`);
+    const company = await this.companyRepository.findOneBy({ id: createUserDto.company });
 
-      clients.push(client);
+    if (!company)
+      throw new NotFoundException(`Company with id ${createUserDto.company} not found`);
+
+    newUser.company = company;
+
+    const roles: Role[] = [];
+    const permissions: Permission[] = [];
+    const privileges: Privilege[] = [];
+
+    for (const roleId of createUserDto.roles) {
+      const role = await this.roleRepository.findOneBy({ id: roleId });
+
+      if (!role)
+        throw new NotFoundException(`Role with id ${roleId} not found`);
+
+      if (!role.isActive)
+        throw new BadRequestException(`Role with id ${roleId} is currently inactive`);
+
+      roles.push(role);
     }
 
-    user.clients = clients;
+    newUser.roles = roles;
 
-    await this.userRepository.save(user);
+    for (const permissionId of createUserDto.permissions) {
+      const permission = await this.permissionRepository.findOneBy({ id: permissionId });
+
+      if (!permission)
+        throw new NotFoundException(`Permission with id ${permissionId} not found`);
+
+      if (!permission.isActive)
+        throw new BadRequestException(`Permission with id ${permissionId} is currently inactive`);
+
+      permissions.push(permission);
+    }
+
+    newUser.permissions = permissions;
+
+    for (const privilegeId of createUserDto.privileges) {
+      const privilege = await this.privilegeRepository.findOneBy({ id: privilegeId });
+
+      if (!privilege)
+        throw new NotFoundException(`Privilege with id ${privilegeId} not found`);
+
+      if (!privilege.isActive)
+        throw new BadRequestException(`Privilege with id ${privilegeId} is currently inactive`);
+
+      privileges.push(privilege);
+    }
+
+    newUser.privileges = privileges;
+
+    const encryptedPassword = bcrypt.hashSync(createUserDto.password, 10);
+
+    newUser.password = encryptedPassword;
+
+    await this.userRepository.save(newUser);
 
     return {
-      user
+      newUser
     };
-  }
-
-  async create(createUserDto: CreateUserDto) {
-    //   const { password } = createUserDto;
-
-    //   const newUser = plainToClass(User, createUserDto);
-
-    //   const company = await this.companyRepository.findOne({
-    //     where: {
-    //       id: createUserDto.company
-    //     }
-    //   });
-
-    //   if (!company)
-    //     throw new NotFoundException(`Company with id ${createUserDto.company} not found`);
-
-    //   if (!company.isActive)
-    //     throw new BadRequestException(`The company isn't active`);
-
-    //   newUser.company = company;
-
-    //   const role = await this.roleRepository.findOne({
-    //     where: {
-    //       id: createUserDto.role
-    //     }
-    //   });
-
-    //   if (!role)
-    //     throw new NotFoundException(`Role with id ${createUserDto.role} not found`);
-
-    //   if (!role.isActive)
-    //     throw new BadRequestException(`The role isn't active`);
-
-    //   newUser.role = role;
-
-    //   const encryptedPassword = bcrypt.hashSync(password, 10);
-
-    //   const access = this.accessRepository.create({
-    //     email: newUser.email,
-    //     password: encryptedPassword
-    //   });
-
-    //   access.role = role;
-
-    //   await this.accessRepository.save(access);
-
-    //   newUser.access = access;
-
-    //   await this.userRepository.save(newUser);
-
-    //   return {
-    //     newUser,
-    //     access
-    //   }
   }
 
   findAll(paginationDto: PaginationDto) {
@@ -133,12 +165,10 @@ export class UsersService {
       take: limit,
       skip: offset,
       relations: [
-        'access',
-        'access.roles',
-        'access.permissions',
-        'access.privileges',
-        'access.company',
-        'clients'
+        'company',
+        'roles',
+        'permissions',
+        'privileges'
       ]
     });
   }
@@ -183,38 +213,38 @@ export class UsersService {
   //* IMPORTANTE
   // TODO: Verificar el tipo de dato del updateUserDto ya que da error, por ahora se deja en any
   async update(id: string, updateUserDto: any) {
-    const user = await this.userRepository.preload({
-      id,
-      ...updateUserDto
-    });
+    // const user = await this.userRepository.preload({
+    //   id,
+    //   ...updateUserDto
+    // });
 
-    if (!user)
-      throw new NotFoundException(`User with id ${id} not found`);
+    // if (!user)
+    //   throw new NotFoundException(`User with id ${id} not found`);
 
-    if (updateUserDto.dni)
-      throw new BadRequestException(`You can't update the dni of an user`);
+    // if (updateUserDto.dni)
+    //   throw new BadRequestException(`You can't update the dni of an user`);
 
-    if (updateUserDto.clients) {
-      const clients: Client[] = [];
+    // if (updateUserDto.clients) {
+    //   const clients: Client[] = [];
 
-      for (const clientId of updateUserDto.clients) {
-        const client = await this.clientRepository.findOneBy({ id: clientId });
+    //   for (const clientId of updateUserDto.clients) {
+    //     const client = await this.clientRepository.findOneBy({ id: clientId });
 
-        if (!client)
-          throw new NotFoundException(`Client with id ${clientId} not found`);
+    //     if (!client)
+    //       throw new NotFoundException(`Client with id ${clientId} not found`);
 
-        if (!client.isActive)
-          throw new BadRequestException(`Client with id ${clientId} is inactive`);
+    //     if (!client.isActive)
+    //       throw new BadRequestException(`Client with id ${clientId} is inactive`);
 
-        clients.push(client);
-      }
+    //     clients.push(client);
+    //   }
 
-      user.clients = clients;
-    }
+    //   user.clients = clients;
+    // }
 
-    await this.userRepository.save(user);
+    // await this.userRepository.save(user);
 
-    return user;
+    // return user;
   }
 
   async remove(id: string) {

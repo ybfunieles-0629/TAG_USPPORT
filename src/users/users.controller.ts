@@ -12,7 +12,7 @@ export class UsersController {
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    return this.usersService.createUser(createUserDto);
   }
 
   @Get()
@@ -34,13 +34,13 @@ export class UsersController {
     return this.usersService.update(id, updateUserDto);
   }
 
-  @Patch('/clients/assign/:id')
-  assignClients(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() assignClientsDto: AssignClientsDto,
-  ) {
-    return this.usersService.assignClients(id, assignClientsDto);
-  }
+  // @Patch('/clients/assign/:id')
+  // assignClients(
+  //   @Param('id', ParseUUIDPipe) id: string,
+  //   @Body() assignClientsDto: AssignClientsDto,
+  // ) {
+  //   return this.usersService.assignClients(id, assignClientsDto);
+  // }
 
   @Patch('/desactivate/:id')
   desactivate(

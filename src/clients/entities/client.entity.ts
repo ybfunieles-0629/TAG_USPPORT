@@ -1,17 +1,13 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { Access } from '../../access/entities/access.entity';
-import { User } from '../../users/entities/user.entity';
+import { Address } from 'src/addresses/entities/address.entity';
+import { User } from 'src/users/entities/user.entity';
+import { Brand } from 'src/brands/entities/brand.entity';
 
 @Entity('clients')
 export class Client {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column('varchar', {
-
-  })
-  legalStatus: string;
 
   @Column('boolean', {
     default: false,
@@ -24,54 +20,19 @@ export class Client {
   employeesNumber: number;
 
   @Column('varchar', {
-
-  })
-  contactName: string;
-
-  @Column('varchar', {
     
   })
-  contactPersonPicture: string;
-
-  @Column('varchar', {
-    
-  })
-  contactPersonPosition: string;
-
-  @Column('varchar', {
-    
-  })
-  contactPersonDni: string;
-
-  @Column('varchar', {
-    
-  })
-  contactPersonCountry: string;
-
-  @Column('varchar', {
-    
-  })
-  contactPersonCity: string;
-
-  @Column('varchar', {
-    
-  })
-  contactPersonAddress: string;
-
-  @Column('varchar', {
-    
-  })
-  contactPersonEmail: string;
-
-  @Column('varchar', {
-    
-  })
-  contactPersonPhone: string;
+  billingEmail: string;
 
   @Column('int', {
     
   })
   margin: number;
+
+  @Column('varchar', {
+
+  })
+  deliveryAddress: string;
 
   @Column('int', {
     
@@ -88,10 +49,10 @@ export class Client {
   })
   annualMonthlyGoals: number;
 
-  @Column('varchar', {
-    
+  @Column('int', {
+
   })
-  insideUsers: string;
+  manageBrands: number;
 
   @Column('boolean', {
     default: true,
@@ -105,15 +66,12 @@ export class Client {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @OneToOne(
-    () => Access,
-    (access) => access.client, {
-      onDelete: 'CASCADE'
-    },
-  )
-  @JoinColumn()
-  access: Access;
+  @OneToMany(() => Address, (address) => address.client)
+  addresses: Address[];
 
-  @ManyToMany(() => User, (user) => user.clients)
-  users?: User[];
+  @OneToMany(() => Brand, (brand) => brand.client)
+  brands: Brand[];
+
+  @ManyToOne(() => User, (user) => user.clients)
+  user: User;
 }

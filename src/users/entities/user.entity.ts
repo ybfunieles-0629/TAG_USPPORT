@@ -1,13 +1,26 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { Access } from '../../access/entities/access.entity';
-import { Company } from '../../companies/entities/company.entity';
-import { Client } from '../../clients/entities/client.entity';
+import { Admin } from '../../admin/entities/admin.entity';
+import { Permission } from '../../permissions/entities/permission.entity';
+import { Role } from '../../roles/entities/role.entity';
+import { Privilege } from '../../privileges/entities/privilege.entity';
+import { Company } from 'src/companies/entities/company.entity';
+import { Client } from 'src/clients/entities/client.entity';
 
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+  
+  @Column('varchar', {
+    unique: true,
+  })
+  email: string;
+
+  @Column('varchar', {
+
+  })
+  password: string;
 
   @Column('varchar', {
 
@@ -45,19 +58,19 @@ export class User {
   address: string;
 
   @Column('varchar', {
-    unique: true,
-  })
-  email: string;
-
-  @Column('varchar', {
 
   })
   phone: string;
 
-  @Column('varchar', {
+  @Column('int', {
 
   })
-  adminType: string;
+  manageCommercial: number;
+  
+  @Column('int', {
+
+  })
+  mainSecondaryUser: number;
 
   @Column('boolean', {
     default: true,
@@ -70,27 +83,55 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  //* --- Foreign Keys --- *//
-  @OneToOne(
-    () => Access,
-    (access) => access.user, {
-      onDelete: 'CASCADE',
-    },
-  )
-  @JoinColumn()
-  access: Access;
+  //* --- FK --- *//
+  @OneToMany(() => Admin, (admin) => admin.user)
+  admin: Admin[];
 
-  @ManyToMany(() => Client, (client) => client.users)
+  @OneToMany(() => Client, (client) => client.user)
+  clients: Client[];
+
+  @ManyToOne(() => Company, (company) => company.users)
+  company: Company;
+
+  @ManyToMany(() => Role, (role) => role.users)
   @JoinTable({
-    name: 'user_client',
+    name: 'users_have_roles',
     joinColumn: {
-      name: 'userId',
+      name: 'accessId',
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-      name: 'clientId',
+      name: 'roleId',
       referencedColumnName: 'id',
     },
   })
-  clients?: Client[];
+  roles?: Role[];
+
+  @ManyToMany(() => Permission, (permission) => permission.users)
+  @JoinTable({
+    name: 'users_have_permissions',
+    joinColumn: {
+      name: 'accessId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'permissionId',
+      referencedColumnName: 'id',
+    },
+  })
+  permissions?: Permission[];
+
+  @ManyToMany(() => Privilege, (privilege) => privilege.users)
+  @JoinTable({
+    name: 'users_have_privileges',
+    joinColumn: {
+      name: 'accessId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'privilegeId',
+      referencedColumnName: 'id',
+    },
+  })
+  privileges?: Privilege[];
 }
