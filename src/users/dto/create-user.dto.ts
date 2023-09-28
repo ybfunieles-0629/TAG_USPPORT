@@ -45,6 +45,9 @@ export class CreateUserDto {
   @IsNumber()
   manageCorporativeAccount: number;
 
+  @IsNumber()
+  isCoorporative: number;
+
   @IsString()
   @IsOptional()
   company?: string;

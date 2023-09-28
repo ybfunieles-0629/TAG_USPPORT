@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { validate as isUUID } from 'uuid';
@@ -12,6 +12,8 @@ import { Company } from '../companies/entities/company.entity';
 import { Role } from '../roles/entities/role.entity';
 import { Permission } from '../permissions/entities/permission.entity';
 import { Privilege } from '../privileges/entities/privilege.entity';
+import { LoginUserDto } from './dto/login-user.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
@@ -32,6 +34,8 @@ export class UsersService {
 
     @InjectRepository(Privilege)
     private readonly privilegeRepository: Repository<Privilege>,
+
+    private readonly jwtService: JwtService,
 
     // @InjectRepository(Access)
     // private readonly accessRepository: Repository<Access>,
@@ -156,6 +160,57 @@ export class UsersService {
     return {
       newUser
     };
+  }
+
+  async login(loginUserDto: LoginUserDto) {
+    const { email, password } = loginUserDto;
+    let payloadToSend;
+
+    const user = await this.userRepository.findOne({
+      where: {
+        email
+      },
+      relations: [
+        'roles',
+        'permissions',
+        'privileges',
+        'clients',
+        'company'
+      ],
+    });
+
+    if (!user)
+      throw new UnauthorizedException('Incorrect credentials');
+
+    if (!bcrypt.compareSync(password, user.password))
+      throw new UnauthorizedException('Incorrect credentials');
+
+    if (user.roles.some(role => role.name.toLowerCase().trim() === 'administrador') || user.roles.some(role => role.name.toLowerCase().trim() === 'super-administrador')) {
+      const { id: userId, name: username, dni, city, address } = user;
+      const { id: companyId, billingEmail, nit } = user.company;
+
+      payloadToSend = {
+        user: { userId, username, dni, city, address },
+        company: { companyId, billingEmail, nit },
+        roles: user.roles.map(role => ({ name: role.name })),
+        permissions: user.permissions.map(permission => (({ name: permission.name }))),
+      };
+    } else {
+      payloadToSend = {
+        client: user.clients,
+        roles: user.roles.map(role => ({ name: role.name })),
+        permissions: user.permissions.map(permission => ({ name: permission.name })),
+      };
+    }
+
+    return {
+      token: this.getJwtToken(payloadToSend),
+    }
+  }
+
+  private getJwtToken(payload: any) {
+    const token = this.jwtService.sign(payload);
+    return token;
   }
 
   findAll(paginationDto: PaginationDto) {

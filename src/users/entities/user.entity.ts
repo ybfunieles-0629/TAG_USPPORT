@@ -82,6 +82,11 @@ export class User {
   })
   manageCorporativeAccount: number;
 
+  @Column('int', {
+    default: 0
+  })
+  isCoorporative: number;
+
   @Column('boolean', {
     default: true,
   })

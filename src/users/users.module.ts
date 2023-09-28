@@ -9,6 +9,7 @@ import { RolesModule } from '../roles/roles.module';
 import { ClientsModule } from '../clients/clients.module';
 import { PermissionsModule } from '../permissions/permissions.module';
 import { PrivilegesModule } from '../privileges/privileges.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   controllers: [UsersController],
@@ -18,7 +19,19 @@ import { PrivilegesModule } from '../privileges/privileges.module';
     RolesModule,
     PermissionsModule,
     PrivilegesModule,
-    TypeOrmModule.forFeature([User])
+    TypeOrmModule.forFeature([User]),
+    JwtModule.registerAsync({
+      imports: [],
+      inject: [],
+      useFactory: () => {
+        return {
+          secret: process.env.JWT_SECRET,
+          signOptions: {
+            expiresIn: '2h'
+          }
+        }
+      }
+    })
   ],
   exports: [TypeOrmModule, UsersService]
 })
