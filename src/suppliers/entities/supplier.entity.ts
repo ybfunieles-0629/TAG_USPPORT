@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { SupplierType } from '../../supplier-types/entities/supplier-type.entity';
 import { SubSupplierProductType } from 'src/sub-supplier-product-types/entities/sub-supplier-product-type.entity';
@@ -65,9 +65,9 @@ export class Supplier {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @OneToMany(() => SupplierType, (supplierType) => supplierType.suppliers)
+  @ManyToOne(() => SupplierType, (supplierType) => supplierType.suppliers)
   supplierType: SupplierType;
 
-  @OneToMany(() => SubSupplierProductType, (subSupplierProductType) => subSupplierProductType.suppliers)
+  @ManyToOne(() => SubSupplierProductType, (subSupplierProductType) => subSupplierProductType.suppliers)
   subSupplierProductType: SubSupplierProductType;
 }

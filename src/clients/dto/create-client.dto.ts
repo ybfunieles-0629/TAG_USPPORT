@@ -1,9 +1,6 @@
 import { IsArray, IsEmail, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateClientDto {
-  @IsOptional()
-  isCoorporative?: boolean;
-
   @IsInt()
   employeesNumber: number;
 

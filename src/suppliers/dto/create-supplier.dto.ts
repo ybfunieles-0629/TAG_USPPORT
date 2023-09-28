@@ -32,5 +32,6 @@ export class CreateSupplierDto {
   supplierType: string;
 
   @IsString()
+  @IsOptional()
   subSupplierProductType: string;
 }

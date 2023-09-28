@@ -27,7 +27,6 @@ export class SuppliersService {
   ) { }
 
   async create(createSupplierDto: CreateSupplierDto) {
-    try {
       const newSupplier = plainToClass(Supplier, createSupplierDto);
 
       const supplierType = await this.supplierTypeRepository.findOneBy({ id: createSupplierDto.supplierType });
@@ -49,9 +48,6 @@ export class SuppliersService {
       return {
         newSupplier
       };
-    } catch (error) {
-      this.handleDbExceptions(error);
-    }
   }
 
   findAll(paginationDto: PaginationDto) {

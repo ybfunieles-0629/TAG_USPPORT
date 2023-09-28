@@ -9,11 +9,6 @@ export class Client {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('boolean', {
-    default: false,
-  })
-  isCoorporative: boolean;
-
   @Column('int', {
 
   })

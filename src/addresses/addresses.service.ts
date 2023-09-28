@@ -37,9 +37,6 @@ export class AddressesService {
     return this.addressRepository.find({
       take: limit,
       skip: offset,
-      relations: [
-        'company'
-      ],
     });
   }
 
