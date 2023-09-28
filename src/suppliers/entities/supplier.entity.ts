@@ -1,7 +1,8 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { SupplierType } from '../../supplier-types/entities/supplier-type.entity';
-import { SubSupplierProductType } from 'src/sub-supplier-product-types/entities/sub-supplier-product-type.entity';
+import { SubSupplierProductType } from '../../sub-supplier-product-types/entities/sub-supplier-product-type.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('suppliers')
 export class Supplier {
@@ -70,4 +71,7 @@ export class Supplier {
 
   @ManyToOne(() => SubSupplierProductType, (subSupplierProductType) => subSupplierProductType.suppliers)
   subSupplierProductType: SubSupplierProductType;
+
+  @OneToOne(() => User, (user) => user.supplier)
+  user: User;
 }

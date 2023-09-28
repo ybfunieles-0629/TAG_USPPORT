@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -6,6 +6,7 @@ import { CreateSupplierTypeDto } from './dto/create-supplier-type.dto';
 import { UpdateSupplierTypeDto } from './dto/update-supplier-type.dto';
 import { SupplierType } from './entities/supplier-type.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class SupplierTypesService {
@@ -15,7 +16,7 @@ export class SupplierTypesService {
     @InjectRepository(SupplierType)
     private readonly supplierTypeRepository: Repository<SupplierType>
   ) { }
-  
+
   async create(createSupplierTypeDto: CreateSupplierTypeDto) {
     try {
       const supplierType = this.supplierTypeRepository.create(createSupplierTypeDto);
@@ -39,16 +40,56 @@ export class SupplierTypesService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} supplierType`;
+  async findOne(term: string) {
+    let supplierType: SupplierType;
+
+    if (isUUID(term)) {
+      supplierType = await this.supplierTypeRepository.findOneBy({ id: term });
+    } else {
+      const queryBuilder = this.supplierTypeRepository.createQueryBuilder();
+
+      supplierType = await queryBuilder
+        .where('LOWER(name) =:name', {
+          name: term.toLowerCase()
+        })
+        .getOne()
+    }
+
+    if (!supplierType)
+      throw new NotFoundException(`Supplier type with ${supplierType} not found`);
+
+    return {
+      supplierType
+    };
   }
 
-  update(id: number, updateSupplierTypeDto: UpdateSupplierTypeDto) {
-    return `This action updates a #${id} supplierType`;
+  async update(id: string, updateSupplierTypeDto: UpdateSupplierTypeDto) {
+    const supplierType = await this.supplierTypeRepository.preload({
+      id,
+      ...updateSupplierTypeDto
+    });
+
+    if (!supplierType)
+      throw new NotFoundException(`Supplier type with id ${id} not found`);
+
+    await this.supplierTypeRepository.save(supplierType);
+
+    return {
+      supplierType
+    };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} supplierType`;
+  async remove(id: string) {
+    const supplierType = await this.supplierTypeRepository.findOneBy({ id });
+
+    if (!supplierType)
+      throw new NotFoundException(`Supplier type with id ${id} not found`);
+
+    await this.supplierTypeRepository.remove(supplierType);
+
+    return {
+      supplierType
+    };
   }
 
   private handleDbExceptions(error: any) {

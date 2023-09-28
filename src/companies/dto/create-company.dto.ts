@@ -4,33 +4,42 @@ export class CreateCompanyDto {
   @IsString()
   name: string;
 
+  @IsOptional()
   @IsString()
   webUrl: string;
 
+  @IsOptional()
   @IsString()
   legalCapacity: string;
 
   @IsString()
   nit: string;
 
+  @IsOptional()
   @IsString()
   country: string;
 
+  @IsOptional()
   @IsString()
   city: string;
 
+  @IsOptional()
   @IsString()
   address: string;
 
+  @IsOptional()
   @IsString()
   postalCode: string;
 
+  @IsOptional()
   @IsString()
   gpsLocation: string;
 
+  @IsOptional()
   @IsString()
   deliveryAddress: string;
 
+  @IsOptional()
   @IsString()
   mainAddress: string;
   // @IsString()
@@ -42,12 +51,15 @@ export class CreateCompanyDto {
   // @IsString()
   // rutCompanyDocument: string;
 
+  @IsOptional()
   @IsEmail()
   billingEmail: string;
 
+  @IsOptional()
   @IsString()
   companyType: string;
 
+  @IsOptional()
   @IsString()
   documentType: string;
   

@@ -1,6 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { isUUID } from 'class-validator';
 
 import { CreateSubSupplierProductTypeDto } from './dto/create-sub-supplier-product-type.dto';
 import { UpdateSubSupplierProductTypeDto } from './dto/update-sub-supplier-product-type.dto';
@@ -15,7 +16,7 @@ export class SubSupplierProductTypesService {
     @InjectRepository(SubSupplierProductType)
     private readonly subSupplierProductTypeRepository: Repository<SubSupplierProductType>,
   ) { }
-  
+
   async create(createSubSupplierProductTypeDto: CreateSubSupplierProductTypeDto) {
     try {
       const supplierType = this.subSupplierProductTypeRepository.create(createSubSupplierProductTypeDto);
@@ -38,17 +39,56 @@ export class SubSupplierProductTypesService {
       skip: offset,
     });
   }
+  async findOne(term: string) {
+    let subSupplierProductType: SubSupplierProductType;
 
-  findOne(id: number) {
-    return `This action returns a #${id} subSupplierProductType`;
+    if (isUUID(term)) {
+      subSupplierProductType = await this.subSupplierProductTypeRepository.findOneBy({ id: term });
+    } else {
+      const queryBuilder = this.subSupplierProductTypeRepository.createQueryBuilder();
+
+      subSupplierProductType = await queryBuilder
+        .where('LOWER(name) =:name', {
+          name: term.toLowerCase()
+        })
+        .getOne()
+    }
+
+    if (!subSupplierProductType)
+      throw new NotFoundException(`Sub supplier product type with ${subSupplierProductType} not found`);
+
+    return {
+      subSupplierProductType
+    };
   }
 
-  update(id: number, updateSubSupplierProductTypeDto: UpdateSubSupplierProductTypeDto) {
-    return `This action updates a #${id} subSupplierProductType`;
+  async update(id: string, updateSubSupplierProductTypeDto: UpdateSubSupplierProductTypeDto) {
+    const subSupplierProductType = await this.subSupplierProductTypeRepository.preload({
+      id,
+      ...updateSubSupplierProductTypeDto
+    });
+
+    if (!subSupplierProductType)
+      throw new NotFoundException(`Sub supplier product type with id ${id} not found`);
+
+    await this.subSupplierProductTypeRepository.save(subSupplierProductType);
+
+    return {
+      subSupplierProductType
+    };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} subSupplierProductType`;
+  async remove(id: string) {
+    const subSupplierProductType = await this.subSupplierProductTypeRepository.findOneBy({ id });
+
+    if (!subSupplierProductType)
+      throw new NotFoundException(`Sub supplier product type with id ${id} not found`);
+
+    await this.subSupplierProductTypeRepository.remove(subSupplierProductType);
+
+    return {
+      subSupplierProductType
+    };
   }
 
   private handleDbExceptions(error: any) {

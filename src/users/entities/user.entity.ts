@@ -6,6 +6,7 @@ import { Role } from '../../roles/entities/role.entity';
 import { Privilege } from '../../privileges/entities/privilege.entity';
 import { Company } from 'src/companies/entities/company.entity';
 import { Client } from 'src/clients/entities/client.entity';
+import { Supplier } from 'src/suppliers/entities/supplier.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -61,11 +62,6 @@ export class User {
 
   })
   phone: string;
-
-  @Column('int', {
-
-  })
-  manageCommercial: number;
   
   @Column('int', {
 
@@ -76,11 +72,6 @@ export class User {
 
   })
   canBuy: number;
-
-  @Column('int', {
-
-  })
-  manageCorporativeAccount: number;
 
   @Column('int', {
     default: 0
@@ -99,11 +90,14 @@ export class User {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @OneToMany(() => Admin, (admin) => admin.user)
-  admin: Admin[];
+  @OneToOne(() => Admin, (admin) => admin.user)
+  admin: Admin;
 
-  @OneToMany(() => Client, (client) => client.user)
-  clients: Client[];
+  @OneToOne(() => Client, (client) => client.user)
+  client: Client;
+
+  @OneToOne(() => Supplier, (supplier) => supplier.user)
+  supplier: Supplier;
 
   @ManyToOne(() => Company, (company) => company.users)
   company: Company;

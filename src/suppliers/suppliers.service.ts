@@ -10,6 +10,7 @@ import { Supplier } from './entities/supplier.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { SupplierType } from '../supplier-types/entities/supplier-type.entity';
 import { SubSupplierProductType } from '../sub-supplier-product-types/entities/sub-supplier-product-type.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class SuppliersService {
@@ -24,30 +25,52 @@ export class SuppliersService {
 
     @InjectRepository(SubSupplierProductType)
     private readonly subSupplierProductTypeRepository: Repository<SubSupplierProductType>,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) { }
 
   async create(createSupplierDto: CreateSupplierDto) {
-      const newSupplier = plainToClass(Supplier, createSupplierDto);
+    const newSupplier = plainToClass(Supplier, createSupplierDto);
 
-      const supplierType = await this.supplierTypeRepository.findOneBy({ id: createSupplierDto.supplierType });
+    const user = await this.userRepository.findOne({
+      where: {
+        id: createSupplierDto.user,
+      },
+      relations: [
+        'admin',
+        'client',
+        'supplier',
+      ],
+    })
 
-      if (!supplierType)
-        throw new NotFoundException(`Supplier type with id ${createSupplierDto.supplierType} not found`);
+    if (!user)
+      throw new NotFoundException(`User with id ${createSupplierDto.user}`);
+    
+    if (user.client || user.admin || user.supplier)
+      throw new BadRequestException(`This user is already linked with a client, admin or supplier`);
 
-      newSupplier.supplierType = supplierType;
+    newSupplier.user = user;
 
-      const subSupplierProductType = await this.subSupplierProductTypeRepository.findOneBy({ id: createSupplierDto.subSupplierProductType });
+    const supplierType = await this.supplierTypeRepository.findOneBy({ id: createSupplierDto.supplierType });
 
-      if (!subSupplierProductType)
-        throw new NotFoundException(`Sub supplier product type with id ${createSupplierDto.subSupplierProductType} not found`);
+    if (!supplierType)
+      throw new NotFoundException(`Supplier type with id ${createSupplierDto.supplierType} not found`);
 
-      newSupplier.subSupplierProductType = subSupplierProductType;
+    newSupplier.supplierType = supplierType;
 
-      await this.supplierRepository.save(newSupplier);
+    const subSupplierProductType = await this.subSupplierProductTypeRepository.findOneBy({ id: createSupplierDto.subSupplierProductType });
 
-      return {
-        newSupplier
-      };
+    if (!subSupplierProductType)
+      throw new NotFoundException(`Sub supplier product type with id ${createSupplierDto.subSupplierProductType} not found`);
+
+    newSupplier.subSupplierProductType = subSupplierProductType;
+
+    await this.supplierRepository.save(newSupplier);
+
+    return {
+      newSupplier
+    };
   }
 
   findAll(paginationDto: PaginationDto) {
@@ -80,30 +103,62 @@ export class SuppliersService {
     };
   }
 
-  // async update(id: string, updateSupplierDto: UpdateSupplierDto) {
-  //   const supplier = await this.supplierRepository.preload({
-  //     id,
-  //     ...updateSupplierDto
-  //   });
+  async update(id: string, updateSupplierDto: UpdateSupplierDto) {
+    const supplier = await this.supplierRepository.findOneBy({ id });
 
-  //   if (!supplier)
-  //     throw new NotFoundException(`Supplier with id ${id} not found`);
+    if (!supplier) {
+      throw new NotFoundException(`Supplier with id ${id} not found`);
+    }
 
-  //   await this.supplierRepository.save(supplier);
+    const updatedSupplier = plainToClass(Supplier, updateSupplierDto);
 
-  //   return {
-  //     supplier
-  //   };
-  // }
+    if (updateSupplierDto.supplierType) {
+      const supplierType = await this.supplierTypeRepository.findOneBy({ id: updateSupplierDto.supplierType });
+
+      if (!supplierType)
+        throw new NotFoundException(`Supplier type with id ${updateSupplierDto.supplierType} not found`);
+
+      updatedSupplier.supplierType = supplierType;
+    }
+
+    if (updateSupplierDto.subSupplierProductType) {
+      const subSupplierProductType = await this.subSupplierProductTypeRepository.findOneBy({ id: updateSupplierDto.subSupplierProductType });
+
+      if (!subSupplierProductType)
+        throw new NotFoundException(`Sub supplier product type with id ${updateSupplierDto.subSupplierProductType} not found`);
+
+      updatedSupplier.subSupplierProductType = subSupplierProductType;
+    }
+
+    Object.assign(supplier, updatedSupplier);
+
+    await this.supplierRepository.save(supplier);
+
+    return {
+      supplier,
+    };
+  }
 
   async desactivate(id: string) {
-    const supplier = await this.supplierRepository.findOneBy({ id });
+    const supplier = await this.supplierRepository.findOne({
+      where: {
+        id,
+      },
+      relations: [
+        'user',
+      ],
+    });
 
     if (!supplier)
       throw new NotFoundException(`Supplier with id ${id} not found`);
 
     supplier.isActive = !supplier.isActive;
 
+    const user = await this.userRepository.findOneBy({ id: supplier.user.id });
+
+    user.isActive = !supplier.isActive;
+
+    await this.userRepository.save(user);
     await this.supplierRepository.save(supplier);
 
     return {

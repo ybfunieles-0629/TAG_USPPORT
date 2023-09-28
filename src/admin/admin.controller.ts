@@ -26,13 +26,20 @@ export class AdminController {
     return this.adminService.findOne(term);
   }
 
-  // @Patch(':id')
-  // update(
-  //   @Param('id', ParseUUIDPipe) id: string,
-  //   @Body() updateAdminDto: UpdateAdminDto
-  // ) {
-  //   return this.adminService.update(+id, updateAdminDto);
-  // }
+  @Patch(':id')
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateAdminDto: UpdateAdminDto
+  ) {
+    return this.adminService.update(id, updateAdminDto);
+  }
+
+  @Patch('/desactivate/:id')
+  desactivate(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.adminService.desactivate(id);
+  }
 
   @Delete(':id')
   remove(@Param('id') id: string) {

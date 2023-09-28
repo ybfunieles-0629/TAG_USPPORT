@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { User } from '../../users/entities/user.entity';
 
@@ -22,6 +22,11 @@ export class Admin {
   })
   idClientBoss: string;
 
+  @Column('boolean', {
+    default: true,
+  })
+  isActive: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 
@@ -29,6 +34,6 @@ export class Admin {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @ManyToOne(() => User, (user) => user.admin)
+  @OneToOne(() => User, (user) => user.admin)
   user: User;
 }

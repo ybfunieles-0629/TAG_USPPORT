@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class CreateAdminDto {
   @IsString()
@@ -12,4 +12,8 @@ export class CreateAdminDto {
 
   @IsString()
   user: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  clients: string[];
 }

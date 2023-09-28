@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { validate as isUUID } from 'uuid';
 import { plainToClass } from 'class-transformer';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 import { CreateUserDto } from './dto/create-user.dto';
@@ -13,7 +14,7 @@ import { Role } from '../roles/entities/role.entity';
 import { Permission } from '../permissions/entities/permission.entity';
 import { Privilege } from '../privileges/entities/privilege.entity';
 import { LoginUserDto } from './dto/login-user.dto';
-import { JwtService } from '@nestjs/jwt';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -174,13 +175,16 @@ export class UsersService {
         'roles',
         'permissions',
         'privileges',
-        'clients',
+        'client',
         'company'
       ],
     });
 
     if (!user)
       throw new UnauthorizedException('Incorrect credentials');
+
+    if (!user.isActive)
+      throw new BadRequestException(`The user is currently inactive`);
 
     if (!bcrypt.compareSync(password, user.password))
       throw new UnauthorizedException('Incorrect credentials');
@@ -197,7 +201,7 @@ export class UsersService {
       };
     } else {
       payloadToSend = {
-        client: user.clients,
+        client: user.client,
         roles: user.roles.map(role => ({ name: role.name })),
         permissions: user.permissions.map(permission => ({ name: permission.name })),
       };
@@ -237,11 +241,6 @@ export class UsersService {
           id: term
         },
         relations: [
-          'access',
-          'access.roles',
-          'access.permissions',
-          'access.privileges',
-          'access.company',
           'clients'
         ]
       });
@@ -267,39 +266,22 @@ export class UsersService {
   //* IMPORTANTE
   //* IMPORTANTE
   // TODO: Verificar el tipo de dato del updateUserDto ya que da error, por ahora se deja en any
-  async update(id: string, updateUserDto: any) {
-    // const user = await this.userRepository.preload({
-    //   id,
-    //   ...updateUserDto
-    // });
+  async update(id: string, updateAdminDto: UpdateUserDto) {
+    const user = await this.userRepository.findOneBy({ id });
 
-    // if (!user)
-    //   throw new NotFoundException(`User with id ${id} not found`);
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
 
-    // if (updateUserDto.dni)
-    //   throw new BadRequestException(`You can't update the dni of an user`);
+    const updatedUser = plainToClass(User, UpdateUserDto);
 
-    // if (updateUserDto.clients) {
-    //   const clients: Client[] = [];
+    Object.assign(user, updatedUser);
 
-    //   for (const clientId of updateUserDto.clients) {
-    //     const client = await this.clientRepository.findOneBy({ id: clientId });
+    await this.userRepository.save(user);
 
-    //     if (!client)
-    //       throw new NotFoundException(`Client with id ${clientId} not found`);
-
-    //     if (!client.isActive)
-    //       throw new BadRequestException(`Client with id ${clientId} is inactive`);
-
-    //     clients.push(client);
-    //   }
-
-    //   user.clients = clients;
-    // }
-
-    // await this.userRepository.save(user);
-
-    // return user;
+    return {
+      user
+    };
   }
 
   async remove(id: string) {

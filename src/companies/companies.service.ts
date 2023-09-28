@@ -89,8 +89,9 @@ export class CompaniesService {
     updateCompanyDto.taxPayer = Boolean(updateCompanyDto.taxPayer);
     updateCompanyDto.selfRetaining = Boolean(updateCompanyDto.selfRetaining);
 
-    if (updateCompanyDto.nit)
+    if (updateCompanyDto.nit) {
       throw new BadRequestException(`You can't update the NIT of the company`);
+    }
 
     const company = await this.companyRepository.findOne({
       where: {
@@ -98,26 +99,11 @@ export class CompaniesService {
       }
     });
 
-    if (!company)
+    if (!company) {
       throw new NotFoundException(`Company with id ${id} not found`);
+    }
 
-    // if (updateCompanyDto.address) {
-    //   const addresses: Address[] = [];
-
-    //   for (const addressId of updateCompanyDto.address) {
-    //     const address = await this.addressRepository.findOneBy({ id: addressId });
-
-    //     if (!address)
-    //       throw new NotFoundException(`Address with id ${addressId} not found`);
-
-    //     if (!address.isActive)
-    //       throw new BadRequestException(`Address with id ${addressId} is inactive`);
-
-    //     addresses.push(address);
-    //   }
-
-    //   company.address = addresses;
-    // }
+    const updatedCompany = plainToClass(Company, updateCompanyDto);
 
     for (const [fieldName, fileInfo] of Object.entries(files)) {
       const uniqueFilename = `${uuidv4()}-${fileInfo[0].originalname}`;
@@ -126,13 +112,15 @@ export class CompaniesService {
       await this.uploadToAws(fileInfo[0]);
 
       if (fieldName === 'rutCompanyDocument') {
-        company.rutCompanyDocument = uniqueFilename;
+        updatedCompany.rutCompanyDocument = uniqueFilename;
       } else if (fieldName === 'dniRepresentativeDocument') {
-        company.dniRepresentativeDocument = uniqueFilename;
+        updatedCompany.dniRepresentativeDocument = uniqueFilename;
       } else if (fieldName === 'commerceChamberDocument') {
-        company.commerceChamberDocument = uniqueFilename;
+        updatedCompany.commerceChamberDocument = uniqueFilename;
       }
     }
+
+    Object.assign(company, updatedCompany);
 
     await this.companyRepository.save(company);
 

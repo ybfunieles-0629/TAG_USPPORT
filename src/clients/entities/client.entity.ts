@@ -49,6 +49,11 @@ export class Client {
   })
   manageBrands: number;
 
+  @Column('varchar', {
+    
+  })
+  commercialId: string;
+
   @Column('boolean', {
     default: true,
   })
@@ -67,6 +72,6 @@ export class Client {
   @OneToMany(() => Brand, (brand) => brand.client)
   brands: Brand[];
 
-  @ManyToOne(() => User, (user) => user.clients)
+  @OneToOne(() => User, (user) => user.client)
   user: User;
 }

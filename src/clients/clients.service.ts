@@ -46,10 +46,20 @@ export class ClientsService {
       where: {
         id: createClientDto.user,
       },
+      relations: [
+        'admin',
+        'client',
+        'supplier'
+      ],
     });
+
+    console.log(user);
 
     if (!user)
       throw new NotFoundException(`User with id ${createClientDto.user} not found`);
+
+    if (user.client || user.admin || user.supplier)
+      throw new BadRequestException(`This user is already linked with a client, admin or supplier`);
 
     newClient.user = user;
 
@@ -120,17 +130,59 @@ export class ClientsService {
     return client;
   }
 
-  // async update(id: string, updateClientDto: UpdateClientDto) {
-  //   const client = await this.clientRepository.preload({
-  //     id,
-  //     ...updateClientDto
-  //   });
+  async update(id: string, updateClientDto: UpdateClientDto) {
+    const client = await this.clientRepository.findOneBy({ id });
 
-  //   if (!client)
-  //     throw new NotFoundException(`Client with id ${id} not found`);
+    if (!client) {
+      throw new NotFoundException(`client with id ${id} not found`);
+    }
 
-  //   await this.clientRepository.save(client);
-  // }
+    const updatedClient = plainToClass(Client, updateClientDto);
+
+    if (updateClientDto.addresses) {
+      const addresses: Address[] = [];
+
+      for (const addressId of updateClientDto.addresses) {
+        const address = await this.addressRepository.findOneBy({ id: addressId });
+
+        if (!address)
+          throw new NotFoundException(`Address with id ${addressId} not found`);
+
+        if (!address.isActive)
+          throw new BadRequestException(`Address with id ${addressId} is currently inactive`);
+
+        addresses.push(address);
+      }
+
+      updatedClient.addresses = addresses;
+    }
+
+    if (updateClientDto.brands) {
+      const brands: Brand[] = [];
+
+      for (const brandId of updateClientDto.brands) {
+        const brand = await this.brandRepository.findOneBy({ id: brandId });
+
+        if (!brand)
+          throw new NotFoundException(`Brand with id ${brandId} not found`);
+
+        if (!brand.isActive)
+          throw new BadRequestException(`Brand with id ${brandId} is currently inactive`);
+
+        brands.push(brand);
+      }
+
+      updatedClient.brands = brands;
+    }
+
+    Object.assign(client, updatedClient);
+
+    await this.clientRepository.save(client);
+
+    return {
+      client,
+    };
+  }
 
   // async changeIsCoorporative(id: string) {
   //   const client = await this.clientRepository.findOneBy({ id });
@@ -146,13 +198,25 @@ export class ClientsService {
   // }
 
   async desactivate(id: string) {
-    const client = await this.clientRepository.findOneBy({ id });
+    const client = await this.clientRepository.findOne({
+      where: {
+        id,
+      },
+      relations: [
+        'user',
+      ],
+    });
 
     if (!client)
       throw new NotFoundException(`Client with id ${id} not found`);
 
     client.isActive = !client.isActive;
 
+    const user = await this.userRepository.findOneBy({ id: client.user.id });
+
+    user.isActive = !user.isActive;
+
+    await this.userRepository.save(user);
     await this.clientRepository.save(client);
 
     return {

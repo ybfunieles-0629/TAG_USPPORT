@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
 
 import { SupplierTypesService } from './supplier-types.service';
 import { CreateSupplierTypeDto } from './dto/create-supplier-type.dto';
@@ -7,7 +7,7 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Controller('supplier-types')
 export class SupplierTypesController {
-  constructor(private readonly supplierTypesService: SupplierTypesService) {}
+  constructor(private readonly supplierTypesService: SupplierTypesService) { }
 
   @Post()
   create(@Body() createSupplierTypeDto: CreateSupplierTypeDto) {
@@ -21,18 +21,21 @@ export class SupplierTypesController {
     return this.supplierTypesService.findAll(paginationDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.supplierTypesService.findOne(+id);
+  @Get(':term')
+  findOne(@Param('term') term: string) {
+    return this.supplierTypesService.findOne(term);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSupplierTypeDto: UpdateSupplierTypeDto) {
-    return this.supplierTypesService.update(+id, updateSupplierTypeDto);
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateSupplierTypeDto: UpdateSupplierTypeDto
+  ) {
+    return this.supplierTypesService.update(id, updateSupplierTypeDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.supplierTypesService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.supplierTypesService.remove(id);
   }
 }

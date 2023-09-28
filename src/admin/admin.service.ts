@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
@@ -9,6 +9,7 @@ import { UpdateAdminDto } from './dto/update-admin.dto';
 import { Admin } from './entities/admin.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { User } from '../users/entities/user.entity';
+import { Client } from '../clients/entities/client.entity';
 
 @Injectable()
 export class AdminService {
@@ -17,6 +18,9 @@ export class AdminService {
   constructor(
     @InjectRepository(Admin)
     private readonly adminRepository: Repository<Admin>,
+
+    @InjectRepository(Client)
+    private readonly clientRepository: Repository<Client>,
   
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -30,9 +34,23 @@ export class AdminService {
     if (!user)
       throw new NotFoundException(`User with id ${createAdminDto.user} not found`);
 
-    newAdminUser.user = user;
+    if (user.client || user.admin || user.supplier)
+      throw new BadRequestException(`This user is already linked with a client, admin or supplier`);
+
+    newAdminUser.user;
 
     await this.adminRepository.save(newAdminUser);
+
+    for (const clientId of createAdminDto.clients) {
+      const client = await this.clientRepository.findOneBy({ id: clientId });
+
+      if (!client)
+        throw new NotFoundException(`Client with id ${clientId} not found`);
+
+      client.commercialId = newAdminUser.id;
+
+      await this.clientRepository.save(client);
+    }
 
     return {
       newAdminUser
@@ -71,21 +89,50 @@ export class AdminService {
     };
   }
 
-  // async update(id: string, updateAdminDto: UpdateAdminDto) {
-  //   const admin = await this.adminRepository.preload({
-  //     id,
-  //     ...updateAdminDto,
-  //   });
+  async update(id: string, updateAdminDto: UpdateAdminDto) {
+    const admin = await this.adminRepository.findOneBy({ id });
 
-  //   if (!admin)
-  //     throw new NotFoundException(`Admin user with id ${id} not found`);
+    if (!admin) {
+      throw new NotFoundException(`Admin user with id ${id} not found`);
+    }
 
-  //   await this.adminRepository.save(admin);
+    const updatedAdmin = plainToClass(Admin, updateAdminDto);
 
-  //   return {
-  //     admin
-  //   };
-  // }
+    Object.assign(admin, updatedAdmin);
+
+    await this.adminRepository.save(admin);
+
+    return {
+      admin
+    };
+  }
+  
+  async desactivate(id: string) {
+    const admin = await this.adminRepository.findOne({
+      where: {
+        id,
+      },
+      relations: [
+        'user',
+      ],
+    });
+
+    if (!admin)
+      throw new NotFoundException(`admin with id ${id} not found`);
+
+    admin.isActive = !admin.isActive;
+
+    const user = await this.userRepository.findOneBy({ id: admin.user.id });
+
+    user.isActive = !user.isActive;
+
+    await this.userRepository.save(user);
+    await this.adminRepository.save(admin);
+
+    return {
+      admin
+    };
+  }
 
   remove(id: number) {
     return `This action removes a #${id} admin`;
