@@ -72,6 +72,16 @@ export class User {
   })
   mainSecondaryUser: number;
 
+  @Column('int', {
+
+  })
+  canBuy: number;
+
+  @Column('int', {
+
+  })
+  manageCorporativeAccount: number;
+
   @Column('boolean', {
     default: true,
   })

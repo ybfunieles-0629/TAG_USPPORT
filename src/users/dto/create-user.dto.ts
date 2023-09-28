@@ -39,6 +39,12 @@ export class CreateUserDto {
   @IsNumber()
   mainSecondaryUser: number;
 
+  @IsNumber()
+  canBuy: number;
+
+  @IsNumber()
+  manageCorporativeAccount: number;
+
   @IsString()
   @IsOptional()
   company?: string;
