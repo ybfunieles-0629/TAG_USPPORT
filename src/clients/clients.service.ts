@@ -44,8 +44,6 @@ export class ClientsService {
       ],
     });
 
-    console.log(user);
-
     if (!user)
       throw new NotFoundException(`User with id ${createClientDto.user} not found`);
 
