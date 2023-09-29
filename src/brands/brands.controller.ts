@@ -13,6 +13,11 @@ export class BrandsController {
     return this.brandsService.create(createBrandDto);
   }
 
+  @Post('/multiple')
+  createMultipleBrands(@Body() createBrandsDto: CreateBrandDto[]) {
+    return this.brandsService.createMultipleBrands(createBrandsDto);
+  }
+
   @Get()
   findAll(
     @Query() paginationDto: PaginationDto
@@ -31,6 +36,13 @@ export class BrandsController {
     @Body() updateBrandDto: UpdateBrandDto
     ) {
     return this.brandsService.update(id, updateBrandDto);
+  }
+
+  @Patch('/update/multiple')
+  updateMultipleBrands(
+    @Body() updateBrandsDto: UpdateBrandDto[]
+    ) {
+    return this.brandsService.updateMultipleBrands(updateBrandsDto);
   }
 
   @Patch('/desactivate/:id')

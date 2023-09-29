@@ -32,6 +32,27 @@ export class BrandsService {
     }
   }
 
+  async createMultipleBrands(createBrandsDto: CreateBrandDto[]) {
+    const createdBrands: Brand[] = [];
+
+    for (const createBrandDto of createBrandsDto) {
+      const existBrand = await this.brandRepository.findOneBy({ name: createBrandDto.name });
+
+      if (existBrand)
+        throw new BadRequestException(`There is a brand with the name ${createBrandDto.name} already registered`);
+
+      const brand = this.brandRepository.create(createBrandDto);
+
+      await this.brandRepository.save(brand);
+
+      createdBrands.push(brand);
+    }
+
+    return {
+      createdBrands,
+    };
+  }
+
   findAll(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
 
@@ -65,19 +86,54 @@ export class BrandsService {
   }
 
   async update(id: string, updateBrandDto: UpdateBrandDto) {
-    const brand = await this.brandRepository.findOne({ 
-      where: {
-        id
-      },
-    });
+    const brand = await this.brandRepository.findOneBy({ id: id });
 
     if (!brand)
       throw new NotFoundException(`Brand with id ${id} not found`);
 
+    if (updateBrandDto.name)
+      brand.name = updateBrandDto.name;
+
+
+    if (updateBrandDto.fee)
+      brand.fee = updateBrandDto.fee;
+
     await this.brandRepository.save(brand);
 
     return {
-      brand
+      brand,
+    };
+  }
+
+  async updateMultipleBrands(updateBrandsDto: UpdateBrandDto[]) {
+    const updatedBrands: Brand[] = [];
+
+    for (const updateBrandDto of updateBrandsDto) {
+      const { id, ...dataToUpdate } = updateBrandDto;
+
+      const brand = await this.brandRepository.findOneBy({ id: updateBrandDto.id });
+
+      if (!brand)
+        throw new NotFoundException(`Brand with id ${updateBrandDto.id} not found`);
+
+      const brandWithName = await this.brandRepository.findOne({
+        where: {
+          name: updateBrandDto.name
+        },
+      });
+
+      if (brandWithName)
+        throw new BadRequestException(`There is a brand with name ${updateBrandDto.name} already registered`);
+
+      Object.assign(brand, dataToUpdate);
+
+      await this.brandRepository.save(brand);
+
+      updatedBrands.push(brand);
+    }
+
+    return {
+      updatedBrands
     };
   }
 
