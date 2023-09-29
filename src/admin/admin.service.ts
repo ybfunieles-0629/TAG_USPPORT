@@ -21,7 +21,7 @@ export class AdminService {
 
     @InjectRepository(Client)
     private readonly clientRepository: Repository<Client>,
-  
+
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) { }
@@ -29,7 +29,16 @@ export class AdminService {
   async create(createAdminDto: CreateAdminDto) {
     const newAdminUser = plainToClass(Admin, createAdminDto);
 
-    const user = await this.userRepository.findOneBy({ id: createAdminDto.user });
+    const user = await this.userRepository.findOne({
+      where: {
+        id: createAdminDto.user
+      },
+      relations: [
+        'admin',
+        'client',
+        'supplier'
+      ],
+    });
 
     if (!user)
       throw new NotFoundException(`User with id ${createAdminDto.user} not found`);
@@ -37,7 +46,7 @@ export class AdminService {
     if (user.client || user.admin || user.supplier)
       throw new BadRequestException(`This user is already linked with a client, admin or supplier`);
 
-    newAdminUser.user;
+    newAdminUser.user = user;
 
     await this.adminRepository.save(newAdminUser);
 
@@ -106,7 +115,7 @@ export class AdminService {
       admin
     };
   }
-  
+
   async desactivate(id: string) {
     const admin = await this.adminRepository.findOne({
       where: {
