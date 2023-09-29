@@ -31,15 +31,6 @@ export class ClientsService {
   ) { }
 
   async create(createClientDto: CreateClientDto) {
-    const emailInUse = await this.clientRepository.findOne({
-      where: {
-        billingEmail: createClientDto.billingEmail,
-      },
-    });
-
-    if (emailInUse)
-      throw new BadRequestException(`Billing email ${createClientDto.billingEmail} is currently in use`);
-
     const newClient = plainToClass(Client, createClientDto);
 
     const user = await this.userRepository.findOne({
