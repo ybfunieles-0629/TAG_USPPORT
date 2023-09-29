@@ -174,6 +174,8 @@ export class UsersService {
       relations: [
         'admin',
         'client',
+        'client.brands',
+        'client.addresses',
         'supplier',
         'company',
         'roles',
@@ -228,6 +230,8 @@ export class UsersService {
       relations: [
         'admin',
         'client',
+        'client.brands',
+        'client.addresses',
         'supplier',
         'company',
         'roles',
@@ -248,6 +252,8 @@ export class UsersService {
         relations: [
           'admin',
           'client',
+          'client.brands',
+          'client.addresses',
           'supplier',
           'company',
           'roles',
