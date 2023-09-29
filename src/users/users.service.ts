@@ -172,11 +172,13 @@ export class UsersService {
         email
       },
       relations: [
+        'admin',
+        'client',
+        'supplier',
+        'company',
         'roles',
         'permissions',
-        'privileges',
-        'client',
-        'company'
+        'privileges'
       ],
     });
 
@@ -244,7 +246,13 @@ export class UsersService {
           id: term
         },
         relations: [
-          'clients'
+          'admin',
+          'client',
+          'supplier',
+          'company',
+          'roles',
+          'permissions',
+          'privileges'
         ]
       });
     } else {

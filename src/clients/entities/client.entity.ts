@@ -66,10 +66,10 @@ export class Client {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @OneToMany(() => Address, (address) => address.client, { onDelete: 'CASCADE' })
+  @OneToMany(() => Address, (address) => address.client)
   addresses: Address[];
 
-  @OneToMany(() => Brand, (brand) => brand.client, { onDelete: 'CASCADE' })
+  @OneToMany(() => Brand, (brand) => brand.client)
   brands: Brand[];
 
   @OneToOne(() => User, (user) => user.client, { onDelete: 'CASCADE' })

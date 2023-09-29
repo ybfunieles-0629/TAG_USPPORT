@@ -46,7 +46,7 @@ export class SuppliersService {
 
     if (!user)
       throw new NotFoundException(`User with id ${createSupplierDto.user}`);
-    
+
     if (user.client || user.admin || user.supplier)
       throw new BadRequestException(`This user is already linked with a client, admin or supplier`);
 
@@ -167,10 +167,24 @@ export class SuppliersService {
   }
 
   async remove(id: string) {
-    const supplier = await this.supplierRepository.findOneBy({ id });
+    const supplier = await this.supplierRepository.findOne({
+      where: {
+        id
+      },
+      relations: [
+        'supplierType',
+        'subSupplierProductType',
+      ]
+    });
 
     if (!supplier)
       throw new NotFoundException(`Supplier with id ${id} not found`);
+
+    if (supplier.supplierType)
+      throw new BadRequestException(`The supplier have relations with supplier type and can't be deleted`);
+
+    if (supplier.subSupplierProductType)
+      throw new BadRequestException(`The supplier have relations with sub supplier product type and can't be deleted`);
 
     await this.supplierRepository.remove(supplier);
 

@@ -225,15 +225,30 @@ export class ClientsService {
   }
 
   async remove(id: string) {
-    const client = await this.clientRepository.findOneBy({ id });
+    const client = await this.clientRepository.findOne({
+      where: {
+        id
+      },
+      relations: [
+        'addresses',
+        'brands'
+      ]
+    });
 
     if (!client)
       throw new NotFoundException(`Client with id ${id} not found`);
+
+    if (client.addresses)
+      throw new BadRequestException(`The client has relation with addresses and can't be deleted`);
+
+    if (client.brands)
+      throw new BadRequestException(`The client has relation with addresses and can't be deleted`);
 
     await this.clientRepository.remove(client);
 
     return client;
   }
+
 
   private handleDbExceptions(error: any) {
     if (error.code === '23505')

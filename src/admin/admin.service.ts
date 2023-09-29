@@ -134,8 +134,15 @@ export class AdminService {
     };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} admin`;
+  async remove(id: string) {
+    const admin = await this.adminRepository.findOneBy({ id });
+
+    if (!admin)
+      throw new NotFoundException(`Admin user with id ${id} not found`);
+
+    await this.adminRepository.remove(admin);
+
+    return admin;
   }
 
   private handleDbExceptions(error: any) {
