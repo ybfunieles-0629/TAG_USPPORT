@@ -34,17 +34,10 @@ export class CreateUserDto {
   phone: string;
 
   @IsNumber()
-  manageCommercial: number;
-
-  @IsNumber()
   mainSecondaryUser: number;
 
   @IsNumber()
   canBuy: number;
-
-  @IsNumber()
-  manageCorporativeAccount: number;
-
   @IsNumber()
   isCoorporative: number;
 
