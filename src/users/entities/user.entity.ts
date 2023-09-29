@@ -12,7 +12,7 @@ import { Supplier } from 'src/suppliers/entities/supplier.entity';
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  
+
   @Column('varchar', {
     unique: true,
   })
@@ -62,7 +62,7 @@ export class User {
 
   })
   phone: string;
-  
+
   @Column('int', {
 
   })
@@ -91,15 +91,18 @@ export class User {
 
   //* --- FK --- *//
   @OneToOne(() => Admin, (admin) => admin.user)
+  @JoinColumn()
   admin: Admin;
 
-  @OneToOne(() => Client, (client) => client.user)
+  @OneToOne(() => Client, (client) => client.user, { onDelete: 'CASCADE' })
+  @JoinColumn()
   client: Client;
 
-  @OneToOne(() => Supplier, (supplier) => supplier.user)
+  @OneToOne(() => Supplier, (supplier) => supplier.user, { onDelete: 'CASCADE' })
+  @JoinColumn()
   supplier: Supplier;
 
-  @ManyToOne(() => Company, (company) => company.users)
+  @ManyToOne(() => Company, (company) => company.users, { onDelete: 'CASCADE' })
   company: Company;
 
   @ManyToMany(() => Role, (role) => role.users)

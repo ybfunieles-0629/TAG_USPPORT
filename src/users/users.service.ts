@@ -224,6 +224,9 @@ export class UsersService {
       take: limit,
       skip: offset,
       relations: [
+        'admin',
+        'client',
+        'supplier',
         'company',
         'roles',
         'permissions',
@@ -285,17 +288,44 @@ export class UsersService {
   }
 
   async remove(id: string) {
-    try {
-      const user = await this.findOne(id);
+    const user = await this.userRepository.findOne({
+      where: {
+        id,
+      },
+      relations: [
+        'admin',
+        'client',
+        'supplier',
+        'company',
+        'roles',
+        'permissions',
+        'privileges'
+      ],
+    });
 
-      await this.userRepository.remove(user);
+    if (!user)
+      throw new NotFoundException(`User with id ${id} not found`);
 
-      return {
-        user
-      }
-    } catch (error) {
-      this.handleDbExceptions(error);
-    }
+    const company = await this.companyRepository.findOne({
+      where: {
+        id: user.company.id
+      },
+      relations: [
+        'users'
+      ],
+    });
+
+    if (!company)
+      throw new NotFoundException(`Company with id ${user.company.id} not found`);
+
+    company.users = company.users.filter(u => u.id !== id);
+
+    await this.companyRepository.save(company);
+    await this.userRepository.remove(user);
+
+    return {
+      user
+    };
   }
 
   async desactivate(id: string) {
