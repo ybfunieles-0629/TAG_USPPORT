@@ -15,12 +15,12 @@ export class Client {
   employeesNumber: number;
 
   @Column('varchar', {
-    
+
   })
   billingEmail: string;
 
   @Column('int', {
-    
+
   })
   margin: number;
 
@@ -30,17 +30,17 @@ export class Client {
   deliveryAddress: string;
 
   @Column('int', {
-    
+
   })
   paymentTerms: number;
 
   @Column('int', {
-    
+
   })
   annualSalesGoal: number;
 
   @Column('int', {
-    
+
   })
   annualMonthlyGoals: number;
 
@@ -50,7 +50,7 @@ export class Client {
   manageBrands: number;
 
   @Column('varchar', {
-    
+
   })
   commercialId: string;
 
@@ -66,12 +66,12 @@ export class Client {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @OneToMany(() => Address, (address) => address.client)
+  @OneToMany(() => Address, (address) => address.client, { onDelete: 'CASCADE' })
   addresses: Address[];
 
-  @OneToMany(() => Brand, (brand) => brand.client)
+  @OneToMany(() => Brand, (brand) => brand.client, { onDelete: 'CASCADE' })
   brands: Brand[];
 
-  @OneToOne(() => User, (user) => user.client)
+  @OneToOne(() => User, (user) => user.client, { onDelete: 'CASCADE' })
   user: User;
 }

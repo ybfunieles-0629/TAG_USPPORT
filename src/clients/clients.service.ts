@@ -49,7 +49,7 @@ export class ClientsService {
       relations: [
         'admin',
         'client',
-        'supplier'
+        'supplier',
       ],
     });
 
