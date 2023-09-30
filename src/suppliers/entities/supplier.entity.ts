@@ -49,6 +49,26 @@ export class Supplier {
   })
   bills: boolean;
 
+  @Column('varchar', {
+
+  })
+  bankAccountType: string;
+  
+  @Column('varchar', {
+    unique: true,
+  })
+  bankAccountNumber: string;
+
+  @Column('varchar', {
+
+  })
+  bankAccount: string;
+
+  @Column('varchar', {
+
+  })
+  portfolio: string;
+
   @Column('int', {
 
   })

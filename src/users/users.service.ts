@@ -15,6 +15,7 @@ import { Permission } from '../permissions/entities/permission.entity';
 import { Privilege } from '../privileges/entities/privilege.entity';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Brand } from '../brands/entities/brand.entity';
 
 @Injectable()
 export class UsersService {
@@ -23,6 +24,9 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(Brand)
+    private readonly brandRepository: Repository<Brand>,
 
     @InjectRepository(Company)
     private readonly companyRepository: Repository<Company>,
@@ -109,6 +113,7 @@ export class UsersService {
     const roles: Role[] = [];
     const permissions: Permission[] = [];
     const privileges: Privilege[] = [];
+    const brands: Brand[] = [];
 
     for (const roleId of createUserDto.roles) {
       const role = await this.roleRepository.findOneBy({ id: roleId });
@@ -150,7 +155,21 @@ export class UsersService {
       privileges.push(privilege);
     }
 
-    newUser.privileges = privileges;
+    newUser.privileges = privileges;;
+
+    for (const brandId of createUserDto.brands) {
+      const brand = await this.brandRepository.findOneBy({ id: brandId });
+
+      if (!brand)
+        throw new NotFoundException(`Brand with id ${brandId} not found`);
+
+      if (!brand.isActive)
+        throw new BadRequestException(`Brand with id ${brandId} is currently inactive`);
+
+      brands.push(brand);
+    }
+
+    newUser.brands = brands;
 
     const encryptedPassword = bcrypt.hashSync(createUserDto.password, 10);
 
@@ -173,6 +192,7 @@ export class UsersService {
       },
       relations: [
         'admin',
+        'brands',
         'client',
         'client.brands',
         'client.addresses',
@@ -229,6 +249,7 @@ export class UsersService {
       skip: offset,
       relations: [
         'admin',
+        'brands',
         'client',
         'client.brands',
         'client.addresses',
@@ -283,7 +304,7 @@ export class UsersService {
   //* IMPORTANTE
   //* IMPORTANTE
   // TODO: Verificar el tipo de dato del updateUserDto ya que da error, por ahora se deja en any
-  async update(id: string, updateAdminDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.findOneBy({ id });
 
     if (!user) {
@@ -291,6 +312,24 @@ export class UsersService {
     }
 
     const updatedUser = plainToClass(User, UpdateUserDto);
+
+    if (updateUserDto.brands) {
+      const brands: Brand[] = [];
+
+      for (const brandId of updateUserDto.brands) {
+        const brand = await this.brandRepository.findOneBy({ id: brandId });
+
+        if (!brand)
+          throw new NotFoundException(`Brand with id ${brandId} not found`);
+
+        if (!brand.isActive)
+          throw new BadRequestException(`Brand with id ${brandId} is currently inactive`);
+
+        brands.push(brand);
+      }
+
+      updatedUser.brands = brands;
+    }
 
     Object.assign(user, updatedUser);
 

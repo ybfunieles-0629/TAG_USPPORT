@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { Client } from 'src/clients/entities/client.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('brands')
 export class Brand {
@@ -17,6 +17,11 @@ export class Brand {
   })
   fee: string;
 
+  @Column('varchar', {
+
+  })
+  companyId: string;
+
   @Column('boolean', {
     default: true,
   })
@@ -29,6 +34,6 @@ export class Brand {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @ManyToOne(() => Client, (client) => client.brands)
-  client: Client;
+  @ManyToOne(() => User, (user) => user.brands)
+  user: User;
 }

@@ -32,7 +32,20 @@ export class CreateSupplierDto {
   supplierType: string;
 
   @IsString()
+  bankAccountType: string;
+  
+  @IsString()
+  bankAccountNumber: string;
+
+  @IsString()
+  bankAccount: string;
+
+  @IsString()
+  portfolio: string;
+
+  @IsString()
   user: string;
+  
 
   @IsString()
   @IsOptional()

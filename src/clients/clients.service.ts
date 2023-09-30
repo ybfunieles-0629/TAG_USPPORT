@@ -76,8 +76,6 @@ export class ClientsService {
       brands.push(brand);
     }
 
-    newClient.brands = brands;
-
     await this.clientRepository.save(newClient);
 
     return {
@@ -146,24 +144,6 @@ export class ClientsService {
       updatedClient.addresses = addresses;
     }
 
-    if (updateClientDto.brands) {
-      const brands: Brand[] = [];
-
-      for (const brandId of updateClientDto.brands) {
-        const brand = await this.brandRepository.findOneBy({ id: brandId });
-
-        if (!brand)
-          throw new NotFoundException(`Brand with id ${brandId} not found`);
-
-        if (!brand.isActive)
-          throw new BadRequestException(`Brand with id ${brandId} is currently inactive`);
-
-        brands.push(brand);
-      }
-
-      updatedClient.brands = brands;
-    }
-
     Object.assign(client, updatedClient);
 
     await this.clientRepository.save(client);
@@ -228,9 +208,6 @@ export class ClientsService {
       throw new NotFoundException(`Client with id ${id} not found`);
 
     if (client.addresses)
-      throw new BadRequestException(`The client has relation with addresses and can't be deleted`);
-
-    if (client.brands)
       throw new BadRequestException(`The client has relation with addresses and can't be deleted`);
 
     await this.clientRepository.remove(client);

@@ -47,6 +47,10 @@ export class CreateUserDto {
 
   @IsArray()
   @IsString({ each: true })
+  brands: string[];
+
+  @IsArray()
+  @IsString({ each: true })
   roles: string[];
 
   @IsArray()

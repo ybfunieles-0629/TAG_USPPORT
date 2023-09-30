@@ -69,9 +69,6 @@ export class Client {
   @OneToMany(() => Address, (address) => address.client)
   addresses: Address[];
 
-  @OneToMany(() => Brand, (brand) => brand.client)
-  brands: Brand[];
-
   @OneToOne(() => User, (user) => user.client, { onDelete: 'CASCADE' })
   user: User;
 }

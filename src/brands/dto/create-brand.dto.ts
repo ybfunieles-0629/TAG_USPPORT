@@ -7,6 +7,9 @@ export class CreateBrandDto {
   @IsString()
   fee: string;
 
+  @IsString()
+  companyId: string;
+
   @IsOptional()
   @IsString()
   access?: string;

@@ -2,12 +2,13 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger, 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { plainToClass } from 'class-transformer';
+import { isUUID } from 'class-validator';
 
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 import { Brand } from './entities/brand.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { isUUID } from 'class-validator';
+import { Company } from '../companies/entities/company.entity';
 
 @Injectable()
 export class BrandsService {
@@ -16,11 +17,22 @@ export class BrandsService {
   constructor(
     @InjectRepository(Brand)
     private readonly brandRepository: Repository<Brand>,
+
+    @InjectRepository(Company)
+    private readonly companyRepository: Repository<Company>,
   ) { }
 
   async create(createBrandDto: CreateBrandDto) {
     try {
       const newBrand = plainToClass(Brand, createBrandDto);
+
+      const existCompany = await this.companyRepository.findOneBy({ id: createBrandDto.companyId });
+
+      if (!existCompany)
+        throw new NotFoundException(`Company with id ${createBrandDto.companyId} not found`);
+
+      if (!existCompany.isActive)
+        throw new NotFoundException(`Company with id ${createBrandDto.companyId} is currently inactive`);
 
       await this.brandRepository.save(newBrand);
 
@@ -40,6 +52,14 @@ export class BrandsService {
 
       if (existBrand)
         throw new BadRequestException(`There is a brand with the name ${createBrandDto.name} already registered`);
+
+      const existCompany = await this.companyRepository.findOneBy({ id: createBrandDto.companyId });
+
+      if (!existCompany)
+        throw new NotFoundException(`Company with id ${createBrandDto.companyId} not found`);
+
+      if (!existCompany.isActive)
+        throw new NotFoundException(`Company with id ${createBrandDto.companyId} is currently inactive`);
 
       const brand = this.brandRepository.create(createBrandDto);
 
@@ -94,9 +114,20 @@ export class BrandsService {
     if (updateBrandDto.name)
       brand.name = updateBrandDto.name;
 
-
     if (updateBrandDto.fee)
       brand.fee = updateBrandDto.fee;
+
+    if (updateBrandDto.companyId) {
+      const existCompany = await this.companyRepository.findOneBy({ id: updateBrandDto.companyId });
+
+      if (!existCompany)
+        throw new NotFoundException(`Company with id ${updateBrandDto.companyId} not found`);
+
+      if (!existCompany.isActive)
+        throw new NotFoundException(`Company with id ${updateBrandDto.companyId} is currently inactive`);
+
+      brand.companyId = updateBrandDto.companyId;
+    }
 
     await this.brandRepository.save(brand);
 
@@ -124,6 +155,18 @@ export class BrandsService {
 
       if (brandWithName)
         throw new BadRequestException(`There is a brand with name ${updateBrandDto.name} already registered`);
+
+      if (updateBrandDto.companyId) {
+        const existCompany = await this.companyRepository.findOneBy({ id: updateBrandDto.companyId });
+
+        if (!existCompany)
+          throw new NotFoundException(`Company with id ${updateBrandDto.companyId} not found`);
+
+        if (!existCompany.isActive)
+          throw new NotFoundException(`Company with id ${updateBrandDto.companyId} is currently inactive`);
+
+        brand.companyId = updateBrandDto.companyId;
+      }
 
       Object.assign(brand, dataToUpdate);
 
