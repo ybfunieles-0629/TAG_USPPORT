@@ -10,11 +10,13 @@ import { ClientsModule } from '../clients/clients.module';
 import { PermissionsModule } from '../permissions/permissions.module';
 import { PrivilegesModule } from '../privileges/privileges.module';
 import { JwtModule } from '@nestjs/jwt';
+import { BrandsModule } from 'src/brands/brands.module';
 
 @Module({
   controllers: [UsersController],
   providers: [UsersService],
   imports: [
+    BrandsModule,
     CompaniesModule,
     RolesModule,
     PermissionsModule,
