@@ -10,6 +10,9 @@ export class CreateBrandDto {
   @IsString()
   companyId: string;
 
+  @IsString()
+  secondaryUserId: string;
+
   @IsOptional()
   @IsString()
   access?: string;
