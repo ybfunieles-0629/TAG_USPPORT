@@ -73,20 +73,41 @@ export class BrandsService {
     };
   }
 
-  findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
 
-    return this.brandRepository.find({
+    const brands = await this.brandRepository.find({
       take: limit,
       skip: offset,
+      relations: [
+        'user',
+      ],
     });
+
+    const brandsWithCompany = brands.map(async brand => {
+      const company = await this.companyRepository.findOneBy({ id: brand.companyId });
+      
+      return {
+        brand,
+        company
+      };
+    });
+    
+    return brandsWithCompany;
   }
 
   async findOne(term: string) {
     let brand: Brand;
 
     if (isUUID(term)) {
-      brand = await this.brandRepository.findOneBy({ id: term });
+      brand = await this.brandRepository.findOne({
+        where: {
+          id: term
+        },
+        relations: [
+          'user',
+        ],
+      });
     } else {
       const queryBuilder = this.brandRepository.createQueryBuilder();
 
@@ -100,8 +121,18 @@ export class BrandsService {
     if (!brand)
       throw new NotFoundException(`Brand with ${term} not found`);
 
+    const company = await this.companyRepository.findOne({
+      where: {
+        id: brand.companyId,
+      },
+    });
+
+    if (!company)
+      throw new NotFoundException(`Company with id ${brand.companyId} not found`);
+
     return {
-      brand
+      brand,
+      company
     };
   }
 

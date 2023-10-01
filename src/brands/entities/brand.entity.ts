@@ -22,6 +22,11 @@ export class Brand {
   })
   companyId: string;
 
+  @Column('varchar', {
+
+  })
+  secondaryUserId: string;
+
   @Column('boolean', {
     default: true,
   })
