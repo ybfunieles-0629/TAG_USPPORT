@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, Put } from '@nestjs/common';
 import { BrandsService } from './brands.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
@@ -30,7 +30,7 @@ export class BrandsController {
     return this.brandsService.findOne(term);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string, 
     @Body() updateBrandDto: UpdateBrandDto
@@ -38,7 +38,7 @@ export class BrandsController {
     return this.brandsService.update(id, updateBrandDto);
   }
 
-  @Patch('/update/multiple')
+  @Put('/update/multiple')
   updateMultipleBrands(
     @Body() updateBrandsDto: UpdateBrandDto[]
     ) {
