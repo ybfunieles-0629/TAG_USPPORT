@@ -31,8 +31,4 @@ export class CreateClientDto {
   @IsArray()
   @IsString({ each: true })
   addresses: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  brands: string[];
 }

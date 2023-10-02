@@ -65,17 +65,6 @@ export class ClientsService {
 
     newClient.addresses = addresses;
 
-    const brands: Brand[] = [];
-
-    for (const brandId of createClientDto.brands) {
-      const brand = await this.brandRepository.findOneBy({ id: brandId });
-
-      if (!brand)
-        throw new NotFoundException(`Brand with id ${brandId} not found`);
-
-      brands.push(brand);
-    }
-
     await this.clientRepository.save(newClient);
 
     return {
