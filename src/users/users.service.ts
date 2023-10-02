@@ -303,13 +303,20 @@ export class UsersService {
   //* IMPORTANTE
   // TODO: Verificar el tipo de dato del updateUserDto ya que da error, por ahora se deja en any
   async update(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.findOneBy({ id });
+    const user = await this.userRepository.findOne({
+      where: {
+        id,
+      },
+      relations: [
+        'brands'
+      ],
+    });
 
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
 
-    const updatedUser = plainToClass(User, UpdateUserDto);
+    const updatedUser = plainToClass(User, updateUserDto);
 
     if (updateUserDto.brands) {
       const brands: Brand[] = [];
@@ -334,7 +341,7 @@ export class UsersService {
     await this.userRepository.save(user);
 
     return {
-      updatedUser
+      user
     };
   }
 
