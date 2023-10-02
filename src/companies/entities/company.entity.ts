@@ -35,6 +35,11 @@ export class Company {
   @Column('varchar', {
 
   })
+  documentType: string;
+
+  @Column('varchar', {
+
+  })
   nit: string;
 
   @Column('varchar', {

@@ -12,6 +12,10 @@ export class CreateCompanyDto {
   @IsString()
   legalCapacity: string;
 
+  @IsOptional()
+  @IsString()
+  documentType: string;
+
   @IsString()
   nit: string;
 
@@ -58,10 +62,6 @@ export class CreateCompanyDto {
   @IsOptional()
   @IsString()
   companyType: string;
-
-  @IsOptional()
-  @IsString()
-  documentType: string;
   
   @IsOptional()
   // @IsBoolean()
