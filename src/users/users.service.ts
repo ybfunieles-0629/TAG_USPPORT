@@ -41,46 +41,7 @@ export class UsersService {
     private readonly privilegeRepository: Repository<Privilege>,
 
     private readonly jwtService: JwtService,
-
-    // @InjectRepository(Access)
-    // private readonly accessRepository: Repository<Access>,
   ) { }
-
-  // async assignClients(id: string, assignClientsDto: AssignClientsDto) {
-  //   const user = await this.userRepository.findOne({
-  //     where: {
-  //       id: id
-  //     },
-  //     relations: {
-  //       clients: true,
-  //     },
-  //   });
-
-  //   if (!user)
-  //     throw new NotFoundException(`User with id ${id} not found`);
-
-  //   const clients: Client[] = [];
-
-  //   for (const clientId of assignClientsDto.clientsId) {
-  //     const client = await this.clientRepository.findOneBy({ id: clientId });
-
-  //     if (!client)
-  //       throw new NotFoundException(`Client with id ${clientId} not found`);
-
-  //     if (!client.isActive)
-  //       throw new BadRequestException(`Client with id ${id} is inactive`);
-
-  //     clients.push(client);
-  //   }
-
-  //   user.clients = clients;
-
-  //   await this.userRepository.save(user);
-
-  //   return {
-  //     user
-  //   };
-  // }
 
   async createUser(createUserDto: CreateUserDto) {
     const emailInUse = await this.userRepository.findOne({
@@ -352,6 +313,42 @@ export class UsersService {
       }
 
       updatedUser.roles = roles;
+    }
+
+    if (updateUserDto.permissions) {
+      const permissions: Permission[] = [];
+
+      for (const permissionId of updateUserDto.permissions) {
+        const permission = await this.permissionRepository.findOneBy({ id: permissionId });
+
+        if (!permission)
+          throw new NotFoundException(`Permission with id ${permissionId} not found`);
+
+        if (!permission.isActive)
+          throw new BadRequestException(`Permission with id ${permissionId} is currently inactive`);
+
+        permissions.push(permission);
+      }
+
+      updatedUser.permissions = permissions;
+    }
+
+    if (updateUserDto.privileges) {
+      const privileges: Role[] = [];
+
+      for (const privilegeId of updateUserDto.privileges) {
+        const privilege = await this.privilegeRepository.findOneBy({ id: privilegeId });
+
+        if (!privilege)
+          throw new NotFoundException(`Privilege with id ${privilegeId} not found`);
+
+        if (!privilege.isActive)
+          throw new BadRequestException(`Privilege with id ${privilegeId} is currently inactive`);
+
+        privileges.push(privilege);
+      }
+
+      updatedUser.privileges = privileges;
     }
 
     Object.assign(user, updatedUser);
