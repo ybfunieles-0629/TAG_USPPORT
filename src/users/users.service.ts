@@ -334,7 +334,7 @@ export class UsersService {
     await this.userRepository.save(user);
 
     return {
-      user
+      updatedUser
     };
   }
 
