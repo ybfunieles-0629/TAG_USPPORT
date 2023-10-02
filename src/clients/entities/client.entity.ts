@@ -49,6 +49,11 @@ export class Client {
   })
   manageBrands: number;
 
+  @Column('int', {
+
+  })
+  manageOrders: number;
+
   @Column('varchar', {
 
   })

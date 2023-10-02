@@ -25,6 +25,9 @@ export class CreateClientDto {
   @IsNumber()
   manageBrands: number;
 
+  @IsNumber()
+  manageOrders: number;
+
   @IsString()
   user: string;
 
