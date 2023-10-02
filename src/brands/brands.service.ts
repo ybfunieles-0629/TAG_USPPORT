@@ -84,15 +84,21 @@ export class BrandsService {
       ],
     });
 
-    const brandsWithCompany = brands.map(async brand => {
+    const brandsWithCompanyPromises = brands.map(async (brand) => {
       const company = await this.companyRepository.findOneBy({ id: brand.companyId });
-      
+
+      if (!company) {
+        brand.companyId = null;
+      }
+
       return {
-        brand,
-        company
+        brand: brand,
+        company: company,
       };
     });
-    
+
+    const brandsWithCompany = await Promise.all(brandsWithCompanyPromises);
+
     return brandsWithCompany;
   }
 
