@@ -225,6 +225,8 @@ export class BrandsService {
 
     brand.isActive = !brand.isActive;
 
+    await this.brandRepository.save(brand);
+
     return {
       brand
     };
