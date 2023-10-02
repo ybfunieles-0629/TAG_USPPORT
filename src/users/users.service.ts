@@ -336,6 +336,24 @@ export class UsersService {
       updatedUser.brands = brands;
     }
 
+    if (updateUserDto.roles) {
+      const roles: Role[] = [];
+
+      for (const roleId of updateUserDto.roles) {
+        const role = await this.roleRepository.findOneBy({ id: roleId });
+
+        if (!role)
+          throw new NotFoundException(`Role with id ${roleId} not found`);
+
+        if (!role.isActive)
+          throw new BadRequestException(`Role with id ${roleId} is currently inactive`);
+
+        roles.push(role);
+      }
+
+      updatedUser.roles = roles;
+    }
+
     Object.assign(user, updatedUser);
 
     await this.userRepository.save(user);
