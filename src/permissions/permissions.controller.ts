@@ -9,6 +9,11 @@ export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) { }
 
   @Post()
+  seed() {
+    return this.permissionsService.seed();
+  }
+
+  @Post()
   create(@Body() createPermissionDto: CreatePermissionDto) {
     return this.permissionsService.create(createPermissionDto);
   }

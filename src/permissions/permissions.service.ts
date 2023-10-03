@@ -17,6 +17,60 @@ export class PermissionsService {
     private readonly permissionRepository: Repository<Permission>
   ) { }
 
+  async seed() {
+    const permissionsToSend = [
+      {
+        "name": "Empresas",
+      },
+      {
+        "name": "Proveedores",
+      },
+      {
+        "name": "Clientes",
+      },
+      {
+        "name": "Comerciales",
+      },
+      {
+        "name": "Productos",
+      },
+      {
+        "name": "Marcacion",
+      },
+      {
+        "name": "Transporte",
+      },
+      {
+        "name": "Carrito compra",
+      },
+      {
+        "name": "Pedidos",
+      },
+      {
+        "name": "Gastos pedidos",
+      },
+      {
+        "name": "Cotizaciones",
+      },
+      {
+        "name": "Categorias",
+      },
+      {
+        "name": "Usuarios",
+      },
+    ];
+
+    for (const permissionToSend of permissionsToSend) {
+      const permission = this.permissionRepository.create(permissionToSend);
+    
+      await this.permissionRepository.save(permission);
+    };
+
+    return {
+      permissionsToSend
+    };
+  }
+
   async create(createPermissionDto: CreatePermissionDto) {
     try {
       const permission = this.permissionRepository.create(createPermissionDto);

@@ -17,6 +17,36 @@ export class PrivilegesService {
     private readonly privilegeRepository: Repository<Privilege>
   ) { }
 
+  async seed() {
+    const privilegesToSend = [
+      {
+        "name": "Crear",
+      },
+      {
+        "name": "Actualizar",
+      },
+      {
+        "name": "Eliminar",
+      },
+      {
+        "name": "Listar",
+      },
+      {
+        "name": "Buscar",
+      }
+    ];
+
+    for (const privilegeToSend of privilegesToSend) {
+      const privilege = this.privilegeRepository.create(privilegeToSend);
+
+      await this.privilegeRepository.save(privilege);
+    };
+
+    return {
+      privilegesToSend
+    };
+  }
+
   async create(createPrivilegeDto: CreatePrivilegeDto) {
     try {
       const privilege = this.privilegeRepository.create(createPrivilegeDto);

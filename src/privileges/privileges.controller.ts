@@ -9,6 +9,11 @@ export class PrivilegesController {
   constructor(private readonly privilegesService: PrivilegesService) { }
 
   @Post()
+  seed() {
+    return this.privilegesService.seed();
+  }
+
+  @Post()
   create(@Body() createPrivilegeDto: CreatePrivilegeDto) {
     return this.privilegesService.create(createPrivilegeDto);
   }
