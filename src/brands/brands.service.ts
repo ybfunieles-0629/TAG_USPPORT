@@ -184,15 +184,6 @@ export class BrandsService {
       if (!brand)
         throw new NotFoundException(`Brand with id ${updateBrandDto.id} not found`);
 
-      const brandWithName = await this.brandRepository.findOne({
-        where: {
-          name: updateBrandDto.name
-        },
-      });
-
-      if (brandWithName)
-        throw new BadRequestException(`There is a brand with name ${updateBrandDto.name} already registered`);
-
       if (updateBrandDto.companyId) {
         const existCompany = await this.companyRepository.findOneBy({ id: updateBrandDto.companyId });
 
