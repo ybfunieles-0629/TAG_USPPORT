@@ -68,9 +68,9 @@ export class SuppliersService {
 
     if (file !== null || file !== undefined) {
       const uniqueFilename = `${uuidv4()}-${file.originalname}`;
-      
+
       file.originalname = uniqueFilename;
-      
+
       await this.uploadToAws(file);
 
       newSupplier.portfolio = file.originalname;
@@ -115,12 +115,20 @@ export class SuppliersService {
     };
   }
 
-  async update(id: string, updateSupplierDto: UpdateSupplierDto) {
+  async update(id: string, updateSupplierDto: UpdateSupplierDto, file: Express.Multer.File) {
     const supplier = await this.supplierRepository.findOneBy({ id });
 
     if (!supplier) {
       throw new NotFoundException(`Supplier with id ${id} not found`);
     }
+
+    const uniqueFilename = `${uuidv4()}-${file.originalname}`;
+
+    file.originalname = uniqueFilename;
+
+    await this.uploadToAws(file);
+
+    supplier.portfolio = file.originalname;
 
     const updatedSupplier = plainToClass(Supplier, updateSupplierDto);
 
