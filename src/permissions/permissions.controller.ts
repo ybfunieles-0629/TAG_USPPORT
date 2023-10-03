@@ -8,7 +8,7 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) { }
 
-  @Post()
+  @Post('/seed')
   seed() {
     return this.permissionsService.seed();
   }
