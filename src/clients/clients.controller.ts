@@ -18,8 +18,8 @@ export class ClientsController {
     return this.clientsService.findAll(paginationDto);
   }
 
-  @Get(':term')
-  findOne(@Param('term') id: string) {
+  @Get(':id')
+  findOne(@Param('id') id: string) {
     return this.clientsService.findOne(id);
   }
 

@@ -84,23 +84,18 @@ export class ClientsService {
     });
   }
 
-  async findOne(term: string) {
-    let client: Client;
-
-    if (isUUID(term)) {
-      client = await this.clientRepository.findOneBy({ id: term });
-    }
-
-    const queryBuilder = this.clientRepository.createQueryBuilder();
-
-    client = await queryBuilder
-      .where('LOWER(name) =:name', {
-        name: term.toLowerCase(),
-      })
-      .getOne();
+  async findOne(id: string) {
+    const client = await this.clientRepository.findOne({
+      where: {
+        id
+      },
+      relations: [
+        'addresses'
+      ],
+    });
 
     if (!client)
-      throw new NotFoundException(`Client with ${term} not found`);
+      throw new NotFoundException(`Client with id ${id} not found`);
 
     return client;
   }
