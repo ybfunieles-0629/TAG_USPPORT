@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { plainToClass } from 'class-transformer';
 import { isUUID } from 'class-validator';
+import { v4 as uuidv4 } from 'uuid';
+import * as AWS from 'aws-sdk';
 
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
@@ -30,7 +32,7 @@ export class SuppliersService {
     private readonly userRepository: Repository<User>,
   ) { }
 
-  async create(createSupplierDto: CreateSupplierDto) {
+  async create(createSupplierDto: CreateSupplierDto, file: Express.Multer.File) {
     const newSupplier = plainToClass(Supplier, createSupplierDto);
 
     const user = await this.userRepository.findOne({
@@ -63,6 +65,16 @@ export class SuppliersService {
 
     if (!subSupplierProductType)
       throw new NotFoundException(`Sub supplier product type with id ${createSupplierDto.subSupplierProductType} not found`);
+
+    if (file !== null || file !== undefined) {
+      const uniqueFilename = `${uuidv4()}-${file.originalname}`;
+      
+      file.originalname = uniqueFilename;
+      
+      await this.uploadToAws(file);
+
+      newSupplier.portfolio = file.originalname;
+    }
 
     newSupplier.subSupplierProductType = subSupplierProductType;
 
@@ -191,6 +203,32 @@ export class SuppliersService {
     return {
       supplier
     };
+  }
+
+  private async uploadToAws(file: Express.Multer.File) {
+    AWS.config.update({
+      accessKeyId: 'AKIAT4TACBZFK2MS62VU',
+      secretAccessKey: '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',
+      region: 'us-east-2',
+    });
+
+    const s3 = new AWS.S3();
+
+    const params = {
+      Bucket: 'tag-support-storage',
+      Key: file.originalname,
+      Body: file.buffer,
+    }
+
+    return new Promise<string>((resolve, reject) => {
+      s3.upload(params, (err: any, data: any) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data.Location);
+        }
+      })
+    })
   }
 
   private handleDbExceptions(error: any) {

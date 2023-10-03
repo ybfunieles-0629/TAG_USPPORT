@@ -40,8 +40,8 @@ export class CreateSupplierDto {
   @IsString()
   bankAccount: string;
 
-  @IsString()
-  portfolio: string;
+  // @IsString()
+  // portfolio: string;
 
   @IsString()
   user: string;
