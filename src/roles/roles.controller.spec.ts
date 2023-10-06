@@ -66,6 +66,7 @@ describe('RolesController', () => {
         };
 
         jest.spyOn(rolesService, 'findOne').mockResolvedValue(role);
+
         expect(await rolesController.findOne(role.id)).toBe(role);
       });
     });
@@ -89,7 +90,7 @@ describe('RolesController', () => {
 
         const result = await rolesController.create(createRoleDto);
 
-        expect(result).toEqual({ role: createdRole });
+        expect(result).toBe({ role: createdRole });
       });
 
       //* ------ UPDATE TEST ------ *//
@@ -135,9 +136,9 @@ describe('RolesController', () => {
 
             const result = await rolesService.desactivate(roleId);
 
-            expect(result).toEqual({ role: finalRoleStatus });
+            expect(result).toBe({ role: finalRoleStatus });
           });
-        })
+        });
       });
     });
   });
