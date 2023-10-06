@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateSupplierDto {
   @IsString()
@@ -46,8 +46,11 @@ export class CreateSupplierDto {
   @IsString()
   user: string;
   
-
   @IsString()
   @IsOptional()
   subSupplierProductType: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  refProducts: string[];
 }

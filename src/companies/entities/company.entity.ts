@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { User } from '../../users/entities/user.entity';
+import { Marking } from '../../markings/entities/marking.entity';
 
 @Entity({ name: 'companies' })
 export class Company {
@@ -131,4 +132,7 @@ export class Company {
   //* --- FK --- *//
   @OneToMany(() => User, (user) => user.company)
   users: User[];
+
+  @OneToMany(() => Marking, (marking) => marking.company)
+  markings: Marking[];
 }

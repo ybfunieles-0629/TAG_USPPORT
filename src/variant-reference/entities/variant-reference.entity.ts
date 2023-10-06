@@ -2,15 +2,20 @@ import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Up
 
 import { RefProduct } from '../../ref-products/entities/ref-product.entity';
 
-@Entity('images')
-export class Image {
+@Entity('variant_reference')
+export class VariantReference {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column('varchar', {
 
   })
-  url: string;
+  name: string;
+
+  @Column('varchar', {
+
+  })
+  variableValue: string;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -18,7 +23,7 @@ export class Image {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  //* --- FK ---*//
-  @ManyToOne(() => RefProduct, (refProduct) => refProduct.images)
+  //* --- FK --- *//
+  @ManyToOne(() => RefProduct, (refProduct) => refProduct.variantReferences)
   refProduct: RefProduct;
 }

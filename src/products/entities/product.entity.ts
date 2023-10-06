@@ -1,27 +1,15 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+
+import { Color } from '../../colors/entities/color.entity';
+import { RefProduct } from '../../ref-products/entities/ref-product.entity';
+import { MarketDesignArea } from '../../market-design-area/entities/market-design-area.entity';
+import { Marking } from '../../markings/entities/marking.entity';
+import { Packing } from '../../packings/entities/packing.entity';
 
 @Entity('products')
-export class ProductEntity {
+export class Product {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column('varchar', {
-
-  })
-  name: string;
-
-  @Column('varchar', {
-
-  })
-  description: string;
-
-  // TODO: SLUG
-  // slug
-
-  @Column('varchar', {
-
-  })
-  productionCompany: string;
 
   @Column('varchar', {
 
@@ -32,11 +20,6 @@ export class ProductEntity {
 
   })
   tagSku: string;
-
-  @Column('varchar', {
-
-  })
-  color: string;
 
   @Column('float', {
 
@@ -53,30 +36,20 @@ export class ProductEntity {
   })
   height: number;
 
-  @Column('varchar', {
-
-  })
-  designArea: string;
-
-  @Column('varchar', {
-
-  })
-  areasList: string;
-
   @Column('float', {
 
   })
   weight: number;
-  
-  @Column('int', {
-
-  })
-  availableUni: number;
 
   @Column('int', {
 
   })
-  transitUni: number;
+  availableUnit: number;
+
+  @Column('int', {
+
+  })
+  transitUnit: number;
 
   @Column('date', {
 
@@ -87,7 +60,7 @@ export class ProductEntity {
 
   })
   freeSample: boolean;
-  
+
   @Column('bool', {
 
   })
@@ -101,17 +74,7 @@ export class ProductEntity {
   @Column('int', {
 
   })
-  refundTime: number;
-
-  @Column('float', {
-
-  })
-  samplePrice: number;
-
-  @Column('bool', {
-
-  })
-  importedNational: boolean;
+  refundSampleTime: number;
 
   @Column('int', {
 
@@ -126,12 +89,32 @@ export class ProductEntity {
   @Column('float', {
 
   })
-  netPrice: number;
+  promoDisccount: number;
 
   @Column('int', {
 
   })
-  minQuantity: number;
+  hasNetPrice: number;
+
+  @Column('float', {
+
+  })
+  samplePrice: number;
+
+  @Column('float', {
+
+  })
+  referencePrice: number;
+
+  @Column('varchar', {
+
+  })
+  tariffItem: string;
+
+  @Column('boolean', {
+    default: true,
+  })
+  isActive: boolean;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -140,10 +123,29 @@ export class ProductEntity {
   updatedAt: Date;
 
   //* --- FK --- *//
-  // @Column('varchar', {
+  @OneToMany(() => Color, (color) => color.product)
+  colors: Color[];
 
-  // })
-  // images: string;
+  @OneToMany(() => MarketDesignArea, (marketDesignArea) => marketDesignArea.product)
+  marketDesignAreas: MarketDesignArea[];
 
-  // PRICES FK
+  @OneToMany(() => Packing, (packing) => packing.product)
+  packings: Packing[];
+
+  @ManyToOne(() => RefProduct, (refProduct) => refProduct.products)
+  refProduct: RefProduct;
+  
+  @ManyToMany(() => Marking, (marking) => marking.products)
+  @JoinTable({
+    name: 'products_has_markings',
+    joinColumn: {
+      name: 'productId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'markingId',
+      referencedColumnName: 'id',
+    },
+  })
+  markings?: Marking[];
 }

@@ -3,6 +3,7 @@ import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, Prima
 import { SupplierType } from '../../supplier-types/entities/supplier-type.entity';
 import { SubSupplierProductType } from '../../sub-supplier-product-types/entities/sub-supplier-product-type.entity';
 import { User } from '../../users/entities/user.entity';
+import { RefProduct } from '../../ref-products/entities/ref-product.entity';
 
 @Entity('suppliers')
 export class Supplier {
@@ -86,12 +87,15 @@ export class Supplier {
   updatedAt: Date;
 
   //* --- FK --- *//
+  @OneToOne(() => User, (user) => user.supplier)
+  user: User;
+
+  @OneToMany(() => RefProduct, (refProduct) => refProduct.supplier)
+  refProducts: RefProduct[];
+
   @ManyToOne(() => SupplierType, (supplierType) => supplierType.suppliers)
   supplierType: SupplierType;
 
   @ManyToOne(() => SubSupplierProductType, (subSupplierProductType) => subSupplierProductType.suppliers)
   subSupplierProductType: SubSupplierProductType;
-
-  @OneToOne(() => User, (user) => user.supplier)
-  user: User;
 }
