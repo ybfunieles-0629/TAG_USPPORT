@@ -50,6 +50,7 @@ export class CreateSupplierDto {
   @IsOptional()
   subSupplierProductType: string;
 
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
   refProducts: string[];
