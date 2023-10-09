@@ -60,17 +60,24 @@ export class SuppliersService {
 
     newSupplier.user = user;
 
-    const supplierType = await this.supplierTypeRepository.findOneBy({ id: createSupplierDto.supplierType });
+    if (createSupplierDto.supplierType) {
 
-    if (!supplierType)
-      throw new NotFoundException(`Supplier type with id ${createSupplierDto.supplierType} not found`);
+      const supplierType = await this.supplierTypeRepository.findOneBy({ id: createSupplierDto.supplierType });
 
-    newSupplier.supplierType = supplierType;
+      if (!supplierType)
+        throw new NotFoundException(`Supplier type with id ${createSupplierDto.supplierType} not found`);
 
-    const subSupplierProductType = await this.subSupplierProductTypeRepository.findOneBy({ id: createSupplierDto.subSupplierProductType });
+      newSupplier.supplierType = supplierType;
+    }
 
-    if (!subSupplierProductType)
-      throw new NotFoundException(`Sub supplier product type with id ${createSupplierDto.subSupplierProductType} not found`);
+    if (createSupplierDto.subSupplierProductType) {
+      const subSupplierProductType = await this.subSupplierProductTypeRepository.findOneBy({ id: createSupplierDto.subSupplierProductType });
+
+      if (!subSupplierProductType)
+        throw new NotFoundException(`Sub supplier product type with id ${createSupplierDto.subSupplierProductType} not found`);
+
+      newSupplier.subSupplierProductType = subSupplierProductType;
+    }
 
     if (file !== null || file !== undefined) {
       const uniqueFilename = `${uuidv4()}-${file.originalname}`;
@@ -81,8 +88,6 @@ export class SuppliersService {
 
       newSupplier.portfolio = file.originalname;
     }
-
-    newSupplier.subSupplierProductType = subSupplierProductType;
 
     await this.supplierRepository.save(newSupplier);
 
