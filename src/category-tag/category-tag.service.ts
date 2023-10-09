@@ -1,26 +1,87 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { CreateCategoryTagDto } from './dto/create-category-tag.dto';
 import { UpdateCategoryTagDto } from './dto/update-category-tag.dto';
+import { CategoryTag } from './entities/category-tag.entity';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class CategoryTagService {
-  create(createCategoryTagDto: CreateCategoryTagDto) {
-    return 'This action adds a new categoryTag';
+  private readonly logger: Logger = new Logger('CategoryTagService');
+
+  constructor(
+    @InjectRepository(CategoryTag)
+    private readonly categoryTagRepository: Repository<CategoryTag>,
+  ) { }
+
+  async create(createCategoryTagDto: CreateCategoryTagDto) {
+    try {
+      const categoryTag = this.categoryTagRepository.create(createCategoryTagDto);
+
+      await this.categoryTagRepository.save(categoryTag);
+
+      return {
+        categoryTag
+      };
+    } catch (error) {
+      this.handleDbExceptions(error);
+    }
   }
 
-  findAll() {
-    return `This action returns all categoryTag`;
+  findAll(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    return this.categoryTagRepository.find({
+      take: limit,
+      skip: offset,
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} categoryTag`;
+  async findOne(id: string) {
+    const categoryTag = await this.categoryTagRepository.findOneBy({ id });
+
+    if (!categoryTag)
+      throw new NotFoundException(`Category tag with id ${id} not found`);
+
+    return {
+      categoryTag
+    };
   }
 
-  update(id: number, updateCategoryTagDto: UpdateCategoryTagDto) {
+  update(id: string, updateCategoryTagDto: UpdateCategoryTagDto) {
     return `This action updates a #${id} categoryTag`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} categoryTag`;
+  async desactivate(id: string) {
+    const { categoryTag } = await this.findOne(id);
+
+    categoryTag.isActive = !categoryTag.isActive;
+
+    await this.categoryTagRepository.save(categoryTag);
+
+    return {
+      categoryTag
+    };
+  }
+
+  async remove(id: string) {
+    const { categoryTag } = await this.findOne(id);
+
+    await this.categoryTagRepository.remove(categoryTag);
+
+    return {
+      categoryTag
+    };
+  }
+
+  private handleDbExceptions(error: any) {
+    if (error.code === '23505' || error.code === 'ER_DUP_ENTRY')
+      throw new BadRequestException(error.sqlMessage);
+
+    this.logger.error(error);
+
+    throw new InternalServerErrorException('Unexpected error, check server logs');
   }
 }
