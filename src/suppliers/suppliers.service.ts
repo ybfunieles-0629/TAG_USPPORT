@@ -33,6 +33,12 @@ export class SuppliersService {
   ) { }
 
   async create(createSupplierDto: CreateSupplierDto, file: Express.Multer.File) {
+    createSupplierDto.profitMargin = +createSupplierDto.profitMargin;
+    createSupplierDto.hasApi = +createSupplierDto.hasApi;
+    createSupplierDto.paymentDeadline = +createSupplierDto.paymentDeadline;
+    createSupplierDto.advancePercentage = +createSupplierDto.advancePercentage;
+    createSupplierDto.scheduledDaysToUpdate = +createSupplierDto.scheduledDaysToUpdate;
+
     const newSupplier = plainToClass(Supplier, createSupplierDto);
 
     const user = await this.userRepository.findOne({
@@ -129,6 +135,12 @@ export class SuppliersService {
     await this.uploadToAws(file);
 
     supplier.portfolio = file.originalname;
+
+    updateSupplierDto.profitMargin = +updateSupplierDto.profitMargin;
+    updateSupplierDto.hasApi = +updateSupplierDto.hasApi;
+    updateSupplierDto.paymentDeadline = +updateSupplierDto.paymentDeadline;
+    updateSupplierDto.advancePercentage = +updateSupplierDto.advancePercentage;
+    updateSupplierDto.scheduledDaysToUpdate = +updateSupplierDto.scheduledDaysToUpdate;
 
     const updatedSupplier = plainToClass(Supplier, updateSupplierDto);
 

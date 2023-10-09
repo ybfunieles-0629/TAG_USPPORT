@@ -1,4 +1,4 @@
-import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsString, IsOptional } from 'class-validator';
 
 export class CreateSupplierDto {
   @IsString()
@@ -10,22 +10,22 @@ export class CreateSupplierDto {
   @IsString()
   pickupAddress: string;
 
-  @IsNumber()
+  @IsString()
   profitMargin: number;
 
-  @IsNumber()
+  @IsString()
   hasApi: number;
 
-  @IsNumber()
+  @IsString()
   paymentDeadline: number;
 
-  @IsNumber()
+  @IsString()
   advancePercentage: number;
 
   @IsOptional()
   bills?: boolean;
 
-  @IsNumber()
+  @IsString()
   scheduledDaysToUpdate: number;
 
   @IsString()
