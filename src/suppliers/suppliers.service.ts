@@ -79,7 +79,7 @@ export class SuppliersService {
       newSupplier.subSupplierProductType = subSupplierProductType;
     }
 
-    if (file !== null || file !== undefined) {
+    if (file != undefined) {
       const uniqueFilename = `${uuidv4()}-${file.originalname}`;
 
       file.originalname = uniqueFilename;
