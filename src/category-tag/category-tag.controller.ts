@@ -38,10 +38,9 @@ export class CategoryTagController {
 
   @Patch(':id')
   desactivate(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateCategoryTagDto: UpdateCategoryTagDto
+    @Param('id', ParseUUIDPipe) id: string
   ) {
-    return this.categoryTagService.update(id, updateCategoryTagDto);
+    return this.categoryTagService.desactivate(id);
   }
 
   @Delete(':id')
