@@ -38,7 +38,9 @@ export class SuppliersService {
     createSupplierDto.paymentDeadline = +createSupplierDto.paymentDeadline;
     createSupplierDto.advancePercentage = +createSupplierDto.advancePercentage;
     createSupplierDto.scheduledDaysToUpdate = +createSupplierDto.scheduledDaysToUpdate;
-    createSupplierDto.bills = +createSupplierDto.bills;
+
+    if (createSupplierDto.bills)
+      createSupplierDto.bills = +createSupplierDto.bills;
 
     const newSupplier = plainToClass(Supplier, createSupplierDto);
 
