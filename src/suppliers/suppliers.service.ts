@@ -38,6 +38,7 @@ export class SuppliersService {
     createSupplierDto.paymentDeadline = +createSupplierDto.paymentDeadline;
     createSupplierDto.advancePercentage = +createSupplierDto.advancePercentage;
     createSupplierDto.scheduledDaysToUpdate = +createSupplierDto.scheduledDaysToUpdate;
+    createSupplierDto.bills = +createSupplierDto.bills;
 
     const newSupplier = plainToClass(Supplier, createSupplierDto);
 
@@ -146,6 +147,7 @@ export class SuppliersService {
     updateSupplierDto.paymentDeadline = +updateSupplierDto.paymentDeadline;
     updateSupplierDto.advancePercentage = +updateSupplierDto.advancePercentage;
     updateSupplierDto.scheduledDaysToUpdate = +updateSupplierDto.scheduledDaysToUpdate;
+    updateSupplierDto.bills = +updateSupplierDto.bills;
 
     const updatedSupplier = plainToClass(Supplier, updateSupplierDto);
 

@@ -23,7 +23,8 @@ export class CreateSupplierDto {
   advancePercentage: number;
 
   @IsOptional()
-  bills?: boolean;
+  @IsString()
+  bills: number;
 
   @IsString()
   scheduledDaysToUpdate: number;

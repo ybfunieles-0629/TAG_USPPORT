@@ -45,10 +45,10 @@ export class Supplier {
   })
   advancePercentage: number;
 
-  @Column('boolean', {
-    default: true,
+  @Column('int', {
+
   })
-  bills: boolean;
+  bills: number;
 
   @Column('varchar', {
 
