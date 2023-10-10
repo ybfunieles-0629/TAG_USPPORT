@@ -12,6 +12,4 @@ export class CreateMarkingDto {
 
   @IsInt()
   iva: number;
-
-  
 }
