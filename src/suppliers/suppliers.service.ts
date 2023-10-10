@@ -10,7 +10,6 @@ import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { Supplier } from './entities/supplier.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { SupplierType } from '../supplier-types/entities/supplier-type.entity';
 import { SubSupplierProductType } from '../sub-supplier-product-types/entities/sub-supplier-product-type.entity';
 import { User } from '../users/entities/user.entity';
 
@@ -21,9 +20,6 @@ export class SuppliersService {
   constructor(
     @InjectRepository(Supplier)
     private readonly supplierRepository: Repository<Supplier>,
-
-    @InjectRepository(SupplierType)
-    private readonly supplierTypeRepository: Repository<SupplierType>,
 
     @InjectRepository(SubSupplierProductType)
     private readonly subSupplierProductTypeRepository: Repository<SubSupplierProductType>,
