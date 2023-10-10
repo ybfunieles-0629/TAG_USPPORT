@@ -124,7 +124,6 @@ export class SuppliersService {
     }
 
     if (file != undefined) {
-
       const uniqueFilename = `${uuidv4()}-${file.originalname}`;
 
       file.originalname = uniqueFilename;
