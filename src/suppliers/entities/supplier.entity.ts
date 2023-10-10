@@ -93,9 +93,6 @@ export class Supplier {
   @OneToMany(() => RefProduct, (refProduct) => refProduct.supplier)
   refProducts: RefProduct[];
 
-  @ManyToOne(() => SupplierType, (supplierType) => supplierType.suppliers)
-  supplierType: SupplierType;
-
   @ManyToOne(() => SubSupplierProductType, (subSupplierProductType) => subSupplierProductType.suppliers)
   subSupplierProductType: SubSupplierProductType;
 }

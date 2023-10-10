@@ -48,7 +48,7 @@ export class SuppliersService {
         'admin',
         'client',
         'supplier',
-        'subSupplierProductType'
+        'supplier.subSupplierProductType'
       ],
     })
 
