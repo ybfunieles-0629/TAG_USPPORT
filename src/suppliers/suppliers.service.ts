@@ -63,16 +63,6 @@ export class SuppliersService {
 
     newSupplier.user = user;
 
-    if (createSupplierDto.supplierType) {
-
-      const supplierType = await this.supplierTypeRepository.findOneBy({ id: createSupplierDto.supplierType });
-
-      if (!supplierType)
-        throw new NotFoundException(`Supplier type with id ${createSupplierDto.supplierType} not found`);
-
-      newSupplier.supplierType = supplierType;
-    }
-
     if (createSupplierDto.subSupplierProductType) {
       const subSupplierProductType = await this.subSupplierProductTypeRepository.findOneBy({ id: createSupplierDto.subSupplierProductType });
 
@@ -153,15 +143,6 @@ export class SuppliersService {
 
     const updatedSupplier = plainToClass(Supplier, updateSupplierDto);
 
-    if (updateSupplierDto.supplierType) {
-      const supplierType = await this.supplierTypeRepository.findOneBy({ id: updateSupplierDto.supplierType });
-
-      if (!supplierType)
-        throw new NotFoundException(`Supplier type with id ${updateSupplierDto.supplierType} not found`);
-
-      updatedSupplier.supplierType = supplierType;
-    }
-
     if (updateSupplierDto.subSupplierProductType) {
       const subSupplierProductType = await this.subSupplierProductTypeRepository.findOneBy({ id: updateSupplierDto.subSupplierProductType });
 
@@ -213,16 +194,12 @@ export class SuppliersService {
         id
       },
       relations: [
-        'supplierType',
         'subSupplierProductType',
       ]
     });
 
     if (!supplier)
       throw new NotFoundException(`Supplier with id ${id} not found`);
-
-    if (supplier.supplierType)
-      throw new BadRequestException(`The supplier have relations with supplier type and can't be deleted`);
 
     if (supplier.subSupplierProductType)
       throw new BadRequestException(`The supplier have relations with sub supplier product type and can't be deleted`);
