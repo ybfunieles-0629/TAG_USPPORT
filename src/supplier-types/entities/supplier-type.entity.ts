@@ -22,8 +22,4 @@ export class SupplierType {
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  //* --- FK --- *//
-  @OneToMany(() => Supplier, (supplier) => supplier.supplierType)
-  suppliers: Supplier[];
 }
