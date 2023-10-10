@@ -26,7 +26,7 @@ export class MarkingServiceProperty {
   @Column('boolean', {
     default: true,
   })
-  isActive: true;
+  isActive: boolean;
 
   @CreateDateColumn()
   createdAt: Date;
