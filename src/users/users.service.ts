@@ -403,6 +403,19 @@ export class UsersService {
     };
   }
 
+  async changeIsAllowedStatus(id: string) {
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user)
+      throw new NotFoundException(`User with id ${id} not found`);
+
+    user.isAllowed == 0 ? user.isAllowed = 1 : user.isAllowed = 0;
+
+    return {
+      user
+    };
+  }
+
   async desactivate(id: string) {
     const user = await this.userRepository.findOneBy({ id });
 

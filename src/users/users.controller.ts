@@ -50,6 +50,13 @@ export class UsersController {
   //   return this.usersService.assignClients(id, assignClientsDto);
   // }
 
+  @Patch('/allow/:id')
+  changeIsAllowedStatus(
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
+    return this.usersService.changeIsAllowedStatus(id);
+  }
+
   @Patch('/desactivate/:id')
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,

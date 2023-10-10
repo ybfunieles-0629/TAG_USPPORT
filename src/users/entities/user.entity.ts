@@ -84,6 +84,11 @@ export class User {
   })
   isActive: boolean;
 
+  @Column('int', {
+    default: 1
+  })
+  isAllowed: number;
+
   @CreateDateColumn()
   createdAt: Date;
 

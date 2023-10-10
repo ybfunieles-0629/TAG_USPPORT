@@ -38,8 +38,13 @@ export class CreateUserDto {
 
   @IsNumber()
   canBuy: number;
+  
   @IsNumber()
   isCoorporative: number;
+
+  @IsNumber()
+  @IsOptional()
+  isAllowed: number;
 
   @IsString()
   @IsOptional()
