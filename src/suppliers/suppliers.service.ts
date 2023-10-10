@@ -123,13 +123,16 @@ export class SuppliersService {
       throw new NotFoundException(`Supplier with id ${id} not found`);
     }
 
-    const uniqueFilename = `${uuidv4()}-${file.originalname}`;
+    if (file != undefined) {
 
-    file.originalname = uniqueFilename;
+      const uniqueFilename = `${uuidv4()}-${file.originalname}`;
 
-    await this.uploadToAws(file);
+      file.originalname = uniqueFilename;
 
-    supplier.portfolio = file.originalname;
+      await this.uploadToAws(file);
+
+      supplier.portfolio = file.originalname;
+    }
 
     updateSupplierDto.profitMargin = +updateSupplierDto.profitMargin;
     updateSupplierDto.hasApi = +updateSupplierDto.hasApi;
