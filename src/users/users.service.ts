@@ -413,6 +413,8 @@ export class UsersService {
 
     user.isAllowed == 0 ? user.isAllowed = 1 : user.isAllowed = 0;
 
+    await this.userRepository.save(user);
+
     return {
       user
     };
