@@ -48,6 +48,16 @@ export class CategorySupplier {
   })
   parentCategory: string;
 
+  @Column('varchar', {
+
+  })
+  apiReferenceId: string;
+
+  @Column('varchar', {
+
+  })
+  origin: string;
+
   @Column('boolean', {
     default: true,
   })

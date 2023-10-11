@@ -9,6 +9,11 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 export class CategorySuppliersController {
   constructor(private readonly categorySuppliersService: CategorySuppliersService) { }
 
+  @Post('/load')
+  loadCategoriesFromExtApi() {
+    return this.categorySuppliersService.loadCategoriesFromExtApi();
+  }
+
   @Post()
   create(@Body() createCategorySupplierDto: CreateCategorySupplierDto) {
     return this.categorySuppliersService.create(createCategorySupplierDto);

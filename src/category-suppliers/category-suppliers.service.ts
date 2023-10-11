@@ -8,6 +8,7 @@ import { UpdateCategorySupplierDto } from './dto/update-category-supplier.dto';
 import { CategorySupplier } from './entities/category-supplier.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { CategoryTag } from '../category-tag/entities/category-tag.entity';
+import axios from 'axios';
 
 @Injectable()
 export class CategorySuppliersService {
@@ -20,6 +21,50 @@ export class CategorySuppliersService {
     @InjectRepository(CategoryTag)
     private readonly categoryTagRepository: Repository<CategoryTag>,
   ) { }
+
+  async loadCategoriesFromExtApi() {
+    const apiUrl = 'http://44.194.12.161/marpico/categorias';
+    const apiKey = 'KZuMI3Fh5yfPSd7bJwqoIicdw2SNtDkhSZKmceR0PsKZzCm1gK81uiW59kL9n76z';
+
+    const apiUrlWithApiKey = `${apiUrl}?apiKey=${apiKey}`;
+
+    const { data } = await axios.get(apiUrlWithApiKey);
+
+    const categories: CategorySupplier[] = data?.categorias?.map(({ jerarquia, nombre }) => (
+      {
+        offsprintType: 'Padre',
+        name: nombre,
+        description: '',
+        categoryMargin: '',
+        featured: 0,
+        image: '',
+        mainCategory: '',
+        parentCategory: '',
+        apiReferenceId: jerarquia,
+        origin: 'Promos'
+      }
+    ));
+
+    const categoriesInDb = await this.categorySupplierRepository.find();
+    const categoriesToSave: CategorySupplier[] = [];
+
+    for (const category of categories) {
+      if (categoriesInDb.find(categoryInDb => categoryInDb.name == category.name || categoryInDb.apiReferenceId == category.apiReferenceId)) {
+        console.log(`Category with name ${category.name} or apiReferenceId ${category.apiReferenceId} already registered`);
+      } else {
+        await this.categorySupplierRepository.save(category);
+        categoriesToSave.push(category);
+      }
+    }
+
+    if (categoriesToSave.length === 0) {
+      throw new BadRequestException(`There are no new categories to save`);
+    }
+
+    return {
+      categoriesToSave
+    };
+  }
 
   async create(createCategorySupplierDto: CreateCategorySupplierDto) {
     try {
