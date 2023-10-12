@@ -26,7 +26,7 @@ export class CategorySuppliersController {
     return this.categorySuppliersService.findAll(paginationDto);
   }
 
-  @Get('/:type')
+  @Get('type/:type')
   findByType(
     @Param('type') type: string
   ) {
