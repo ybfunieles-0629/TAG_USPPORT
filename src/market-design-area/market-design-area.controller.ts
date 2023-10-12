@@ -34,6 +34,13 @@ export class MarketDesignAreaController {
     return this.marketDesignAreaService.update(id, updateMarketDesignAreaDto);
   }
 
+  @Patch('desactivate/:id')
+  desactivate(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.marketDesignAreaService.desactivate(id);
+  }
+
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.marketDesignAreaService.remove(id);

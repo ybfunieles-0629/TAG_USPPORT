@@ -18,19 +18,13 @@ export class MarketDesignAreaService {
   ) { }
 
   async create(createMarketDesignAreaDto: CreateMarketDesignAreaDto) {
-    try {
-      createMarketDesignAreaDto.large = +createMarketDesignAreaDto.large;
+    const newMarketDesignArea = plainToClass(MarketDesignArea, createMarketDesignAreaDto);
 
-      const marketDesignArea: MarketDesignArea = this.marketDesignAreaRepository.create(createMarketDesignAreaDto);
+    await this.marketDesignAreaRepository.save(newMarketDesignArea);
 
-      await this.marketDesignAreaRepository.save(marketDesignArea);
-
-      return {
-        marketDesignArea
-      };
-    } catch (error) {
-      this.handleDbExceptions(error);
-    }
+    return {
+      newMarketDesignArea
+    };
   }
 
   findAll(paginationDto: PaginationDto) {
@@ -70,6 +64,18 @@ export class MarketDesignAreaService {
     const updatedMarketDesignArea = plainToClass(MarketDesignArea, updateMarketDesignAreaDto);
 
     Object.assign(marketDesignArea, updatedMarketDesignArea);
+
+    await this.marketDesignAreaRepository.save(marketDesignArea);
+
+    return {
+      marketDesignArea
+    };
+  }
+
+  async desactivate(id: string) {
+    const { marketDesignArea } = await this.findOne(id);
+
+    marketDesignArea.isActive = !marketDesignArea.isActive;
 
     await this.marketDesignAreaRepository.save(marketDesignArea);
 
