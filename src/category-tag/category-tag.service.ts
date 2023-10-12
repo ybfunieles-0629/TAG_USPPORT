@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
 
 import { CreateCategoryTagDto } from './dto/create-category-tag.dto';
@@ -50,8 +51,25 @@ export class CategoryTagService {
     };
   }
 
-  update(id: string, updateCategoryTagDto: UpdateCategoryTagDto) {
-    return `This action updates a #${id} categoryTag`;
+  async update(id: string, updateCategoryTagDto: UpdateCategoryTagDto) {
+    const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+      where: {
+        id
+      },
+    });
+
+    if (!categoryTag)
+      throw new NotFoundException(`Category tag with id ${id} not found`);
+
+    const updatedCategoryTag = plainToClass(CategoryTag, updateCategoryTagDto);
+
+    Object.assign(categoryTag, updatedCategoryTag);
+
+    await this.categoryTagRepository.save(categoryTag);
+
+    return {
+      categoryTag
+    };
   }
 
   async desactivate(id: string) {
