@@ -2,13 +2,14 @@ import { Injectable, Logger, NotFoundException, BadRequestException, InternalSer
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
+import axios from 'axios';
 
 import { CreateCategorySupplierDto } from './dto/create-category-supplier.dto';
 import { UpdateCategorySupplierDto } from './dto/update-category-supplier.dto';
 import { CategorySupplier } from './entities/category-supplier.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { CategoryTag } from '../category-tag/entities/category-tag.entity';
-import axios from 'axios';
+import { RefProduct } from '../ref-products/entities/ref-product.entity';
 
 @Injectable()
 export class CategorySuppliersService {
@@ -20,6 +21,9 @@ export class CategorySuppliersService {
 
     @InjectRepository(CategoryTag)
     private readonly categoryTagRepository: Repository<CategoryTag>,
+
+    @InjectRepository(RefProduct)
+    private readonly refProductRepository: Repository<RefProduct>,
   ) { }
 
   //* ---- LOAD PARENT CATEGORIES FROM EXT API METHOD ---- *//
@@ -148,28 +152,24 @@ export class CategorySuppliersService {
   }
 
   async create(createCategorySupplierDto: CreateCategorySupplierDto) {
-    try {
-      const newCategory = plainToClass(CategorySupplier, createCategorySupplierDto);
+    const newCategorySupplier = plainToClass(CategorySupplier, createCategorySupplierDto);
 
-      const categoryTag = await this.categoryTagRepository.findOne({
-        where: {
-          id: createCategorySupplierDto.categoryTag
-        },
-      });
+    const categoryTag = await this.categoryTagRepository.findOne({
+      where: {
+        id: createCategorySupplierDto.categoryTag
+      },
+    });
 
-      if (!categoryTag)
-        throw new NotFoundException(`Category tag with id ${createCategorySupplierDto.categoryTag} not found`);
+    if (!categoryTag)
+      throw new NotFoundException(`Category tag with id ${createCategorySupplierDto.categoryTag} not found`);
 
-      newCategory.categoryTag = categoryTag;
+    newCategorySupplier.categoryTag = categoryTag;
 
-      await this.categorySupplierRepository.save(newCategory);
+    await this.categorySupplierRepository.save(newCategorySupplier);
 
-      return {
-        categoryTag
-      };
-    } catch (error) {
-      this.handleDbExceptions(error);
-    }
+    return {
+      newCategorySupplier
+    };
   }
 
   findAll(paginationDto: PaginationDto) {
@@ -179,9 +179,31 @@ export class CategorySuppliersService {
       take: limit,
       skip: offset,
       relations: [
-        'categoryTag'
+        'categoryTag',
+        'supplier',
+        'refProduct',
       ],
     });
+  }
+
+  async findByType(type: string) {
+    const categorySuppliers: CategorySupplier[] = await this.categorySupplierRepository.find({
+      where: {
+        offspringType: type,
+      },
+      relations: [
+        'categoryTag',
+        'supplier',
+        'refProduct',
+      ],
+    });
+
+    if (!categorySuppliers)
+      throw new NotFoundException(`Categories with type ${type} not found`);
+
+    return {
+      categorySuppliers
+    };
   }
 
   async findOne(id: string) {
@@ -190,7 +212,9 @@ export class CategorySuppliersService {
         id,
       },
       relations: [
-        'categoryTag'
+        'categoryTag',
+        'supplier',
+        'refProduct'
       ],
     });
 
@@ -202,8 +226,36 @@ export class CategorySuppliersService {
     };
   }
 
-  update(id: string, updateCategorySupplierDto: UpdateCategorySupplierDto) {
-    return `This action updates a #${id} categoryTag`;
+  async update(id: string, updateCategorySupplierDto: UpdateCategorySupplierDto) {
+    const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+      where: {
+        id
+      },
+    });
+
+    if (!categorySupplier)
+      throw new NotFoundException(`Category supplier with id ${id} not found`);
+
+    const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+      where: {
+        id: updateCategorySupplierDto.categoryTag,
+      },
+    });
+
+    if (!categoryTag)
+      throw new NotFoundException(`Category tag with id ${updateCategorySupplierDto.categoryTag} not found`);
+
+    // const refProduct: RefProduct = await this.refProductRepository
+
+    const updatedCategorySupplier = plainToClass(CategorySupplier, updateCategorySupplierDto);
+
+    Object.assign(categorySupplier, updatedCategorySupplier);
+
+    await this.categorySupplierRepository.save(categorySupplier);
+
+    return {
+      categorySupplier
+    };
   }
 
   async desactivate(id: string) {

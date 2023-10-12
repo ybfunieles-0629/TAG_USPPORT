@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsOptional } from 'class-validator';
+import { IsString, IsInt, IsOptional, IsArray } from 'class-validator';
 
 export class CreateCategorySupplierDto {
   @IsString()
@@ -29,4 +29,8 @@ export class CreateCategorySupplierDto {
 
   @IsString()
   categoryTag: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  suppliers?: string[];
 }

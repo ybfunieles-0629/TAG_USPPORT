@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, PrimaryGenerat
 
 import { CategoryTag } from '../../category-tag/entities/category-tag.entity';
 import { RefProduct } from '../../ref-products/entities/ref-product.entity';
+import { Supplier } from 'src/suppliers/entities/supplier.entity';
 
 @Entity('category_suppliers')
 export class CategorySupplier {
@@ -75,4 +76,7 @@ export class CategorySupplier {
 
   @ManyToMany(() => RefProduct, (refProduct) => refProduct.categorySuppliers)
   refProducts?: RefProduct[];
+
+  @ManyToOne(() => Supplier, (supplier) => supplier.categorySuppliers)
+  supplier: Supplier[];
 }
