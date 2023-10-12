@@ -26,6 +26,13 @@ export class CategorySuppliersController {
     return this.categorySuppliersService.findAll(paginationDto);
   }
 
+  @Get('/:type')
+  findByType(
+    @Param('type') type: string
+  ) {
+    return this.categorySuppliersService.findByType(type);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.categorySuppliersService.findOne(id);
