@@ -6,6 +6,7 @@ import { CreateMarketDesignAreaDto } from './dto/create-market-design-area.dto';
 import { UpdateMarketDesignAreaDto } from './dto/update-market-design-area.dto';
 import { MarketDesignArea } from './entities/market-design-area.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class MarketDesignAreaService {
@@ -20,7 +21,7 @@ export class MarketDesignAreaService {
     try {
       createMarketDesignAreaDto.large = +createMarketDesignAreaDto.large;
 
-      const marketDesignArea = this.marketDesignAreaRepository.create(createMarketDesignAreaDto);
+      const marketDesignArea: MarketDesignArea = this.marketDesignAreaRepository.create(createMarketDesignAreaDto);
 
       await this.marketDesignAreaRepository.save(marketDesignArea);
 
@@ -57,7 +58,24 @@ export class MarketDesignAreaService {
   }
 
   async update(id: string, updateMarketDesignAreaDto: UpdateMarketDesignAreaDto) {
-    return `This action updates a #${id} marketDesignArea`;
+    const marketDesignArea: MarketDesignArea = await this.marketDesignAreaRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!marketDesignArea)
+      throw new NotFoundException(`Market design area with id ${id} not found`);
+
+    const updatedMarketDesignArea = plainToClass(MarketDesignArea, updateMarketDesignAreaDto);
+
+    Object.assign(marketDesignArea, updatedMarketDesignArea);
+
+    await this.marketDesignAreaRepository.save(marketDesignArea);
+
+    return {
+      marketDesignArea
+    };
   }
 
   async remove(id: string) {

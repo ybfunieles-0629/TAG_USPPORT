@@ -1,6 +1,7 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { Product } from '../../products/entities/product.entity';
+import { RefProduct } from '../../ref-products/entities/ref-product.entity';
 
 @Entity('market_design_area')
 export class MarketDesignArea {
@@ -36,4 +37,7 @@ export class MarketDesignArea {
   //* --- FK --- *//
   @ManyToOne(() => Product, (product) => product.marketDesignAreas)
   product: Product;
+
+  @OneToMany(() => RefProduct, (refProduct) => refProduct.marketDesignArea)
+  refProducts?: RefProduct[];
 }
