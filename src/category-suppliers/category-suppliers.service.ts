@@ -29,40 +29,58 @@ export class CategorySuppliersService {
     const apiUrlWithApiKey = `${apiUrl}?apiKey=${apiKey}`;
 
     const { data } = await axios.get(apiUrlWithApiKey);
+    
+    const groupedData = {};
 
-    const categories: CategorySupplier[] = data?.categorias?.map(({ jerarquia, nombre }) => (
-      {
-        offsprintType: 'Padre',
-        name: nombre,
-        description: '',
-        categoryMargin: '',
-        featured: 0,
-        image: '',
-        mainCategory: '',
-        parentCategory: '',
-        apiReferenceId: jerarquia,
-        origin: 'Promos'
-      }
-    ));
-
+    const cleanedData = [];
+    const savedCategories: CategorySupplier[] = [];
     const categoriesInDb = await this.categorySupplierRepository.find();
-    const categoriesToSave: CategorySupplier[] = [];
 
-    for (const category of categories) {
-      if (categoriesInDb.find(categoryInDb => categoryInDb.name == category.name || categoryInDb.apiReferenceId == category.apiReferenceId)) {
-        console.log(`Category with name ${category.name} or apiReferenceId ${category.apiReferenceId} already registered`);
+    const referenceIdApiSet = new Set();
+
+    for (const item of data.jerarquiasNombres) {
+      const firstPart = item.jerarquia.substring(0, 5);
+
+      if (!groupedData[firstPart]) {
+        groupedData[firstPart] = [];
+      }
+
+      if (!referenceIdApiSet.has(item.jerarquia)) {
+        const newCategory = {
+          offspringType: 'sub',
+          name: item.nombre,
+          description: '',
+          categoryMargin: '',
+          featured: 0,
+          image: '',
+          mainCategory: firstPart,
+          parentCategory: '',
+          apiReferenceId: item.jerarquia,
+          origin: 'Promos',
+        };
+
+        cleanedData.push(newCategory);
+
+        referenceIdApiSet.add(item.jerarquia);
+      };
+    };
+
+    for (const category of cleanedData) {
+      const categoryExists = categoriesInDb.some(categoryDb => categoryDb.apiReferenceId == category.apiReferenceId || categoryDb.name == category.name);
+
+      if (categoryExists) {
+        console.log(`Category with name ${category.name} or with api reference id ${category.apiReferenceId} already exists on the database`);
       } else {
-        await this.categorySupplierRepository.save(category);
-        categoriesToSave.push(category);
+        const newCategory = await this.categorySupplierRepository.save(category);
+        savedCategories.push(newCategory);
       }
     }
 
-    if (categoriesToSave.length === 0) {
+    if (savedCategories.length === 0)
       throw new BadRequestException(`There are no new categories to save`);
-    }
 
     return {
-      categoriesToSave
+      savedCategories
     };
   }
 
