@@ -1,10 +1,14 @@
 import { Injectable, Logger, InternalServerErrorException, BadRequestException, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { plainToClass } from 'class-transformer';
+
 import { CreateRefProductDto } from './dto/create-ref-product.dto';
 import { UpdateRefProductDto } from './dto/update-ref-product.dto';
-import { InjectRepository } from '@nestjs/typeorm';
 import { RefProduct } from './entities/ref-product.entity';
-import { Repository } from 'typeorm';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { MarketDesignArea } from '../market-design-area/entities/market-design-area.entity';
+import { Supplier } from '../suppliers/entities/supplier.entity';
 
 @Injectable()
 export class RefProductsService {
@@ -13,16 +17,49 @@ export class RefProductsService {
   constructor(
     @InjectRepository(RefProduct)
     private readonly refProductRepository: Repository<RefProduct>,
+
+    @InjectRepository(MarketDesignArea)
+    private readonly marketDesignAreaRepository: Repository<MarketDesignArea>,
+
+    @InjectRepository(Supplier)
+    private readonly supplierRepository: Repository<Supplier>,
   ) { }
 
   async create(createRefProductDto: CreateRefProductDto) {
     try {
-      const refProduct = this.refProductRepository.create(createRefProductDto);
+      const newRefProduct = plainToClass(RefProduct, createRefProductDto);
 
-      await this.refProductRepository.save(refProduct);
+      const marketDesignArea: MarketDesignArea = await this.marketDesignAreaRepository.findOne({
+        where: {
+          id: createRefProductDto.marketDesignArea,
+        },
+      });
+
+      if (!marketDesignArea)
+        throw new NotFoundException(`Market design area with id ${createRefProductDto.marketDesignArea} not found`);
+
+      if (!marketDesignArea.isActive)
+        throw new BadRequestException(`Market design area with id ${createRefProductDto.marketDesignArea} is currently inactive`);
+
+      const supplier: Supplier = await this.supplierRepository.findOne({
+        where: {
+          id: createRefProductDto.supplier,
+        },
+      });
+
+      if (!supplier)
+        throw new NotFoundException(`Suppplier with id ${createRefProductDto.supplier} not found`);
+
+      if (!supplier.isActive)
+        throw new BadRequestException(`Supplier with id ${createRefProductDto.supplier} is currently inactive`);
+
+      newRefProduct.marketDesignArea = marketDesignArea;
+      newRefProduct.supplier = supplier;
+
+      await this.refProductRepository.save(newRefProduct);
 
       return {
-        refProduct
+        newRefProduct
       };
     } catch (error) {
       this.handleDbExceptions(error);
@@ -35,6 +72,10 @@ export class RefProductsService {
     return this.refProductRepository.find({
       take: limit,
       skip: offset,
+      relations: [
+        'marketDesignArea',
+        'supplier',
+      ],
     });
   }
 
@@ -43,6 +84,10 @@ export class RefProductsService {
       where: {
         id,
       },
+      relations: [
+        'marketDesignArea',
+        'supplier',
+      ],
     });
 
     if (!refProduct)

@@ -5,6 +5,7 @@ import { Image } from '../../images/entities/image.entity';
 import { VariantReference } from '../../variant-reference/entities/variant-reference.entity';
 import { Supplier } from '../../suppliers/entities/supplier.entity';
 import { CategorySupplier } from '../../category-suppliers/entities/category-supplier.entity';
+import { MarketDesignArea } from '../../market-design-area/entities/market-design-area.entity';
 
 @Entity('ref_products')
 export class RefProduct {
@@ -98,6 +99,9 @@ export class RefProduct {
 
   @ManyToOne(() => Supplier, (supplier) => supplier.refProducts)
   supplier: Supplier;
+
+  @ManyToOne(() => MarketDesignArea, (marketDesignArea) => marketDesignArea.refProducts)
+  marketDesignArea: MarketDesignArea;
 
   @ManyToMany(() => CategorySupplier, (categorySupplier) => categorySupplier.refProducts)
   @JoinTable({

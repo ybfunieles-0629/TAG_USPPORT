@@ -1,4 +1,4 @@
-import { IsBoolean, IsDecimal, IsInt, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsString } from 'class-validator';
 
 export class CreateRefProductDto {
   @IsString()
@@ -19,16 +19,16 @@ export class CreateRefProductDto {
   @IsString()
   keywords: string;
 
-  @IsDecimal()
+  @IsInt()
   large: number;
 
-  @IsDecimal()
+  @IsInt()
   width: number;
 
-  @IsDecimal()
+  @IsInt()
   height: number;
 
-  @IsDecimal()
+  @IsInt()
   weight: number;
 
   @IsString()
@@ -42,4 +42,10 @@ export class CreateRefProductDto {
 
   @IsInt()
   productNoInventoryLeadTime: number;
+
+  @IsString()
+  marketDesignArea: string;
+
+  @IsString()
+  supplier: string;
 }
