@@ -6,13 +6,11 @@ import { SuppliersController } from './suppliers.controller';
 import { Supplier } from './entities/supplier.entity';
 import { SubSupplierProductTypesModule } from '../sub-supplier-product-types/sub-supplier-product-types.module';
 import { UsersModule } from '../users/users.module';
-import { RefProductsModule } from '../ref-products/ref-products.module';
 
 @Module({
   imports: [
     SubSupplierProductTypesModule,
     UsersModule,
-    RefProductsModule,
     TypeOrmModule.forFeature([Supplier])
   ],
   controllers: [SuppliersController],
