@@ -46,7 +46,7 @@ export class CategorySuppliersController {
     return this.categorySuppliersService.update(id, updateCategorySupplierDto);
   }
 
-  @Patch(':id')
+  @Patch('/desactivate/:id')
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {

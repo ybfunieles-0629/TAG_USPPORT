@@ -78,5 +78,5 @@ export class CategorySupplier {
   refProducts?: RefProduct[];
 
   @ManyToOne(() => Supplier, (supplier) => supplier.categorySuppliers)
-  supplier: Supplier[];
+  suppliers: Supplier[];
 }

@@ -10,6 +10,7 @@ import { CategorySupplier } from './entities/category-supplier.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { CategoryTag } from '../category-tag/entities/category-tag.entity';
 import { RefProduct } from '../ref-products/entities/ref-product.entity';
+import { Supplier } from '../suppliers/entities/supplier.entity';
 
 @Injectable()
 export class CategorySuppliersService {
@@ -24,6 +25,9 @@ export class CategorySuppliersService {
 
     @InjectRepository(RefProduct)
     private readonly refProductRepository: Repository<RefProduct>,
+
+    @InjectRepository(Supplier)
+    private readonly supplierRepository: Repository<Supplier>,
   ) { }
 
   //* ---- LOAD PARENT CATEGORIES FROM EXT API METHOD ---- *//
@@ -165,6 +169,28 @@ export class CategorySuppliersService {
 
     newCategorySupplier.categoryTag = categoryTag;
 
+    const suppliers: Supplier[] = [];
+
+    if (createCategorySupplierDto.suppliers) {
+      for (const supplierId of createCategorySupplierDto.suppliers) {
+        const supplier: Supplier = await this.supplierRepository.findOne({
+          where: {
+            id: supplierId,
+          },
+        });
+
+        if (!supplier)
+          throw new NotFoundException(`Supplier with id ${supplierId} not found`);
+
+        if (!supplier.isActive)
+          throw new BadRequestException(`Supplier with id ${supplierId} is currently inactive`);
+
+        suppliers.push(supplier);
+      }
+    }
+    
+    newCategorySupplier.suppliers = suppliers;
+
     await this.categorySupplierRepository.save(newCategorySupplier);
 
     return {
@@ -180,7 +206,7 @@ export class CategorySuppliersService {
       skip: offset,
       relations: [
         'categoryTag',
-        'supplier',
+        'suppliers',
         'refProduct',
       ],
     });
@@ -193,7 +219,7 @@ export class CategorySuppliersService {
       },
       relations: [
         'categoryTag',
-        'supplier',
+        'suppliers',
         'refProduct',
       ],
     });
@@ -213,7 +239,7 @@ export class CategorySuppliersService {
       },
       relations: [
         'categoryTag',
-        'supplier',
+        'suppliers',
         'refProduct'
       ],
     });
@@ -231,6 +257,11 @@ export class CategorySuppliersService {
       where: {
         id
       },
+      relations: [
+        'categoryTag',
+        'suppliers',
+        'refProduct',
+      ],
     });
 
     if (!categorySupplier)
@@ -248,6 +279,28 @@ export class CategorySuppliersService {
     // const refProduct: RefProduct = await this.refProductRepository
 
     const updatedCategorySupplier = plainToClass(CategorySupplier, updateCategorySupplierDto);
+
+    const suppliers: Supplier[] = [];
+
+    if (updateCategorySupplierDto.suppliers) {
+      for (const supplierId of updateCategorySupplierDto.suppliers) {
+        const supplier: Supplier = await this.supplierRepository.findOne({
+          where: {
+            id: supplierId,
+          },
+        });
+
+        if (!supplier)
+          throw new NotFoundException(`Supplier with id ${supplierId} not found`);
+
+        if (!supplier.isActive)
+          throw new BadRequestException(`Supplier with id ${supplierId} is currently inactive`);
+
+        suppliers.push(supplier);
+      }
+
+      updatedCategorySupplier.suppliers = suppliers;
+    }
 
     Object.assign(categorySupplier, updatedCategorySupplier);
 

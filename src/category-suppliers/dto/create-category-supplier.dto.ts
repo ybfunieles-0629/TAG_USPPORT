@@ -30,6 +30,7 @@ export class CreateCategorySupplierDto {
   @IsString()
   categoryTag: string;
 
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
   suppliers?: string[];
