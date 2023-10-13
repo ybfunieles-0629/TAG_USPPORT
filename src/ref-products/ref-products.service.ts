@@ -9,6 +9,7 @@ import { RefProduct } from './entities/ref-product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { Marking } from '../markings/entities/marking.entity';
+import { CategorySupplier } from '../category-suppliers/entities/category-supplier.entity';
 
 @Injectable()
 export class RefProductsService {
@@ -17,6 +18,9 @@ export class RefProductsService {
   constructor(
     @InjectRepository(RefProduct)
     private readonly refProductRepository: Repository<RefProduct>,
+
+    @InjectRepository(CategorySupplier)
+    private readonly categorySupplierRepository: Repository<CategorySupplier>,
 
     @InjectRepository(Supplier)
     private readonly supplierRepository: Repository<Supplier>,
@@ -63,7 +67,28 @@ export class RefProductsService {
         }
       }
 
+      const categorySuppliers: CategorySupplier[] = [];
+
+      if (createRefProductDto.categorySuppliers) {
+        for (const categorySupplierId of createRefProductDto.categorySuppliers) {
+          const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+            where: {
+              id: categorySupplierId,
+            },
+          });
+
+          if (!categorySupplier)
+            throw new NotFoundException(`Marking with id ${categorySupplierId} not found`);
+
+          if (!categorySupplier.isActive)
+            throw new BadRequestException(`Marking with id ${categorySupplierId} is currently inactive`);
+
+          categorySuppliers.push(categorySupplier);
+        }
+      }
+
       newRefProduct.markings = markings;
+      newRefProduct.categorySuppliers = categorySuppliers;
 
       await this.refProductRepository.save(newRefProduct);
 
@@ -153,8 +178,29 @@ export class RefProductsService {
       };
     };
 
+    const categorySuppliers: CategorySupplier[] = [];
+
+      if (updateRefProductDto.categorySuppliers) {
+        for (const categorySupplierId of updateRefProductDto.categorySuppliers) {
+          const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+            where: {
+              id: categorySupplierId,
+            },
+          });
+
+          if (!categorySupplier)
+            throw new NotFoundException(`Marking with id ${categorySupplierId} not found`);
+
+          if (!categorySupplier.isActive)
+            throw new BadRequestException(`Marking with id ${categorySupplierId} is currently inactive`);
+
+          categorySuppliers.push(categorySupplier);
+        }
+      }
+
     updatedRefProduct.markings = markings;
     updatedRefProduct.supplier = supplier;
+    updatedRefProduct.categorySuppliers = categorySuppliers;
 
     Object.assign(refProduct, updatedRefProduct);
 
