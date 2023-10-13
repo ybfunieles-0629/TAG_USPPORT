@@ -24,7 +24,6 @@ import { CategorySuppliersModule } from './category-suppliers/category-suppliers
 import { RefProductsModule } from './ref-products/ref-products.module';
 import { VariantReferenceModule } from './variant-reference/variant-reference.module';
 import { ColorsModule } from './colors/colors.module';
-import { MarketDesignAreaModule } from './market-design-area/market-design-area.module';
 import { MarkingsModule } from './markings/markings.module';
 import { MarkedServicePricesModule } from './marked-service-prices/marked-service-prices.module';
 import { MarkingServicePropertiesModule } from './marking-service-properties/marking-service-properties.module';
@@ -72,7 +71,6 @@ import { PackingsModule } from './packings/packings.module';
     RefProductsModule,
     VariantReferenceModule,
     ColorsModule,
-    MarketDesignAreaModule,
     MarkingsModule,
     MarkedServicePricesModule,
     MarkingServicePropertiesModule,
