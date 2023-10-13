@@ -73,10 +73,10 @@ export class CategorySupplier {
   //* --- FK --- *//
   @ManyToOne(() => CategoryTag, (categoryTag) => categoryTag.categorySuppliers)
   categoryTag: CategoryTag;
+  
+  @ManyToOne(() => Supplier, (supplier) => supplier.categorySuppliers)
+  supplier: Supplier;
 
   @ManyToMany(() => RefProduct, (refProduct) => refProduct.categorySuppliers)
   refProducts?: RefProduct[];
-
-  @ManyToOne(() => Supplier, (supplier) => supplier.categorySuppliers)
-  suppliers: Supplier[];
 }

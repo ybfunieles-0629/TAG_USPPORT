@@ -23,9 +23,6 @@ export class CategorySuppliersService {
     @InjectRepository(CategoryTag)
     private readonly categoryTagRepository: Repository<CategoryTag>,
 
-    @InjectRepository(RefProduct)
-    private readonly refProductRepository: Repository<RefProduct>,
-
     @InjectRepository(Supplier)
     private readonly supplierRepository: Repository<Supplier>,
   ) { }
@@ -169,27 +166,19 @@ export class CategorySuppliersService {
 
     newCategorySupplier.categoryTag = categoryTag;
 
-    const suppliers: Supplier[] = [];
+    const supplier: Supplier = await this.supplierRepository.findOne({
+      where: {
+        id: createCategorySupplierDto.supplier
+      },
+    });
 
-    if (createCategorySupplierDto.suppliers) {
-      for (const supplierId of createCategorySupplierDto.suppliers) {
-        const supplier: Supplier = await this.supplierRepository.findOne({
-          where: {
-            id: supplierId,
-          },
-        });
+    if (!supplier)
+      throw new NotFoundException(`Supplier with id ${createCategorySupplierDto.supplier} not found`);
 
-        if (!supplier)
-          throw new NotFoundException(`Supplier with id ${supplierId} not found`);
+    if (!supplier.isActive)
+      throw new BadRequestException(`Supplier with id ${createCategorySupplierDto.supplier} is currently inactive`);
 
-        if (!supplier.isActive)
-          throw new BadRequestException(`Supplier with id ${supplierId} is currently inactive`);
-
-        suppliers.push(supplier);
-      }
-    }
-    
-    newCategorySupplier.suppliers = suppliers;
+    newCategorySupplier.supplier = supplier;
 
     await this.categorySupplierRepository.save(newCategorySupplier);
 
@@ -280,27 +269,19 @@ export class CategorySuppliersService {
 
     const updatedCategorySupplier = plainToClass(CategorySupplier, updateCategorySupplierDto);
 
-    const suppliers: Supplier[] = [];
+    const supplier: Supplier = await this.supplierRepository.findOne({
+      where: {
+        id: updateCategorySupplierDto.supplier
+      },
+    });
 
-    if (updateCategorySupplierDto.suppliers) {
-      for (const supplierId of updateCategorySupplierDto.suppliers) {
-        const supplier: Supplier = await this.supplierRepository.findOne({
-          where: {
-            id: supplierId,
-          },
-        });
+    if (!supplier)
+      throw new NotFoundException(`Supplier with id ${updateCategorySupplierDto.supplier} not found`);
 
-        if (!supplier)
-          throw new NotFoundException(`Supplier with id ${supplierId} not found`);
+    if (!supplier.isActive)
+      throw new BadRequestException(`Supplier with id ${updateCategorySupplierDto.supplier} is currently inactive`);
 
-        if (!supplier.isActive)
-          throw new BadRequestException(`Supplier with id ${supplierId} is currently inactive`);
-
-        suppliers.push(supplier);
-      }
-
-      updatedCategorySupplier.suppliers = suppliers;
-    }
+    updatedCategorySupplier.supplier = supplier;
 
     Object.assign(categorySupplier, updatedCategorySupplier);
 
