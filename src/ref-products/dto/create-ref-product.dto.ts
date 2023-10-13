@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsInt, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreateRefProductDto {
   @IsString()
@@ -44,8 +44,18 @@ export class CreateRefProductDto {
   productNoInventoryLeadTime: number;
 
   @IsString()
-  marketDesignArea: string;
+  markedDesignArea: string;
 
   @IsString()
   supplier: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  markings?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  categorySuppliers?: string[];
 }

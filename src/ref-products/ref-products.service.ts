@@ -7,8 +7,8 @@ import { CreateRefProductDto } from './dto/create-ref-product.dto';
 import { UpdateRefProductDto } from './dto/update-ref-product.dto';
 import { RefProduct } from './entities/ref-product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { MarketDesignArea } from '../market-design-area/entities/market-design-area.entity';
 import { Supplier } from '../suppliers/entities/supplier.entity';
+import { Marking } from '../markings/entities/marking.entity';
 
 @Injectable()
 export class RefProductsService {
@@ -18,28 +18,16 @@ export class RefProductsService {
     @InjectRepository(RefProduct)
     private readonly refProductRepository: Repository<RefProduct>,
 
-    @InjectRepository(MarketDesignArea)
-    private readonly marketDesignAreaRepository: Repository<MarketDesignArea>,
-
     @InjectRepository(Supplier)
     private readonly supplierRepository: Repository<Supplier>,
+
+    @InjectRepository(Marking)
+    private readonly markingRepository: Repository<Marking>,
   ) { }
 
   async create(createRefProductDto: CreateRefProductDto) {
     try {
       const newRefProduct = plainToClass(RefProduct, createRefProductDto);
-
-      const marketDesignArea: MarketDesignArea = await this.marketDesignAreaRepository.findOne({
-        where: {
-          id: createRefProductDto.marketDesignArea,
-        },
-      });
-
-      if (!marketDesignArea)
-        throw new NotFoundException(`Market design area with id ${createRefProductDto.marketDesignArea} not found`);
-
-      if (!marketDesignArea.isActive)
-        throw new BadRequestException(`Market design area with id ${createRefProductDto.marketDesignArea} is currently inactive`);
 
       const supplier: Supplier = await this.supplierRepository.findOne({
         where: {
@@ -53,8 +41,29 @@ export class RefProductsService {
       if (!supplier.isActive)
         throw new BadRequestException(`Supplier with id ${createRefProductDto.supplier} is currently inactive`);
 
-      newRefProduct.marketDesignArea = marketDesignArea;
       newRefProduct.supplier = supplier;
+
+      const markings: Marking[] = [];
+
+      if (createRefProductDto.markings) {
+        for (const markingId of createRefProductDto.markings) {
+          const marking: Marking = await this.markingRepository.findOne({
+            where: {
+              id: markingId,
+            },
+          });
+
+          if (!marking)
+            throw new NotFoundException(`Marking with id ${markingId} not found`);
+
+          if (!marking.isActive)
+            throw new BadRequestException(`Marking with id ${markingId} is currently inactive`);
+
+          markings.push(marking);
+        }
+      }
+
+      newRefProduct.markings = markings;
 
       await this.refProductRepository.save(newRefProduct);
 
@@ -73,7 +82,6 @@ export class RefProductsService {
       take: limit,
       skip: offset,
       relations: [
-        'marketDesignArea',
         'supplier',
       ],
     });
@@ -85,7 +93,6 @@ export class RefProductsService {
         id,
       },
       relations: [
-        'marketDesignArea',
         'supplier',
       ],
     });
@@ -99,7 +106,63 @@ export class RefProductsService {
   }
 
   async update(id: string, updateRefProductDto: UpdateRefProductDto) {
-    return `This action updates a #${id} refProduct`;
+    const refProduct = await this.refProductRepository.findOne({
+      where: {
+        id,
+      },
+      relations: [
+        'supplier',
+        'markings'
+      ],
+    });
+
+    if (!refProduct)
+      throw new NotFoundException(`Ref product with id ${id} not found`);
+
+    const updatedRefProduct = plainToClass(RefProduct, updateRefProductDto);
+
+    const markings: Marking[] = [];
+
+    const supplier: Supplier = await this.supplierRepository.findOne({
+      where: {
+        id: updateRefProductDto.supplier,
+      },
+    });
+
+    if (!supplier)
+      throw new NotFoundException(`Suppplier with id ${updateRefProductDto.supplier} not found`);
+
+    if (!supplier.isActive)
+      throw new BadRequestException(`Supplier with id ${updateRefProductDto.supplier} is currently inactive`);
+
+    if (updateRefProductDto.markings) {
+      for (const markingId of updateRefProductDto.markings) {
+        const marking: Marking = await this.markingRepository.findOne({
+          where: {
+            id: markingId,
+          },
+        });
+
+        if (!marking)
+          throw new NotFoundException(`Marking with id ${markingId} not found`);
+
+        if (!marking.isActive)
+          throw new BadRequestException(`Marking with id ${markingId} is currently inactive`);
+
+        markings.push(marking);
+      };
+    };
+
+    updatedRefProduct.markings = markings;
+    updatedRefProduct.supplier = supplier;
+
+    Object.assign(refProduct, updatedRefProduct);
+
+    await this.refProductRepository.save(refProduct);
+
+    return {
+      refProduct
+    };
   }
 
   async desactivate(id: string) {

@@ -5,7 +5,7 @@ import { Image } from '../../images/entities/image.entity';
 import { VariantReference } from '../../variant-reference/entities/variant-reference.entity';
 import { Supplier } from '../../suppliers/entities/supplier.entity';
 import { CategorySupplier } from '../../category-suppliers/entities/category-supplier.entity';
-import { MarketDesignArea } from '../../market-design-area/entities/market-design-area.entity';
+import { Marking } from '../../markings/entities/marking.entity';
 
 @Entity('ref_products')
 export class RefProduct {
@@ -57,6 +57,11 @@ export class RefProduct {
   })
   height: number;
 
+  @Column('varchar', {
+
+  })
+  markedDesignArea: string;
+
   @Column('float', {
 
   })
@@ -100,9 +105,6 @@ export class RefProduct {
   @ManyToOne(() => Supplier, (supplier) => supplier.refProducts)
   supplier: Supplier;
 
-  @ManyToOne(() => MarketDesignArea, (marketDesignArea) => marketDesignArea.refProducts)
-  marketDesignArea: MarketDesignArea;
-
   @ManyToMany(() => CategorySupplier, (categorySupplier) => categorySupplier.refProducts)
   @JoinTable({
     name: 'ref_products_has_category_suppliers',
@@ -116,4 +118,18 @@ export class RefProduct {
     },
   })
   categorySuppliers?: CategorySupplier[];
+
+  @ManyToMany(() => Marking, (marking) => marking.refProducts)
+  @JoinTable({
+    name: 'ref_products_has_markings',
+    joinColumn: {
+      name: 'refProductId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'markingId',
+      referencedColumnName: 'id',
+    },
+  })
+  markings?: Marking[];
 }
