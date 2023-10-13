@@ -1,4 +1,4 @@
-import { IsInt, IsString } from 'class-validator';
+import { IsArray, IsInt, IsString } from 'class-validator';
 
 export class CreateMarkingDto {
   @IsString()
@@ -12,4 +12,14 @@ export class CreateMarkingDto {
 
   @IsInt()
   iva: number;
+
+  @IsString()
+  markingTagService: string;
+
+  @IsString()
+  company: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  markedServicePrices?: string[];
 }

@@ -2,7 +2,6 @@ import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, One
 
 import { Color } from '../../colors/entities/color.entity';
 import { RefProduct } from '../../ref-products/entities/ref-product.entity';
-import { MarketDesignArea } from '../../market-design-area/entities/market-design-area.entity';
 import { Marking } from '../../markings/entities/marking.entity';
 import { Packing } from '../../packings/entities/packing.entity';
 
@@ -111,6 +110,11 @@ export class Product {
   })
   tariffItem: string;
 
+  @Column('varchar', {
+
+  })
+  marketDesignArea: string;
+
   @Column('boolean', {
     default: true,
   })
@@ -125,9 +129,6 @@ export class Product {
   //* --- FK --- *//
   @OneToMany(() => Color, (color) => color.product)
   colors: Color[];
-
-  @OneToMany(() => MarketDesignArea, (marketDesignArea) => marketDesignArea.product)
-  marketDesignAreas: MarketDesignArea[];
 
   @OneToMany(() => Packing, (packing) => packing.product)
   packings: Packing[];

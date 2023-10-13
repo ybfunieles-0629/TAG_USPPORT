@@ -3,7 +3,8 @@ import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, Pri
 import { MarkedServicePrice } from '../../marked-service-prices/entities/marked-service-price.entity';
 import { MarkingTagService } from '../../marking-tag-services/entities/marking-tag-service.entity';
 import { Company } from '../../companies/entities/company.entity';
-import { Product } from 'src/products/entities/product.entity';
+import { Product } from '../../products/entities/product.entity';
+import { RefProduct } from '../../ref-products/entities/ref-product.entity';
 
 @Entity('markings')
 export class Marking {
@@ -43,7 +44,7 @@ export class Marking {
 
   //* --- FK --- *//
   @OneToMany(() => MarkedServicePrice, (markedServicePrice) => markedServicePrice.marking)
-  markedServicePrices: MarkedServicePrice[];
+  markedServicePrices?: MarkedServicePrice[];
 
   @OneToMany(() => MarkingTagService, (markingTagService) => markingTagService.markings)
   markingTagService: MarkingTagService;
@@ -53,4 +54,7 @@ export class Marking {
 
   @ManyToMany(() => Product, (product) => product.markings)
   products?: Product[];
+
+  @ManyToMany(() => RefProduct, (refProduct) => refProduct.markings)
+  refProducts?: RefProduct[];
 }

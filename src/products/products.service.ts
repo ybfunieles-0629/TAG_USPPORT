@@ -8,7 +8,6 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Color } from '../colors/entities/color.entity';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { MarketDesignArea } from '../market-design-area/entities/market-design-area.entity';
 
 @Injectable()
 export class ProductsService {
@@ -20,16 +19,12 @@ export class ProductsService {
 
     @InjectRepository(Color)
     private readonly colorRepository: Repository<Color>,
-
-    @InjectRepository(MarketDesignArea)
-    private readonly marketDesignAreaRepository: Repository<MarketDesignArea>,
   ) { }
 
   async create(createProductDto: CreateProductDto) {
     const newProduct = plainToClass(Product, createProductDto);
 
     const colors: Color[] = [];
-    const marketDesignAreas: MarketDesignArea[] = [];
 
     for (const colorId of createProductDto.colors) {
       const color = await this.colorRepository.findOne({
@@ -44,21 +39,7 @@ export class ProductsService {
       colors.push(color);
     }
 
-    for (const marketDesignAreaId of createProductDto.marketDesignAreas) {
-      const marketDesignArea = await this.marketDesignAreaRepository.findOne({
-        where: {
-          id: marketDesignAreaId,
-        },
-      });
-
-      if (!marketDesignArea)
-        throw new NotFoundException(`Market design area with id ${marketDesignAreaId} not found`);
-
-      marketDesignAreas.push(marketDesignArea);
-    }
-
     newProduct.colors = colors;
-    newProduct.marketDesignAreas = marketDesignAreas;
 
     await this.productRepository.save(newProduct);
 

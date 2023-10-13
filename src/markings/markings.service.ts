@@ -1,11 +1,15 @@
 import { Injectable, InternalServerErrorException, BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { plainToClass } from 'class-transformer';
 
 import { CreateMarkingDto } from './dto/create-marking.dto';
 import { UpdateMarkingDto } from './dto/update-marking.dto';
 import { Marking } from './entities/marking.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { MarkingTagService } from '../marking-tag-services/entities/marking-tag-service.entity';
+import { Company } from '../companies/entities/company.entity';
+import { Product } from '../products/entities/product.entity';
 
 @Injectable()
 export class MarkingsService {
@@ -14,16 +18,52 @@ export class MarkingsService {
   constructor(
     @InjectRepository(Marking)
     private readonly markingRepository: Repository<Marking>,
+
+    @InjectRepository(MarkingTagService)
+    private readonly markingTagServiceRepository: Repository<MarkingTagService>,
+
+    @InjectRepository(Company)
+    private readonly companyRepository: Repository<Company>,
   ) { }
 
   async create(createMarkingDto: CreateMarkingDto) {
     try {
-      const marking = this.markingRepository.create(createMarkingDto);
+      const newMarking = plainToClass(Marking, createMarkingDto);
 
-      await this.markingRepository.save(marking);
+      const markingTagService = await this.markingTagServiceRepository.findOne({
+        where: {
+          id: createMarkingDto.markingTagService
+        },
+      });
+
+      if (!markingTagService)
+        throw new NotFoundException(`Marking tag service with id ${createMarkingDto.markingTagService} not found`);
+
+      if (!markingTagService.isActive)
+        throw new BadRequestException(`Company with id ${createMarkingDto.company} is currently inactive`);
+
+      newMarking.markingTagService = markingTagService;
+
+      const company = await this.companyRepository.findOne({
+        where: {
+          id: createMarkingDto.company,
+        },
+      });
+
+      if (!company) 
+        throw new NotFoundException(`Company id with ${createMarkingDto.company} not found`);
+
+      if (!company.isActive)
+        throw new BadRequestException(`Company with id ${createMarkingDto.company} is currently inactive`);
+
+      newMarking.company = company;
+
+      const products: Product[] = [];
+
+      await this.markingRepository.save(newMarking);
 
       return {
-        marking
+        newMarking
       };
     } catch (error) {
       this.handleDbExceptions(error);
