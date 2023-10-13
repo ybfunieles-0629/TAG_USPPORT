@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsEmail, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateCompanyDto {
   @IsString()
@@ -64,14 +64,14 @@ export class CreateCompanyDto {
   companyType: string;
   
   @IsOptional()
-  // @IsBoolean()
-  ivaResponsable?: boolean = false;
+  @IsNumber()
+  ivaResponsable?: number;
 
   @IsOptional()
-  // @IsBoolean()
-  taxPayer?: boolean = false;
+  @IsNumber()
+  taxPayer?: number;
 
   @IsOptional()
-  // @IsBoolean()
-  selfRetaining?: boolean = false;
+  @IsNumber()
+  selfRetaining?: number;
 }

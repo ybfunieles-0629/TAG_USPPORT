@@ -22,10 +22,6 @@ export class CompaniesService {
   ) { }
 
   async create(createCompanyDto: CreateCompanyDto, files: Record<string, Express.Multer.File>) {
-    createCompanyDto.ivaResponsable = Boolean(createCompanyDto.ivaResponsable);
-    createCompanyDto.taxPayer = Boolean(createCompanyDto.taxPayer);
-    createCompanyDto.selfRetaining = Boolean(createCompanyDto.selfRetaining);
-
     try {
       const newCompany = plainToClass(Company, createCompanyDto);
 
@@ -85,10 +81,6 @@ export class CompaniesService {
   }
 
   async update(id: string, updateCompanyDto: UpdateCompanyDto, files: Record<string, Express.Multer.File>) {
-    updateCompanyDto.ivaResponsable = Boolean(updateCompanyDto.ivaResponsable);
-    updateCompanyDto.taxPayer = Boolean(updateCompanyDto.taxPayer);
-    updateCompanyDto.selfRetaining = Boolean(updateCompanyDto.selfRetaining);
-
     if (updateCompanyDto.nit) {
       throw new BadRequestException(`You can't update the NIT of the company`);
     }
