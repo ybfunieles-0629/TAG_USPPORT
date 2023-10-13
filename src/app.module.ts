@@ -29,6 +29,7 @@ import { MarkedServicePricesModule } from './marked-service-prices/marked-servic
 import { MarkingServicePropertiesModule } from './marking-service-properties/marking-service-properties.module';
 import { MarkingTagServicesModule } from './marking-tag-services/marking-tag-services.module';
 import { PackingsModule } from './packings/packings.module';
+import { DeliveryTimesModule } from './delivery-times/delivery-times.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { PackingsModule } from './packings/packings.module';
     MarkingServicePropertiesModule,
     MarkingTagServicesModule,
     PackingsModule,
+    DeliveryTimesModule,
   ],
 })
 export class AppModule { }
