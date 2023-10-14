@@ -25,6 +25,10 @@ export class CompaniesService {
     try {
       const newCompany = plainToClass(Company, createCompanyDto);
 
+      newCompany.ivaResponsable = +newCompany.ivaResponsable;
+      newCompany.taxPayer = +newCompany.taxPayer;
+      newCompany.selfRetaining = +newCompany.selfRetaining;
+
       for (const [fieldName, fileInfo] of Object.entries(files)) {
         const uniqueFilename = `${uuidv4()}-${fileInfo[0].originalname}`;
         fileInfo[0].originalname = uniqueFilename;
@@ -96,6 +100,10 @@ export class CompaniesService {
     }
 
     const updatedCompany = plainToClass(Company, updateCompanyDto);
+
+    updatedCompany.ivaResponsable = +updatedCompany.ivaResponsable;
+    updatedCompany.taxPayer = +updatedCompany.taxPayer;
+    updatedCompany.selfRetaining = +updatedCompany.selfRetaining;
 
     for (const [fieldName, fileInfo] of Object.entries(files)) {
       const uniqueFilename = `${uuidv4()}-${fileInfo[0].originalname}`;
