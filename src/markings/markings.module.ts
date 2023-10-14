@@ -10,7 +10,6 @@ import { CompaniesModule } from '../companies/companies.module';
 
 @Module({
   imports: [
-    ProductsModule,
     MarkingsModule,
     MarkingTagServicesModule,
     CompaniesModule,
