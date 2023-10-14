@@ -2,7 +2,7 @@ import { Column, CreateDateColumn, Entity, ManyToMany, PrimaryGeneratedColumn, U
 
 import { RefProduct } from '../../ref-products/entities/ref-product.entity';
 
-@Entity('DeliveryTimes')
+@Entity('delivery_times')
 export class DeliveryTime {
   @PrimaryGeneratedColumn('uuid')
   id: string;
