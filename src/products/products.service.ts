@@ -6,8 +6,8 @@ import { plainToClass } from 'class-transformer';
 import { Product } from './entities/product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateProductDto } from './dto/create-product.dto';
-import { Color } from '../colors/entities/color.entity';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { RefProduct } from 'src/ref-products/entities/ref-product.entity';
 
 @Injectable()
 export class ProductsService {
@@ -17,29 +17,26 @@ export class ProductsService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
 
-    @InjectRepository(Color)
-    private readonly colorRepository: Repository<Color>,
+    @InjectRepository(RefProduct)
+    private readonly refProductRepository: Repository<RefProduct>,
   ) { }
 
   async create(createProductDto: CreateProductDto) {
     const newProduct = plainToClass(Product, createProductDto);
 
-    const colors: Color[] = [];
+    const refProduct = await this.refProductRepository.findOne({
+      where: {
+        id: createProductDto.refProduct,
+      },
+    });
 
-    for (const colorId of createProductDto.colors) {
-      const color = await this.colorRepository.findOne({
-        where: {
-          id: colorId,
-        },
-      });
+    if (!refProduct)
+      throw new NotFoundException(`Ref product with id ${createProductDto.refProduct} not found`);
 
-      if (!color) 
-        throw new NotFoundException(`Color with id ${colorId} not found`);
+    if (!refProduct.isActive)
+      throw new BadRequestException(`Ref product with id ${createProductDto.refProduct} is currently inactive`);
 
-      colors.push(color);
-    }
-
-    newProduct.colors = colors;
+    newProduct.refProduct = refProduct;
 
     await this.productRepository.save(newProduct);
 
@@ -73,7 +70,36 @@ export class ProductsService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
+    const product = await this.productRepository.findOne({
+      where: {
+        id,
+      },
+    });
 
+    const updatedProduct = plainToClass(Product, updateProductDto);
+
+    
+    const refProduct = await this.refProductRepository.findOne({
+      where: {
+        id: updateProductDto.refProduct,
+      },
+    });
+
+    if (!refProduct)
+      throw new NotFoundException(`Ref product with id ${updateProductDto.refProduct} not found`);
+
+    if (!refProduct.isActive)
+      throw new BadRequestException(`Ref product with id ${updateProductDto.refProduct} is currently inactive`);
+
+    updatedProduct.refProduct = refProduct;
+
+    Object.assign(product, updatedProduct);
+
+    await this.productRepository.save(product);
+
+    return {
+      product
+    };
   }
 
   async desactivate(id: string) {

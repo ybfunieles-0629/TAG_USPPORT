@@ -4,6 +4,7 @@ import { Color } from '../../colors/entities/color.entity';
 import { RefProduct } from '../../ref-products/entities/ref-product.entity';
 import { Marking } from '../../markings/entities/marking.entity';
 import { Packing } from '../../packings/entities/packing.entity';
+import { VariantReference } from '../../variant-reference/entities/variant-reference.entity';
 
 @Entity('products')
 export class Product {
@@ -149,4 +150,18 @@ export class Product {
     },
   })
   markings?: Marking[];
+
+  @ManyToMany(() => VariantReference, (variantReference) => variantReference.products)
+  @JoinTable({
+    name: 'products_has_markings',
+    joinColumn: {
+      name: 'productId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'variantReference',
+      referencedColumnName: 'id',
+    },
+  })
+  variantReferences?: VariantReference[];
 }

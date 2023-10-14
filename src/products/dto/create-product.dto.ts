@@ -61,11 +61,6 @@ export class CreateProductDto {
   @IsString()
   tariffItem: string;
 
-  @IsArray()
-  @IsString({ each: true })
-  colors: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  marketDesignAreas: string[];
+  @IsString()
+  refProduct: string;
 }
