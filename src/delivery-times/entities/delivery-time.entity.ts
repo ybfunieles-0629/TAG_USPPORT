@@ -1,5 +1,8 @@
-import { Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
+import { RefProduct } from '../../ref-products/entities/ref-product.entity';
+
+@Entity('DeliveryTimes')
 export class DeliveryTime {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -30,5 +33,7 @@ export class DeliveryTime {
   @UpdateDateColumn()
   updatedAt: Date;
 
-
+  //* ---- FK ---- *//
+  @ManyToMany(() => RefProduct, (refProduct) => refProduct.deliveryTimes)
+  refProducts?: RefProduct[];
 }
