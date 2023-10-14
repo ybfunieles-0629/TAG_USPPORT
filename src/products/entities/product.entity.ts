@@ -56,20 +56,20 @@ export class Product {
   })
   productArrivalDate: Date;
 
-  @Column('bool', {
+  @Column('int', {
 
   })
-  freeSample: boolean;
+  freeSample: number;
 
-  @Column('bool', {
-
-  })
-  requiredSample: boolean;
-
-  @Column('bool', {
+  @Column('int', {
 
   })
-  loanSample: boolean;
+  requiredSample: number;
+
+  @Column('int', {
+
+  })
+  loanSample: number;
 
   @Column('int', {
 

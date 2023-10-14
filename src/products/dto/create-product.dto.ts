@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDate, IsDecimal, IsInt, IsString } from 'class-validator';
+import { IsArray, IsDate, IsInt, IsString } from 'class-validator';
 
 export class CreateProductDto {
   @IsString()
@@ -10,52 +10,52 @@ export class CreateProductDto {
   @IsInt()
   large: number;
 
-  @IsDecimal()
+  @IsInt()
   width: number;
 
-  @IsDecimal()
+  @IsInt()
   height: number;
 
-  @IsDecimal()
+  @IsInt()
   weight: number;
 
-  @IsDecimal()
+  @IsInt()
   availableUnit: number;
 
-  @IsDecimal()
+  @IsInt()
   transitUnit: number;
 
   @IsDate()
   productArrivalDate: Date;
 
-  @IsBoolean()
-  freeSample: boolean;
+  @IsInt()
+  freeSample: number;
 
-  @IsBoolean()
-  requiredSample: boolean;
+  @IsInt()
+  requiredSample: number;
 
-  @IsBoolean()
-  loanSample: boolean;
+  @IsInt()
+  loanSample: number;
 
-  @IsDecimal()
+  @IsInt()
   refundSampleTime: number;
 
-  @IsDecimal()
+  @IsInt()
   iva: number;
 
-  @IsDecimal()
+  @IsInt()
   tagDisccount: number;
 
-  @IsDecimal()
+  @IsInt()
   promoDisccount: number;
 
-  @IsDecimal()
+  @IsInt()
   hasNetPrice: number;
 
-  @IsDecimal()
+  @IsInt()
   samplePrice: number;
 
-  @IsDecimal()
+  @IsInt()
   referencePrice: number;
 
   @IsString()
