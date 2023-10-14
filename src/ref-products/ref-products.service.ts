@@ -10,6 +10,7 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { Marking } from '../markings/entities/marking.entity';
 import { CategorySupplier } from '../category-suppliers/entities/category-supplier.entity';
+import { DeliveryTime } from '../delivery-times/entities/delivery-time.entity';
 
 @Injectable()
 export class RefProductsService {
@@ -21,6 +22,9 @@ export class RefProductsService {
 
     @InjectRepository(CategorySupplier)
     private readonly categorySupplierRepository: Repository<CategorySupplier>,
+
+    @InjectRepository(DeliveryTime)
+    private readonly deliveryTimeRepository: Repository<DeliveryTime>,
 
     @InjectRepository(Supplier)
     private readonly supplierRepository: Repository<Supplier>,
@@ -48,6 +52,8 @@ export class RefProductsService {
       newRefProduct.supplier = supplier;
 
       const markings: Marking[] = [];
+      const categorySuppliers: CategorySupplier[] = [];
+      const deliveryTimes: DeliveryTime[] = [];
 
       if (createRefProductDto.markings) {
         for (const markingId of createRefProductDto.markings) {
@@ -67,8 +73,6 @@ export class RefProductsService {
         }
       }
 
-      const categorySuppliers: CategorySupplier[] = [];
-
       if (createRefProductDto.categorySuppliers) {
         for (const categorySupplierId of createRefProductDto.categorySuppliers) {
           const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
@@ -87,8 +91,27 @@ export class RefProductsService {
         }
       }
 
+      if (createRefProductDto.deliveryTimes) {
+        for (const deliveryTimeId of createRefProductDto.deliveryTimes) {
+          const deliveryTime: DeliveryTime = await this.deliveryTimeRepository.findOne({
+            where: {
+              id: deliveryTimeId,
+            },
+          });
+
+          if (!deliveryTime)
+            throw new NotFoundException(`Delivery time with id ${deliveryTimeId} not found`);
+
+          // if (!deliveryTime.isActive)
+          //   throw new BadRequestException(`Delivery time with id ${deliveryTime} is currently inactive`);
+
+          deliveryTimes.push(deliveryTime);
+        }
+      }
+
       newRefProduct.markings = markings;
       newRefProduct.categorySuppliers = categorySuppliers;
+      newRefProduct.deliveryTimes = deliveryTimes;
 
       await this.refProductRepository.save(newRefProduct);
 
@@ -107,6 +130,8 @@ export class RefProductsService {
       take: limit,
       skip: offset,
       relations: [
+        'deliveryTimes',
+        'markings',
         'supplier',
       ],
     });
@@ -118,6 +143,8 @@ export class RefProductsService {
         id,
       },
       relations: [
+        'deliveryTimes',
+        'markings',
         'supplier',
       ],
     });
@@ -136,8 +163,9 @@ export class RefProductsService {
         id,
       },
       relations: [
+        'deliveryTimes',
         'supplier',
-        'markings'
+        'markings',
       ],
     });
 
@@ -179,28 +207,48 @@ export class RefProductsService {
     };
 
     const categorySuppliers: CategorySupplier[] = [];
+    const deliveryTimes: DeliveryTime[] = [];
 
-      if (updateRefProductDto.categorySuppliers) {
-        for (const categorySupplierId of updateRefProductDto.categorySuppliers) {
-          const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
-            where: {
-              id: categorySupplierId,
-            },
-          });
+    if (updateRefProductDto.categorySuppliers) {
+      for (const categorySupplierId of updateRefProductDto.categorySuppliers) {
+        const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+          where: {
+            id: categorySupplierId,
+          },
+        });
 
-          if (!categorySupplier)
-            throw new NotFoundException(`Marking with id ${categorySupplierId} not found`);
+        if (!categorySupplier)
+          throw new NotFoundException(`Marking with id ${categorySupplierId} not found`);
 
-          if (!categorySupplier.isActive)
-            throw new BadRequestException(`Marking with id ${categorySupplierId} is currently inactive`);
+        if (!categorySupplier.isActive)
+          throw new BadRequestException(`Marking with id ${categorySupplierId} is currently inactive`);
 
-          categorySuppliers.push(categorySupplier);
-        }
+        categorySuppliers.push(categorySupplier);
       }
+    }
+
+    if (updateRefProductDto.deliveryTimes) {
+      for (const deliveryTimeId of updateRefProductDto.deliveryTimes) {
+        const deliveryTime: DeliveryTime = await this.deliveryTimeRepository.findOne({
+          where: {
+            id: deliveryTimeId,
+          },
+        });
+
+        if (!deliveryTime)
+          throw new NotFoundException(`Delivery time with id ${deliveryTimeId} not found`);
+
+        // if (!deliveryTime.isActive)
+        //   throw new BadRequestException(`Delivery time with id ${deliveryTime} is currently inactive`);
+
+        deliveryTimes.push(deliveryTime);
+      }
+    }
 
     updatedRefProduct.markings = markings;
     updatedRefProduct.supplier = supplier;
     updatedRefProduct.categorySuppliers = categorySuppliers;
+    updatedRefProduct.deliveryTimes = deliveryTimes;
 
     Object.assign(refProduct, updatedRefProduct);
 

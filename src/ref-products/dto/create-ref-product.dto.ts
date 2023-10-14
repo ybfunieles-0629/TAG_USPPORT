@@ -58,4 +58,9 @@ export class CreateRefProductDto {
   @IsArray()
   @IsString({ each: true })
   categorySuppliers?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  deliveryTimes?: string[];
 }

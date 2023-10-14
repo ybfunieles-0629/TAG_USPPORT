@@ -6,6 +6,7 @@ import { VariantReference } from '../../variant-reference/entities/variant-refer
 import { Supplier } from '../../suppliers/entities/supplier.entity';
 import { CategorySupplier } from '../../category-suppliers/entities/category-supplier.entity';
 import { Marking } from '../../markings/entities/marking.entity';
+import { DeliveryTime } from '../../delivery-times/entities/delivery-time.entity';
 
 @Entity('ref_products')
 export class RefProduct {
@@ -132,4 +133,18 @@ export class RefProduct {
     },
   })
   markings?: Marking[];
+
+  @ManyToMany(() => DeliveryTime, (deliveryTime) => deliveryTime.refProducts)
+  @JoinTable({
+    name: 'ref_products_has_delivery_times',
+    joinColumn: {
+      name: 'refProductId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'deliveryTimeId',
+      referencedColumnName: 'id',
+    },
+  })
+  deliveryTimes?: DeliveryTime[];
 }
