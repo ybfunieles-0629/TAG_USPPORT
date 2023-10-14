@@ -1,6 +1,7 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { RefProduct } from '../../ref-products/entities/ref-product.entity';
+import { Product } from '../../products/entities/product.entity';
 
 @Entity('variant_reference')
 export class VariantReference {
@@ -26,4 +27,7 @@ export class VariantReference {
   //* --- FK --- *//
   @ManyToOne(() => RefProduct, (refProduct) => refProduct.variantReferences)
   refProduct: RefProduct;
+
+  @ManyToMany(() => Product, (product) => product.variantReferences)
+  products?: Product[];
 }
