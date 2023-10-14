@@ -64,14 +64,14 @@ export class CreateCompanyDto {
   companyType: string;
   
   @IsOptional()
-  @IsNumber()
+  @IsString()
   ivaResponsable?: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsString()
   taxPayer?: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsString()
   selfRetaining?: number;
 }
