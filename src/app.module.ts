@@ -30,6 +30,8 @@ import { MarkingServicePropertiesModule } from './marking-service-properties/mar
 import { MarkingTagServicesModule } from './marking-tag-services/marking-tag-services.module';
 import { PackingsModule } from './packings/packings.module';
 import { DeliveryTimesModule } from './delivery-times/delivery-times.module';
+import { DisccountModule } from './disccount/disccount.module';
+import { DisccountsModule } from './disccounts/disccounts.module';
 
 @Module({
   imports: [
@@ -78,6 +80,8 @@ import { DeliveryTimesModule } from './delivery-times/delivery-times.module';
     MarkingTagServicesModule,
     PackingsModule,
     DeliveryTimesModule,
+    DisccountModule,
+    DisccountsModule,
   ],
 })
 export class AppModule { }
