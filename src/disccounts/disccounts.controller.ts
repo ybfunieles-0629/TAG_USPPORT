@@ -14,6 +14,13 @@ export class DisccountsController {
     return this.disccountsService.create(createDisccountsDto);
   }
 
+  @Post('create/multiple')
+  createMultiple(
+    @Body() createMultipleDisccountsDto: CreateDisccountsDto[]
+  ) {
+    return this.disccountsService.createMultiple(createMultipleDisccountsDto);
+  }
+
   @Get()
   findAll(
     @Param() paginationDto: PaginationDto,
@@ -34,6 +41,14 @@ export class DisccountsController {
     @Body() updateDisccountsDto: UpdateDisccountsDto
   ) {
     return this.disccountsService.update(id, updateDisccountsDto);
+  }
+
+  @Patch('update/multiple')
+  updateMultiple(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() udpateMultipleDisccountsDto: UpdateDisccountsDto[]
+  ) {
+    return this.disccountsService.updateMultiple(udpateMultipleDisccountsDto);
   }
 
   @Patch('/desactivate/:id')

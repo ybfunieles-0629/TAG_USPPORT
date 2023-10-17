@@ -27,6 +27,22 @@ export class DisccountsService {
     };
   }
 
+  async createMultiple(createMultipleDisccountsDto: CreateDisccountsDto[]) {
+    const createdDisccounts = [];
+
+    for (const createDisccountsDto of createMultipleDisccountsDto) {
+      const disccounts = this.disccountsRepository.create(createDisccountsDto);
+
+      await this.disccountsRepository.save(disccounts);
+
+      createdDisccounts.push(disccounts);
+    }
+
+    return {
+      createdDisccounts,
+    };
+  }
+
   findAll(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
 
@@ -71,6 +87,34 @@ export class DisccountsService {
       disccounts
     };
   }
+
+  async updateMultiple(udpateMultipleDisccountsDto: UpdateDisccountsDto[]) {
+    const updatedDisccounts = [];
+
+    for (const updateDisccountsDto of udpateMultipleDisccountsDto) {
+      const { id, ...dataToUpdate } = updateDisccountsDto;
+
+      const disccounts = await this.disccountsRepository.findOne({
+        where: {
+          id
+        },
+      });
+
+      if (!disccounts)
+        throw new NotFoundException(`Disccounts with id ${id} not found`);
+
+      Object.assign(disccounts, dataToUpdate);
+
+      await this.disccountsRepository.save(disccounts);
+
+      updatedDisccounts.push(disccounts);
+    }
+
+    return {
+      updatedDisccounts,
+    };
+  }
+
 
   async desactivate(id: string) {
     const { disccounts } = await this.findOne(id);
