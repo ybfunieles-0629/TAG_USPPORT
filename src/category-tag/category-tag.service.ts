@@ -94,6 +94,18 @@ export class CategoryTagService {
     };
   }
 
+  async changeFeatured(id: string) {
+    const { categoryTag } = await this.findOne(id);
+
+    categoryTag.featured == 1 ? categoryTag.featured = 0 : categoryTag.featured = 1;
+
+    await this.categoryTagRepository.save(categoryTag);
+
+    return {
+      categoryTag
+    };
+  }
+
   async remove(id: string) {
     const { categoryTag } = await this.findOne(id);
 

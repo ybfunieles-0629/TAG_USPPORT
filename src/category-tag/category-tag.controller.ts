@@ -41,6 +41,13 @@ export class CategoryTagController {
     return this.categoryTagService.update(id, updateCategoryTagDto);
   }
 
+  @Patch('/featured/:id')
+  changeFeatured(
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
+    return this.categoryTagService.changeFeatured(id);
+  }
+
   @Patch('/desactivate/:id')
   desactivate(
     @Param('id', ParseUUIDPipe) id: string
