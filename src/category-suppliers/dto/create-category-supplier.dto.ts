@@ -30,7 +30,6 @@ export class CreateCategorySupplierDto {
   @IsString()
   categoryTag: string;
 
-  @IsOptional()
   @IsString()
   supplier: string;
 }
