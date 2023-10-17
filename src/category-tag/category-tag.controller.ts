@@ -1,17 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseInterceptors, UploadedFile } from '@nestjs/common';
 
 import { CategoryTagService } from './category-tag.service';
 import { CreateCategoryTagDto } from './dto/create-category-tag.dto';
 import { UpdateCategoryTagDto } from './dto/update-category-tag.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('category-tag')
 export class CategoryTagController {
   constructor(private readonly categoryTagService: CategoryTagService) { }
 
   @Post()
-  create(@Body() createCategoryTagDto: CreateCategoryTagDto) {
-    return this.categoryTagService.create(createCategoryTagDto);
+  @UseInterceptors(FileInterceptor('image'))
+  create(
+    @Body() createCategoryTagDto: CreateCategoryTagDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.categoryTagService.create(createCategoryTagDto, file);
   }
 
   @Get()

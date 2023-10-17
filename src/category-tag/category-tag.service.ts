@@ -2,6 +2,8 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger, 
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
+import * as AWS from 'aws-sdk';
 
 import { CreateCategoryTagDto } from './dto/create-category-tag.dto';
 import { UpdateCategoryTagDto } from './dto/update-category-tag.dto';
@@ -17,18 +19,26 @@ export class CategoryTagService {
     private readonly categoryTagRepository: Repository<CategoryTag>,
   ) { }
 
-  async create(createCategoryTagDto: CreateCategoryTagDto) {
-    try {
-      const categoryTag = this.categoryTagRepository.create(createCategoryTagDto);
+  async create(createCategoryTagDto: CreateCategoryTagDto, file: Express.Multer.File) {
+    createCategoryTagDto.featured = +createCategoryTagDto.featured;
 
-      await this.categoryTagRepository.save(categoryTag);
+    const newCategoryTag = plainToClass(CategoryTag, createCategoryTagDto);
 
-      return {
-        categoryTag
-      };
-    } catch (error) {
-      this.handleDbExceptions(error);
+    if (file != undefined) {
+      const uniqueFilename = `${uuidv4()}-${file.originalname}`;
+
+      file.originalname = uniqueFilename;
+
+      await this.uploadToAws(file);
+
+      newCategoryTag.image = file.originalname;
     }
+
+    await this.categoryTagRepository.save(newCategoryTag);
+
+    return {
+      newCategoryTag
+    };
   }
 
   findAll(paginationDto: PaginationDto) {
@@ -92,6 +102,32 @@ export class CategoryTagService {
     return {
       categoryTag
     };
+  }
+
+  private async uploadToAws(file: Express.Multer.File) {
+    AWS.config.update({
+      accessKeyId: 'AKIAT4TACBZFK2MS62VU',
+      secretAccessKey: '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',
+      region: 'us-east-2',
+    });
+
+    const s3 = new AWS.S3();
+
+    const params = {
+      Bucket: 'tag-support-storage',
+      Key: file.originalname,
+      Body: file.buffer,
+    }
+
+    return new Promise<string>((resolve, reject) => {
+      s3.upload(params, (err: any, data: any) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data.Location);
+        }
+      })
+    })
   }
 
   private handleDbExceptions(error: any) {

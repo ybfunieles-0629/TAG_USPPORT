@@ -13,11 +13,11 @@ export class CreateCategoryTagDto {
   @IsString()
   categoryMargin: string;
 
-  @IsInt()
+  @IsString()
   featured: number;
 
-  @IsString()
-  image: string;
+  // @IsString()
+  // image: string;
 
   @IsOptional()
   @IsString()
