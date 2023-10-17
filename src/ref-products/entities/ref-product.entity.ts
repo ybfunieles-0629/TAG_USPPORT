@@ -31,6 +31,11 @@ export class RefProduct {
   @Column('varchar', {
 
   })
+  shortDescription: string;
+
+  @Column('varchar', {
+
+  })
   description: string;
 
   @Column('varchar', {
@@ -42,6 +47,11 @@ export class RefProduct {
 
   })
   keywords: string;
+
+  @Column('int', {
+
+  })
+  personalizableMarking: number;
 
   @Column('float', {
 

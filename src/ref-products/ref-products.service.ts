@@ -51,27 +51,8 @@ export class RefProductsService {
 
       newRefProduct.supplier = supplier;
 
-      const markings: Marking[] = [];
       const categorySuppliers: CategorySupplier[] = [];
       const deliveryTimes: DeliveryTime[] = [];
-
-      if (createRefProductDto.markings) {
-        for (const markingId of createRefProductDto.markings) {
-          const marking: Marking = await this.markingRepository.findOne({
-            where: {
-              id: markingId,
-            },
-          });
-
-          if (!marking)
-            throw new NotFoundException(`Marking with id ${markingId} not found`);
-
-          if (!marking.isActive)
-            throw new BadRequestException(`Marking with id ${markingId} is currently inactive`);
-
-          markings.push(marking);
-        }
-      }
 
       if (createRefProductDto.categorySuppliers) {
         for (const categorySupplierId of createRefProductDto.categorySuppliers) {
@@ -109,7 +90,6 @@ export class RefProductsService {
         }
       }
 
-      newRefProduct.markings = markings;
       newRefProduct.categorySuppliers = categorySuppliers;
       newRefProduct.deliveryTimes = deliveryTimes;
 
@@ -174,8 +154,6 @@ export class RefProductsService {
 
     const updatedRefProduct = plainToClass(RefProduct, updateRefProductDto);
 
-    const markings: Marking[] = [];
-
     const supplier: Supplier = await this.supplierRepository.findOne({
       where: {
         id: updateRefProductDto.supplier,
@@ -187,24 +165,6 @@ export class RefProductsService {
 
     if (!supplier.isActive)
       throw new BadRequestException(`Supplier with id ${updateRefProductDto.supplier} is currently inactive`);
-
-    if (updateRefProductDto.markings) {
-      for (const markingId of updateRefProductDto.markings) {
-        const marking: Marking = await this.markingRepository.findOne({
-          where: {
-            id: markingId,
-          },
-        });
-
-        if (!marking)
-          throw new NotFoundException(`Marking with id ${markingId} not found`);
-
-        if (!marking.isActive)
-          throw new BadRequestException(`Marking with id ${markingId} is currently inactive`);
-
-        markings.push(marking);
-      };
-    };
 
     const categorySuppliers: CategorySupplier[] = [];
     const deliveryTimes: DeliveryTime[] = [];
@@ -245,7 +205,6 @@ export class RefProductsService {
       }
     }
 
-    updatedRefProduct.markings = markings;
     updatedRefProduct.supplier = supplier;
     updatedRefProduct.categorySuppliers = categorySuppliers;
     updatedRefProduct.deliveryTimes = deliveryTimes;

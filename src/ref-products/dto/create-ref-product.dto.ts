@@ -10,14 +10,24 @@ export class CreateRefProductDto {
   @IsString()
   referenceTagCode: string;
 
+  @IsOptional()
   @IsString()
-  description: string;
+  shortDescription?: string;
 
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
   @IsString()
   mainCategory: string;
 
+  @IsOptional()
   @IsString()
-  keywords: string;
+  keywords?: string;
+
+  @IsInt()
+  personalizableMarking: number;
 
   @IsInt()
   large: number;
@@ -48,11 +58,6 @@ export class CreateRefProductDto {
 
   @IsString()
   supplier: string;
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  markings?: string[];
 
   @IsOptional()
   @IsArray()
