@@ -195,8 +195,8 @@ export class CategorySuppliersService {
       skip: offset,
       relations: [
         'categoryTag',
-        'suppliers',
-        'refProduct',
+        'supplier',
+        'refProducts',
       ],
     });
   }
@@ -208,8 +208,8 @@ export class CategorySuppliersService {
       },
       relations: [
         'categoryTag',
-        'suppliers',
-        'refProduct',
+        'supplier',
+        'refProducts',
       ],
     });
 
@@ -228,8 +228,8 @@ export class CategorySuppliersService {
       },
       relations: [
         'categoryTag',
-        'suppliers',
-        'refProduct'
+        'supplier',
+        'refProducts'
       ],
     });
 
@@ -248,8 +248,8 @@ export class CategorySuppliersService {
       },
       relations: [
         'categoryTag',
-        'suppliers',
-        'refProduct',
+        'supplier',
+        'refProducts',
       ],
     });
 
