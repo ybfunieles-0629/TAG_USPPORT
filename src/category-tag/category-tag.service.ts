@@ -71,6 +71,8 @@ export class CategoryTagService {
     if (!categoryTag)
       throw new NotFoundException(`Category tag with id ${id} not found`);
 
+    updateCategoryTagDto.featured = +updateCategoryTagDto.featured;
+
     const updatedCategoryTag = plainToClass(CategoryTag, updateCategoryTagDto);
 
     Object.assign(categoryTag, updatedCategoryTag);
