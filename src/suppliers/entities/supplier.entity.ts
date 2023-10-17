@@ -4,7 +4,8 @@ import { SupplierType } from '../../supplier-types/entities/supplier-type.entity
 import { SubSupplierProductType } from '../../sub-supplier-product-types/entities/sub-supplier-product-type.entity';
 import { User } from '../../users/entities/user.entity';
 import { RefProduct } from '../../ref-products/entities/ref-product.entity';
-import { CategorySupplier } from 'src/category-suppliers/entities/category-supplier.entity';
+import { CategorySupplier } from '../../category-suppliers/entities/category-supplier.entity';
+import { Disccount } from '../../disccount/entities/disccount.entity';
 
 @Entity('suppliers')
 export class Supplier {
@@ -96,6 +97,9 @@ export class Supplier {
 
   @OneToMany(() => CategorySupplier, (categorySupplier) => categorySupplier.supplier)
   categorySuppliers: CategorySupplier[];
+
+  @OneToMany(() => Disccount, (disccount) => disccount.supplier)
+  disccounts: Disccount[];
 
   @ManyToOne(() => SubSupplierProductType, (subSupplierProductType) => subSupplierProductType.suppliers)
   subSupplierProductType: SubSupplierProductType;
