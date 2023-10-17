@@ -34,11 +34,13 @@ export class CategoryTagController {
   }
 
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('image'))
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateCategoryTagDto: UpdateCategoryTagDto
+    @Body() updateCategoryTagDto: UpdateCategoryTagDto,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.categoryTagService.update(id, updateCategoryTagDto);
+    return this.categoryTagService.update(id, updateCategoryTagDto, file);
   }
 
   @Patch('/featured/:id')

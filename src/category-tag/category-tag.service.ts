@@ -61,7 +61,7 @@ export class CategoryTagService {
     };
   }
 
-  async update(id: string, updateCategoryTagDto: UpdateCategoryTagDto) {
+  async update(id: string, updateCategoryTagDto: UpdateCategoryTagDto, file: Express.Multer.File) {
     const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
       where: {
         id
@@ -72,6 +72,16 @@ export class CategoryTagService {
       throw new NotFoundException(`Category tag with id ${id} not found`);
 
     updateCategoryTagDto.featured = +updateCategoryTagDto.featured;
+
+    if (file != undefined) {
+      const uniqueFilename = `${uuidv4()}-${file.originalname}`;
+
+      file.originalname = uniqueFilename;
+
+      await this.uploadToAws(file);
+
+      categoryTag.image = file.originalname;
+    }
 
     const updatedCategoryTag = plainToClass(CategoryTag, updateCategoryTagDto);
 
