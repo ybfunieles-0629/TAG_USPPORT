@@ -30,19 +30,19 @@ export class MarkingsService {
     try {
       const newMarking = plainToClass(Marking, createMarkingDto);
 
-      const markingTagService = await this.markingTagServiceRepository.findOne({
-        where: {
-          id: createMarkingDto.markingTagService
-        },
-      });
+      // const markingTagService = await this.markingTagServiceRepository.findOne({
+      //   where: {
+      //     id: createMarkingDto.markingTagService
+      //   },
+      // });
 
-      if (!markingTagService)
-        throw new NotFoundException(`Marking tag service with id ${createMarkingDto.markingTagService} not found`);
+      // if (!markingTagService)
+      //   throw new NotFoundException(`Marking tag service with id ${createMarkingDto.markingTagService} not found`);
 
-      if (!markingTagService.isActive)
-        throw new BadRequestException(`Company with id ${createMarkingDto.company} is currently inactive`);
+      // if (!markingTagService.isActive)
+      //   throw new BadRequestException(`Company with id ${createMarkingDto.company} is currently inactive`);
 
-      newMarking.markingTagService = markingTagService;
+      // newMarking.markingTagService = markingTagService;
 
       const company = await this.companyRepository.findOne({
         where: {

@@ -46,8 +46,8 @@ export class Marking {
   @OneToMany(() => MarkedServicePrice, (markedServicePrice) => markedServicePrice.marking)
   markedServicePrices?: MarkedServicePrice[];
 
-  @OneToMany(() => MarkingTagService, (markingTagService) => markingTagService.markings)
-  markingTagService: MarkingTagService;
+  @OneToMany(() => MarkingTagService, (markingTagService) => markingTagService.marking)
+  markingTagServices?: MarkingTagService[];
 
   @ManyToOne(() => Company, (company) => company.markings)
   company: Company;
