@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put } from '@nestjs/common';
 
 import { DisccountsService } from './disccounts.service';
 import { CreateDisccountsDto } from './dto/create-disccounts.dto';
@@ -35,7 +35,7 @@ export class DisccountsController {
     return this.disccountsService.findOne(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateDisccountsDto: UpdateDisccountsDto
@@ -43,7 +43,7 @@ export class DisccountsController {
     return this.disccountsService.update(id, updateDisccountsDto);
   }
 
-  @Patch('update/multiple')
+  @Put('update/multiple')
   updateMultiple(
     @Body() udpateMultipleDisccountsDto: UpdateDisccountsDto[]
   ) {
