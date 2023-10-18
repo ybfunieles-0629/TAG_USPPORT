@@ -32,6 +32,10 @@ import { PackingsModule } from './packings/packings.module';
 import { DeliveryTimesModule } from './delivery-times/delivery-times.module';
 import { DisccountModule } from './disccount/disccount.module';
 import { DisccountsModule } from './disccounts/disccounts.module';
+import { TagDisccountPricesModule } from './tag-disccount-prices/tag-disccount-prices.module';
+import { DiscountQuantitiesModule } from './discount-quantities/discount-quantities.module';
+import { ListPricesModule } from './list-prices/list-prices.module';
+import { SupplierPricesModule } from './supplier-prices/supplier-prices.module';
 
 @Module({
   imports: [
@@ -82,6 +86,10 @@ import { DisccountsModule } from './disccounts/disccounts.module';
     DeliveryTimesModule,
     DisccountModule,
     DisccountsModule,
+    // TagDisccountPricesModule,
+    // DiscountQuantitiesModule,
+    ListPricesModule,
+    SupplierPricesModule,
   ],
 })
 export class AppModule { }
