@@ -43,6 +43,6 @@ export class MarkingTagService {
   @OneToMany(() => MarkingServiceProperty, (markingServiceProperty) => markingServiceProperty.markingTagService)
   markingServiceProperties: MarkingServiceProperty[];
 
-  @ManyToOne(() => Marking, (marking) => marking.markingTagService)
-  markings: Marking[];
+  @ManyToOne(() => Marking, (marking) => marking.markingTagServices)
+  marking: Marking;
 }
