@@ -5,6 +5,11 @@ import { RefProduct } from '../../ref-products/entities/ref-product.entity';
 import { Marking } from '../../markings/entities/marking.entity';
 import { Packing } from '../../packings/entities/packing.entity';
 import { VariantReference } from '../../variant-reference/entities/variant-reference.entity';
+import { TagDisccountPrice } from '../../tag-disccount-prices/entities/tag-disccount-price.entity';
+import { Disccount } from '../../disccount/entities/disccount.entity';
+import { DeliveryTime } from '../../delivery-times/entities/delivery-time.entity';
+import { DiscountQuantity } from '../../discount-quantities/entities/discount-quantity.entity';
+import { SupplierPrice } from '../../supplier-prices/entities/supplier-price.entity';
 
 @Entity('products')
 export class Product {
@@ -59,6 +64,11 @@ export class Product {
   @Column('int', {
 
   })
+  iva: number;
+
+  @Column('int', {
+
+  })
   freeSample: number;
 
   @Column('int', {
@@ -75,11 +85,6 @@ export class Product {
 
   })
   refundSampleTime: number;
-
-  @Column('int', {
-
-  })
-  iva: number;
 
   @Column('float', {
 
@@ -100,6 +105,11 @@ export class Product {
 
   })
   samplePrice: number;
+
+  @Column('date', {
+
+  })
+  lastPriceUpdateDate: Date;
 
   @Column('float', {
 
@@ -129,10 +139,19 @@ export class Product {
 
   //* --- FK --- *//
   @OneToMany(() => Color, (color) => color.product)
-  colors: Color[];
+  colors?: Color[];
 
   @OneToMany(() => Packing, (packing) => packing.product)
-  packings: Packing[];
+  packings?: Packing[];
+
+  @OneToMany(() => Disccount, (disccount) => disccount.product)
+  disccounts?: Disccount[];
+
+  @OneToMany(() => DeliveryTime, (deliveryTime) => deliveryTime.product)
+  deliveryTimes?: DeliveryTime[];
+
+  @OneToMany(() => SupplierPrice, (supplierPrice) => supplierPrice.product)
+  supplierPrices?: SupplierPrice[];
 
   @ManyToOne(() => RefProduct, (refProduct) => refProduct.products)
   refProduct: RefProduct;
@@ -164,4 +183,32 @@ export class Product {
     },
   })
   variantReferences?: VariantReference[];
+
+  @ManyToMany(() => VariantReference, (variantReference) => variantReference.products)
+  @JoinTable({
+    name: 'products_has_tag_disccount_prices',
+    joinColumn: {
+      name: 'productId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'tagDisccountPriceId',
+      referencedColumnName: 'id',
+    },
+  })
+  tagDisccountPrices?: TagDisccountPrice[];
+
+  @ManyToMany(() => DiscountQuantity, (discountQuantity) => discountQuantity.products)
+  @JoinTable({
+    name: 'products_has_tag_disccount_prices',
+    joinColumn: {
+      name: 'productId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'discountQuantityId',
+      referencedColumnName: 'id',
+    },
+  })
+  discountQuantities?: DiscountQuantity[];
 }

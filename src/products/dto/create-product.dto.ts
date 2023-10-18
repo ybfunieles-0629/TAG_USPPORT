@@ -58,6 +58,9 @@ export class CreateProductDto {
   @IsInt()
   referencePrice: number;
 
+  @IsDate()
+  lastPriceUpdateDate: Date;
+
   @IsString()
   tariffItem: string;
 

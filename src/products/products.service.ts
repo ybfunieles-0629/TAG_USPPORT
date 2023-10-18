@@ -7,7 +7,8 @@ import { Product } from './entities/product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { RefProduct } from 'src/ref-products/entities/ref-product.entity';
+import { RefProduct } from '../ref-products/entities/ref-product.entity';
+
 
 @Injectable()
 export class ProductsService {
@@ -78,7 +79,7 @@ export class ProductsService {
 
     const updatedProduct = plainToClass(Product, updateProductDto);
 
-    
+
     const refProduct = await this.refProductRepository.findOne({
       where: {
         id: updateProductDto.refProduct,
