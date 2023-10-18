@@ -28,7 +28,24 @@ export class CategorySuppliersService {
   ) { }
 
   //* ---- LOAD PARENT CATEGORIES FROM EXT API METHOD ---- *//
-  private async loadParentCategories(categorias: any) {
+  private async loadParentCategories(api: string) {
+    const apiUrl = `http://44.194.12.161/${api}`;
+    const apiKey = 'KZuMI3Fh5yfPSd7bJwqoIicdw2SNtDkhSZKmceR0PsKZzCm1gK81uiW59kL9n76z';
+
+    const apiUrlWithApiKey = `${apiUrl}?apiKey=${apiKey}`;
+
+    let data = [];
+
+    if (api.toLowerCase().includes('marpico')) {
+      const { data: { categorias } } = await axios.get(apiUrlWithApiKey);
+
+      data = categorias;
+    } else {
+      const { data: dataFromPromos } = await axios.get(apiUrlWithApiKey);
+
+      data = dataFromPromos.data.resultado;
+    }
+
     const cleanedParentCategories = [];
     const parentCategoriesToSave: CategorySupplier[] = [];
 
@@ -40,7 +57,14 @@ export class CategorySuppliersService {
       }
     });
 
-    for (const parentCategory of categorias) {
+    let origin: string = '';
+
+    if (api.toLowerCase().includes('marpico'))
+      origin = 'Marpico';
+    else
+      origin = 'Promos'
+
+    for (const parentCategory of data) {
       if (!referenceIdApiSet.has(parentCategory.jerarquia)) {
         const newParentCategory = {
           offspringType: 'Padre',
@@ -52,7 +76,7 @@ export class CategorySuppliersService {
           mainCategory: '',
           parentCategory: '',
           apiReferenceId: parentCategory.jerarquia,
-          origin: 'Marpico',
+          origin,
         };
 
         cleanedParentCategories.push(newParentCategory);
@@ -80,25 +104,33 @@ export class CategorySuppliersService {
   }
 
   //* ---- LOAD SUB CATEGORIES FROM EXT API METHOD ---- *//
-  private async loadSubCategories(data: any) {
-    const groupedSubCategoriesData = {};
-    const cleanedSubCategories = [];
-    const subCategoriesSaved: CategorySupplier[] = [];
+  private async loadSubCategories(api: string) {
+    const apiUrl = `http://44.194.12.161/${api}`;
+    const apiKey = 'KZuMI3Fh5yfPSd7bJwqoIicdw2SNtDkhSZKmceR0PsKZzCm1gK81uiW59kL9n76z';
 
-    const subCategoriesInDb: CategorySupplier[] = await this.categorySupplierRepository.find({
+    const apiUrlWithApiKey = `${apiUrl}?apiKey=${apiKey}`;
+
+    let data = [];
+
+    const response = await axios.get(apiUrlWithApiKey);
+
+    data = api.toLowerCase().includes('marpico')
+      ? response.data.categorias
+      : response.data.data.resultado;
+
+    const commonProperties = ['nombre', 'idParent'];
+    
+    const subCategoriesSaved: CategorySupplier[] = await this.categorySupplierRepository.find({
       where: {
-        offspringType: 'Sub'
+        offspringType: 'Sub',
       },
     });
 
+    const origin = api.toLowerCase().includes('marpico') ? 'Marpico' : 'Promos';
     const referenceIdApiSet = new Set();
 
-    for (const item of data.jerarquiasNombres) {
-      const firstPart = item.jerarquia.substring(0, 5);
-
-      if (!groupedSubCategoriesData[firstPart]) {
-        groupedSubCategoriesData[firstPart] = [];
-      }
+    for (const item of data) {
+      const firstPart = item.idParent || (item.jerarquia && item.jerarquia.substring(0, 5)) || '';
 
       if (!referenceIdApiSet.has(item.jerarquia)) {
         const newCategory = {
@@ -110,46 +142,41 @@ export class CategorySuppliersService {
           image: '',
           mainCategory: firstPart,
           parentCategory: '',
-          apiReferenceId: item.jerarquia,
-          origin: 'Marpico',
+          apiReferenceId: item.idParent || item.jerarquia,
+          origin,
         };
 
-        cleanedSubCategories.push(newCategory);
+        const subCategoryExists = subCategoriesSaved.some(
+          (subCategoryDb) =>
+            subCategoryDb.apiReferenceId === newCategory.apiReferenceId ||
+            subCategoryDb.name === newCategory.name
+        );
 
-        referenceIdApiSet.add(item.jerarquia);
-      };
-    };
-
-    for (const subCategory of cleanedSubCategories) {
-      const subCategoryExists = subCategoriesInDb.some(subCategoryDb => subCategoryDb.apiReferenceId == subCategory.apiReferenceId || subCategoryDb.name == subCategory.name);
-
-      if (subCategoryExists) {
-        console.log(`Sub category with name ${subCategory.name} or with api reference id ${subCategory.apiReferenceId} already exists on the database`);
-      } else {
-        const newSubCategory = await this.categorySupplierRepository.save(subCategory);
-        subCategoriesSaved.push(newSubCategory);
+        if (!subCategoryExists) {
+          const newSubCategory = await this.categorySupplierRepository.save(newCategory);
+          subCategoriesSaved.push(newSubCategory);
+        }
       }
+      referenceIdApiSet.add(item.jerarquia);
     }
 
     if (subCategoriesSaved.length === 0)
-      throw new BadRequestException(`There are no new sub categories to save`);
+      throw new BadRequestException('There are no new sub categories to save');
 
     return {
-      subCategoriesSaved
+      subCategoriesSaved,
     };
   }
 
+
   async loadCategoriesFromExtApi() {
-    const apiUrl = 'http://44.194.12.161/marpico/categorias';
-    const apiKey = 'KZuMI3Fh5yfPSd7bJwqoIicdw2SNtDkhSZKmceR0PsKZzCm1gK81uiW59kL9n76z';
+    // * ---- LOAD CATEGORIES FROM MARPICO ---- *//
+    await this.loadParentCategories('marpico/categorias');
+    await this.loadSubCategories('marpico/categorias');
 
-    const apiUrlWithApiKey = `${apiUrl}?apiKey=${apiKey}`;
-
-    const { data } = await axios.get(apiUrlWithApiKey);
-
-    // * ---- LOAD EVERYTHING ---- *//
-    await this.loadParentCategories(data.categorias);
-    await this.loadSubCategories(data);
+    //* ---- LOAD CATEGORIES FROM PROMOS ---- *//
+    await this.loadParentCategories('categorias');
+    await this.loadSubCategories('categorias');
   }
 
   async create(createCategorySupplierDto: CreateCategorySupplierDto) {
@@ -209,6 +236,7 @@ export class CategorySuppliersService {
       relations: [
         'categoryTag',
         'supplier',
+        'supplier.user',
         'refProducts',
       ],
     });
@@ -229,6 +257,7 @@ export class CategorySuppliersService {
       relations: [
         'categoryTag',
         'supplier',
+        'supplier.user',
         'refProducts'
       ],
     });
@@ -249,6 +278,7 @@ export class CategorySuppliersService {
       relations: [
         'categoryTag',
         'supplier',
+        'supplier.user',
         'refProducts',
       ],
     });
