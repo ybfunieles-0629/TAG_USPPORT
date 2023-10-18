@@ -1,11 +1,11 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { SupplierType } from '../../supplier-types/entities/supplier-type.entity';
 import { SubSupplierProductType } from '../../sub-supplier-product-types/entities/sub-supplier-product-type.entity';
 import { User } from '../../users/entities/user.entity';
 import { RefProduct } from '../../ref-products/entities/ref-product.entity';
 import { CategorySupplier } from '../../category-suppliers/entities/category-supplier.entity';
 import { Disccount } from '../../disccount/entities/disccount.entity';
+import { SupplierPrice } from '../../supplier-prices/entities/supplier-price.entity';
 
 @Entity('suppliers')
 export class Supplier {
@@ -100,6 +100,9 @@ export class Supplier {
 
   @OneToMany(() => Disccount, (disccount) => disccount.supplier)
   disccounts: Disccount[];
+  
+  @OneToMany(() => SupplierPrice, (supplierPrice) => supplierPrice.supplier)
+  supplierPrices?: SupplierPrice[];
 
   @ManyToOne(() => SubSupplierProductType, (subSupplierProductType) => subSupplierProductType.suppliers)
   subSupplierProductType: SubSupplierProductType;
