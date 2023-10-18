@@ -78,6 +78,7 @@ export class DisccountService {
       relations: [
         'disccounts',
         'supplier',
+        'supplier.user',
       ],
     });
   }
@@ -90,6 +91,7 @@ export class DisccountService {
       relations: [
         'disccounts',
         'supplier',
+        'supplier.user',
       ],
     });
 
@@ -109,6 +111,7 @@ export class DisccountService {
       relations: [
         'disccounts',
         'supplier',
+        'supplier.user',
       ],
     });
 
