@@ -57,34 +57,50 @@ export class CategorySuppliersService {
       }
     });
 
-    let origin: string = '';
+    const origin = api.toLowerCase().includes('marpico') ? 'Marpico' : 'Promos';
 
-    if (api.toLowerCase().includes('marpico'))
-      origin = 'Marpico';
-    else
-      origin = 'Promos'
-
+    //* CLEAN DATA
     for (const parentCategory of data) {
-      if (!referenceIdApiSet.has(parentCategory.jerarquia)) {
-        const newParentCategory = {
-          offspringType: 'Padre',
-          name: parentCategory.nombre,
-          description: '',
-          categoryMargin: '',
-          featured: 0,
-          image: '',
-          mainCategory: '',
-          parentCategory: '',
-          apiReferenceId: parentCategory.jerarquia,
-          origin,
-        };
+      if (origin === 'Marpico') {
+        if (!referenceIdApiSet.has(parentCategory.jerarquia)) {
+          const newParentCategory = {
+            offspringType: 'Padre',
+            name: parentCategory.nombre,
+            description: '',
+            categoryMargin: '',
+            featured: 0,
+            image: '',
+            mainCategory: '',
+            parentCategory: '',
+            apiReferenceId: parentCategory.jerarquia,
+            origin,
+          };
 
-        cleanedParentCategories.push(newParentCategory);
+          cleanedParentCategories.push(newParentCategory);
 
-        referenceIdApiSet.add(parentCategory.jerarquia);
+          referenceIdApiSet.add(parentCategory.jerarquia);
+        } else {
+          const newParentCategory = {
+            offspringType: 'Padre',
+            name: parentCategory.nombre,
+            description: '',
+            categoryMargin: '',
+            featured: 0,
+            image: '',
+            mainCategory: '',
+            parentCategory: '',
+            apiReferenceId: parentCategory.id,
+            origin
+          }
+
+          cleanedParentCategories.push(newParentCategory);
+        }
       }
     }
 
+    console.log(cleanedParentCategories);
+
+    //* SEARCH IF THERE IS A CATEGORY ALREADY REGISTERED IN THE DB
     for (const parentCategory of cleanedParentCategories) {
       if (parentCategoriesInDb.find(parentCategoryInDb => parentCategoryInDb.name == parentCategory.name || parentCategoryInDb.apiReferenceId == parentCategory.apiReferenceId)) {
         console.log(`Parent category with name ${parentCategory.name} or apiReferenceId ${parentCategory.apiReferenceId} already registered`);
@@ -112,59 +128,97 @@ export class CategorySuppliersService {
 
     let data = [];
 
-    const response = await axios.get(apiUrlWithApiKey);
+    if (api.toLowerCase().includes('marpico')) {
+      const { data: { jerarquiasNombres } } = await axios.get(apiUrlWithApiKey);
 
-    data = api.toLowerCase().includes('marpico')
-      ? response.data.categorias
-      : response.data.data.resultado;
+      data = jerarquiasNombres;
+    } else {
+      const { data: dataFromPromos } = await axios.get(apiUrlWithApiKey);
 
-    const commonProperties = ['nombre', 'idParent'];
-    
-    const subCategoriesSaved: CategorySupplier[] = await this.categorySupplierRepository.find({
+      data = dataFromPromos.data.resultado.filter(category => category.idParent != null);
+    }
+
+    console.log(data);
+
+    const subCategoriesInDb: CategorySupplier[] = await this.categorySupplierRepository.find({
       where: {
         offspringType: 'Sub',
       },
     });
 
     const origin = api.toLowerCase().includes('marpico') ? 'Marpico' : 'Promos';
+
     const referenceIdApiSet = new Set();
 
-    for (const item of data) {
-      const firstPart = item.idParent || (item.jerarquia && item.jerarquia.substring(0, 5)) || '';
+    const cleanedSubCategories = [];
+    const groupedSubCategories = [];
+    const subCategoriesToSave = [];
 
-      if (!referenceIdApiSet.has(item.jerarquia)) {
+    for (const subCategory of  data) {
+      let firstPart: string = '';
+
+      if (origin === 'Marpico') {
+        firstPart = subCategory.jerarquia.substring(0, 5);
+
+        if (!groupedSubCategories[firstPart]) {
+          groupedSubCategories[firstPart] = [];
+        }
+
+        if (!referenceIdApiSet.has(subCategory.jerarquia)) {
+          const newCategory = {
+            offspringType: 'Sub',
+            name: subCategory.nombre,
+            description: '',
+            categoryMargin: '',
+            featured: 0,
+            image: '',
+            mainCategory: firstPart,
+            parentCategory: '',
+            apiReferenceId: subCategory.jerarquia,
+            origin,
+          };
+
+          cleanedSubCategories.push(newCategory);
+          referenceIdApiSet.add(subCategory.jerarquia);
+        }
+      } else {
+        firstPart = subCategory.idParent;
+
         const newCategory = {
           offspringType: 'Sub',
-          name: item.nombre,
+          name: subCategory.nombre,
           description: '',
           categoryMargin: '',
           featured: 0,
           image: '',
           mainCategory: firstPart,
           parentCategory: '',
-          apiReferenceId: item.idParent || item.jerarquia,
-          origin,
+          apiReferenceId: subCategory.id,
+          origin
         };
 
-        const subCategoryExists = subCategoriesSaved.some(
-          (subCategoryDb) =>
-            subCategoryDb.apiReferenceId === newCategory.apiReferenceId ||
-            subCategoryDb.name === newCategory.name
-        );
+        cleanedSubCategories.push(newCategory);
+      };
+    };
 
-        if (!subCategoryExists) {
-          const newSubCategory = await this.categorySupplierRepository.save(newCategory);
-          subCategoriesSaved.push(newSubCategory);
-        }
+    console.log(cleanedSubCategories);
+
+    for (const subCategory of cleanedSubCategories) {
+      const subCategoryExists = subCategoriesInDb.some(subCategoryDb => subCategoryDb.apiReferenceId == subCategory.apiReferenceId || subCategoryDb.name == subCategory.name);
+
+      if (subCategoryExists) {
+        console.log(`Sub category with name ${subCategory.name} or with api reference id ${subCategory.apiReferenceId} already exists on the database`);
+      } else {
+        const newSubCategory = await this.categorySupplierRepository.save(subCategory);
+        subCategoriesToSave.push(newSubCategory);
       }
-      referenceIdApiSet.add(item.jerarquia);
     }
 
-    if (subCategoriesSaved.length === 0)
+    if (subCategoriesToSave.length === 0)
       throw new BadRequestException('There are no new sub categories to save');
 
     return {
-      subCategoriesSaved,
+      subCategoriesToSave,
     };
   }
 
