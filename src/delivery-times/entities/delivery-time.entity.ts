@@ -1,6 +1,7 @@
-import { Column, CreateDateColumn, Entity, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { RefProduct } from '../../ref-products/entities/ref-product.entity';
+import { Product } from '../../products/entities/product.entity';
 
 @Entity('delivery_times')
 export class DeliveryTime {
@@ -34,6 +35,9 @@ export class DeliveryTime {
   updatedAt: Date;
 
   //* ---- FK ---- *//
-  @ManyToMany(() => RefProduct, (refProduct) => refProduct.deliveryTimes)
-  refProducts?: RefProduct[];
+  @ManyToOne(() => RefProduct, (refProduct) => refProduct.deliveryTimes)
+  refProduct: RefProduct;
+
+  @ManyToOne(() => Product, (product) => product.deliveryTimes)
+  product: Product;
 }
