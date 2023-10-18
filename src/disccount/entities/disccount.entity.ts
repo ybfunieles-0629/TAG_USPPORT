@@ -1,7 +1,8 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { Supplier } from '../../suppliers/entities/supplier.entity';
-import { Disccounts } from 'src/disccounts/entities/disccounts.entity';
+import { Disccounts } from '../../disccounts/entities/disccounts.entity';
+import { Product } from '../../products/entities/product.entity';
 
 @Entity('disccount')
 export class Disccount {
@@ -40,4 +41,7 @@ export class Disccount {
 
   @ManyToOne(() => Supplier, (supplier) => supplier.disccounts)
   supplier: Supplier;
+
+  @ManyToOne(() => Product, (product) => product.disccounts)
+  product: Product;
 }
