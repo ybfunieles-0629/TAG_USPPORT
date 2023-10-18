@@ -45,7 +45,6 @@ export class DisccountsController {
 
   @Patch('update/multiple')
   updateMultiple(
-    @Param('id', ParseUUIDPipe) id: string,
     @Body() udpateMultipleDisccountsDto: UpdateDisccountsDto[]
   ) {
     return this.disccountsService.updateMultiple(udpateMultipleDisccountsDto);
