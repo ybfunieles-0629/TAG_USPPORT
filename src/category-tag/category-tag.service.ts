@@ -24,10 +24,16 @@ export class CategoryTagService {
 
     const newCategoryTag = plainToClass(CategoryTag, createCategoryTagDto);
 
+    let imageAwsUrl: string = '';
+
     if (file !== null) {
       const uniqueFilename = `${uuidv4()}-${file.originalname}`;
 
       file.originalname = uniqueFilename;
+
+      const imageUrl = await this.uploadToAws(file);
+
+      imageAwsUrl = imageUrl;
 
       newCategoryTag.image = file.originalname;
     }
@@ -35,6 +41,7 @@ export class CategoryTagService {
     await this.categoryTagRepository.save(newCategoryTag);
 
     return {
+      imageAwsUrl,
       newCategoryTag,
     };
   }
