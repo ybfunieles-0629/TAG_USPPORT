@@ -223,6 +223,7 @@ export class CategorySuppliersService {
       relations: [
         'categoryTag',
         'supplier',
+        'supplier.user',
         'refProducts',
       ],
     });
