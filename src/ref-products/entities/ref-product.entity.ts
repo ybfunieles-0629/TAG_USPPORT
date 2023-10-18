@@ -98,6 +98,11 @@ export class RefProduct {
   })
   productNoInventoryLeadTime: number;
 
+  @Column('int', {
+
+  })
+  productOnDemand: number;
+
   @Column('boolean', {
     default: true,
   })
@@ -144,17 +149,6 @@ export class RefProduct {
   })
   markings?: Marking[];
 
-  @ManyToMany(() => DeliveryTime, (deliveryTime) => deliveryTime.refProducts)
-  @JoinTable({
-    name: 'ref_products_has_delivery_times',
-    joinColumn: {
-      name: 'refProductId',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'deliveryTimeId',
-      referencedColumnName: 'id',
-    },
-  })
+  @OneToMany(() => DeliveryTime, (deliveryTime) => deliveryTime.refProduct)
   deliveryTimes?: DeliveryTime[];
 }

@@ -8,6 +8,7 @@ import { MarkingsModule } from '../markings/markings.module';
 import { SuppliersModule } from '../suppliers/suppliers.module';
 import { CategorySuppliersModule } from '../category-suppliers/category-suppliers.module';
 import { DeliveryTimesModule } from '../delivery-times/delivery-times.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { DeliveryTimesModule } from '../delivery-times/delivery-times.module';
     DeliveryTimesModule,
     SuppliersModule,
     MarkingsModule,
+    UsersModule,
     TypeOrmModule.forFeature([RefProduct]),
   ],
   controllers: [RefProductsController],

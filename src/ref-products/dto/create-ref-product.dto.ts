@@ -45,6 +45,9 @@ export class CreateRefProductDto {
   importedNational: string;
 
   @IsInt()
+  productOnDemand: number;
+
+  @IsInt()
   minQuantity: number;
 
   @IsInt()
