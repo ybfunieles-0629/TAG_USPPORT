@@ -1,7 +1,8 @@
-import { Disccount } from 'src/disccount/entities/disccount.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('Disccounts')
+import { Disccount } from '../../disccount/entities/disccount.entity';
+
+@Entity('disccounts')
 export class Disccounts {
   @PrimaryGeneratedColumn('uuid')
   id: string;
