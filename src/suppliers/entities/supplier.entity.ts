@@ -6,6 +6,7 @@ import { RefProduct } from '../../ref-products/entities/ref-product.entity';
 import { CategorySupplier } from '../../category-suppliers/entities/category-supplier.entity';
 import { Disccount } from '../../disccount/entities/disccount.entity';
 import { SupplierPrice } from '../../supplier-prices/entities/supplier-price.entity';
+import { DeliveryTime } from '../../delivery-times/entities/delivery-time.entity';
 
 @Entity('suppliers')
 export class Supplier {
@@ -94,6 +95,9 @@ export class Supplier {
 
   @OneToMany(() => RefProduct, (refProduct) => refProduct.supplier)
   refProducts: RefProduct[];
+
+  @OneToMany(() => DeliveryTime, (deliveryTime) => deliveryTime.supplier)
+  deliveryTimes: DeliveryTime[];
 
   @OneToMany(() => CategorySupplier, (categorySupplier) => categorySupplier.supplier)
   categorySuppliers: CategorySupplier[];
