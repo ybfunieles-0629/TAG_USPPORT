@@ -1,4 +1,4 @@
-import { IsInt } from 'class-validator';
+import { IsInt, IsString } from 'class-validator';
 
 export class CreatePackingDto {
   @IsInt()
@@ -15,4 +15,10 @@ export class CreatePackingDto {
 
   @IsInt()
   smallPackingWeight: number;
+
+  @IsString()
+  product: string;
+
+  @IsString()
+  refProduct: string;
 }
