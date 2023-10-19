@@ -1,11 +1,13 @@
 import { Injectable, Logger, BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
 
 import { CreateColorDto } from './dto/create-color.dto';
 import { UpdateColorDto } from './dto/update-color.dto';
 import { Color } from './entities/color.entity';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { Product } from '../products/entities/product.entity';
 
 @Injectable()
 export class ColorsService {
@@ -14,20 +16,33 @@ export class ColorsService {
   constructor(
     @InjectRepository(Color)
     private readonly colorRepository: Repository<Color>,
+
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
   ) { }
 
   async create(createColorDto: CreateColorDto) {
-    try {
-      const color = this.colorRepository.create(createColorDto);
+    const newColor = plainToClass(Color, createColorDto);
 
-      await this.colorRepository.save(color);
+    const product = await this.productRepository.findOne({
+      where: {
+        id: createColorDto.product,
+      },
+    });
 
-      return {
-        color
-      };
-    } catch (error) {
-      this.handleDbExceptions(error);
-    }
+    if (!product)
+      throw new NotFoundException(`Product with id ${createColorDto.product}`);
+
+    if (!product.isActive)
+      throw new NotFoundException(`Product with id ${createColorDto.product} is currently inactive`);
+
+    newColor.product = product;
+
+    await this.colorRepository.save(newColor);
+
+    return {
+      newColor
+    };
   }
 
   findAll(paginationDto: PaginationDto) {
@@ -36,6 +51,9 @@ export class ColorsService {
     return this.colorRepository.find({
       take: limit,
       skip: offset,
+      relations: [
+        'product',
+      ],
     });
   }
 
@@ -44,6 +62,9 @@ export class ColorsService {
       where: {
         id,
       },
+      relations: [
+        'product',
+      ],
     });
 
     if (!color)
@@ -55,7 +76,41 @@ export class ColorsService {
   }
 
   async update(id: string, updateColorDto: UpdateColorDto) {
-    return `This action updates a #${id} color`;
+    const color = await this.colorRepository.findOne({
+      where: {
+        id,
+      },
+      relations: [
+        'product',
+      ],
+    });
+
+    if (!color)
+      throw new NotFoundException(`Color with id ${id} not found`);
+
+    const updatedColor = plainToClass(Color, updateColorDto);
+
+    const product = await this.productRepository.findOne({
+      where: {
+        id: updateColorDto.product,
+      },
+    });
+
+    if (!product)
+      throw new NotFoundException(`Product with id ${updateColorDto.product} not found`);
+
+    if (!product.isActive)
+      throw new BadRequestException(`Product with id ${updateColorDto.product} is currently inactive`);
+
+    updatedColor.product = product;
+
+    Object.assign(color, updatedColor);
+
+    await this.colorRepository.save(color);
+
+    return {
+      color
+    };
   }
 
   // async desactivate(id: string) {
