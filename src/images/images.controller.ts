@@ -1,17 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseInterceptors, UploadedFile } from '@nestjs/common';
 
 import { ImagesService } from './images.service';
 import { CreateImageDto } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('images')
 export class ImagesController {
   constructor(private readonly imagesService: ImagesService) { }
 
   @Post()
-  create(@Body() createImageDto: CreateImageDto) {
-    return this.imagesService.create(createImageDto);
+  @UseInterceptors(FileInterceptor('url'))
+  create(
+    @Body() createImageDto: CreateImageDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.imagesService.create(createImageDto, file);
   }
 
   @Get()
@@ -27,11 +32,13 @@ export class ImagesController {
   }
 
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('url'))
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateImageDto: UpdateImageDto
+    @Body() updateImageDto: UpdateImageDto,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.imagesService.update(id, updateImageDto);
+    return this.imagesService.update(id, updateImageDto, file);
   }
 
   @Delete(':id')
