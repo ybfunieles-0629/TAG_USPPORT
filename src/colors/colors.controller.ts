@@ -13,6 +13,13 @@ export class ColorsController {
     return this.colorsService.create(createColorDto);
   }
 
+  @Post('create/multiple')
+  createMultiple(
+    @Body() createMultipleColors: CreateColorDto[]
+  ) {
+    return this.colorsService.createMultiple(createMultipleColors);
+  }
+
   @Get()
   findAll(
     @Param() paginationDto: PaginationDto
@@ -31,6 +38,14 @@ export class ColorsController {
     @Body() updateColorDto: UpdateColorDto
   ) {
     return this.colorsService.update(id, updateColorDto);
+  }
+
+  @Patch('/update/multiple')
+  updateMultiple(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateMultipleColors: UpdateColorDto[]
+  ) {
+    return this.colorsService.updateMultiple(updateMultipleColors);
   }
 
   @Delete(':id')

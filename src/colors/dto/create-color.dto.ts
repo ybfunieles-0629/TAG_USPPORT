@@ -6,7 +6,4 @@ export class CreateColorDto {
 
   @IsString()
   hexadecimalValue: string;
-
-  @IsString()
-  product: string;
 }

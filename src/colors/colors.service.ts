@@ -7,7 +7,6 @@ import { CreateColorDto } from './dto/create-color.dto';
 import { UpdateColorDto } from './dto/update-color.dto';
 import { Color } from './entities/color.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { Product } from '../products/entities/product.entity';
 
 @Injectable()
 export class ColorsService {
@@ -16,32 +15,31 @@ export class ColorsService {
   constructor(
     @InjectRepository(Color)
     private readonly colorRepository: Repository<Color>,
-
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
   ) { }
 
   async create(createColorDto: CreateColorDto) {
     const newColor = plainToClass(Color, createColorDto);
 
-    const product = await this.productRepository.findOne({
-      where: {
-        id: createColorDto.product,
-      },
-    });
-
-    if (!product)
-      throw new NotFoundException(`Product with id ${createColorDto.product}`);
-
-    if (!product.isActive)
-      throw new NotFoundException(`Product with id ${createColorDto.product} is currently inactive`);
-
-    newColor.product = product;
-
     await this.colorRepository.save(newColor);
 
     return {
       newColor
+    };
+  }
+
+  async createMultiple(createMultipleColors: CreateColorDto[]) {
+    const createdColors = [];
+
+    for (const createColorDto of createMultipleColors) {
+      const color = this.colorRepository.create(createColorDto);
+
+      await this.colorRepository.save(color);
+
+      createdColors.push(color);
+    }
+
+    return {
+      createdColors,
     };
   }
 
@@ -90,26 +88,39 @@ export class ColorsService {
 
     const updatedColor = plainToClass(Color, updateColorDto);
 
-    const product = await this.productRepository.findOne({
-      where: {
-        id: updateColorDto.product,
-      },
-    });
-
-    if (!product)
-      throw new NotFoundException(`Product with id ${updateColorDto.product} not found`);
-
-    if (!product.isActive)
-      throw new BadRequestException(`Product with id ${updateColorDto.product} is currently inactive`);
-
-    updatedColor.product = product;
-
     Object.assign(color, updatedColor);
 
     await this.colorRepository.save(color);
 
     return {
       color
+    };
+  }
+
+  async updateMultiple(updateMultipleColors: UpdateColorDto[]) {
+    const updatedColors = [];
+
+    for (const updateColorDto of updateMultipleColors) {
+      const { id, ...dataToUpdate } = updateColorDto;
+
+      const color = await this.colorRepository.findOne({
+        where: {
+          id,
+        },
+      });
+
+      if (!color)
+        throw new NotFoundException(`Color with id ${id} not found`);
+
+      Object.assign(color, dataToUpdate);
+
+      await this.colorRepository.save(color);
+
+      updatedColors.push(color);
+    }
+
+    return {
+      updatedColors,
     };
   }
 
