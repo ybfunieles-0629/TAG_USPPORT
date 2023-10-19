@@ -14,6 +14,13 @@ export class VariantReferenceController {
     return this.variantReferenceService.create(createVariantReferenceDto);
   }
 
+  @Post('create/multiple')
+  createMultiple(
+    @Body() createMultipleVariantReferences: CreateVariantReferenceDto[]
+  ) {
+    return this.variantReferenceService.createMultiple(createMultipleVariantReferences);
+  }
+
   @Get()
   findAll(paginationDto: PaginationDto) {
     return this.variantReferenceService.findAll(paginationDto);
@@ -31,6 +38,15 @@ export class VariantReferenceController {
   ) {
     return this.variantReferenceService.update(id, updateVariantReferenceDto);
   }
+
+  @Patch('/update/multiple')
+  updateMultiple(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateMultipleVariantReferences: UpdateVariantReferenceDto[]
+  ) {
+    return this.variantReferenceService.updateMultiple(updateMultipleVariantReferences);
+  }
+
 
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string) {

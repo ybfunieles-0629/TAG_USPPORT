@@ -28,6 +28,22 @@ export class VariantReferenceService {
     };
   }
 
+  async createMultiple(createMultipleVariantReferences: CreateVariantReferenceDto[]) {
+    const createdVariantReferences = [];
+
+    for (const createVariantReferenceDto of createMultipleVariantReferences) {
+      const variantReference = this.variantReferenceRepository.create(createVariantReferenceDto);
+
+      await this.variantReferenceRepository.save(variantReference);
+
+      createdVariantReferences.push(variantReference);
+    }
+
+    return {
+      createdVariantReferences,
+    };
+  }
+
   findAll(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
 
@@ -70,6 +86,33 @@ export class VariantReferenceService {
 
     return {
       variantReference
+    };
+  }
+
+  async updateMultiple(updateMultipleVariantReferences: UpdateVariantReferenceDto[]) {
+    const updatedVariantReferences = [];
+
+    for (const updateVariantReference of updateMultipleVariantReferences) {
+      const { id, ...dataToUpdate } = updateVariantReference;
+
+      const variantReference = await this.variantReferenceRepository.findOne({
+        where: {
+          id
+        },
+      });
+
+      if (!variantReference)
+        throw new NotFoundException(`Variant reference with id ${id} not found`);
+
+      Object.assign(variantReference, dataToUpdate);
+
+      await this.variantReferenceRepository.save(variantReference);
+
+      updatedVariantReferences.push(variantReference);
+    }
+
+    return {
+      updatedVariantReferences,
     };
   }
 
