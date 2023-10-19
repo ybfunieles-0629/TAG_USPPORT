@@ -79,26 +79,24 @@ export class CategorySuppliersService {
           cleanedParentCategories.push(newParentCategory);
 
           referenceIdApiSet.add(parentCategory.jerarquia);
-        } else {
-          const newParentCategory = {
-            offspringType: 'Padre',
-            name: parentCategory.nombre,
-            description: '',
-            categoryMargin: '',
-            featured: 0,
-            image: '',
-            mainCategory: '',
-            parentCategory: '',
-            apiReferenceId: parentCategory.id,
-            origin
-          }
-
-          cleanedParentCategories.push(newParentCategory);
         }
+      } else {
+        const newParentCategory = {
+          offspringType: 'Padre',
+          name: parentCategory.nombre,
+          description: '',
+          categoryMargin: '',
+          featured: 0,
+          image: '',
+          mainCategory: '',
+          parentCategory: '',
+          apiReferenceId: parentCategory.id,
+          origin
+        }
+
+        cleanedParentCategories.push(newParentCategory);
       }
     }
-
-    console.log(cleanedParentCategories);
 
     //* SEARCH IF THERE IS A CATEGORY ALREADY REGISTERED IN THE DB
     for (const parentCategory of cleanedParentCategories) {
@@ -138,8 +136,6 @@ export class CategorySuppliersService {
       data = dataFromPromos.data.resultado.filter(category => category.idParent != null);
     }
 
-    console.log(data);
-
     const subCategoriesInDb: CategorySupplier[] = await this.categorySupplierRepository.find({
       where: {
         offspringType: 'Sub',
@@ -154,7 +150,7 @@ export class CategorySuppliersService {
     const groupedSubCategories = [];
     const subCategoriesToSave = [];
 
-    for (const subCategory of  data) {
+    for (const subCategory of data) {
       let firstPart: string = '';
 
       if (origin === 'Marpico') {
@@ -200,8 +196,6 @@ export class CategorySuppliersService {
         cleanedSubCategories.push(newCategory);
       };
     };
-
-    console.log(cleanedSubCategories);
 
     for (const subCategory of cleanedSubCategories) {
       const subCategoryExists = subCategoriesInDb.some(subCategoryDb => subCategoryDb.apiReferenceId == subCategory.apiReferenceId || subCategoryDb.name == subCategory.name);
