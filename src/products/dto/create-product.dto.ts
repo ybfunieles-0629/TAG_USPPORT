@@ -1,4 +1,4 @@
-import { IsArray, IsDate, IsInt, IsString } from 'class-validator';
+import { IsArray, IsDate, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreateProductDto {
   @IsString()
@@ -64,6 +64,8 @@ export class CreateProductDto {
   @IsString()
   tariffItem: string;
 
-  @IsString()
-  refProduct: string;
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  colors?: string;
 }
