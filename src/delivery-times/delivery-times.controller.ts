@@ -16,6 +16,13 @@ export class DeliveryTimesController {
     return this.deliveryTimesService.create(createDeliveryTimeDto);
   }
 
+  @Post('create/multiple')
+  createMultiple(
+    @Body() createMultipleDeliveryTimes: CreateDeliveryTimeDto[]
+  ) {
+    return this.deliveryTimesService.createMultiple(createMultipleDeliveryTimes);
+  }
+
   @Get()
   findAll(
     @Param() paginationDto: PaginationDto
@@ -36,6 +43,14 @@ export class DeliveryTimesController {
     @Body() updateDeliveryTimeDto: UpdateDeliveryTimeDto
   ) {
     return this.deliveryTimesService.update(id, updateDeliveryTimeDto);
+  }
+
+  @Patch('/update/multiple')
+  updateMultiple(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateMultipleDeliveryTimes: UpdateDeliveryTimeDto[]
+  ) {
+    return this.deliveryTimesService.updateMultiple(updateMultipleDeliveryTimes);
   }
 
   @Delete(':id')

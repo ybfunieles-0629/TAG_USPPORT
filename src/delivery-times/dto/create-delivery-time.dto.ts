@@ -12,13 +12,4 @@ export class CreateDeliveryTimeDto {
 
   @IsNumber()
   minimunAdvanceValue: number;
-
-  @IsString()
-  refProduct: string;
-
-  @IsString()
-  product: string;
-
-  @IsString()
-  supplier: string;
 }
