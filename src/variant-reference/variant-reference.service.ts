@@ -1,11 +1,13 @@
 import { Injectable, BadRequestException, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
 
 import { CreateVariantReferenceDto } from './dto/create-variant-reference.dto';
 import { UpdateVariantReferenceDto } from './dto/update-variant-reference.dto';
 import { VariantReference } from './entities/variant-reference.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { RefProduct } from '../ref-products/entities/ref-product.entity';
 
 @Injectable()
 export class VariantReferenceService {
@@ -17,17 +19,13 @@ export class VariantReferenceService {
   ) { }
 
   async create(createVariantReferenceDto: CreateVariantReferenceDto) {
-    try {
-      const variantReference = this.variantReferenceRepository.create(createVariantReferenceDto);
+    const newVariantReference = this.variantReferenceRepository.create(createVariantReferenceDto);
 
-      await this.variantReferenceRepository.save(variantReference);
-      
-      return {
-        variantReference
-      };
-    } catch (error) {
-      this.handleDbExceptions(error);
-    }
+    await this.variantReferenceRepository.save(newVariantReference);
+
+    return {
+      newVariantReference
+    };
   }
 
   findAll(paginationDto: PaginationDto) {
@@ -48,14 +46,31 @@ export class VariantReferenceService {
 
     if (!variantReference)
       throw new NotFoundException(`Variant reference with id ${id} not found`);
-    
+
     return {
       variantReference
     };
   }
 
   async update(id: string, updateVariantReferenceDto: UpdateVariantReferenceDto) {
-    return `This action updates a #${id} variantReference`;
+    const variantReference = await this.variantReferenceRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!variantReference)
+      throw new NotFoundException(`Variant reference with id ${id} not found`);
+
+    const updatedVariantReference = plainToClass(VariantReference, updateVariantReferenceDto);
+
+    Object.assign(variantReference, updatedVariantReference);
+
+    await this.variantReferenceRepository.save(variantReference);
+
+    return {
+      variantReference
+    };
   }
 
   async remove(id: string) {
