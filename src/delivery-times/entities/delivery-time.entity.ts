@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, PrimaryGenerat
 
 import { RefProduct } from '../../ref-products/entities/ref-product.entity';
 import { Product } from '../../products/entities/product.entity';
+import { Supplier } from '../../suppliers/entities/supplier.entity';
 
 @Entity('delivery_times')
 export class DeliveryTime {
@@ -40,4 +41,7 @@ export class DeliveryTime {
 
   @ManyToOne(() => Product, (product) => product.deliveryTimes)
   product: Product;
+
+  @ManyToOne(() => Supplier, (supplier) => supplier.deliveryTimes)
+  supplier: Supplier;
 }

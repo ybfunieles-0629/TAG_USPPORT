@@ -1,4 +1,4 @@
-import { IsNumber } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 
 export class CreateDeliveryTimeDto {
   @IsNumber()
@@ -12,4 +12,13 @@ export class CreateDeliveryTimeDto {
 
   @IsNumber()
   minimunAdvanceValue: number;
+
+  @IsString()
+  refProduct: string;
+
+  @IsString()
+  product: string;
+
+  @IsString()
+  supplier: string;
 }
