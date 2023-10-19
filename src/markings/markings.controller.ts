@@ -13,6 +13,13 @@ export class MarkingsController {
     return this.markingsService.create(createMarkingDto);
   }
 
+  @Post('create/multiple')
+  createMultiple(
+    @Body() createMultipleMarkings: CreateMarkingDto[]
+  ) {
+    return this.markingsService.createMultiple(createMultipleMarkings);
+  }
+
   @Get()
   findAll(
     @Param() paginationDto: PaginationDto
@@ -32,6 +39,15 @@ export class MarkingsController {
   ) {
     return this.markingsService.update(id, updateMarkingDto);
   }
+
+  @Patch('/update/multiple')
+  updateMultiple(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateMultipleMarkings: UpdateMarkingDto[]
+  ) {
+    return this.markingsService.updateMultiple(updateMultipleMarkings);
+  }
+
 
   @Patch('/desactivate/:id')
   desactivate(

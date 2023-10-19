@@ -4,7 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MarkingsService } from './markings.service';
 import { MarkingsController } from './markings.controller';
 import { Marking } from './entities/marking.entity';
-import { ProductsModule } from '../products/products.module';
 import { MarkingTagServicesModule } from '../marking-tag-services/marking-tag-services.module';
 import { CompaniesModule } from '../companies/companies.module';
 

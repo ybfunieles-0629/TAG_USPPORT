@@ -27,47 +27,29 @@ export class MarkingsService {
   ) { }
 
   async create(createMarkingDto: CreateMarkingDto) {
-    try {
+    const newMarking = plainToClass(Marking, createMarkingDto);
+
+    await this.markingRepository.save(newMarking);
+
+    return {
+      newMarking
+    };
+  }
+
+  async createMultiple(createMultipleMarkings: CreateMarkingDto[]) {
+    const createdMarkings = [];
+
+    for (const createMarkingDto of createMultipleMarkings) {
       const newMarking = plainToClass(Marking, createMarkingDto);
-
-      // const markingTagService = await this.markingTagServiceRepository.findOne({
-      //   where: {
-      //     id: createMarkingDto.markingTagService
-      //   },
-      // });
-
-      // if (!markingTagService)
-      //   throw new NotFoundException(`Marking tag service with id ${createMarkingDto.markingTagService} not found`);
-
-      // if (!markingTagService.isActive)
-      //   throw new BadRequestException(`Company with id ${createMarkingDto.company} is currently inactive`);
-
-      // newMarking.markingTagService = markingTagService;
-
-      const company = await this.companyRepository.findOne({
-        where: {
-          id: createMarkingDto.company,
-        },
-      });
-
-      if (!company) 
-        throw new NotFoundException(`Company id with ${createMarkingDto.company} not found`);
-
-      if (!company.isActive)
-        throw new BadRequestException(`Company with id ${createMarkingDto.company} is currently inactive`);
-
-      newMarking.company = company;
-
-      const products: Product[] = [];
 
       await this.markingRepository.save(newMarking);
 
-      return {
-        newMarking
-      };
-    } catch (error) {
-      this.handleDbExceptions(error);
+      createdMarkings.push(newMarking);
     }
+
+    return {
+      createdMarkings,
+    };
   }
 
   findAll(paginationDto: PaginationDto) {
@@ -95,7 +77,51 @@ export class MarkingsService {
   }
 
   async update(id: string, updateMarkingDto: UpdateMarkingDto) {
-    return `This action updates a #${id} marking`;
+    const marking = await this.markingRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!marking)
+      throw new NotFoundException(`Marking with id ${id} not found`);
+
+    const updatedMarking = plainToClass(Marking, updateMarkingDto);
+
+    Object.assign(marking, updatedMarking);
+
+    await this.markingRepository.save(marking);
+
+    return {
+      marking
+    };
+  }
+
+  async updateMultiple(updateMultipleMarkings: UpdateMarkingDto[]) {
+    const updatedMarkings = [];
+
+    for (const updateMarkingDto of updateMultipleMarkings) {
+      const marking = await this.markingRepository.findOne({
+        where: {
+          id: updateMarkingDto.id,
+        },
+      });
+
+      if (!marking)
+        throw new NotFoundException(`Marking with id ${updateMarkingDto.id} not found`);
+
+      const updatedMarking = plainToClass(Marking, updateMarkingDto);
+
+      Object.assign(marking, updatedMarking);
+
+      await this.markingRepository.save(marking);
+
+      updatedMarkings.push(marking);
+    }
+
+    return {
+      updatedMarkings,
+    };
   }
 
   async desactivate(id: string) {
