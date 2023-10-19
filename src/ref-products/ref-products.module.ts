@@ -9,12 +9,14 @@ import { SuppliersModule } from '../suppliers/suppliers.module';
 import { CategorySuppliersModule } from '../category-suppliers/category-suppliers.module';
 import { UsersModule } from '../users/users.module';
 import { VariantReferenceModule } from '../variant-reference/variant-reference.module';
+import { ProductsModule } from '../products/products.module';
 
 @Module({
   imports: [
     CategorySuppliersModule,
     SuppliersModule,
     MarkingsModule,
+    ProductsModule,
     UsersModule,
     VariantReferenceModule,
     TypeOrmModule.forFeature([RefProduct]),

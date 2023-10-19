@@ -76,4 +76,9 @@ export class CreateRefProductDto {
   @IsArray()
   @IsString({ each: true })
   variantReferences?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  products?: string[];
 }
