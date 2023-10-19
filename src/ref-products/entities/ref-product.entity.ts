@@ -7,6 +7,7 @@ import { Supplier } from '../../suppliers/entities/supplier.entity';
 import { CategorySupplier } from '../../category-suppliers/entities/category-supplier.entity';
 import { Marking } from '../../markings/entities/marking.entity';
 import { DeliveryTime } from '../../delivery-times/entities/delivery-time.entity';
+import { Packing } from 'src/packings/entities/packing.entity';
 
 @Entity('ref_products')
 export class RefProduct {
@@ -110,10 +111,13 @@ export class RefProduct {
 
   //* --- FK --- *//
   @OneToMany(() => Product, (product) => product.refProduct)
-  products: Product[];
+  products?: Product[];
+
+  @OneToMany(() => Packing, (packing) => packing.refProduct)
+  packings?: Packing[];
 
   @OneToMany(() => Image, (image) => image.refProduct)
-  images: Image[];
+  images?: Image[];
 
   @OneToMany(() => VariantReference, (variantReference) => variantReference.refProduct)
   variantReferences: VariantReference[];

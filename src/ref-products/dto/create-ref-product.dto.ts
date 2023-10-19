@@ -71,4 +71,9 @@ export class CreateRefProductDto {
   @IsArray()
   @IsString({ each: true })
   deliveryTimes?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  variantReferences?: string[];
 }

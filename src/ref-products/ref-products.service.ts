@@ -11,8 +11,8 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { Marking } from '../markings/entities/marking.entity';
 import { CategorySupplier } from '../category-suppliers/entities/category-supplier.entity';
-import { DeliveryTime } from '../delivery-times/entities/delivery-time.entity';
 import { User } from '../users/entities/user.entity';
+import { VariantReference } from 'src/variant-reference/entities/variant-reference.entity';
 
 @Injectable()
 export class RefProductsService {
@@ -25,9 +25,6 @@ export class RefProductsService {
     @InjectRepository(CategorySupplier)
     private readonly categorySupplierRepository: Repository<CategorySupplier>,
 
-    @InjectRepository(DeliveryTime)
-    private readonly deliveryTimeRepository: Repository<DeliveryTime>,
-
     @InjectRepository(Supplier)
     private readonly supplierRepository: Repository<Supplier>,
 
@@ -36,6 +33,9 @@ export class RefProductsService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    
+    @InjectRepository(VariantReference)
+    private readonly variantReferenceRepository: Repository<VariantReference>,
   ) { }
 
   async manageProductsFromExtApi(data: any) {
@@ -154,7 +154,7 @@ export class RefProductsService {
       newRefProduct.supplier = supplier;
 
       const categorySuppliers: CategorySupplier[] = [];
-      const deliveryTimes: DeliveryTime[] = [];
+      const variantReferences: VariantReference[] = [];
 
       if (createRefProductDto.categorySuppliers) {
         for (const categorySupplierId of createRefProductDto.categorySuppliers) {
@@ -174,26 +174,26 @@ export class RefProductsService {
         }
       }
 
-      if (createRefProductDto.deliveryTimes) {
-        for (const deliveryTimeId of createRefProductDto.deliveryTimes) {
-          const deliveryTime: DeliveryTime = await this.deliveryTimeRepository.findOne({
+      if (createRefProductDto.variantReferences) {
+        for (const variantReferenceId of createRefProductDto.variantReferences) {
+          const variantReference: VariantReference = await this.variantReferenceRepository.findOne({
             where: {
-              id: deliveryTimeId,
+              id: variantReferenceId,
             },
           });
 
-          if (!deliveryTime)
-            throw new NotFoundException(`Delivery time with id ${deliveryTimeId} not found`);
+          if (!variantReference)
+            throw new NotFoundException(`Variant reference with id ${variantReferenceId} not found`);
 
-          // if (!deliveryTime.isActive)
-          //   throw new BadRequestException(`Delivery time with id ${deliveryTime} is currently inactive`);
+          // if (!variantReference.isActive)
+          //   throw new BadRequestException(`Variant reference with id ${variantReferenceId} is currently inactive`);
 
-          deliveryTimes.push(deliveryTime);
+          variantReferences.push(variantReference);
         }
       }
 
       newRefProduct.categorySuppliers = categorySuppliers;
-      newRefProduct.deliveryTimes = deliveryTimes;
+      newRefProduct.variantReferences = variantReferences;
 
       await this.refProductRepository.save(newRefProduct);
 
@@ -215,6 +215,7 @@ export class RefProductsService {
         'deliveryTimes',
         'markings',
         'supplier',
+        'variantReferences',
       ],
     });
   }
@@ -228,6 +229,7 @@ export class RefProductsService {
         'deliveryTimes',
         'markings',
         'supplier',
+        'variantReferences',
       ],
     });
 
@@ -248,6 +250,7 @@ export class RefProductsService {
         'deliveryTimes',
         'supplier',
         'markings',
+        'variantReferences',
       ],
     });
 
@@ -269,7 +272,7 @@ export class RefProductsService {
       throw new BadRequestException(`Supplier with id ${updateRefProductDto.supplier} is currently inactive`);
 
     const categorySuppliers: CategorySupplier[] = [];
-    const deliveryTimes: DeliveryTime[] = [];
+    const variantReferences: VariantReference[] = [];
 
     if (updateRefProductDto.categorySuppliers) {
       for (const categorySupplierId of updateRefProductDto.categorySuppliers) {
@@ -289,27 +292,27 @@ export class RefProductsService {
       }
     }
 
-    if (updateRefProductDto.deliveryTimes) {
-      for (const deliveryTimeId of updateRefProductDto.deliveryTimes) {
-        const deliveryTime: DeliveryTime = await this.deliveryTimeRepository.findOne({
+    if (updateRefProductDto.variantReferences) {
+      for (const variantReferenceId of updateRefProductDto.variantReferences) {
+        const variantReference: VariantReference = await this.variantReferenceRepository.findOne({
           where: {
-            id: deliveryTimeId,
+            id: variantReferenceId,
           },
         });
 
-        if (!deliveryTime)
-          throw new NotFoundException(`Delivery time with id ${deliveryTimeId} not found`);
+        if (!variantReference)
+          throw new NotFoundException(`Variant reference with id ${variantReferenceId} not found`);
 
-        // if (!deliveryTime.isActive)
-        //   throw new BadRequestException(`Delivery time with id ${deliveryTime} is currently inactive`);
+        // if (!variantReference.isActive)
+        //   throw new BadRequestException(`Variant reference with id ${variantReferenceId} is currently inactive`);
 
-        deliveryTimes.push(deliveryTime);
+        variantReferences.push(variantReference);
       }
     }
 
     updatedRefProduct.supplier = supplier;
     updatedRefProduct.categorySuppliers = categorySuppliers;
-    updatedRefProduct.deliveryTimes = deliveryTimes;
+    updatedRefProduct.variantReferences = variantReferences;
 
     Object.assign(refProduct, updatedRefProduct);
 
