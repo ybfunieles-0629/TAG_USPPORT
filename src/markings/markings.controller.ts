@@ -42,7 +42,6 @@ export class MarkingsController {
 
   @Patch('/update/multiple')
   updateMultiple(
-    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateMultipleMarkings: UpdateMarkingDto[]
   ) {
     return this.markingsService.updateMultiple(updateMultipleMarkings);
