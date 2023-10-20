@@ -42,7 +42,6 @@ export class ColorsController {
 
   @Patch('/update/multiple')
   updateMultiple(
-    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateMultipleColors: UpdateColorDto[]
   ) {
     return this.colorsService.updateMultiple(updateMultipleColors);
