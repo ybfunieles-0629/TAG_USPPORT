@@ -23,8 +23,9 @@ export class CreateRefProductDto {
   mainCategory: string;
 
   @IsOptional()
-  @IsString()
-  keywords?: string;
+  @IsArray()
+  @IsString({ each: true })
+  keywords?: string[];
 
   @IsInt()
   personalizableMarking: number;

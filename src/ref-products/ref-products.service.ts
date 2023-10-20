@@ -34,7 +34,7 @@ export class RefProductsService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    
+
     @InjectRepository(VariantReference)
     private readonly variantReferenceRepository: Repository<VariantReference>,
 
@@ -140,93 +140,93 @@ export class RefProductsService {
   }
 
   async create(createRefProductDto: CreateRefProductDto) {
-    try {
-      const newRefProduct = plainToClass(RefProduct, createRefProductDto);
+    const newRefProduct = plainToClass(RefProduct, createRefProductDto);
 
-      const supplier: Supplier = await this.supplierRepository.findOne({
-        where: {
-          id: createRefProductDto.supplier,
-        },
-      });
+    const joinedKeywords: string = createRefProductDto.keywords.join(';') + ';';
+    
+    newRefProduct.keywords = joinedKeywords;
+    
+    const supplier: Supplier = await this.supplierRepository.findOne({
+      where: {
+        id: createRefProductDto.supplier,
+      },
+    });
 
-      if (!supplier)
-        throw new NotFoundException(`Suppplier with id ${createRefProductDto.supplier} not found`);
+    if (!supplier)
+      throw new NotFoundException(`Suppplier with id ${createRefProductDto.supplier} not found`);
 
-      if (!supplier.isActive)
-        throw new BadRequestException(`Supplier with id ${createRefProductDto.supplier} is currently inactive`);
+    if (!supplier.isActive)
+      throw new BadRequestException(`Supplier with id ${createRefProductDto.supplier} is currently inactive`);
 
-      newRefProduct.supplier = supplier;
+    newRefProduct.supplier = supplier;
 
-      const categorySuppliers: CategorySupplier[] = [];
-      const variantReferences: VariantReference[] = [];
-      const products: Product[] = [];
+    const categorySuppliers: CategorySupplier[] = [];
+    const variantReferences: VariantReference[] = [];
+    const products: Product[] = [];
 
-      if (createRefProductDto.categorySuppliers) {
-        for (const categorySupplierId of createRefProductDto.categorySuppliers) {
-          const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
-            where: {
-              id: categorySupplierId,
-            },
-          });
+    if (createRefProductDto.categorySuppliers) {
+      for (const categorySupplierId of createRefProductDto.categorySuppliers) {
+        const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+          where: {
+            id: categorySupplierId,
+          },
+        });
 
-          if (!categorySupplier)
-            throw new NotFoundException(`Marking with id ${categorySupplierId} not found`);
+        if (!categorySupplier)
+          throw new NotFoundException(`Marking with id ${categorySupplierId} not found`);
 
-          if (!categorySupplier.isActive)
-            throw new BadRequestException(`Marking with id ${categorySupplierId} is currently inactive`);
+        if (!categorySupplier.isActive)
+          throw new BadRequestException(`Marking with id ${categorySupplierId} is currently inactive`);
 
-          categorySuppliers.push(categorySupplier);
-        }
+        categorySuppliers.push(categorySupplier);
       }
-
-      if (createRefProductDto.variantReferences) {
-        for (const variantReferenceId of createRefProductDto.variantReferences) {
-          const variantReference: VariantReference = await this.variantReferenceRepository.findOne({
-            where: {
-              id: variantReferenceId,
-            },
-          });
-
-          if (!variantReference)
-            throw new NotFoundException(`Variant reference with id ${variantReferenceId} not found`);
-
-          // if (!variantReference.isActive)
-          //   throw new BadRequestException(`Variant reference with id ${variantReferenceId} is currently inactive`);
-
-          variantReferences.push(variantReference);
-        }
-      }
-
-      if (createRefProductDto.products) {
-        for (const productId of createRefProductDto.products) {
-          const product: Product = await this.productRepository.findOne({
-            where: {
-              id: productId,
-            },
-          });
-
-          if (!product)
-            throw new NotFoundException(`Product with id ${productId} not found`);
-
-          if (!product.isActive)
-            throw new BadRequestException(`Product with id ${productId} is currently inactive`);
-
-          products.push(product);
-        }
-      }
-
-      newRefProduct.categorySuppliers = categorySuppliers;
-      newRefProduct.variantReferences = variantReferences;
-      newRefProduct.products = products;
-
-      await this.refProductRepository.save(newRefProduct);
-
-      return {
-        newRefProduct
-      };
-    } catch (error) {
-      this.handleDbExceptions(error);
     }
+
+    if (createRefProductDto.variantReferences) {
+      for (const variantReferenceId of createRefProductDto.variantReferences) {
+        const variantReference: VariantReference = await this.variantReferenceRepository.findOne({
+          where: {
+            id: variantReferenceId,
+          },
+        });
+
+        if (!variantReference)
+          throw new NotFoundException(`Variant reference with id ${variantReferenceId} not found`);
+
+        // if (!variantReference.isActive)
+        //   throw new BadRequestException(`Variant reference with id ${variantReferenceId} is currently inactive`);
+
+        variantReferences.push(variantReference);
+      }
+    }
+
+    if (createRefProductDto.products) {
+      for (const productId of createRefProductDto.products) {
+        const product: Product = await this.productRepository.findOne({
+          where: {
+            id: productId,
+          },
+        });
+
+        if (!product)
+          throw new NotFoundException(`Product with id ${productId} not found`);
+
+        if (!product.isActive)
+          throw new BadRequestException(`Product with id ${productId} is currently inactive`);
+
+        products.push(product);
+      }
+    }
+
+    newRefProduct.categorySuppliers = categorySuppliers;
+    newRefProduct.variantReferences = variantReferences;
+    newRefProduct.products = products;
+
+    await this.refProductRepository.save(newRefProduct);
+
+    return {
+      newRefProduct
+    };
   }
 
   findAll(paginationDto: PaginationDto) {
