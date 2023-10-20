@@ -41,7 +41,6 @@ export class VariantReferenceController {
 
   @Patch('/update/multiple')
   updateMultiple(
-    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateMultipleVariantReferences: UpdateVariantReferenceDto[]
   ) {
     return this.variantReferenceService.updateMultiple(updateMultipleVariantReferences);
