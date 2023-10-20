@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put } from '@nestjs/common';
 import { MarkingsService } from './markings.service';
 import { CreateMarkingDto } from './dto/create-marking.dto';
 import { UpdateMarkingDto } from './dto/update-marking.dto';
@@ -40,7 +40,7 @@ export class MarkingsController {
     return this.markingsService.update(id, updateMarkingDto);
   }
 
-  @Patch('/update/multiple')
+  @Put('/update/multiple')
   updateMultiple(
     @Body() updateMultipleMarkings: UpdateMarkingDto[]
   ) {

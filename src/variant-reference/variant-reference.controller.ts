@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put } from '@nestjs/common';
 
 import { VariantReferenceService } from './variant-reference.service';
 import { CreateVariantReferenceDto } from './dto/create-variant-reference.dto';
@@ -39,7 +39,7 @@ export class VariantReferenceController {
     return this.variantReferenceService.update(id, updateVariantReferenceDto);
   }
 
-  @Patch('/update/multiple')
+  @Put('/update/multiple')
   updateMultiple(
     @Body() updateMultipleVariantReferences: UpdateVariantReferenceDto[]
   ) {

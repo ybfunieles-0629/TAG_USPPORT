@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put } from '@nestjs/common';
 import { ColorsService } from './colors.service';
 import { CreateColorDto } from './dto/create-color.dto';
 import { UpdateColorDto } from './dto/update-color.dto';
@@ -40,7 +40,7 @@ export class ColorsController {
     return this.colorsService.update(id, updateColorDto);
   }
 
-  @Patch('/update/multiple')
+  @Put('/update/multiple')
   updateMultiple(
     @Body() updateMultipleColors: UpdateColorDto[]
   ) {

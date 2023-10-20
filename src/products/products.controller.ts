@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -44,7 +44,7 @@ export class ProductsController {
     return this.productsService.update(id, updateProductDto);
   }
 
-  @Patch('/update/multiple')
+  @Put('/update/multiple')
   updateMultiple(
     @Body() updateMultipleProducts: UpdateProductDto[]
   ) {

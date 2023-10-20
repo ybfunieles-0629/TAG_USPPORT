@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put } from '@nestjs/common';
 
 import { DeliveryTimesService } from './delivery-times.service';
 import { CreateDeliveryTimeDto } from './dto/create-delivery-time.dto';
@@ -45,7 +45,7 @@ export class DeliveryTimesController {
     return this.deliveryTimesService.update(id, updateDeliveryTimeDto);
   }
 
-  @Patch('/update/multiple')
+  @Put('/update/multiple')
   updateMultiple(
     @Body() updateMultipleDeliveryTimes: UpdateDeliveryTimeDto[]
   ) {
