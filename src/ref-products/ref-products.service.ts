@@ -286,6 +286,10 @@ export class RefProductsService {
 
     const updatedRefProduct = plainToClass(RefProduct, updateRefProductDto);
 
+    const joinedKeywords: string = updateRefProductDto.keywords.join(';') + ';';
+    
+    updatedRefProduct.keywords = joinedKeywords;
+
     const supplier: Supplier = await this.supplierRepository.findOne({
       where: {
         id: updateRefProductDto.supplier,
