@@ -47,7 +47,6 @@ export class DeliveryTimesController {
 
   @Patch('/update/multiple')
   updateMultiple(
-    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateMultipleDeliveryTimes: UpdateDeliveryTimeDto[]
   ) {
     return this.deliveryTimesService.updateMultiple(updateMultipleDeliveryTimes);
