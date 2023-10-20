@@ -46,7 +46,6 @@ export class ProductsController {
 
   @Patch('/update/multiple')
   updateMultiple(
-    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateMultipleProducts: UpdateProductDto[]
   ) {
     return this.productsService.updateMultiple(updateMultipleProducts);
