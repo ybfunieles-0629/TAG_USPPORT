@@ -28,17 +28,23 @@ export class PackingsService {
   async create(createPackingDto: CreatePackingDto) {
     const newPacking = plainToClass(Packing, createPackingDto);
 
-    const product = await this.productRepository.findOne({
-      where: {
-        id: createPackingDto.product,
-      },
-    });
+    if (createPackingDto.product) {
 
-    if (!product)
-      throw new NotFoundException(`Product with id ${createPackingDto.product} not found`);
+      const product = await this.productRepository.findOne({
+        where: {
+          id: createPackingDto.product,
+        },
+      });
 
-    if (!product.isActive)
-      throw new BadRequestException(`Product with id ${createPackingDto.product} is currently inactive`);
+      if (!product)
+        throw new NotFoundException(`Product with id ${createPackingDto.product} not found`);
+
+      if (!product.isActive)
+        throw new BadRequestException(`Product with id ${createPackingDto.product} is currently inactive`);
+
+
+      newPacking.product = product;
+    }
 
     const refProduct = await this.refProductRepository.findOne({
       where: {
@@ -52,7 +58,6 @@ export class PackingsService {
     if (!refProduct.isActive)
       throw new BadRequestException(`Ref product with id ${createPackingDto.refProduct} is currently inactive`);
 
-    newPacking.product = product;
     newPacking.refProduct = refProduct;
 
     await this.packingRepository.save(newPacking);
@@ -107,17 +112,22 @@ export class PackingsService {
 
     const updatedPacking = plainToClass(Packing, updatePackingDto);
 
-    const product = await this.productRepository.findOne({
-      where: {
-        id: updatePackingDto.product,
-      },
-    });
+    if (updatePackingDto.product) {
+      const product = await this.productRepository.findOne({
+        where: {
+          id: updatePackingDto.product,
+        },
+      });
 
-    if (!product)
-      throw new NotFoundException(`Product with id ${updatePackingDto.product} not found`);
+      if (!product)
+        throw new NotFoundException(`Product with id ${updatePackingDto.product} not found`);
 
-    if (!product.isActive)
-      throw new BadRequestException(`Product with id ${updatePackingDto.product} is currently inactive`);
+      if (!product.isActive)
+        throw new BadRequestException(`Product with id ${updatePackingDto.product} is currently inactive`);
+
+
+      updatedPacking.product = product;
+    }
 
     const refProduct = await this.refProductRepository.findOne({
       where: {
@@ -131,7 +141,6 @@ export class PackingsService {
     if (!refProduct.isActive)
       throw new BadRequestException(`Ref product with id ${updatePackingDto.refProduct} is currently inactive`);
 
-    updatedPacking.product = product;
     updatedPacking.refProduct = refProduct;
 
     Object.assign(packing, updatedPacking);
