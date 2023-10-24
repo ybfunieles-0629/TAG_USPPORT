@@ -9,6 +9,13 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 export class AdminController {
   constructor(private readonly adminService: AdminService) { }
 
+  @Post('/seed')
+  seedAdmins(
+
+  ) {
+    return this.adminService.seedAdmins();
+  }
+
   @Post()
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);

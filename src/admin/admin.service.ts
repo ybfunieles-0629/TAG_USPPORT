@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
@@ -10,6 +10,7 @@ import { Admin } from './entities/admin.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { User } from '../users/entities/user.entity';
 import { Client } from '../clients/entities/client.entity';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AdminService {
@@ -24,7 +25,32 @@ export class AdminService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    private readonly usersService: UsersService,
   ) { }
+
+  async seedAdmins() {
+    const { usersSaved } = await this.usersService.seedUsers();
+
+    const adminsSaved: Admin[] = [];
+
+    for (const userSaved of usersSaved) {
+      const newAdmin = {
+        "adminType": "General",
+        "adminDesc": "description for the admin",
+        "user": userSaved,
+        "clients": []
+      };
+
+      const adminSaved = await this.adminRepository.save(newAdmin);
+
+      adminsSaved.push(adminSaved);
+    }
+
+    return {
+      adminsSaved
+    };
+  }
 
   async create(createAdminDto: CreateAdminDto) {
     const newAdminUser = plainToClass(Admin, createAdminDto);
