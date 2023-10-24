@@ -5,8 +5,8 @@ export class CreateRefProductDto {
   name: string;
 
   @IsOptional()
-  @IsString()
-  disccountPromo?: string;
+  @IsInt()
+  disccountPromo?: number;
 
   @IsString()
   referenceCode: string;
