@@ -177,7 +177,7 @@ export class Product {
 
   @ManyToMany(() => VariantReference, (variantReference) => variantReference.products)
   @JoinTable({
-    name: 'products_has_markings',
+    name: 'products_has_variant_references',
     joinColumn: {
       name: 'productId',
       referencedColumnName: 'id',
