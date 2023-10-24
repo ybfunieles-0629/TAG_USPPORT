@@ -37,9 +37,6 @@ export class RefProductsService {
 
     @InjectRepository(VariantReference)
     private readonly variantReferenceRepository: Repository<VariantReference>,
-
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>
   ) { }
 
   async manageProductsFromExtApi(data: any) {
@@ -162,7 +159,6 @@ export class RefProductsService {
 
     const categorySuppliers: CategorySupplier[] = [];
     const variantReferences: VariantReference[] = [];
-    const products: Product[] = [];
 
     if (createRefProductDto.categorySuppliers) {
       for (const categorySupplierId of createRefProductDto.categorySuppliers) {
@@ -200,27 +196,8 @@ export class RefProductsService {
       }
     }
 
-    if (createRefProductDto.products) {
-      for (const productId of createRefProductDto.products) {
-        const product: Product = await this.productRepository.findOne({
-          where: {
-            id: productId,
-          },
-        });
-
-        if (!product)
-          throw new NotFoundException(`Product with id ${productId} not found`);
-
-        if (!product.isActive)
-          throw new BadRequestException(`Product with id ${productId} is currently inactive`);
-
-        products.push(product);
-      }
-    }
-
     newRefProduct.categorySuppliers = categorySuppliers;
     newRefProduct.variantReferences = variantReferences;
-    newRefProduct.products = products;
 
     await this.refProductRepository.save(newRefProduct);
 
@@ -310,7 +287,6 @@ export class RefProductsService {
 
     const categorySuppliers: CategorySupplier[] = [];
     const variantReferences: VariantReference[] = [];
-    const products: Product[] = [];
 
     if (updateRefProductDto.categorySuppliers) {
       for (const categorySupplierId of updateRefProductDto.categorySuppliers) {
@@ -345,24 +321,6 @@ export class RefProductsService {
         //   throw new BadRequestException(`Variant reference with id ${variantReferenceId} is currently inactive`);
 
         variantReferences.push(variantReference);
-      }
-    }
-
-    if (updateRefProductDto.products) {
-      for (const productId of updateRefProductDto.products) {
-        const product: Product = await this.productRepository.findOne({
-          where: {
-            id: productId,
-          },
-        });
-
-        if (!product)
-          throw new NotFoundException(`Product with id ${productId} not found`);
-
-        if (!product.isActive)
-          throw new BadRequestException(`Product with id ${productId} is currently inactive`);
-
-        products.push(product);
       }
     }
 
