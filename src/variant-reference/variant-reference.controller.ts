@@ -22,7 +22,9 @@ export class VariantReferenceController {
   }
 
   @Get()
-  findAll(paginationDto: PaginationDto) {
+  findAll(
+    @Param() paginationDto: PaginationDto
+  ) {
     return this.variantReferenceService.findAll(paginationDto);
   }
 
