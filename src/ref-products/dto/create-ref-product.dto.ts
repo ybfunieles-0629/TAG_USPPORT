@@ -4,6 +4,10 @@ export class CreateRefProductDto {
   @IsString()
   name: string;
 
+  @IsOptional()
+  @IsString()
+  disccountPromo?: string;
+
   @IsString()
   referenceCode: string;
 
@@ -41,9 +45,6 @@ export class CreateRefProductDto {
 
   @IsInt()
   weight: number;
-
-  @IsString()
-  importedNational: string;
 
   @IsInt()
   productOnDemand: number;

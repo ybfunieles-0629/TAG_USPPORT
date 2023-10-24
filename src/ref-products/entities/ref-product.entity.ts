@@ -22,6 +22,11 @@ export class RefProduct {
   @Column('varchar', {
 
   })
+  disccountPromo: string;
+
+  @Column('varchar', {
+
+  })
   referenceCode: string;
 
   @Column('varchar', {
@@ -78,11 +83,6 @@ export class RefProduct {
 
   })
   weight: number;
-
-  @Column('varchar', {
-
-  })
-  importedNational: string;
 
   @Column('int', {
 
