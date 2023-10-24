@@ -124,6 +124,11 @@ export class Product {
   @Column('varchar', {
 
   })
+  importedNational: string;
+
+  @Column('varchar', {
+
+  })
   marketDesignArea: string;
 
   @Column('boolean', {
@@ -155,7 +160,7 @@ export class Product {
 
   @ManyToOne(() => RefProduct, (refProduct) => refProduct.products)
   refProduct: RefProduct;
-  
+
   @ManyToMany(() => Marking, (marking) => marking.products)
   @JoinTable({
     name: 'products_has_markings',

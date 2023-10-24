@@ -13,6 +13,9 @@ export class CreateProductDto {
   @IsInt()
   width: number;
 
+  @IsString()
+  importedNational: string;
+  
   @IsInt()
   height: number;
 
@@ -51,6 +54,7 @@ export class CreateProductDto {
 
   @IsInt()
   hasNetPrice: number;
+
 
   @IsInt()
   samplePrice: number;
