@@ -11,6 +11,13 @@ import { LoginUserDto } from './dto/login-user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
+  @Post('/seed')
+  seedUsers(
+
+  ) {
+    return this.usersService.seedUsers();
+  }
+
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createUser(createUserDto);

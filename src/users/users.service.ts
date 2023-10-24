@@ -6,6 +6,7 @@ import { plainToClass } from 'class-transformer';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
+import { UsersList } from './data/usersList';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -42,6 +43,53 @@ export class UsersService {
 
     private readonly jwtService: JwtService,
   ) { }
+
+  async seedUsers() {
+    const companyInDb = await this.companyRepository.findOne({
+      where: {
+        name: 'Tag',
+      },
+    });
+    
+    if (!companyInDb)
+      throw new NotFoundException(`Company Tag not found`);
+
+    const roleInDb = await this.roleRepository.findOne({
+      where: {
+        name: 'super-administrador',
+      },
+    });
+
+    if (!roleInDb)
+      throw new NotFoundException(`Role super-administrador not found`);
+
+    const permissionsInDb = await this.permissionRepository.find();
+    
+    const privilegesInDb = await this.privilegeRepository.find();
+
+    const usersToSave = UsersList.map(({ password, company, privileges, permissions, roles, ...data }) => {
+      return {
+        ...data,
+        company: companyInDb,
+        roles,
+        permissions: permissionsInDb,
+        privileges: privilegesInDb,
+        password: bcrypt.hashSync(password, 10),
+      }
+    });
+
+    const usersSaved: User[] = [];
+
+    for (const userToSave of usersToSave) {
+      const userSaved = await this.userRepository.save(userToSave);
+
+      usersSaved.push(userSaved);
+    }
+
+    return {
+      usersSaved
+    };
+  }
 
   async createUser(createUserDto: CreateUserDto) {
     const emailInUse = await this.userRepository.findOne({
@@ -186,7 +234,7 @@ export class UsersService {
     } else {
       payloadToSend = {
         user: { userId, username, dni, city, address },
-        company: { companyId, billingEmail, nit},
+        company: { companyId, billingEmail, nit },
         client: user.client,
         roles: user.roles.map(role => ({ name: role.name })),
         permissions: user.permissions.map(permission => ({ name: permission.name })),
