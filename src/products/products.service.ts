@@ -9,6 +9,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Color } from '../colors/entities/color.entity';
 import { VariantReference } from '../variant-reference/entities/variant-reference.entity';
+import { RefProduct } from '../ref-products/entities/ref-product.entity';
 
 
 @Injectable()
@@ -24,6 +25,9 @@ export class ProductsService {
 
     @InjectRepository(VariantReference)
     private readonly variantReferenceRepository: Repository<VariantReference>,
+
+    @InjectRepository(RefProduct)
+    private readonly refProductRepository: Repository<RefProduct>,
   ) { }
 
   async create(createProductDto: CreateProductDto) {
@@ -46,6 +50,16 @@ export class ProductsService {
       }
     }
 
+    const refProduct = await this.refProductRepository.findOne({
+      where: {
+        id: createProductDto.refProduct,
+      },
+    });
+
+    if (!refProduct)
+      throw new NotFoundException(`Ref product with id ${createProductDto.refProduct} not found`);
+
+    newProduct.refProduct = refProduct;
     newProduct.variantReferences = variantReferences;
 
     await this.productRepository.save(newProduct);
@@ -63,6 +77,17 @@ export class ProductsService {
 
       const colors: Color[] = [];
       const variantReferences: VariantReference[] = [];
+
+      const refProduct = await this.refProductRepository.findOne({
+        where: {
+          id: createProductDto.refProduct,
+        },
+      });
+  
+      if (!refProduct)
+        throw new NotFoundException(`Ref product with id ${createProductDto.refProduct} not found`);
+  
+      newProduct.refProduct = refProduct;
 
       if (createProductDto.variantReferences) {
         for (const variantReferenceId of createProductDto.variantReferences) {
@@ -152,6 +177,17 @@ export class ProductsService {
 
     const updatedProduct = plainToClass(Product, updateProductDto);
 
+    const refProduct = await this.refProductRepository.findOne({
+      where: {
+        id: updateProductDto.refProduct,
+      },
+    });
+
+    if (!refProduct)
+      throw new NotFoundException(`Ref product with id ${updateProductDto.refProduct} not found`);
+
+    updatedProduct.refProduct = refProduct;
+
     const variantReferences: VariantReference[] = [];
 
     if (updateProductDto.variantReferences) {
@@ -201,6 +237,17 @@ export class ProductsService {
 
       const colors: Color[] = [];
       const variantReferences: VariantReference[] = [];
+
+      const refProduct = await this.refProductRepository.findOne({
+        where: {
+          id: updateProductDto.refProduct,
+        },
+      });
+  
+      if (!refProduct)
+        throw new NotFoundException(`Ref product with id ${updateProductDto.refProduct} not found`);
+  
+      updatedProduct.refProduct = refProduct;
 
       if (updateProductDto.variantReferences) {
         for (const variantReferenceId of updateProductDto.variantReferences) {

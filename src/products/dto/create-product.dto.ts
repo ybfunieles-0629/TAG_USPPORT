@@ -55,7 +55,6 @@ export class CreateProductDto {
   @IsInt()
   hasNetPrice: number;
 
-
   @IsInt()
   samplePrice: number;
 
@@ -67,6 +66,9 @@ export class CreateProductDto {
 
   @IsString()
   tariffItem: string;
+
+  @IsString()
+  refProduct: string;
 
   @IsOptional()
   @IsArray()
