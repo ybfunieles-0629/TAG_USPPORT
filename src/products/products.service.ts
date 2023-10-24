@@ -7,7 +7,8 @@ import { Product } from './entities/product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Color } from 'src/colors/entities/color.entity';
+import { Color } from '../colors/entities/color.entity';
+import { VariantReference } from '../variant-reference/entities/variant-reference.entity';
 
 
 @Injectable()
@@ -20,10 +21,32 @@ export class ProductsService {
 
     @InjectRepository(Color)
     private readonly colorRepository: Repository<Color>,
+
+    @InjectRepository(VariantReference)
+    private readonly variantReferenceRepository: Repository<VariantReference>,
   ) { }
 
   async create(createProductDto: CreateProductDto) {
     const newProduct = plainToClass(Product, createProductDto);
+
+    const variantReferences: VariantReference[] = [];
+
+    if (createProductDto.variantReferences) {
+      for (const variantReferenceId of createProductDto.variantReferences) {
+        const variantReference = await this.variantReferenceRepository.findOne({
+          where: {
+            id: variantReferenceId,
+          },
+        });
+
+        if (!variantReference)
+          throw new NotFoundException(`Variant reference with id ${variantReferenceId} not found`);
+
+        variantReferences.push(variantReference);
+      }
+    }
+
+    newProduct.variantReferences = variantReferences;
 
     await this.productRepository.save(newProduct);
 
@@ -39,6 +62,22 @@ export class ProductsService {
       const newProduct = plainToClass(Product, createProductDto);
 
       const colors: Color[] = [];
+      const variantReferences: VariantReference[] = [];
+
+      if (createProductDto.variantReferences) {
+        for (const variantReferenceId of createProductDto.variantReferences) {
+          const variantReference = await this.variantReferenceRepository.findOne({
+            where: {
+              id: variantReferenceId,
+            },
+          });
+
+          if (!variantReference)
+            throw new NotFoundException(`Variant reference with id ${variantReferenceId} not found`);
+
+          variantReferences.push(variantReference);
+        }
+      }
 
       if (createProductDto.colors) {
         for (const color of createProductDto.colors) {
@@ -46,6 +85,10 @@ export class ProductsService {
             where: {
               id: color,
             },
+            relations: [
+              'colors',
+              'variantReferences',
+            ],
           });
 
           if (!colorInDb)
@@ -55,6 +98,7 @@ export class ProductsService {
         }
       }
 
+      newProduct.variantReferences = variantReferences;
       newProduct.colors = colors;
 
       await this.productRepository.save(newProduct);
@@ -73,6 +117,10 @@ export class ProductsService {
     return this.productRepository.find({
       take: limit,
       skip: offset,
+      relations: [
+        'colors',
+        'variantReferences',
+      ],
     });
   }
 
@@ -81,6 +129,10 @@ export class ProductsService {
       where: {
         id
       },
+      relations: [
+        'colors',
+        'variantReferences',
+      ],
     });
 
     if (!product)
@@ -96,9 +148,32 @@ export class ProductsService {
       where: {
         id,
       },
+      relations: [
+        'colors',
+        'variantReferences',
+      ],
     });
 
     const updatedProduct = plainToClass(Product, updateProductDto);
+
+    const variantReferences: VariantReference[] = [];
+
+    if (updateProductDto.variantReferences) {
+      for (const variantReferenceId of updateProductDto.variantReferences) {
+        const variantReference = await this.variantReferenceRepository.findOne({
+          where: {
+            id: variantReferenceId,
+          },
+        });
+
+        if (!variantReference)
+          throw new NotFoundException(`Variant reference with id ${variantReferenceId} not found`);
+
+        variantReferences.push(variantReference);
+      }
+    }
+
+    updatedProduct.variantReferences = variantReferences;
 
     Object.assign(product, updatedProduct);
 
@@ -117,6 +192,10 @@ export class ProductsService {
         where: {
           id: updateProductDto.id,
         },
+        relations: [
+          'colors',
+          'variantReferences',
+        ],
       });
 
       if (!product)
@@ -125,6 +204,22 @@ export class ProductsService {
       const updatedProduct = plainToClass(Product, updateProductDto);
 
       const colors: Color[] = [];
+      const variantReferences: VariantReference[] = [];
+
+      if (updateProductDto.variantReferences) {
+        for (const variantReferenceId of updateProductDto.variantReferences) {
+          const variantReference = await this.variantReferenceRepository.findOne({
+            where: {
+              id: variantReferenceId,
+            },
+          });
+
+          if (!variantReference)
+            throw new NotFoundException(`Variant reference with id ${variantReferenceId} not found`);
+
+          variantReferences.push(variantReference);
+        }
+      }
 
       if (updateProductDto.colors) {
         for (const color of updateProductDto.colors) {
@@ -141,6 +236,7 @@ export class ProductsService {
         }
       }
 
+      updatedProduct.variantReferences = variantReferences;
       updatedProduct.colors = colors;
 
       Object.assign(product, updatedProduct)

@@ -15,7 +15,7 @@ export class CreateProductDto {
 
   @IsString()
   importedNational: string;
-  
+
   @IsInt()
   height: number;
 
@@ -71,5 +71,10 @@ export class CreateProductDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  colors?: string;
+  colors?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  variantReferences?: string[];
 }
