@@ -6,6 +6,7 @@ import { CreateMarkingTagServiceDto } from './dto/create-marking-tag-service.dto
 import { UpdateMarkingTagServiceDto } from './dto/update-marking-tag-service.dto';
 import { MarkingTagService } from './entities/marking-tag-service.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class MarkingTagServicesService {
@@ -55,7 +56,24 @@ export class MarkingTagServicesService {
   }
 
   async update(id: string, updateMarkingTagServiceDto: UpdateMarkingTagServiceDto) {
-    return `This action updates a #${id} markingTagService`;
+    const markingTagService = await this.markingTagServiceRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!markingTagService)
+      throw new NotFoundException(`Marking tag service with id ${id} not found`);
+
+    const updatedMarkingTagService = plainToClass(MarkingTagService, updateMarkingTagServiceDto);
+
+    Object.assign(markingTagService, updatedMarkingTagService);
+
+    await this.markingTagServiceRepository.save(markingTagService);
+
+    return {
+      markingTagService
+    };
   }
 
   async desactivate(id: string) {

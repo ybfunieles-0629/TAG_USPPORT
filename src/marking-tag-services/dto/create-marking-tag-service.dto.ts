@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateMarkingTagServiceDto {
   @IsString()
@@ -8,8 +8,11 @@ export class CreateMarkingTagServiceDto {
   description: string;
 
   @IsString()
-  markingTechnique: string;
+  @IsUUID()
+  createdBy: string;
 
+  @IsOptional()
   @IsString()
-  subMarkingTechnique: string;
+  @IsUUID()
+  updatedBy: string;
 }
