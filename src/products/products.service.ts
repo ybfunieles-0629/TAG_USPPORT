@@ -85,10 +85,6 @@ export class ProductsService {
             where: {
               id: color,
             },
-            relations: [
-              'colors',
-              'variantReferences',
-            ],
           });
 
           if (!colorInDb)
