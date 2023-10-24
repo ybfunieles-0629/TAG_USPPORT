@@ -38,6 +38,13 @@ export class TagSubTechniquePropertiesController {
     return this.tagSubTechniquePropertiesService.update(id, updateTagSubTechniquePropertyDto);
   }
 
+  @Patch('/desactivate/:id')
+  desactivate(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.tagSubTechniquePropertiesService.desactivate(id);
+  }
+
   @Delete(':id')
   remove(
     @Param('id', ParseUUIDPipe) id: string

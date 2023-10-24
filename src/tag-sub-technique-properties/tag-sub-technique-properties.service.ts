@@ -105,6 +105,18 @@ export class TagSubTechniquePropertiesService {
     };
   }
 
+  async desactivate(id: string) {
+    const { tagSubTechniqueProperty } = await this.findOne(id);
+
+    tagSubTechniqueProperty.isActive = !tagSubTechniqueProperty.isActive;
+
+    await this.tagSubTechniquePropertyRepository.save(tagSubTechniqueProperty);
+
+    return {
+      tagSubTechniqueProperty
+    };
+  }
+
   async remove(id: string) {
     const { tagSubTechniqueProperty } = await this.findOne(id);
 
