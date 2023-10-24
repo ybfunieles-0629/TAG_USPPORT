@@ -45,7 +45,7 @@ export class Packing {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @ManyToOne(() => Product, (product) => product.packings)
+  @ManyToOne(() => Product, (product) => product.packings, { nullable: true })
   product: Product;
 
   @ManyToOne(() => RefProduct, (refProduct) => refProduct.packings)

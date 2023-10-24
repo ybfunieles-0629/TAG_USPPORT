@@ -9,6 +9,7 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { plainToClass } from 'class-transformer';
 import { Product } from '../products/entities/product.entity';
 import { RefProduct } from '../ref-products/entities/ref-product.entity';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class PackingsService {
@@ -28,8 +29,7 @@ export class PackingsService {
   async create(createPackingDto: CreatePackingDto) {
     const newPacking = plainToClass(Packing, createPackingDto);
 
-    if (createPackingDto.product) {
-
+    if (isUUID(createPackingDto.product)) {
       const product = await this.productRepository.findOne({
         where: {
           id: createPackingDto.product,
@@ -42,9 +42,12 @@ export class PackingsService {
       if (!product.isActive)
         throw new BadRequestException(`Product with id ${createPackingDto.product} is currently inactive`);
 
+      console.log('is uuid');
 
       newPacking.product = product;
     }
+
+    newPacking.product = null;
 
     const refProduct = await this.refProductRepository.findOne({
       where: {
