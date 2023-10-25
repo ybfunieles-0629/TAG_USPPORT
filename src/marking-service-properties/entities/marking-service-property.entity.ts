@@ -2,7 +2,8 @@ import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, Prima
 
 import { MarkedServicePrice } from '../../marked-service-prices/entities/marked-service-price.entity';
 import { ExternalSubTechnique } from '../../external-sub-techniques/entities/external-sub-technique.entity';
-import { TagSubTechniqueProperty } from 'src/tag-sub-technique-properties/entities/tag-sub-technique-property.entity';
+import { TagSubTechniqueProperty } from '../../tag-sub-technique-properties/entities/tag-sub-technique-property.entity';
+import { MarkingService } from '../../marking-services/entities/marking-service.entity';
 
 @Entity('marking_service_properties')
 export class MarkingServiceProperty {
@@ -48,6 +49,9 @@ export class MarkingServiceProperty {
   //* --- FK --- *//
   @OneToOne(() => TagSubTechniqueProperty, (tagSubTechniqueProperty) => tagSubTechniqueProperty.markingServiceProperty)
   tagSubTechniqueProperty: TagSubTechniqueProperty;
+
+  @OneToOne(() => MarkingService, (markingService) => markingService.markingServiceProperty)
+  markingService: MarkingService;
 
   @ManyToOne(() => ExternalSubTechnique, (externalSubTechnique) => externalSubTechnique.markingServiceProperties)
   externalSubTechnique: ExternalSubTechnique;
