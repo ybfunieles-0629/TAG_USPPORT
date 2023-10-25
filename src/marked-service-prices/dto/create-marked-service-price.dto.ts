@@ -30,4 +30,7 @@ export class CreateMarkedServicePriceDto {
 
   @IsDate()
   deliveryTime: Date;
+
+  @IsString()
+  markingServiceProperty: string;
 }

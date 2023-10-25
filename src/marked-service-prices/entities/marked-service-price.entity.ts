@@ -68,9 +68,6 @@ export class MarkedServicePrice {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @OneToMany(() => MarkingServiceProperty, (markingServiceProperty) => markingServiceProperty.markedServicePrice)
-  markingServiceProperties: MarkingServiceProperty[];
-
-  @ManyToOne(() => Marking, (marking) => marking.markedServicePrices)
-  marking: Marking;
+  @ManyToOne(() => MarkingServiceProperty, (markingServiceProperty) => markingServiceProperty.markedServicePrices)
+  markingServiceProperty: MarkingServiceProperty;
 }

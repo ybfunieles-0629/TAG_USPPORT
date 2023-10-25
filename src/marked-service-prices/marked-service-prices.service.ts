@@ -1,11 +1,13 @@
 import { Injectable, InternalServerErrorException, BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { plainToClass } from 'class-transformer';
 
 import { CreateMarkedServicePriceDto } from './dto/create-marked-service-price.dto';
 import { UpdateMarkedServicePriceDto } from './dto/update-marked-service-price.dto';
 import { MarkedServicePrice } from './entities/marked-service-price.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { MarkingServiceProperty } from '../marking-service-properties/entities/marking-service-property.entity';
 
 @Injectable()
 export class MarkedServicePricesService {
@@ -13,21 +15,31 @@ export class MarkedServicePricesService {
 
   constructor(
     @InjectRepository(MarkedServicePrice)
-    private readonly markedServicePriceRepository: Repository<MarkedServicePrice>
+    private readonly markedServicePriceRepository: Repository<MarkedServicePrice>,
+
+    @InjectRepository(MarkingServiceProperty)
+    private readonly markingServicePropertyRepository: Repository<MarkingServiceProperty>,
   ) { }
 
   async create(createMarkedServicePriceDto: CreateMarkedServicePriceDto) {
-    try {
-      const markedServicePrice = this.markedServicePriceRepository.create(createMarkedServicePriceDto);
+    const newMarkedServicePrice = plainToClass(MarkedServicePrice, createMarkedServicePriceDto);
 
-      await this.markedServicePriceRepository.save(markedServicePrice);
+    const markingServiceProperty = await this.markingServicePropertyRepository.findOne({
+      where: {
+        id: createMarkedServicePriceDto.markingServiceProperty,
+      },
+    });
 
-      return {
-        markedServicePrice
-      };
-    } catch (error) {
-      this.handleDbExceptions(error);
-    }
+    if (!markingServiceProperty)
+      throw new NotFoundException(`Marking service property with id ${createMarkedServicePriceDto.markingServiceProperty} not found`);
+
+    newMarkedServicePrice.markingServiceProperty = markingServiceProperty;
+
+    await this.markedServicePriceRepository.save(newMarkedServicePrice);
+
+    return {
+      newMarkedServicePrice
+    };
   }
 
   findAll(paginationDto: PaginationDto) {
@@ -36,6 +48,9 @@ export class MarkedServicePricesService {
     return this.markedServicePriceRepository.find({
       take: limit,
       skip: offset,
+      relations: [
+        'markingServiceProperty',
+      ],
     });
   }
 
@@ -44,8 +59,11 @@ export class MarkedServicePricesService {
       where: {
         id
       },
+      relations: [
+        'markingServiceProperty',
+      ],
     });
-    
+
     if (!markedServicePrice)
       throw new NotFoundException(`Marked service price with id ${id} not found`);
 
@@ -55,7 +73,38 @@ export class MarkedServicePricesService {
   }
 
   async update(id: string, updateMarkedServicePriceDto: UpdateMarkedServicePriceDto) {
-    return `This action updates a #${id} markedServicePrice`;
+    const markedServicePrice = await this.markedServicePriceRepository.findOne({
+      where: {
+        id,
+      },
+      relations: [
+        'markedServicePrice',
+      ],
+    });
+
+    if (!markedServicePrice)
+      throw new NotFoundException(`Marked service price with id ${id} not found`);
+
+    const updatedMarkedServicePrice = plainToClass(MarkedServicePrice, updateMarkedServicePriceDto);
+
+    const markingServiceProperty = await this.markingServicePropertyRepository.findOne({
+      where: {
+        id: updateMarkedServicePriceDto.markingServiceProperty,
+      },
+    });
+
+    if (!markingServiceProperty)
+      throw new NotFoundException(`Marking service property with id ${updateMarkedServicePriceDto.markingServiceProperty} not found`);
+
+    updatedMarkedServicePrice.markingServiceProperty = markingServiceProperty;
+
+    Object.assign(markedServicePrice, updatedMarkedServicePrice);
+
+    await this.markedServicePriceRepository.save(markedServicePrice);
+
+    return {
+      markedServicePrice
+    };
   }
 
   async desactivate(id: string) {
