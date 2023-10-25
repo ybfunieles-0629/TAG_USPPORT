@@ -4,6 +4,7 @@ import { Marking } from '../../markings/entities/marking.entity';
 import { TagSubTechnique } from '../../tag-sub-techniques/entities/tag-sub-technique.entity';
 import { MarkingServiceProperty } from '../../marking-service-properties/entities/marking-service-property.entity';
 import { Supplier } from '../../suppliers/entities/supplier.entity';
+import { MarkingService } from '../../marking-services/entities/marking-service.entity';
 
 export class ExternalSubTechnique {
   @PrimaryGeneratedColumn('uuid')
@@ -39,6 +40,9 @@ export class ExternalSubTechnique {
   @OneToOne(() => Supplier, (supplier) => supplier.externalSubTechnique)
   @JoinTable()
   supplier: Supplier;
+
+  @OneToOne(() => MarkingService, (markingService) => markingService.externalSubTechnique)
+  markingService: MarkingService;
 
   @OneToOne(() => TagSubTechnique, (tagSubTechnique) => tagSubTechnique.externalSubTechnique)
   tagSubTechnique: TagSubTechnique;
