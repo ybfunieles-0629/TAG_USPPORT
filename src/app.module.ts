@@ -36,6 +36,15 @@ import { TagDisccountPricesModule } from './tag-disccount-prices/tag-disccount-p
 import { DiscountQuantitiesModule } from './discount-quantities/discount-quantities.module';
 import { ListPricesModule } from './list-prices/list-prices.module';
 import { SupplierPricesModule } from './supplier-prices/supplier-prices.module';
+import { TagSubTechniquesModule } from './tag-sub-techniques/tag-sub-techniques.module';
+import { TagSubTechniquePropertiesModule } from './tag-sub-technique-properties/tag-sub-technique-properties.module';
+import { ExternalSubTechniquesModule } from './external-sub-techniques/external-sub-techniques.module';
+import { LocalTransportPricesModule } from './local-transport-prices/local-transport-prices.module';
+import { TransportServicesModule } from './transport-services/transport-services.module';
+import { QuoteDetailsModule } from './quote-details/quote-details.module';
+import { CartQuotesModule } from './cart-quotes/cart-quotes.module';
+import { StatesModule } from './states/states.module';
+import { LogosModule } from './logos/logos.module';
 
 @Module({
   imports: [
@@ -90,6 +99,15 @@ import { SupplierPricesModule } from './supplier-prices/supplier-prices.module';
     DiscountQuantitiesModule,
     ListPricesModule,
     SupplierPricesModule,
+    TagSubTechniquesModule,
+    TagSubTechniquePropertiesModule,
+    ExternalSubTechniquesModule,
+    LocalTransportPricesModule,
+    TransportServicesModule,
+    QuoteDetailsModule,
+    CartQuotesModule,
+    StatesModule,
+    LogosModule,
   ],
 })
 export class AppModule { }
