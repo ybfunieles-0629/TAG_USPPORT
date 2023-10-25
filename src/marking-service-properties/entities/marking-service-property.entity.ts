@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { MarkedServicePrice } from '../../marked-service-prices/entities/marked-service-price.entity';
 import { ExternalSubTechnique } from '../../external-sub-techniques/entities/external-sub-technique.entity';
@@ -52,6 +52,6 @@ export class MarkingServiceProperty {
   @ManyToOne(() => ExternalSubTechnique, (externalSubTechnique) => externalSubTechnique.markingServiceProperties)
   externalSubTechnique: ExternalSubTechnique;
 
-  @ManyToOne(() => MarkedServicePrice, (markedServicePrice) => markedServicePrice.markingServiceProperties)
-  markedServicePrice: MarkedServicePrice;
+  @OneToMany(() => MarkedServicePrice, (markedServicePrice) => markedServicePrice.markingServiceProperty)
+  markedServicePrices?: MarkedServicePrice[];
 }
