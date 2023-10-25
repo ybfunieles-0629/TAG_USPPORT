@@ -139,20 +139,6 @@ export class RefProduct {
   })
   categorySuppliers?: CategorySupplier[];
 
-  @ManyToMany(() => Marking, (marking) => marking.refProducts)
-  @JoinTable({
-    name: 'ref_products_has_markings',
-    joinColumn: {
-      name: 'refProductId',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'markingId',
-      referencedColumnName: 'id',
-    },
-  })
-  markings?: Marking[];
-
   @OneToMany(() => DeliveryTime, (deliveryTime) => deliveryTime.refProduct)
   deliveryTimes?: DeliveryTime[];
 }
