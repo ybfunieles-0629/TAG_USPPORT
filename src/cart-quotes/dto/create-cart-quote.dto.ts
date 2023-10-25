@@ -25,6 +25,9 @@ export class CreateCartQuoteDto {
   user: string;
 
   @IsString()
+  state: string;
+
+  @IsString()
   client: string;
 
   @IsString()

@@ -9,6 +9,7 @@ import { CartQuote } from './entities/cart-quote.entity';
 import { Client } from '../clients/entities/client.entity';
 import { User } from '../users/entities/user.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { State } from '../states/entities/state.entity';
 
 @Injectable()
 export class CartQuotesService {
@@ -21,6 +22,9 @@ export class CartQuotesService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(State)
+    private readonly stateRepository: Repository<State>,
   ) { }
 
   async create(createCartQuoteDto: CreateCartQuoteDto) {
@@ -44,8 +48,18 @@ export class CartQuotesService {
     if (!user)
       throw new NotFoundException(`User with id ${createCartQuoteDto.user} not found`);
 
+    const state = await this.stateRepository.findOne({
+      where: {
+        id: createCartQuoteDto.state,
+      },
+    });
+
+    if (!state)
+      throw new NotFoundException(`State with id ${createCartQuoteDto.state} not found`);
+
     newCartQuote.client = client;
     newCartQuote.user = user;
+    newCartQuote.state = state;
 
     await this.cartQuoteRepository.save(newCartQuote);
 
@@ -63,6 +77,7 @@ export class CartQuotesService {
       relations: [
         'client',
         'user',
+        'state',
       ],
     });
   }
@@ -75,6 +90,7 @@ export class CartQuotesService {
       relations: [
         'client',
         'user',
+        'state',
       ],
     });
 
@@ -94,6 +110,7 @@ export class CartQuotesService {
       relations: [
         'client',
         'user',
+        'state',
       ],
     });
 
@@ -120,8 +137,19 @@ export class CartQuotesService {
     if (!user)
       throw new NotFoundException(`User with id ${updateCartQuoteDto.user} not found`);
 
+    const state = await this.stateRepository.findOne({
+      where: {
+        id: updateCartQuoteDto.state,
+      },
+    });
+
+    if (!state)
+      throw new NotFoundException(`State with id ${updateCartQuoteDto.state} not found`);
+
+
     updatedCartQuote.client = client;
     updatedCartQuote.user = user;
+    updatedCartQuote.state = state;
 
     Object.assign(cartQuote, updatedCartQuote);
 
@@ -148,7 +176,7 @@ export class CartQuotesService {
     const { cartQuote } = await this.findOne(id);
 
     await this.cartQuoteRepository.remove(cartQuote);
-    
+
     return {
       cartQuote
     };
