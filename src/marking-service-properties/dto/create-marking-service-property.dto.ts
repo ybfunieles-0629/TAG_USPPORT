@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateMarkingServicePropertyDto {
   @IsString()
@@ -9,4 +9,15 @@ export class CreateMarkingServicePropertyDto {
 
   @IsString()
   property: string;
+
+  @IsString()
+  externalSubTechnique: string;
+
+  @IsOptional()
+  @IsString()
+  createdBy: string;
+
+  @IsOptional()
+  @IsString()
+  updatedBy: string;
 }

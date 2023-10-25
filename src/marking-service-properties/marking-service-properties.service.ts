@@ -1,11 +1,13 @@
 import { Injectable, InternalServerErrorException, BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { plainToClass } from 'class-transformer';
 
 import { CreateMarkingServicePropertyDto } from './dto/create-marking-service-property.dto';
 import { UpdateMarkingServicePropertyDto } from './dto/update-marking-service-property.dto';
 import { MarkingServiceProperty } from './entities/marking-service-property.entity';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { ExternalSubTechnique } from '../external-sub-techniques/entities/external-sub-technique.entity';
 
 @Injectable()
 export class MarkingServicePropertiesService {
@@ -14,20 +16,30 @@ export class MarkingServicePropertiesService {
   constructor(
     @InjectRepository(MarkingServiceProperty)
     private readonly markingServicePropertyRepository: Repository<MarkingServiceProperty>,
+
+    @InjectRepository(ExternalSubTechnique)
+    private readonly externalSubTechniqueRepository: Repository<ExternalSubTechnique>,
   ) { }
 
   async create(createMarkingServicePropertyDto: CreateMarkingServicePropertyDto) {
-    try {
-      const markingServiceProperty = this.markingServicePropertyRepository.create(createMarkingServicePropertyDto);
+    const newMarkingServiceProperty = plainToClass(MarkingServiceProperty, createMarkingServicePropertyDto);
 
-      await this.markingServicePropertyRepository.save(markingServiceProperty);
+    const externalSubTechnique = await this.externalSubTechniqueRepository.findOne({
+      where: {
+        id: createMarkingServicePropertyDto.externalSubTechnique,
+      },
+    });
 
-      return {
-        markingServiceProperty
-      };
-    } catch (error) {
-      this.handleDbExceptions(error);
-    }
+    if (!externalSubTechnique)
+      throw new NotFoundException(`External sub technique with id ${createMarkingServicePropertyDto.externalSubTechnique} not found`);
+
+    newMarkingServiceProperty.externalSubTechnique = externalSubTechnique;
+
+    await this.markingServicePropertyRepository.save(newMarkingServiceProperty);
+
+    return {
+      newMarkingServiceProperty
+    };
   }
 
   findAll(paginationDto: PaginationDto) {
@@ -36,6 +48,9 @@ export class MarkingServicePropertiesService {
     return this.markingServicePropertyRepository.find({
       take: limit,
       skip: offset,
+      relations: [
+        'externalSubTechnique',
+      ],
     });
   }
 
@@ -44,6 +59,9 @@ export class MarkingServicePropertiesService {
       where: {
         id,
       },
+      relations: [
+        'externalSubTechnique',
+      ],
     });
 
     if (!markingServiceProperty)
@@ -55,7 +73,38 @@ export class MarkingServicePropertiesService {
   }
 
   async update(id: string, updateMarkingServicePropertyDto: UpdateMarkingServicePropertyDto) {
-    return `This action updates a #${id} markingServiceProperty`;
+    const markingServiceProperty = await this.markingServicePropertyRepository.findOne({
+      where: {
+        id,
+      },
+      relations: [
+        'externalSubTechnique',
+      ],
+    });
+
+    if (!markingServiceProperty)
+      throw new NotFoundException(`Marking service property with id ${id} not found`);
+
+    const updatedMarkingServiceProperty = plainToClass(MarkingServiceProperty, updateMarkingServicePropertyDto);
+
+    const externalSubTechnique = await this.externalSubTechniqueRepository.findOne({
+      where: {
+        id: updateMarkingServicePropertyDto.externalSubTechnique,
+      },
+    });
+
+    if (!externalSubTechnique)
+      throw new NotFoundException(`External sub technique with id ${updateMarkingServicePropertyDto.externalSubTechnique} not found`);
+
+    updatedMarkingServiceProperty.externalSubTechnique = externalSubTechnique;
+
+    Object.assign(markingServiceProperty, updatedMarkingServiceProperty);
+
+    await this.markingServicePropertyRepository.save(markingServiceProperty);
+
+    return {
+      markingServiceProperty
+    };
   }
 
   async desactivate(id: string) {

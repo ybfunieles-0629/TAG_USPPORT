@@ -1,7 +1,8 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { MarkingTagService } from '../../marking-tag-services/entities/marking-tag-service.entity';
-import { MarkedServicePrice } from 'src/marked-service-prices/entities/marked-service-price.entity';
+import { MarkedServicePrice } from '../../marked-service-prices/entities/marked-service-price.entity';
+import { ExternalSubTechnique } from '../../external-sub-techniques/entities/external-sub-technique.entity';
+import { TagSubTechniqueProperty } from 'src/tag-sub-technique-properties/entities/tag-sub-technique-property.entity';
 
 @Entity('marking_service_properties')
 export class MarkingServiceProperty {
@@ -22,6 +23,16 @@ export class MarkingServiceProperty {
 
   })
   property: string;
+
+  @Column('varchar', {
+    
+  })
+  createdBy: string;
+
+  @Column('varchar', {
+
+  })
+  updatedBy: string;
   
   @Column('boolean', {
     default: true,
@@ -35,8 +46,11 @@ export class MarkingServiceProperty {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @ManyToOne(() => MarkingTagService, (markingTagService) => markingTagService.markingServiceProperties)
-  markingTagService: MarkingTagService;
+  @OneToOne(() => TagSubTechniqueProperty, (tagSubTechniqueProperty) => tagSubTechniqueProperty.markingServiceProperty)
+  tagSubTechniqueProperty: TagSubTechniqueProperty;
+
+  @ManyToOne(() => ExternalSubTechnique, (externalSubTechnique) => externalSubTechnique.markingServiceProperties)
+  externalSubTechnique: ExternalSubTechnique;
 
   @ManyToOne(() => MarkedServicePrice, (markedServicePrice) => markedServicePrice.markingServiceProperties)
   markedServicePrice: MarkedServicePrice;
