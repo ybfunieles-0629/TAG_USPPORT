@@ -1,11 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+
 import { LocalTransportPricesService } from './local-transport-prices.service';
 import { CreateLocalTransportPriceDto } from './dto/create-local-transport-price.dto';
 import { UpdateLocalTransportPriceDto } from './dto/update-local-transport-price.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Controller('local-transport-prices')
 export class LocalTransportPricesController {
-  constructor(private readonly localTransportPricesService: LocalTransportPricesService) {}
+  constructor(private readonly localTransportPricesService: LocalTransportPricesService) { }
 
   @Post()
   create(@Body() createLocalTransportPriceDto: CreateLocalTransportPriceDto) {
@@ -13,22 +15,38 @@ export class LocalTransportPricesController {
   }
 
   @Get()
-  findAll() {
-    return this.localTransportPricesService.findAll();
+  findAll(
+    @Param() paginationDto: PaginationDto
+  ) {
+    return this.localTransportPricesService.findAll(paginationDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.localTransportPricesService.findOne(+id);
+  findOne(
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
+    return this.localTransportPricesService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLocalTransportPriceDto: UpdateLocalTransportPriceDto) {
-    return this.localTransportPricesService.update(+id, updateLocalTransportPriceDto);
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateLocalTransportPriceDto: UpdateLocalTransportPriceDto
+  ) {
+    return this.localTransportPricesService.update(id, updateLocalTransportPriceDto);
+  }
+  
+  @Patch('/desactivate/:id')
+  desactivate(
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
+    return this.localTransportPricesService.desactivate(id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.localTransportPricesService.remove(+id);
+  remove(
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
+    return this.localTransportPricesService.remove(id);
   }
 }
