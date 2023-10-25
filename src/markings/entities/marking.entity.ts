@@ -1,9 +1,7 @@
-import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn, OneToOne, JoinColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn, OneToOne, JoinTable } from 'typeorm';
 
 import { MarkingTagService } from '../../marking-tag-services/entities/marking-tag-service.entity';
 import { Company } from '../../companies/entities/company.entity';
-import { Product } from '../../products/entities/product.entity';
-import { RefProduct } from '../../ref-products/entities/ref-product.entity';
 import { ExternalSubTechnique } from 'src/external-sub-techniques/entities/external-sub-technique.entity';
 import { MarkingService } from '../../marking-services/entities/marking-service.entity';
 
@@ -45,11 +43,10 @@ export class Marking {
 
   //* --- FK --- *//
   @OneToOne(() => MarkingTagService, (markingTagService) => markingTagService.marking)
-  @JoinColumn()
+  @JoinTable()
   markingTagService: MarkingTagService;
 
   @OneToOne(() => MarkingService, (markingService) => markingService.marking)
-  @JoinColumn()
   markingService: MarkingService;
 
   @OneToMany(() => ExternalSubTechnique, (externalSubTechnique) => externalSubTechnique.marking)
