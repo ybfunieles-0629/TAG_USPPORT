@@ -1,8 +1,9 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { Address } from 'src/addresses/entities/address.entity';
-import { User } from 'src/users/entities/user.entity';
-import { Brand } from 'src/brands/entities/brand.entity';
+import { Address } from '../../addresses/entities/address.entity';
+import { User } from '../../users/entities/user.entity';
+import { Brand } from '../../brands/entities/brand.entity';
+import { CartQuote } from '../../cart-quotes/entities/cart-quote.entity';
 
 @Entity('clients')
 export class Client {
@@ -71,9 +72,12 @@ export class Client {
   updatedAt: Date;
 
   //* --- FK --- *//
+  @OneToOne(() => User, (user) => user.client, { onDelete: 'CASCADE' })
+  user: User;
+  
   @OneToMany(() => Address, (address) => address.client)
   addresses: Address[];
 
-  @OneToOne(() => User, (user) => user.client, { onDelete: 'CASCADE' })
-  user: User;
+  @OneToMany(() => CartQuote, (cartQuote) => cartQuote.client)
+  cartQuotes?: CartQuote[];
 }
