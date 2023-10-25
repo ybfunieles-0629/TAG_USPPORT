@@ -8,6 +8,7 @@ import { Company } from '../../companies/entities/company.entity';
 import { Client } from '../../clients/entities/client.entity';
 import { Supplier } from '../../suppliers/entities/supplier.entity';
 import { Brand } from '../../brands/entities/brand.entity';
+import { CartQuote } from 'src/cart-quotes/entities/cart-quote.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -107,9 +108,12 @@ export class User {
   @OneToOne(() => Supplier, (supplier) => supplier.user, { onDelete: 'CASCADE' })
   @JoinColumn()
   supplier: Supplier;
-  
+
   @OneToMany(() => Brand, (brand) => brand.user)
-  brands: Brand[];
+  brands?: Brand[];
+
+  @OneToMany(() => CartQuote, (cartQuote) => cartQuote.user, { onDelete: 'CASCADE' })
+  cartQuotes?: CartQuote[];
 
   @ManyToOne(() => Company, (company) => company.users, { onDelete: 'CASCADE' })
   company: Company;

@@ -45,7 +45,7 @@ export const UsersList = [
     "name": "Andres Monsalve",
     "dni": "568473768",
     "picture": "image.png",
-    "companyPosition": "QA",
+    "companyPosition": "Bussiness analysis",
     "country": "Colombia",
     "city": "Cali",
     "address": "calle 68 aa8534",
