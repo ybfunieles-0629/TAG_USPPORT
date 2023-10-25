@@ -7,6 +7,7 @@ import { CategorySupplier } from '../../category-suppliers/entities/category-sup
 import { Disccount } from '../../disccount/entities/disccount.entity';
 import { SupplierPrice } from '../../supplier-prices/entities/supplier-price.entity';
 import { DeliveryTime } from '../../delivery-times/entities/delivery-time.entity';
+import { ExternalSubTechnique } from 'src/external-sub-techniques/entities/external-sub-technique.entity';
 
 @Entity('suppliers')
 export class Supplier {
@@ -90,6 +91,9 @@ export class Supplier {
   updatedAt: Date;
 
   //* --- FK --- *//
+  @OneToOne(() => ExternalSubTechnique, (externalSubTechnique) => externalSubTechnique.supplier)
+  externalSubTechnique: ExternalSubTechnique;
+
   @OneToOne(() => User, (user) => user.supplier)
   user: User;
 
