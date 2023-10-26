@@ -140,9 +140,9 @@ export class RefProductsService {
     const newRefProduct = plainToClass(RefProduct, createRefProductDto);
 
     const joinedKeywords: string = createRefProductDto.keywords.join(';') + ';';
-    
+
     newRefProduct.keywords = joinedKeywords;
-    
+
     const supplier: Supplier = await this.supplierRepository.findOne({
       where: {
         id: createRefProductDto.supplier,
@@ -216,10 +216,12 @@ export class RefProductsService {
         'categorySuppliers',
         'deliveryTimes',
         'markings',
+        'packings',
+        'products',
+        'products.packings',
         'supplier',
         'supplier.user',
         'variantReferences',
-        'products',
       ],
     });
   }
@@ -233,10 +235,12 @@ export class RefProductsService {
         'categorySuppliers',
         'deliveryTimes',
         'markings',
+        'packings',
+        'products',
+        'products.packings',
         'supplier',
         'supplier.user',
         'variantReferences',
-        'products',
       ],
     });
 
@@ -257,10 +261,12 @@ export class RefProductsService {
         'categorySuppliers',
         'deliveryTimes',
         'markings',
+        'packings',
+        'products',
+        'products.packings',
         'supplier',
         'supplier.user',
         'variantReferences',
-        'products',
       ],
     });
 
@@ -270,7 +276,7 @@ export class RefProductsService {
     const updatedRefProduct = plainToClass(RefProduct, updateRefProductDto);
 
     const joinedKeywords: string = updateRefProductDto.keywords.join(';') + ';';
-    
+
     updatedRefProduct.keywords = joinedKeywords;
 
     const supplier: Supplier = await this.supplierRepository.findOne({
