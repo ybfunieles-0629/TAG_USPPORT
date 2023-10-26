@@ -36,8 +36,8 @@ export class DeliveryTime {
   updatedAt: Date;
 
   //* ---- FK ---- *//
-  @ManyToOne(() => RefProduct, (refProduct) => refProduct.deliveryTimes)
-  refProduct: RefProduct;
+  @ManyToMany(() => RefProduct, (refProduct) => refProduct.deliveryTimes)
+  refProducts: RefProduct[];
 
   @ManyToOne(() => Product, (product) => product.deliveryTimes)
   product: Product;
