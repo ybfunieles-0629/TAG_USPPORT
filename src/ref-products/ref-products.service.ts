@@ -9,11 +9,9 @@ import { UpdateRefProductDto } from './dto/update-ref-product.dto';
 import { RefProduct } from './entities/ref-product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { Supplier } from '../suppliers/entities/supplier.entity';
-import { Marking } from '../markings/entities/marking.entity';
 import { CategorySupplier } from '../category-suppliers/entities/category-supplier.entity';
 import { User } from '../users/entities/user.entity';
 import { VariantReference } from 'src/variant-reference/entities/variant-reference.entity';
-import { Product } from '../products/entities/product.entity';
 import { MarkingServiceProperty } from 'src/marking-service-properties/entities/marking-service-property.entity';
 
 @Injectable()
@@ -156,20 +154,9 @@ export class RefProductsService {
     if (!supplier.isActive)
       throw new BadRequestException(`Supplier with id ${createRefProductDto.supplier} is currently inactive`);
 
-    const markingServiceProperty = await this.markingServicePropertyRepository.findOne({
-      where: {
-        id: createRefProductDto.markingServiceProperty,
-      },
-    });
-
-    if (!markingServiceProperty)
-      throw new NotFoundException(`Marking service property with id ${createRefProductDto.markingServiceProperty} not found`);
-
-    newRefProduct.supplier = supplier;
-    newRefProduct.markingServiceProperty = markingServiceProperty;
-
     const categorySuppliers: CategorySupplier[] = [];
     const variantReferences: VariantReference[] = [];
+    const markingServiceProperties: MarkingServiceProperty[] = [];
 
     if (createRefProductDto.categorySuppliers) {
       for (const categorySupplierId of createRefProductDto.categorySuppliers) {
@@ -207,8 +194,28 @@ export class RefProductsService {
       }
     }
 
+    if (createRefProductDto.markingServiceProperties) {
+      for (const markingServicePropertyId of createRefProductDto.markingServiceProperties) {
+        const markignServiceProperty: MarkingServiceProperty = await this.markingServicePropertyRepository.findOne({
+          where: {
+            id: markingServicePropertyId,
+          },
+        });
+
+        if (!markignServiceProperty)
+          throw new NotFoundException(`Variant reference with id ${markingServicePropertyId} not found`);
+
+        // if (!markignServiceProperty.isActive)
+        //   throw new BadRequestException(`Variant reference with id ${markingServicePropertyId} is currently inactive`);
+
+        markingServiceProperties.push(markignServiceProperty);
+      }
+    }
+
     newRefProduct.categorySuppliers = categorySuppliers;
     newRefProduct.variantReferences = variantReferences;
+    newRefProduct.supplier = supplier;
+    newRefProduct.markingServiceProperties = markingServiceProperties;
 
     await this.refProductRepository.save(newRefProduct);
 
@@ -226,9 +233,9 @@ export class RefProductsService {
       relations: [
         'categorySuppliers',
         'deliveryTimes',
-        'markingServiceProperty',
-        'markingServiceProperty.externalSubTechnique',
-        'markingServiceProperty.externalSubTechnique.marking',
+        'markingServiceProperties',
+        'markingServiceProperties.externalSubTechnique',
+        'markingServiceProperties.externalSubTechnique.marking',
         'packings',
         'products',
         'products.packings',
@@ -247,9 +254,9 @@ export class RefProductsService {
       relations: [
         'categorySuppliers',
         'deliveryTimes',
-        'markingServiceProperty',
-        'markingServiceProperty.externalSubTechnique',
-        'markingServiceProperty.externalSubTechnique.marking',
+        'markingServiceProperties',
+        'markingServiceProperties.externalSubTechnique',
+        'markingServiceProperties.externalSubTechnique.marking',
         'packings',
         'products',
         'products.packings',
@@ -275,9 +282,9 @@ export class RefProductsService {
       relations: [
         'categorySuppliers',
         'deliveryTimes',
-        'markingServiceProperty',
-        'markingServiceProperty.externalSubTechnique',
-        'markingServiceProperty.externalSubTechnique.marking',
+        'markingServiceProperties',
+        'markingServiceProperties.externalSubTechnique',
+        'markingServiceProperties.externalSubTechnique.marking',
         'packings',
         'products',
         'products.packings',
@@ -310,6 +317,7 @@ export class RefProductsService {
 
     const categorySuppliers: CategorySupplier[] = [];
     const variantReferences: VariantReference[] = [];
+    const markingServiceProperties: MarkingServiceProperty[] = [];
 
     if (updateRefProductDto.categorySuppliers) {
       for (const categorySupplierId of updateRefProductDto.categorySuppliers) {
@@ -347,9 +355,28 @@ export class RefProductsService {
       }
     }
 
+    if (updateRefProductDto.markingServiceProperties) {
+      for (const markingServicePropertyId of updateRefProductDto.markingServiceProperties) {
+        const markignServiceProperty: MarkingServiceProperty = await this.markingServicePropertyRepository.findOne({
+          where: {
+            id: markingServicePropertyId,
+          },
+        });
+
+        if (!markignServiceProperty)
+          throw new NotFoundException(`Variant reference with id ${markingServicePropertyId} not found`);
+
+        // if (!markignServiceProperty.isActive)
+        //   throw new BadRequestException(`Variant reference with id ${markingServicePropertyId} is currently inactive`);
+
+        markingServiceProperties.push(markignServiceProperty);
+      }
+    }
+
     updatedRefProduct.supplier = supplier;
     updatedRefProduct.categorySuppliers = categorySuppliers;
     updatedRefProduct.variantReferences = variantReferences;
+    updatedRefProduct.markingServiceProperties = markingServiceProperties;
 
     Object.assign(refProduct, updatedRefProduct);
 

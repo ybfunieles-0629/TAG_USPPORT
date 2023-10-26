@@ -126,8 +126,19 @@ export class RefProduct {
   @ManyToOne(() => Supplier, (supplier) => supplier.refProducts)
   supplier: Supplier;
 
-  @ManyToOne(() => MarkingServiceProperty, (markingServiceProperty) => markingServiceProperty.refProducts)
-  markingServiceProperty: MarkingServiceProperty;
+  @ManyToMany(() => MarkingServiceProperty, (markingServiceProperty) => markingServiceProperty.refProducts)
+  @JoinTable({
+    name: 'ref_products_has_marking_service_properties',
+    joinColumn: {
+      name: 'refProductId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'markingServicePropertyId',
+      referencedColumnName: 'id',
+    },
+  })
+  markingServiceProperties?: MarkingServiceProperty[];
 
   @ManyToMany(() => CategorySupplier, (categorySupplier) => categorySupplier.refProducts)
   @JoinTable({
@@ -143,6 +154,6 @@ export class RefProduct {
   })
   categorySuppliers?: CategorySupplier[];
 
-  @OneToMany(() => DeliveryTime, (deliveryTime) => deliveryTime.refProduct)
+  @ManyToMany(() => DeliveryTime, (deliveryTime) => deliveryTime.refProduct)
   deliveryTimes?: DeliveryTime[];
 }

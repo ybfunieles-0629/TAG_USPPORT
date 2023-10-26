@@ -65,8 +65,9 @@ export class CreateRefProductDto {
   supplier: string;
 
   @IsOptional()
-  @IsString()
-  markingServiceProperty?: string;
+  @IsArray()
+  @IsString({ each: true })
+  markingServiceProperties?: string[];
 
   @IsOptional()
   @IsArray()
