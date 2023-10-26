@@ -4,6 +4,7 @@ import { MarkedServicePrice } from '../../marked-service-prices/entities/marked-
 import { ExternalSubTechnique } from '../../external-sub-techniques/entities/external-sub-technique.entity';
 import { TagSubTechniqueProperty } from '../../tag-sub-technique-properties/entities/tag-sub-technique-property.entity';
 import { MarkingService } from '../../marking-services/entities/marking-service.entity';
+import { RefProduct } from '../../ref-products/entities/ref-product.entity';
 
 @Entity('marking_service_properties')
 export class MarkingServiceProperty {
@@ -52,6 +53,9 @@ export class MarkingServiceProperty {
 
   @OneToOne(() => MarkingService, (markingService) => markingService.markingServiceProperty)
   markingService: MarkingService;
+
+  @OneToMany(() => RefProduct, (refProduct) => refProduct.markingServiceProperty)
+  refProducts?: RefProduct[];
 
   @ManyToOne(() => ExternalSubTechnique, (externalSubTechnique) => externalSubTechnique.markingServiceProperties)
   externalSubTechnique: ExternalSubTechnique;
