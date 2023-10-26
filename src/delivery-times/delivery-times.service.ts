@@ -7,6 +7,7 @@ import { CreateDeliveryTimeDto } from './dto/create-delivery-time.dto';
 import { UpdateDeliveryTimeDto } from './dto/update-delivery-time.dto';
 import { DeliveryTime } from './entities/delivery-time.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { RefProduct } from '../ref-products/entities/ref-product.entity';
 
 @Injectable()
 export class DeliveryTimesService {
@@ -15,10 +16,24 @@ export class DeliveryTimesService {
   constructor(
     @InjectRepository(DeliveryTime)
     private readonly deliveryTimeRepository: Repository<DeliveryTime>,
+
+    @InjectRepository(RefProduct)
+    private readonly refProductRepository: Repository<RefProduct>,
   ) { }
 
   async create(createDeliveryTimeDto: CreateDeliveryTimeDto) {
     const newDeliveryTime = plainToClass(DeliveryTime, createDeliveryTimeDto);
+
+    const refProduct = await this.refProductRepository.findOne({
+      where: {
+        id: createDeliveryTimeDto.refProduct,
+      },
+    });
+
+    if (!refProduct)
+      throw new NotFoundException(`Ref product with id ${createDeliveryTimeDto.refProduct} not found`);
+
+    newDeliveryTime.refProduct = refProduct;
 
     await this.deliveryTimeRepository.save(newDeliveryTime);
 
@@ -31,11 +46,20 @@ export class DeliveryTimesService {
     const createdDeliveryTimes = [];
 
     for (const createDeliveryTimeDto of createMultipleDeliveryTimes) {
-      const deliveryTime = this.deliveryTimeRepository.create(createDeliveryTimeDto);
+      const newDeliveryTime = plainToClass(DeliveryTime, createDeliveryTimeDto);
 
-      await this.deliveryTimeRepository.save(deliveryTime);
+      const refProduct = await this.refProductRepository.findOne({
+        where: {
+          id: createDeliveryTimeDto.refProduct,
+        },
+      });
 
-      createdDeliveryTimes.push(deliveryTime);
+      if (!refProduct)
+        throw new NotFoundException(`Ref product with id ${createDeliveryTimeDto.refProduct} not found`);
+
+      await this.deliveryTimeRepository.save(newDeliveryTime);
+
+      createdDeliveryTimes.push(newDeliveryTime);
     }
 
     return {
@@ -91,6 +115,17 @@ export class DeliveryTimesService {
 
     const updatedDeliveryTime = plainToClass(DeliveryTime, updateDeliveryTimeDto);
 
+    const refProduct = await this.refProductRepository.findOne({
+      where: {
+        id: updateDeliveryTimeDto.refProduct,
+      },
+    });
+
+    if (!refProduct)
+      throw new NotFoundException(`Ref product with id ${updateDeliveryTimeDto.refProduct} not found`);
+
+    updatedDeliveryTime.refProduct = refProduct;
+
     Object.assign(deliveryTime, updatedDeliveryTime);
 
     await this.deliveryTimeRepository.save(deliveryTime);
@@ -115,7 +150,18 @@ export class DeliveryTimesService {
       if (!deliveryTime)
         throw new NotFoundException(`Delivery time with id ${id} not found`);
 
+      const refProduct = await this.refProductRepository.findOne({
+        where: {
+          id: updateDeliveryTimeDto.refProduct,
+        },
+      });
+
+      if (!refProduct)
+        throw new NotFoundException(`Ref product with id ${updateDeliveryTimeDto.refProduct} not found`);
+
       Object.assign(deliveryTime, dataToUpdate);
+
+      deliveryTime.refProduct = refProduct;
 
       await this.deliveryTimeRepository.save(deliveryTime);
 
