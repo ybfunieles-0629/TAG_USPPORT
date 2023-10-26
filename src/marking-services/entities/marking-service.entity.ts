@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { Marking } from '../../markings/entities/marking.entity';
 import { QuoteDetail } from '../../quote-details/entities/quote-detail.entity';
@@ -49,15 +49,15 @@ export class MarkingService {
 
   //* ---- FK ---- *//
   @OneToOne(() => Marking, (marking) => marking.markingService)
-  @JoinTable()
+  @JoinColumn()
   marking: Marking;
 
   @OneToOne(() =>  MarkingServiceProperty, (markingServiceProperty) => markingServiceProperty.markingService)
-  @JoinTable()
+  @JoinColumn()
   markingServiceProperty: MarkingServiceProperty;
 
   @OneToOne(() =>  ExternalSubTechnique, (externalSubTechnique) => externalSubTechnique.markingService)
-  @JoinTable()
+  @JoinColumn()
   externalSubTechnique: ExternalSubTechnique;
 
   @OneToMany(() => Logo, (logo) => logo.markingService)

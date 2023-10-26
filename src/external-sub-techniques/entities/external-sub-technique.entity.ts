@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { Marking } from '../../markings/entities/marking.entity';
 import { TagSubTechnique } from '../../tag-sub-techniques/entities/tag-sub-technique.entity';
@@ -39,7 +39,7 @@ export class ExternalSubTechnique {
 
   //* ---- FK ---- *//
   @OneToOne(() => Supplier, (supplier) => supplier.externalSubTechnique)
-  @JoinTable()
+  @JoinColumn()
   supplier: Supplier;
 
   @OneToOne(() => MarkingService, (markingService) => markingService.externalSubTechnique)
