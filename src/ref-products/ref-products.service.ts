@@ -14,6 +14,7 @@ import { CategorySupplier } from '../category-suppliers/entities/category-suppli
 import { User } from '../users/entities/user.entity';
 import { VariantReference } from 'src/variant-reference/entities/variant-reference.entity';
 import { Product } from '../products/entities/product.entity';
+import { MarkingServiceProperty } from 'src/marking-service-properties/entities/marking-service-property.entity';
 
 @Injectable()
 export class RefProductsService {
@@ -29,8 +30,8 @@ export class RefProductsService {
     @InjectRepository(Supplier)
     private readonly supplierRepository: Repository<Supplier>,
 
-    @InjectRepository(Marking)
-    private readonly markingRepository: Repository<Marking>,
+    @InjectRepository(MarkingServiceProperty)
+    private readonly markingServicePropertyRepository: Repository<MarkingServiceProperty>,
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -155,7 +156,17 @@ export class RefProductsService {
     if (!supplier.isActive)
       throw new BadRequestException(`Supplier with id ${createRefProductDto.supplier} is currently inactive`);
 
+    const markingServiceProperty = await this.markingServicePropertyRepository.findOne({
+      where: {
+        id: createRefProductDto.markingServiceProperty,
+      },
+    });
+
+    if (!markingServiceProperty)
+      throw new NotFoundException(`Marking service property with id ${createRefProductDto.markingServiceProperty} not found`);
+
     newRefProduct.supplier = supplier;
+    newRefProduct.markingServiceProperty = markingServiceProperty;
 
     const categorySuppliers: CategorySupplier[] = [];
     const variantReferences: VariantReference[] = [];
@@ -215,7 +226,9 @@ export class RefProductsService {
       relations: [
         'categorySuppliers',
         'deliveryTimes',
-        'markings',
+        'markingServiceProperty',
+        'markingServiceProperty.externalSubTechniques',
+        'markingServiceProperty.marking',
         'packings',
         'products',
         'products.packings',
@@ -234,7 +247,9 @@ export class RefProductsService {
       relations: [
         'categorySuppliers',
         'deliveryTimes',
-        'markings',
+        'markingServiceProperty',
+        'markingServiceProperty.externalSubTechniques',
+        'markingServiceProperty.marking',
         'packings',
         'products',
         'products.packings',
@@ -260,7 +275,9 @@ export class RefProductsService {
       relations: [
         'categorySuppliers',
         'deliveryTimes',
-        'markings',
+        'markingServiceProperty',
+        'markingServiceProperty.externalSubTechniques',
+        'markingServiceProperty.marking',
         'packings',
         'products',
         'products.packings',

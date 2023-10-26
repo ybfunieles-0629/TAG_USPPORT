@@ -7,7 +7,8 @@ import { Supplier } from '../../suppliers/entities/supplier.entity';
 import { CategorySupplier } from '../../category-suppliers/entities/category-supplier.entity';
 import { Marking } from '../../markings/entities/marking.entity';
 import { DeliveryTime } from '../../delivery-times/entities/delivery-time.entity';
-import { Packing } from 'src/packings/entities/packing.entity';
+import { Packing } from '../../packings/entities/packing.entity';
+import { MarkingServiceProperty } from '../../marking-service-properties/entities/marking-service-property.entity';
 
 @Entity('ref_products')
 export class RefProduct {
@@ -124,6 +125,9 @@ export class RefProduct {
 
   @ManyToOne(() => Supplier, (supplier) => supplier.refProducts)
   supplier: Supplier;
+
+  @ManyToOne(() => MarkingServiceProperty, (markingServiceProperty) => markingServiceProperty.refProducts)
+  markingServiceProperty: MarkingServiceProperty;
 
   @ManyToMany(() => CategorySupplier, (categorySupplier) => categorySupplier.refProducts)
   @JoinTable({
