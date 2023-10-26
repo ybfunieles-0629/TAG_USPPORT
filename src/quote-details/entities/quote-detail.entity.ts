@@ -20,7 +20,7 @@ export class QuoteDetail {
   })
   totalPriceWithTransport: number;
 
-  @Column('number', {
+  @Column('int', {
 
   })
   transportServiceTagClient: number;

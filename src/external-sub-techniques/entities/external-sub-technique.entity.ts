@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, JoinTable, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { Marking } from '../../markings/entities/marking.entity';
 import { TagSubTechnique } from '../../tag-sub-techniques/entities/tag-sub-technique.entity';
@@ -6,6 +6,7 @@ import { MarkingServiceProperty } from '../../marking-service-properties/entitie
 import { Supplier } from '../../suppliers/entities/supplier.entity';
 import { MarkingService } from '../../marking-services/entities/marking-service.entity';
 
+@Entity('external_sub_techniques')
 export class ExternalSubTechnique {
   @PrimaryGeneratedColumn('uuid')
   id: string;
