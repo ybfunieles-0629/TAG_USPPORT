@@ -16,30 +16,10 @@ export class DeliveryTimesService {
   constructor(
     @InjectRepository(DeliveryTime)
     private readonly deliveryTimeRepository: Repository<DeliveryTime>,
-
-    @InjectRepository(RefProduct)
-    private readonly refProductRepository: Repository<RefProduct>,
   ) { }
 
   async create(createDeliveryTimeDto: CreateDeliveryTimeDto) {
     const newDeliveryTime = plainToClass(DeliveryTime, createDeliveryTimeDto);
-
-    const refProducts: RefProduct[] = [];
-
-    for (const refProductId of createDeliveryTimeDto.refProducts) {
-      const refProduct = await this.refProductRepository.findOne({
-        where: {
-          id: refProductId,
-        },
-      });
-
-      if (!refProduct)
-        throw new NotFoundException(`Ref product with id ${refProductId} not found`);
-
-      refProducts.push(refProduct);
-    }
-
-    newDeliveryTime.refProducts = refProducts;
 
     await this.deliveryTimeRepository.save(newDeliveryTime);
 
@@ -53,23 +33,6 @@ export class DeliveryTimesService {
 
     for (const createDeliveryTimeDto of createMultipleDeliveryTimes) {
       const newDeliveryTime = plainToClass(DeliveryTime, createDeliveryTimeDto);
-
-      const refProducts: RefProduct[] = [];
-
-      for (const refProductId of createDeliveryTimeDto.refProducts) {
-        const refProduct = await this.refProductRepository.findOne({
-          where: {
-            id: refProductId,
-          },
-        });
-
-        if (!refProduct)
-          throw new NotFoundException(`Ref product with id ${refProductId} not found`);
-
-        refProducts.push(refProduct);
-      }
-
-      newDeliveryTime.refProducts = refProducts;
 
       await this.deliveryTimeRepository.save(newDeliveryTime);
 
@@ -129,26 +92,6 @@ export class DeliveryTimesService {
 
     const updatedDeliveryTime = plainToClass(DeliveryTime, updateDeliveryTimeDto);
 
-    const refProducts: RefProduct[] = [];
-
-    for (const refProductId of updateDeliveryTimeDto.refProducts) {
-      const refProduct = await this.refProductRepository.findOne({
-        where: {
-          id: refProductId,
-        },
-        relations: [
-          'refProducts',
-        ],
-      });
-
-      if (!refProduct)
-        throw new NotFoundException(`Ref product with id ${refProductId} not found`);
-
-      refProducts.push(refProduct);
-    }
-
-    updatedDeliveryTime.refProducts = refProducts;
-
     Object.assign(deliveryTime, updatedDeliveryTime);
 
     await this.deliveryTimeRepository.save(deliveryTime);
@@ -175,25 +118,8 @@ export class DeliveryTimesService {
 
       if (!deliveryTime)
         throw new NotFoundException(`Delivery time with id ${id} not found`);
-
-      const refProducts: RefProduct[] = [];
-
-      for (const refProductId of updateDeliveryTimeDto.refProducts) {
-        const refProduct = await this.refProductRepository.findOne({
-          where: {
-            id: refProductId,
-          },
-        });
-
-        if (!refProduct)
-          throw new NotFoundException(`Ref product with id ${refProductId} not found`);
-
-        refProducts.push(refProduct);
-      }
-
+     
       Object.assign(deliveryTime, dataToUpdate);
-
-      deliveryTime.refProducts = refProducts;
 
       await this.deliveryTimeRepository.save(deliveryTime);
 
