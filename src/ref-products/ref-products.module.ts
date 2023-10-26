@@ -8,11 +8,13 @@ import { SuppliersModule } from '../suppliers/suppliers.module';
 import { CategorySuppliersModule } from '../category-suppliers/category-suppliers.module';
 import { UsersModule } from '../users/users.module';
 import { VariantReferenceModule } from '../variant-reference/variant-reference.module';
-import { MarkingServicePropertiesModule } from 'src/marking-service-properties/marking-service-properties.module';
+import { MarkingServicePropertiesModule } from '../marking-service-properties/marking-service-properties.module';
+import { DeliveryTimesModule } from '../delivery-times/delivery-times.module';
 
 @Module({
   imports: [
     CategorySuppliersModule,
+    DeliveryTimesModule,
     SuppliersModule,
     MarkingServicePropertiesModule,
     UsersModule,

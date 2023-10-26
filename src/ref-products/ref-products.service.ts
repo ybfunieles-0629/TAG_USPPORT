@@ -11,8 +11,9 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { CategorySupplier } from '../category-suppliers/entities/category-supplier.entity';
 import { User } from '../users/entities/user.entity';
-import { VariantReference } from 'src/variant-reference/entities/variant-reference.entity';
-import { MarkingServiceProperty } from 'src/marking-service-properties/entities/marking-service-property.entity';
+import { VariantReference } from '../variant-reference/entities/variant-reference.entity';
+import { MarkingServiceProperty } from '../marking-service-properties/entities/marking-service-property.entity';
+import { DeliveryTime } from '../delivery-times/entities/delivery-time.entity';
 
 @Injectable()
 export class RefProductsService {
@@ -24,6 +25,9 @@ export class RefProductsService {
 
     @InjectRepository(CategorySupplier)
     private readonly categorySupplierRepository: Repository<CategorySupplier>,
+
+    @InjectRepository(DeliveryTime)
+    private readonly deliveryTimeRepository: Repository<DeliveryTime>,
 
     @InjectRepository(Supplier)
     private readonly supplierRepository: Repository<Supplier>,
@@ -155,6 +159,7 @@ export class RefProductsService {
       throw new BadRequestException(`Supplier with id ${createRefProductDto.supplier} is currently inactive`);
 
     const categorySuppliers: CategorySupplier[] = [];
+    const deliveryTimes: DeliveryTime[] = [];
     const variantReferences: VariantReference[] = [];
     const markingServiceProperties: MarkingServiceProperty[] = [];
 
@@ -203,7 +208,7 @@ export class RefProductsService {
         });
 
         if (!markignServiceProperty)
-          throw new NotFoundException(`Variant reference with id ${markingServicePropertyId} not found`);
+          throw new NotFoundException(`Marking service properties with id ${markingServicePropertyId} not found`);
 
         // if (!markignServiceProperty.isActive)
         //   throw new BadRequestException(`Variant reference with id ${markingServicePropertyId} is currently inactive`);
@@ -212,7 +217,26 @@ export class RefProductsService {
       }
     }
 
+    if (createRefProductDto.deliveryTimes) {
+      for (const deliveryTimeId of createRefProductDto.deliveryTimes) {
+        const deliveryTime: DeliveryTime = await this.deliveryTimeRepository.findOne({
+          where: {
+            id: deliveryTimeId,
+          },
+        });
+
+        if (!deliveryTime)
+          throw new NotFoundException(`Delivery time with id ${deliveryTimeId} not found`);
+
+        // if (!markignServiceProperty.isActive)
+        //   throw new BadRequestException(`Variant reference with id ${markingServicePropertyId} is currently inactive`);
+
+        deliveryTimes.push(deliveryTime);
+      }
+    }
+
     newRefProduct.categorySuppliers = categorySuppliers;
+    newRefProduct.deliveryTimes = deliveryTimes;
     newRefProduct.variantReferences = variantReferences;
     newRefProduct.supplier = supplier;
     newRefProduct.markingServiceProperties = markingServiceProperties;
@@ -316,6 +340,7 @@ export class RefProductsService {
       throw new BadRequestException(`Supplier with id ${updateRefProductDto.supplier} is currently inactive`);
 
     const categorySuppliers: CategorySupplier[] = [];
+    const deliveryTimes: DeliveryTime[] = [];
     const variantReferences: VariantReference[] = [];
     const markingServiceProperties: MarkingServiceProperty[] = [];
 
@@ -373,8 +398,27 @@ export class RefProductsService {
       }
     }
 
-    updatedRefProduct.supplier = supplier;
+    if (updateRefProductDto.deliveryTimes) {
+      for (const deliveryTimeId of updateRefProductDto.deliveryTimes) {
+        const deliveryTime: DeliveryTime = await this.deliveryTimeRepository.findOne({
+          where: {
+            id: deliveryTimeId,
+          },
+        });
+
+        if (!deliveryTime)
+          throw new NotFoundException(`Delivery time with id ${deliveryTimeId} not found`);
+
+        // if (!markignServiceProperty.isActive)
+        //   throw new BadRequestException(`Variant reference with id ${markingServicePropertyId} is currently inactive`);
+
+        deliveryTimes.push(deliveryTime);
+      }
+    }
+
     updatedRefProduct.categorySuppliers = categorySuppliers;
+    updatedRefProduct.deliveryTimes = deliveryTimes;
+    updatedRefProduct.supplier = supplier;
     updatedRefProduct.variantReferences = variantReferences;
     updatedRefProduct.markingServiceProperties = markingServiceProperties;
 
