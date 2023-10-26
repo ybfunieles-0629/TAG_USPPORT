@@ -232,7 +232,7 @@ export class RefProductsService {
       skip: offset,
       relations: [
         'categorySuppliers',
-        'deliveryTimes',
+        // 'deliveryTimes',
         'markingServiceProperties',
         'markingServiceProperties.externalSubTechnique',
         'markingServiceProperties.externalSubTechnique.marking',

@@ -154,6 +154,17 @@ export class RefProduct {
   })
   categorySuppliers?: CategorySupplier[];
 
-  @ManyToMany(() => DeliveryTime, (deliveryTime) => deliveryTime.refProduct)
+  @ManyToMany(() => DeliveryTime, (deliveryTime) => deliveryTime.refProducts)
+  @JoinTable({
+    name: 'ref_products_has_delivery_times',
+    joinColumn: {
+      name: 'refProductId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'deliveryTimeId',
+      referencedColumnName: 'id',
+    },
+  })
   deliveryTimes?: DeliveryTime[];
 }
