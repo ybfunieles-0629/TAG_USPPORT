@@ -141,6 +141,7 @@ export class ProductsService {
       relations: [
         'colors',
         'variantReferences',
+        'packings',
       ],
     });
   }
@@ -153,6 +154,7 @@ export class ProductsService {
       relations: [
         'colors',
         'variantReferences',
+        'packings',
       ],
     });
 
