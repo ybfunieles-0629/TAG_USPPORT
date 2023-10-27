@@ -160,15 +160,15 @@ export class CompaniesService {
 
   private async uploadToAws(file: Express.Multer.File) {
     AWS.config.update({
-      accessKeyId: 'AKIAT4TACBZFK2MS62VU',
-      secretAccessKey: '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',
-      region: 'us-east-2',
+      accessKeyId: 'AKIARACQVPFRECVYXGCC',
+      secretAccessKey: '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',
+      region: 'us-east-1',
     });
 
     const s3 = new AWS.S3();
 
     const params = {
-      Bucket: 'tag-support-storage',
+      Bucket: 'tag-storage-documents',
       Key: file.originalname,
       Body: file.buffer,
     }
@@ -186,15 +186,15 @@ export class CompaniesService {
 
   async downloadFromAws(file: string, res: Response) {
     AWS.config.update({
-      accessKeyId: 'AKIAT4TACBZFK2MS62VU',
-      secretAccessKey: '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',
-      region: 'us-east-2',
+      accessKeyId: 'AKIARACQVPFRECVYXGCC',
+      secretAccessKey: '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',
+      region: 'us-east-1',
     });
 
     const s3 = new AWS.S3();
 
     const params = {
-      Bucket: 'tag-support-storage',
+      Bucket: 'tag-storage-documents',
       Key: file
     };
 
@@ -210,16 +210,16 @@ export class CompaniesService {
 
   async deleteFromAws(files: string[]) {
     AWS.config.update({
-      accessKeyId: 'AKIAT4TACBZFK2MS62VU',
-      secretAccessKey: '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',
-      region: 'us-east-2',
+      accessKeyId: 'AKIARACQVPFRECVYXGCC',
+      secretAccessKey: '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',
+      region: 'us-east-1',
     });
 
     const s3 = new AWS.S3();
 
     for (const file in files) {
       const params = {
-        Bucket: 'tag-support-storage',
+        Bucket: 'tag-storage-documents',
         Key: file
       };
 
