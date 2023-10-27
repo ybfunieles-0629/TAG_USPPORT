@@ -345,12 +345,9 @@ export class RefProductsService {
     if (!supplier.isActive)
       throw new BadRequestException(`Supplier with id ${updateRefProductDto.supplier} is currently inactive`);
 
-    const categorySuppliers: CategorySupplier[] = [];
-    const deliveryTimes: DeliveryTime[] = [];
-    const variantReferences: VariantReference[] = [];
-    const markingServiceProperties: MarkingServiceProperty[] = [];
-
     if (updateRefProductDto.categorySuppliers) {
+      const categorySuppliers: CategorySupplier[] = [];
+
       for (const categorySupplierId of updateRefProductDto.categorySuppliers) {
         const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
           where: {
@@ -364,12 +361,15 @@ export class RefProductsService {
         if (!categorySupplier.isActive)
           throw new BadRequestException(`Marking with id ${categorySupplierId} is currently inactive`);
 
-        if (!updatedRefProduct.categorySuppliers.some(categorySuppl => categorySuppl.id === categorySupplier.id))
-          categorySuppliers.push(categorySupplier);
+        categorySuppliers.push(categorySupplier);
       }
+
+      updatedRefProduct.categorySuppliers = categorySuppliers;
     }
 
     if (updateRefProductDto.variantReferences) {
+      const variantReferences: VariantReference[] = [];
+
       for (const variantReferenceId of updateRefProductDto.variantReferences) {
         const variantReference: VariantReference = await this.variantReferenceRepository.findOne({
           where: {
@@ -380,16 +380,15 @@ export class RefProductsService {
         if (!variantReference)
           throw new NotFoundException(`Variant reference with id ${variantReferenceId} not found`);
 
-        // if (!variantReference.isActive)
-        //   throw new BadRequestException(`Variant reference with id ${variantReferenceId} is currently inactive`);
-
-
-        if (!updatedRefProduct.variantReferences.some(variantRef => variantRef.id === variantReference.id))
-          variantReferences.push(variantReference);
+        variantReferences.push(variantReference);
       }
+
+      updatedRefProduct.variantReferences = variantReferences;
     }
 
     if (updateRefProductDto.markingServiceProperties) {
+      const markingServiceProperties: MarkingServiceProperty[] = [];
+
       for (const markingServicePropertyId of updateRefProductDto.markingServiceProperties) {
         const markingServiceProperty: MarkingServiceProperty = await this.markingServicePropertyRepository.findOne({
           where: {
@@ -400,15 +399,15 @@ export class RefProductsService {
         if (!markingServiceProperty)
           throw new NotFoundException(`Variant reference with id ${markingServicePropertyId} not found`);
 
-        // if (!markignServiceProperty.isActive)
-        //   throw new BadRequestException(`Variant reference with id ${markingServicePropertyId} is currently inactive`);
-
-        if (!updatedRefProduct.markingServiceProperties.some(markingServiceProp => markingServiceProp.id === markingServiceProperty.id))
-          markingServiceProperties.push(markingServiceProperty);
+        markingServiceProperties.push(markingServiceProperty);
       }
+
+      updatedRefProduct.markingServiceProperties = markingServiceProperties;
     }
 
     if (updateRefProductDto.deliveryTimes) {
+      const deliveryTimes: DeliveryTime[] = [];
+
       for (const deliveryTimeId of updateRefProductDto.deliveryTimes) {
         const deliveryTime: DeliveryTime = await this.deliveryTimeRepository.findOne({
           where: {
@@ -419,19 +418,13 @@ export class RefProductsService {
         if (!deliveryTime)
           throw new NotFoundException(`Delivery time with id ${deliveryTimeId} not found`);
 
-        // if (!markignServiceProperty.isActive)
-        //   throw new BadRequestException(`Variant reference with id ${markingServicePropertyId} is currently inactive`);
-
-        if (!updatedRefProduct.deliveryTimes.some(deliveryTim => deliveryTim.id === deliveryTime.id))
-          deliveryTimes.push(deliveryTime);
+        deliveryTimes.push(deliveryTime);
       }
+
+      updatedRefProduct.deliveryTimes = deliveryTimes;
     }
 
-    updatedRefProduct.categorySuppliers = categorySuppliers;
-    updatedRefProduct.deliveryTimes = deliveryTimes;
     updatedRefProduct.supplier = supplier;
-    updatedRefProduct.variantReferences = variantReferences;
-    updatedRefProduct.markingServiceProperties = markingServiceProperties;
 
     Object.assign(refProduct, updatedRefProduct);
 
