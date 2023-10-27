@@ -45,9 +45,9 @@ export class PackingsService {
       console.log('is uuid');
 
       newPacking.product = product;
+    } else {
+      newPacking.product = null;
     }
-
-    newPacking.product = null;
 
     const refProduct = await this.refProductRepository.findOne({
       where: {
