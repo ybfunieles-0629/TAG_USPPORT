@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 
 import { PackingsService } from './packings.service';
 import { CreatePackingDto } from './dto/create-packing.dto';
@@ -16,7 +16,7 @@ export class PackingsController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto
   ) {
     return this.packingsService.findAll(paginationDto);
   }

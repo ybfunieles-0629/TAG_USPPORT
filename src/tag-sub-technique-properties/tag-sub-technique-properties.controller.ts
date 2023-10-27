@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 
 import { TagSubTechniquePropertiesService } from './tag-sub-technique-properties.service';
 import { CreateTagSubTechniquePropertyDto } from './dto/create-tag-sub-technique-property.dto';
@@ -18,7 +18,7 @@ export class TagSubTechniquePropertiesController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto
   ) {
     return this.tagSubTechniquePropertiesService.findAll(paginationDto);
   }

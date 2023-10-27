@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
 
 import { CategoryTagService } from './category-tag.service';
 import { CreateCategoryTagDto } from './dto/create-category-tag.dto';
@@ -21,7 +21,7 @@ export class CategoryTagController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto
   ) {
     return this.categoryTagService.findAll(paginationDto);
   }

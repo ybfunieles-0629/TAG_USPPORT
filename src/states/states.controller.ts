@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 
 import { StatesService } from './states.service';
 import { CreateStateDto } from './dto/create-state.dto';
@@ -16,7 +16,7 @@ export class StatesController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto,
+    @Query() paginationDto: PaginationDto,
   ) {
     return this.statesService.findAll(paginationDto);
   }

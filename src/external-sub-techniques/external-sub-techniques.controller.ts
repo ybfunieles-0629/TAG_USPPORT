@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 
 import { ExternalSubTechniquesService } from './external-sub-techniques.service';
 import { CreateExternalSubTechniqueDto } from './dto/create-external-sub-technique.dto';
@@ -18,7 +18,7 @@ export class ExternalSubTechniquesController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto
   ) {
     return this.externalSubTechniquesService.findAll(paginationDto);
   }

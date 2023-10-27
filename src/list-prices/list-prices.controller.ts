@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 
 import { ListPricesService } from './list-prices.service';
 import { CreateListPriceDto } from './dto/create-list-price.dto';
@@ -16,7 +16,7 @@ export class ListPricesController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto
   ) {
     return this.listPricesService.findAll(paginationDto);
   }

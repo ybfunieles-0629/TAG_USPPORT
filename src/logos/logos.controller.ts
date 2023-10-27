@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, ParseUUIDPipe, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { LogosService } from './logos.service';
@@ -21,7 +21,7 @@ export class LogosController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto
   ) {
     return this.logosService.findAll(paginationDto);
   }

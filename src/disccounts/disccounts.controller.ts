@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put, Query } from '@nestjs/common';
 
 import { DisccountsService } from './disccounts.service';
 import { CreateDisccountsDto } from './dto/create-disccounts.dto';
@@ -23,7 +23,7 @@ export class DisccountsController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto,
+    @Query() paginationDto: PaginationDto,
   ) {
     return this.disccountsService.findAll(paginationDto);
   }

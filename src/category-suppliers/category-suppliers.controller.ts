@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 
 import { CategorySuppliersService } from './category-suppliers.service';
 import { CreateCategorySupplierDto } from './dto/create-category-supplier.dto';
@@ -21,7 +21,7 @@ export class CategorySuppliersController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto
   ) {
     return this.categorySuppliersService.findAll(paginationDto);
   }

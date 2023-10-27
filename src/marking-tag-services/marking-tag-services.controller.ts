@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 
 import { MarkingTagServicesService } from './marking-tag-services.service';
 import { CreateMarkingTagServiceDto } from './dto/create-marking-tag-service.dto';
@@ -16,7 +16,7 @@ export class MarkingTagServicesController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto
   ) {
     return this.markingTagServicesService.findAll(paginationDto);
   }

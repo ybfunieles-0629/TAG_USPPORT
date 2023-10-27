@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 import { TransportServicesService } from './transport-services.service';
 import { CreateTransportServiceDto } from './dto/create-transport-service.dto';
 import { UpdateTransportServiceDto } from './dto/update-transport-service.dto';
@@ -17,7 +17,7 @@ export class TransportServicesController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto
   ) {
     return this.transportServicesService.findAll(paginationDto);
   }

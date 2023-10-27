@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 
 import { CartQuotesService } from './cart-quotes.service';
 import { CreateCartQuoteDto } from './dto/create-cart-quote.dto';
@@ -16,7 +16,7 @@ export class CartQuotesController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto
   ) {
     return this.cartQuotesService.findAll(paginationDto);
   }

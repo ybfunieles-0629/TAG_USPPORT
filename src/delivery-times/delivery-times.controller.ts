@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put, Query } from '@nestjs/common';
 
 import { DeliveryTimesService } from './delivery-times.service';
 import { CreateDeliveryTimeDto } from './dto/create-delivery-time.dto';
@@ -25,7 +25,7 @@ export class DeliveryTimesController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto
   ) {
     return this.deliveryTimesService.findAll(paginationDto);
   }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 import { PaginationDto } from '../common/dto/pagination.dto';
 
 import { TagDisccountPricesService } from './tag-disccount-prices.service';
@@ -18,7 +18,7 @@ export class TagDisccountPricesController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto,
+    @Query() paginationDto: PaginationDto,
   ) {
     return this.tagDisccountPricesService.findAll(paginationDto);
   }

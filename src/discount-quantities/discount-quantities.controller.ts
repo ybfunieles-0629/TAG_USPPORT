@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 
 import { DiscountQuantitiesService } from './discount-quantities.service';
 import { CreateDiscountQuantityDto } from './dto/create-discount-quantity.dto';
@@ -18,7 +18,7 @@ export class DiscountQuantitiesController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto
   ) {
     return this.discountQuantitiesService.findAll(paginationDto);
   }

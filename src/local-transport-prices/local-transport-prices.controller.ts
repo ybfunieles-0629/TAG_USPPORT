@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 
 import { LocalTransportPricesService } from './local-transport-prices.service';
 import { CreateLocalTransportPriceDto } from './dto/create-local-transport-price.dto';
@@ -16,7 +16,7 @@ export class LocalTransportPricesController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto
   ) {
     return this.localTransportPricesService.findAll(paginationDto);
   }

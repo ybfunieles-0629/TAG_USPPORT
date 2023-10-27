@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 
 import { SupplierPricesService } from './supplier-prices.service';
 import { CreateSupplierPriceDto } from './dto/create-supplier-price.dto';
@@ -18,7 +18,7 @@ export class SupplierPricesController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto
   ) {
     return this.supplierPricesService.findAll(paginationDto);
   }

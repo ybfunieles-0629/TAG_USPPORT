@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 
 import { RefProductsService } from './ref-products.service';
 import { CreateRefProductDto } from './dto/create-ref-product.dto';
@@ -23,7 +23,7 @@ export class RefProductsController {
 
   @Get()
   findAll(
-    @Param() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto
   ) {
     return this.refProductsService.findAll(paginationDto);
   }
