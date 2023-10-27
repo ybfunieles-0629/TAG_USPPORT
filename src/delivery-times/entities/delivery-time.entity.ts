@@ -12,12 +12,12 @@ export class DeliveryTime {
   @Column('int', {
     
   })
-  minimun: number;
+  minimum: number;
 
   @Column('int', {
 
   })
-  maximun: number;
+  maximum: number;
 
   @Column('int', {
 
@@ -27,7 +27,7 @@ export class DeliveryTime {
   @Column('int', {
 
   })
-  minimunAdvanceValue: number;
+  minimumAdvanceValue: number;
 
   @CreateDateColumn()
   createdAt: Date;

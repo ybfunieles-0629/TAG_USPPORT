@@ -29,13 +29,13 @@ export class DeliveryTimesService {
   }
 
   async createMultiple(createMultipleDeliveryTimes: CreateDeliveryTimeDto[]) {
-    const createdDeliveryTimes = [];
+    const createdDeliveryTimes: DeliveryTime[] = [];
 
     for (const createDeliveryTimeDto of createMultipleDeliveryTimes) {
-      const newDeliveryTime = plainToClass(DeliveryTime, createDeliveryTimeDto);
+      const newDeliveryTime: DeliveryTime = plainToClass(DeliveryTime, createDeliveryTimeDto);
 
       await this.deliveryTimeRepository.save(newDeliveryTime);
-
+      
       createdDeliveryTimes.push(newDeliveryTime);
     }
 

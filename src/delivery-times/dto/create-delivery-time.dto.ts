@@ -2,7 +2,7 @@ import { IsArray, IsNumber, IsString } from 'class-validator';
 
 export class CreateDeliveryTimeDto {
   @IsNumber()
-  minimun: number;
+  minimum: number;
 
   @IsNumber()
   maximum: number;
@@ -11,9 +11,5 @@ export class CreateDeliveryTimeDto {
   timeInDays: number;
 
   @IsNumber()
-  minimunAdvanceValue: number;
-
-  @IsArray()
-  @IsString({ each: true })
-  refProducts?: string[];
+  minimumAdvanceValue: number;
 }
