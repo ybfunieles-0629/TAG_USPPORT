@@ -364,7 +364,8 @@ export class RefProductsService {
         if (!categorySupplier.isActive)
           throw new BadRequestException(`Marking with id ${categorySupplierId} is currently inactive`);
 
-        categorySuppliers.push(categorySupplier);
+        if (!updatedRefProduct.categorySuppliers.some(categorySuppl => categorySuppl.id === categorySupplier.id))
+          categorySuppliers.push(categorySupplier);
       }
     }
 
@@ -382,25 +383,28 @@ export class RefProductsService {
         // if (!variantReference.isActive)
         //   throw new BadRequestException(`Variant reference with id ${variantReferenceId} is currently inactive`);
 
-        variantReferences.push(variantReference);
+
+        if (!updatedRefProduct.variantReferences.some(variantRef => variantRef.id === variantReference.id))
+          variantReferences.push(variantReference);
       }
     }
 
     if (updateRefProductDto.markingServiceProperties) {
       for (const markingServicePropertyId of updateRefProductDto.markingServiceProperties) {
-        const markignServiceProperty: MarkingServiceProperty = await this.markingServicePropertyRepository.findOne({
+        const markingServiceProperty: MarkingServiceProperty = await this.markingServicePropertyRepository.findOne({
           where: {
             id: markingServicePropertyId,
           },
         });
 
-        if (!markignServiceProperty)
+        if (!markingServiceProperty)
           throw new NotFoundException(`Variant reference with id ${markingServicePropertyId} not found`);
 
         // if (!markignServiceProperty.isActive)
         //   throw new BadRequestException(`Variant reference with id ${markingServicePropertyId} is currently inactive`);
 
-        markingServiceProperties.push(markignServiceProperty);
+        if (!updatedRefProduct.markingServiceProperties.some(markingServiceProp => markingServiceProp.id === markingServiceProperty.id))
+          markingServiceProperties.push(markingServiceProperty);
       }
     }
 
@@ -418,7 +422,8 @@ export class RefProductsService {
         // if (!markignServiceProperty.isActive)
         //   throw new BadRequestException(`Variant reference with id ${markingServicePropertyId} is currently inactive`);
 
-        deliveryTimes.push(deliveryTime);
+        if (!updatedRefProduct.deliveryTimes.some(deliveryTim => deliveryTim.id === deliveryTime.id))
+          deliveryTimes.push(deliveryTime);
       }
     }
 
