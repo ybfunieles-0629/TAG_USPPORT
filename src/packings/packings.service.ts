@@ -49,19 +49,23 @@ export class PackingsService {
       newPacking.product = null;
     }
 
-    const refProduct = await this.refProductRepository.findOne({
-      where: {
-        id: createPackingDto.refProduct,
-      },
-    });
+    if (isUUID(createPackingDto.refProduct)) {
+      const refProduct = await this.refProductRepository.findOne({
+        where: {
+          id: createPackingDto.refProduct,
+        },
+      });
 
-    if (!refProduct)
-      throw new NotFoundException(`Ref product with id ${createPackingDto.refProduct} not found`);
+      if (!refProduct)
+        throw new NotFoundException(`Ref product with id ${createPackingDto.refProduct} not found`);
 
-    if (!refProduct.isActive)
-      throw new BadRequestException(`Ref product with id ${createPackingDto.refProduct} is currently inactive`);
+      if (!refProduct.isActive)
+        throw new BadRequestException(`Ref product with id ${createPackingDto.refProduct} is currently inactive`);
 
-    newPacking.refProduct = refProduct;
+      newPacking.refProduct = refProduct;
+    } else {
+      newPacking.refProduct = null;
+    }
 
     await this.packingRepository.save(newPacking);
 
