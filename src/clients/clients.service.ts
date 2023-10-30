@@ -79,7 +79,8 @@ export class ClientsService {
       take: limit,
       skip: offset,
       relations: [
-        'addresses'
+        'addresses',
+        'user'
       ]
     });
   }
@@ -90,7 +91,8 @@ export class ClientsService {
         id
       },
       relations: [
-        'addresses'
+        'addresses',
+        'user'
       ],
     });
 
