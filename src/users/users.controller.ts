@@ -6,6 +6,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { AssignClientsDto } from './dto/assign-clients.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { PasswordRecoveryDto } from './dto/password-recovery.dto';
 
 @Controller('users')
 export class UsersController {
@@ -28,6 +29,13 @@ export class UsersController {
     @Body() loginUserDto: LoginUserDto
   ) {
     return this.usersService.login(loginUserDto);
+  }
+
+  @Post('password/recovery')
+  passwordRecovery(
+    @Body() passwordRecoveryDto: PasswordRecoveryDto
+  ) {
+    return this.usersService.passwordRecovery(passwordRecoveryDto);
   }
 
   @Get()

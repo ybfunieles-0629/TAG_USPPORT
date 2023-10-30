@@ -17,6 +17,8 @@ import { Privilege } from '../privileges/entities/privilege.entity';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Brand } from '../brands/entities/brand.entity';
+import { PasswordRecoveryDto } from './dto/password-recovery.dto';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class UsersService {
@@ -41,6 +43,8 @@ export class UsersService {
     @InjectRepository(Privilege)
     private readonly privilegeRepository: Repository<Privilege>,
 
+    @Inject('EMAIL_CONFIG') private emailSenderConfig,
+
     private readonly jwtService: JwtService,
   ) { }
 
@@ -50,7 +54,7 @@ export class UsersService {
         name: 'Tag',
       },
     });
-    
+
     if (!companyInDb)
       throw new NotFoundException(`Company Tag not found`);
 
@@ -64,7 +68,7 @@ export class UsersService {
       throw new NotFoundException(`Role super-administrador not found`);
 
     const permissionsInDb = await this.permissionRepository.find();
-    
+
     const privilegesInDb = await this.privilegeRepository.find();
 
     const usersToSave = UsersList.map(({ password, company, privileges, permissions, roles, ...data }) => {
@@ -186,6 +190,27 @@ export class UsersService {
 
     await this.userRepository.save(newUser);
 
+    try {
+      // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      });
+
+      await transporter.sendMail({
+        from: this.emailSenderConfig.transport.from,
+        to: newUser.email,
+        subject: 'Registro exitoso',
+        text: 'Su registro ha sido exitoso, para ingresar en la aplicación debe irse al apartado de Iniciar sesión y luego debe dar click en recuperar contraseña.',
+      });
+    } catch (error) {
+      console.log('Failed to send the password recovery email', error);
+      throw new InternalServerErrorException(`Internal server error`);
+    }
+
     return {
       newUser
     };
@@ -249,6 +274,46 @@ export class UsersService {
   private getJwtToken(payload: any) {
     const token = this.jwtService.sign(payload);
     return token;
+  }
+
+  async passwordRecovery(passwordRecovery: PasswordRecoveryDto) {
+    const user = await this.userRepository.findOne({
+      where: {
+        email: passwordRecovery.email,
+      },
+    });
+
+    if (!user)
+      throw new NotFoundException(`User with email ${passwordRecovery.email} not found`);
+
+    const token = '';
+    const resetUrl = '';
+    const emailText = `Click the following link to reset your password: <a href="${resetUrl}">${resetUrl}</a>`;
+
+    try {
+      // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      });
+
+      await transporter.sendMail({
+        from: this.emailSenderConfig.transport.from,
+        to: passwordRecovery.email,
+        subject: 'Password recovery',
+        text: emailText,
+      });
+    } catch (error) {
+      console.log('Failed to send the password recovery email', error);
+      throw new InternalServerErrorException(`Internal server error`);
+    }
+
+    return {
+      msg: 'Email sended successfully',
+    };
   }
 
   findAll(paginationDto: PaginationDto) {
