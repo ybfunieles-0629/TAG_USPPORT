@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { plainToClass } from 'class-transformer';
 import { isUUID } from 'class-validator';
 import { v4 as uuidv4 } from 'uuid';
+import * as nodemailer from 'nodemailer';
 import * as AWS from 'aws-sdk';
 
 import { CreateSupplierDto } from './dto/create-supplier.dto';
@@ -26,6 +27,8 @@ export class SuppliersService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @Inject('EMAIL_CONFIG') private emailSenderConfig,
   ) { }
 
   async create(createSupplierDto: CreateSupplierDto, file: Express.Multer.File) {
@@ -175,11 +178,54 @@ export class SuppliersService {
 
     supplier.isActive = !supplier.isActive;
 
-    const user = await this.userRepository.findOneBy({ id: supplier.user.id });
+    if (supplier.isActive) {
+      supplier.isActive = false;
 
-    user.isActive = !supplier.isActive;
+      try {
+        // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD,
+          },
+        });
 
-    await this.userRepository.save(user);
+        await transporter.sendMail({
+          from: this.emailSenderConfig.transport.from,
+          to: supplier.user.email,
+          subject: 'Usuario activado exitosamente',
+          text: 'Señor usuario, su cuenta ha sido desactivada, comuníquese con un administrador.',
+        });
+      } catch (error) {
+        console.log('Failed to send the password recovery email', error);
+        throw new InternalServerErrorException(`Internal server error`);
+      }
+    } else {
+      supplier.isActive = true;
+
+      try {
+        // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD,
+          },
+        });
+
+        await transporter.sendMail({
+          from: this.emailSenderConfig.transport.from,
+          to: supplier.user.email,
+          subject: 'Usuario activado exitosamente',
+          text: 'Señor usuario, su cuenta ha sido activada satisfactoriamente, ahora se le permitirá el ingreso a la aplicación.',
+        });
+      } catch (error) {
+        console.log('Failed to send the password recovery email', error);
+        throw new InternalServerErrorException(`Internal server error`);
+      }
+    }
+
     await this.supplierRepository.save(supplier);
 
     return {

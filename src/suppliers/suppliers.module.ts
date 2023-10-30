@@ -6,9 +6,11 @@ import { SuppliersController } from './suppliers.controller';
 import { Supplier } from './entities/supplier.entity';
 import { SubSupplierProductTypesModule } from '../sub-supplier-product-types/sub-supplier-product-types.module';
 import { UsersModule } from '../users/users.module';
+import { EmailSenderModule } from '../email-sender/email-sender.module';
 
 @Module({
   imports: [
+    EmailSenderModule,
     SubSupplierProductTypesModule,
     UsersModule,
     TypeOrmModule.forFeature([Supplier])
