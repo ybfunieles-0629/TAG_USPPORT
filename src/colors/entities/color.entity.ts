@@ -13,6 +13,11 @@ export class Color {
   name: string;
 
   @Column('varchar', {
+
+  })
+  code: string;
+
+  @Column('varchar', {
     
   })
   hexadecimalValue: string;

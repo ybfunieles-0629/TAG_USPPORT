@@ -8,6 +8,13 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 export class ColorsController {
   constructor(private readonly colorsService: ColorsService) { }
 
+  @Post('load')
+  loadColors(
+
+  ) {
+    return this.colorsService.loadColors();
+  }
+
   @Post()
   create(@Body() createColorDto: CreateColorDto) {
     return this.colorsService.create(createColorDto);

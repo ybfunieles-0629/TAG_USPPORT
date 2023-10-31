@@ -2,6 +2,7 @@ import { Injectable, Logger, BadRequestException, InternalServerErrorException, 
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
+import axios from 'axios';
 
 import { CreateColorDto } from './dto/create-color.dto';
 import { UpdateColorDto } from './dto/update-color.dto';
@@ -16,6 +17,38 @@ export class ColorsService {
     @InjectRepository(Color)
     private readonly colorRepository: Repository<Color>,
   ) { }
+
+  async loadColors() {
+    const apiUrl = `http://44.194.12.161/colores-unicos`;
+
+    const { data } = await axios.get(apiUrl);
+
+    const colorsToSave: Color[] = [];
+
+    for (const color of data) {
+      const existColor = await this.colorRepository.findOne({
+        where: {
+          code: color.codigo,
+        },
+      });
+
+      if (existColor)
+        throw new BadRequestException(`Color with code ${color.codigo} is already registered`);
+      
+      const newColor = {
+        name: color.nombreColor,
+        code: color.codigo,
+      };
+
+      const colorToSave = await this.colorRepository.save(newColor);
+
+      colorsToSave.push(colorToSave);
+    }
+
+    return {
+      colorsToSave
+    };
+  }
 
   async create(createColorDto: CreateColorDto) {
     const newColor = plainToClass(Color, createColorDto);
