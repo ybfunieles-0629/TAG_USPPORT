@@ -94,6 +94,7 @@ export class SupplierPricesService {
       skip: offset,
       relations: [
         'supplier',
+        'supplier.user',
         'product',
         'listPrices',
       ],
@@ -107,6 +108,7 @@ export class SupplierPricesService {
       },
       relations: [
         'supplier',
+        'supplier.user',
         'product',
         'listPrices',
       ],
