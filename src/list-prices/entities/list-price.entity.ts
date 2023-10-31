@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { SupplierPrice } from '../../supplier-prices/entities/supplier-price.entity';
 
@@ -39,6 +39,6 @@ export class ListPrice {
   updatedAt: Date;
 
   //* ---- FK ---- *//
-  @OneToMany(() => SupplierPrice, (supplierPrice) => supplierPrice.listPrice)
-  supplierPrices?: SupplierPrice[];
+  @ManyToOne(() => SupplierPrice, (supplierPrice) => supplierPrice.listPrices)
+  supplierPrice: SupplierPrice;
 }

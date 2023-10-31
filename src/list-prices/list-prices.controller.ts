@@ -14,6 +14,13 @@ export class ListPricesController {
     return this.listPricesService.create(createListPriceDto);
   }
 
+  @Post('/create/multiple')
+  createMultiple(
+    @Body() createListPrices: CreateListPriceDto[]
+  ) {
+    return this.listPricesService.createMultiple(createListPrices);
+  }
+
   @Get()
   findAll(
     @Query() paginationDto: PaginationDto
@@ -34,6 +41,13 @@ export class ListPricesController {
     @Body() updateListPriceDto: UpdateListPriceDto
   ) {
     return this.listPricesService.update(id, updateListPriceDto);
+  }
+
+  @Patch('/update/multiple')
+  updateMultiple(
+    @Body() updateListPrices: UpdateListPriceDto[]
+  ) {
+    return this.listPricesService.updateMultiple(updateListPrices);
   }
 
   @Delete(':id')

@@ -25,6 +25,22 @@ export class ListPricesService {
     };
   }
 
+  async createMultiple(createListPrices: CreateListPriceDto[]) {
+    const createdListPrices: ListPrice[] = [];
+
+    for (const createListPriceDto of createListPrices) {
+      const listPrice = plainToClass(ListPrice, createListPriceDto);
+
+      await this.listPriceRepository.save(listPrice);
+
+      createdListPrices.push(listPrice);
+    }
+
+    return {
+      createdListPrices
+    };
+  }
+
   findAll(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
 
@@ -67,6 +83,33 @@ export class ListPricesService {
 
     return {
       listPrice
+    };
+  }
+
+  async updateMultiple(updateListPrices: UpdateListPriceDto[]) {
+    const updatedListPrices: ListPrice[] = [];
+
+    for (const updateListPriceDto of updateListPrices) {
+      const listPrice = await this.listPriceRepository.findOne({
+        where: {
+          id: updateListPriceDto.id
+        },
+      });
+
+      if (!listPrice)
+        throw new NotFoundException(`List price with id ${updateListPriceDto.id} not found`);
+
+      const updatedListPrice = plainToClass(ListPrice, updateListPriceDto);
+
+      Object.assign(listPrice, updatedListPrice);
+
+      const finalListPrice = await this.listPriceRepository.save(listPrice);
+
+      updatedListPrices.push(finalListPrice);
+    }
+
+    return {
+      updatedListPrices
     };
   }
 
