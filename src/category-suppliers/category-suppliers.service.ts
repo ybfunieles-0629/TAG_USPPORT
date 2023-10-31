@@ -11,6 +11,7 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { CategoryTag } from '../category-tag/entities/category-tag.entity';
 import { RefProduct } from '../ref-products/entities/ref-product.entity';
 import { Supplier } from '../suppliers/entities/supplier.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class CategorySuppliersService {
@@ -22,6 +23,9 @@ export class CategorySuppliersService {
 
     @InjectRepository(CategoryTag)
     private readonly categoryTagRepository: Repository<CategoryTag>,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
 
     @InjectRepository(Supplier)
     private readonly supplierRepository: Repository<Supplier>,
@@ -59,6 +63,21 @@ export class CategorySuppliersService {
 
     const origin = api.toLowerCase().includes('marpico') ? 'Marpico' : 'Promos';
 
+    const userSupplier = await this.userRepository.findOne({
+      where: {
+        name: origin,
+      },
+      relations: [
+        'supplier',
+      ],
+    });
+
+    if (!userSupplier)
+      throw new NotFoundException(`User supplier for origin ${origin} not found`);
+
+    if (userSupplier.supplier == null || userSupplier.supplier == undefined)
+      throw new BadRequestException(`The user is not a supplier`);
+
     //* CLEAN DATA
     for (const parentCategory of data) {
       if (origin === 'Marpico') {
@@ -73,6 +92,7 @@ export class CategorySuppliersService {
             mainCategory: '',
             parentCategory: '',
             apiReferenceId: parentCategory.jerarquia,
+            supplier: userSupplier.supplier.id,
             origin,
           };
 
@@ -91,6 +111,7 @@ export class CategorySuppliersService {
           mainCategory: '',
           parentCategory: '',
           apiReferenceId: parentCategory.id,
+          supplier: userSupplier.supplier.id,
           origin
         }
 
@@ -144,6 +165,21 @@ export class CategorySuppliersService {
 
     const origin = api.toLowerCase().includes('marpico') ? 'Marpico' : 'Promos';
 
+    const userSupplier = await this.userRepository.findOne({
+      where: {
+        name: origin,
+      },
+      relations: [
+        'supplier',
+      ],
+    });
+
+    if (!userSupplier)
+      throw new NotFoundException(`User supplier for origin ${origin} not found`);
+
+    if (userSupplier.supplier == null || userSupplier.supplier == undefined)
+      throw new BadRequestException(`The user is not a supplier`);
+
     const referenceIdApiSet = new Set();
 
     const cleanedSubCategories = [];
@@ -171,6 +207,7 @@ export class CategorySuppliersService {
             mainCategory: firstPart,
             parentCategory: '',
             apiReferenceId: subCategory.jerarquia,
+            supplier: userSupplier.supplier.id,
             origin,
           };
 
@@ -190,6 +227,7 @@ export class CategorySuppliersService {
           mainCategory: firstPart,
           parentCategory: '',
           apiReferenceId: subCategory.id,
+          supplier: userSupplier.supplier.id,
           origin
         };
 
