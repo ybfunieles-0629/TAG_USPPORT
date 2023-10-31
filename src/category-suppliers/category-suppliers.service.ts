@@ -305,7 +305,7 @@ export class CategorySuppliersService {
 
     const { limit = totalCount, offset = 0 } = paginationDto;
 
-    return this.categorySupplierRepository.find({
+    const results = await this.categorySupplierRepository.find({
       take: limit,
       skip: offset,
       relations: [
@@ -315,6 +315,11 @@ export class CategorySuppliersService {
         'refProducts',
       ],
     });
+
+    return {
+      totalCount,
+      results
+    };
   }
 
   async findByType(type: string) {
