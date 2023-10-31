@@ -95,7 +95,7 @@ export class SupplierPricesService {
       relations: [
         'supplier',
         'product',
-        'listPrice'
+        'listPrices',
       ],
     });
   }
@@ -105,6 +105,11 @@ export class SupplierPricesService {
       where: {
         id,
       },
+      relations: [
+        'supplier',
+        'product',
+        'listPrices',
+      ],
     });
 
     if (!supplierPrice)
