@@ -300,8 +300,10 @@ export class CategorySuppliersService {
     };
   }
 
-  findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll(paginationDto: PaginationDto) {
+    const totalCount = await this.categorySupplierRepository.count();
+
+    const { limit = totalCount, offset = 0 } = paginationDto;
 
     return this.categorySupplierRepository.find({
       take: limit,
