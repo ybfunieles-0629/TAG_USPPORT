@@ -2,19 +2,22 @@ import { IsString, IsInt, IsOptional } from 'class-validator';
 
 export class CreateCategoryTagDto {
   @IsString()
-  offspringType: string;
-
-  @IsString()
   name: string;
 
   @IsString()
   description: string;
 
+  @IsOptional()
   @IsString()
   categoryMargin: string;
 
+  @IsOptional()
   @IsString()
   featured: number;
+
+  @IsOptional()
+  @IsString()
+  offspringType: string;
 
   // @IsString()
   // image: string;

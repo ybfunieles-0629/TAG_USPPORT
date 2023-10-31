@@ -10,6 +10,13 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class CategoryTagController {
   constructor(private readonly categoryTagService: CategoryTagService) { }
 
+  @Post('request')
+  requestCategory(
+    @Body() createCategoryTagDto: CreateCategoryTagDto,
+  ) {
+    return this.categoryTagService.requestCategory(createCategoryTagDto);
+  }
+
   @Post()
   @UseInterceptors(FileInterceptor('image'))
   create(

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
@@ -9,6 +9,7 @@ import { CreateCategoryTagDto } from './dto/create-category-tag.dto';
 import { UpdateCategoryTagDto } from './dto/update-category-tag.dto';
 import { CategoryTag } from './entities/category-tag.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class CategoryTagService {
@@ -17,7 +18,39 @@ export class CategoryTagService {
   constructor(
     @InjectRepository(CategoryTag)
     private readonly categoryTagRepository: Repository<CategoryTag>,
+
+    @Inject('EMAIL_CONFIG') private emailSenderConfig,
   ) { }
+
+  async requestCategory(createCategoryTagDto: CreateCategoryTagDto) {
+    try {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      });
+
+      await transporter.sendMail({
+        from: this.emailSenderConfig.transport.from,
+        to: 'yeison.descargas@gmail.com',
+        subject: 'Solicitud de categoría Tag',
+        text: `
+          Nombre de la categoría: ${createCategoryTagDto.name} <br />
+          Categoría TAG padre: ${createCategoryTagDto.parentCategory} <br />
+          Descripción: ${createCategoryTagDto.description} <br />
+        `,
+      });
+
+      return {
+        msg: 'Email sended successfully'
+      };
+    } catch (error) {
+      console.log('Failed to send the password recovery email', error);
+      throw new InternalServerErrorException(`Internal server error`);
+    }
+  }
 
   async create(createCategoryTagDto: CreateCategoryTagDto, file: Express.Multer.File) {
     createCategoryTagDto.featured = +createCategoryTagDto.featured;
