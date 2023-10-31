@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsArray, IsString } from 'class-validator';
 
 export class CreateSupplierPriceDto {
   @IsString()
@@ -7,6 +7,7 @@ export class CreateSupplierPriceDto {
   @IsString()
   product: string;
 
-  @IsString()
-  listPrice: string;
+  @IsArray()
+  @IsString({ each: true })
+  listPrices?: string[];
 }

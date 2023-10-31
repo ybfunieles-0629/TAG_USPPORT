@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import { ListPrice } from '../../list-prices/entities/list-price.entity';
 import { Product } from '../../products/entities/product.entity';
@@ -10,8 +10,8 @@ export class SupplierPrice {
   id: string;
 
   //* ---- FK ---- *//
-  @ManyToOne(() => ListPrice, (listPrice) => listPrice.supplierPrices)
-  listPrice: ListPrice;
+  @OneToMany(() => ListPrice, (listPrice) => listPrice.supplierPrice)
+  listPrices?: ListPrice[];
 
   @ManyToOne(() => Product, (product) => product.supplierPrices)
   product: Product;

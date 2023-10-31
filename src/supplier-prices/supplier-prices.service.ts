@@ -54,21 +54,30 @@ export class SupplierPricesService {
     if (!product.isActive)
       throw new NotFoundException(`Product with id ${createSupplierPriceDto.product} is currently inactive`);
 
-    const listPrice = await this.listPriceRepository.findOne({
-      where: {
-        id: createSupplierPriceDto.listPrice,
-      },
-    });
+    const listPrices: ListPrice[] = [];
 
-    if (!listPrice)
-      throw new NotFoundException(`List price with id ${createSupplierPriceDto.listPrice} not found`);
+    if (createSupplierPriceDto.listPrices) {
+      for (const listPriceId of createSupplierPriceDto.listPrices) {
+        const listPrice = await this.listPriceRepository.findOne({
+          where: {
+            id: listPriceId,
+          },
+        });
 
-    if (!listPrice.isActive)
-      throw new NotFoundException(`List price with id ${createSupplierPriceDto.listPrice} is currently inactive`);
+        if (!listPrice)
+          throw new NotFoundException(`List price with id ${listPriceId} not found`);
+
+        if (!listPrice.isActive)
+          throw new NotFoundException(`List price with id ${listPriceId} is currently inactive`);
+
+        listPrices.push(listPrice);
+      }
+
+      newSupplierPrice.listPrices = listPrices;
+    }
 
     newSupplierPrice.supplier = supplier;
     newSupplierPrice.product = product;
-    newSupplierPrice.listPrice = listPrice;
 
     await this.supplierPriceRepository.save(newSupplierPrice);
 
@@ -116,6 +125,8 @@ export class SupplierPricesService {
     if (!supplierPrice)
       throw new NotFoundException(`Supplier price with id ${id} not found`);
 
+    const updatedSupplierPrice = plainToClass(SupplierPrice, updateSupplierPriceDto);
+
     const supplier = await this.supplierRepository.findOne({
       where: {
         id: updateSupplierPriceDto.supplier,
@@ -140,23 +151,31 @@ export class SupplierPricesService {
     if (!product.isActive)
       throw new NotFoundException(`Product with id ${updateSupplierPriceDto.product} is currently inactive`);
 
-    const listPrice = await this.listPriceRepository.findOne({
-      where: {
-        id: updateSupplierPriceDto.listPrice,
-      },
-    });
+    const listPrices: ListPrice[] = [];
 
-    if (!listPrice)
-      throw new NotFoundException(`List price with id ${updateSupplierPriceDto.listPrice} not found`);
+    if (updateSupplierPriceDto.listPrices) {
+      for (const listPriceId of updateSupplierPriceDto.listPrices) {
+        const listPrice = await this.listPriceRepository.findOne({
+          where: {
+            id: listPriceId,
+          },
+        });
 
-    if (!listPrice.isActive)
-      throw new NotFoundException(`List price with id ${updateSupplierPriceDto.listPrice} is currently inactive`);
+        if (!listPrice)
+          throw new NotFoundException(`List price with id ${listPriceId} not found`);
 
-    supplierPrice.supplier = supplier;
-    supplierPrice.product = product;
-    supplierPrice.listPrice = listPrice;
+        if (!listPrice.isActive)
+          throw new NotFoundException(`List price with id ${listPriceId} is currently inactive`);
 
-    const updatedSupplierPrice = plainToClass(SupplierPrice, updateSupplierPriceDto);
+        listPrices.push(listPrice);
+      }
+
+
+      updatedSupplierPrice.listPrices = listPrices;
+    }
+
+    updatedSupplierPrice.supplier = supplier;
+    updatedSupplierPrice.product = product;
 
     Object.assign(supplierPrice, updatedSupplierPrice);
 
