@@ -290,7 +290,7 @@ export class UsersService {
     if (!user)
       throw new NotFoundException(`User with email ${passwordRecovery.email} not found`);
 
-    const token = this.getJwtToken(user.email);
+    const token = this.getJwtToken({ email: user.email });
     const resetUrl = `http://localhost:4200/auth/change-password?t=${token}`;
     const emailText = `Click the following link to reset your password: <a href="${resetUrl}">${resetUrl}</a>`;
 
