@@ -19,6 +19,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Brand } from '../brands/entities/brand.entity';
 import { PasswordRecoveryDto } from './dto/password-recovery.dto';
 import * as nodemailer from 'nodemailer';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Injectable()
 export class UsersService {
@@ -272,11 +273,14 @@ export class UsersService {
   }
 
   private getJwtToken(payload: any) {
-    const token = this.jwtService.sign(payload);
+    const token = this.jwtService.sign(payload, { secret: process.env.JWT_SECRET });
     return token;
   }
 
-  async passwordRecovery(passwordRecovery: PasswordRecoveryDto) {
+  async sendPasswordRecoveryEmail(passwordRecovery: PasswordRecoveryDto) {
+    if (!passwordRecovery.email)
+      throw new BadRequestException(`The email is required`);
+
     const user = await this.userRepository.findOne({
       where: {
         email: passwordRecovery.email,
@@ -286,8 +290,8 @@ export class UsersService {
     if (!user)
       throw new NotFoundException(`User with email ${passwordRecovery.email} not found`);
 
-    const token = '';
-    const resetUrl = '';
+    const token = this.getJwtToken(user.email);
+    const resetUrl = `http://localhost:4200/auth/change-password?t=${token}`;
     const emailText = `Click the following link to reset your password: <a href="${resetUrl}">${resetUrl}</a>`;
 
     try {
@@ -313,6 +317,26 @@ export class UsersService {
 
     return {
       msg: 'Email sended successfully',
+    };
+  }
+
+  async passwordRecovery(passwordRecovery: PasswordRecoveryDto) {
+    if (!passwordRecovery.password)
+      throw new BadRequestException(`The password is required`);
+
+    if (!passwordRecovery.token)
+      throw new BadRequestException(`The token is required`);
+
+    const jwtStrategy = new JwtStrategy(this.userRepository);
+
+    const user = await jwtStrategy.validate(passwordRecovery.token);
+
+    user.password = passwordRecovery.password;
+
+    await this.userRepository.save(user);
+
+    return {
+      user
     };
   }
 

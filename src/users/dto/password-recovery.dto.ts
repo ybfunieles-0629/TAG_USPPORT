@@ -1,6 +1,17 @@
-import { IsString } from 'class-validator';
+import { IsEmail, IsJWT, IsOptional, IsString } from 'class-validator';
 
 export class PasswordRecoveryDto {
+  @IsOptional()
   @IsString()
-  email: string;
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  password?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsJWT()
+  token?: string;
 }
