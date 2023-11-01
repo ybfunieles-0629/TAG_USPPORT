@@ -36,7 +36,7 @@ export class CategoryTagService {
         from: this.emailSenderConfig.transport.from,
         to: 'yeison.descargas@gmail.com',
         subject: 'Solicitud de categoría Tag',
-        text: `
+        html: `
           Nombre de la categoría: ${createCategoryTagDto.name} <br />
           Categoría TAG padre: ${createCategoryTagDto.parentCategory} <br />
           Descripción: ${createCategoryTagDto.description} <br />
