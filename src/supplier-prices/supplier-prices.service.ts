@@ -96,6 +96,9 @@ export class SupplierPricesService {
         'supplier',
         'supplier.user',
         'product',
+        'product.refProduct',
+        'product.colors',
+        'product.variantReferences',
         'listPrices',
       ],
     });
@@ -110,6 +113,9 @@ export class SupplierPricesService {
         'supplier',
         'supplier.user',
         'product',
+        'product.refProduct',
+        'product.colors',
+        'product.variantReferences',
         'listPrices',
       ],
     });
