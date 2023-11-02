@@ -36,7 +36,7 @@ export class ProductsService {
     });
 
     if (lastProducts[0] && lastProducts[0].tagSku.trim() !== ''.trim()) {
-      let skuNumber = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
+      let skuNumber: number = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
 
       skuNumber++;
 
@@ -94,7 +94,7 @@ export class ProductsService {
 
     for (const createProductDto of createMultipleProducts) {
       if (lastProducts[0] && lastProducts[0].tagSku.trim() !== ''.trim()) {
-        let skuNumber = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
+        let skuNumber: number = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
 
         skuNumber++;
 
