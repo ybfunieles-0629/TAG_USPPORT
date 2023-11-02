@@ -327,9 +327,11 @@ export class UsersService {
     if (!passwordRecovery.token)
       throw new BadRequestException(`The token is required`);
 
+    const data = this.jwtService.decode(passwordRecovery.token);
+
     const jwtStrategy = new JwtStrategy(this.userRepository);
 
-    const user = await jwtStrategy.validate(passwordRecovery.token);
+    const user = await jwtStrategy.validate(data);
 
     const hashedPass = bcrypt.hashSync(passwordRecovery.password, 10);
 
