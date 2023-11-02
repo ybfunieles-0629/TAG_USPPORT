@@ -76,15 +76,20 @@ export class AdminService {
 
     await this.adminRepository.save(newAdminUser);
 
-    for (const clientId of createAdminDto.clients) {
-      const client = await this.clientRepository.findOneBy({ id: clientId });
 
-      if (!client)
-        throw new NotFoundException(`Client with id ${clientId} not found`);
+    if (createAdminDto.clients) {
+      const clients: Client[] = [];
 
-      client.commercialId = newAdminUser.id;
+      for (const clientId of createAdminDto.clients) {
+        const client = await this.clientRepository.findOneBy({ id: clientId });
 
-      await this.clientRepository.save(client);
+        if (!client)
+          throw new NotFoundException(`Client with id ${clientId} not found`);
+
+        clients.push(client);
+      }
+
+      newAdminUser.clients = clients;
     }
 
     return {
@@ -98,6 +103,9 @@ export class AdminService {
     return this.adminRepository.find({
       take: limit,
       skip: offset,
+      relations: [
+        'clients',
+      ],
     });
   }
 
@@ -105,7 +113,14 @@ export class AdminService {
     let admin: Admin;
 
     if (isUUID(term)) {
-      admin = await this.adminRepository.findOneBy({ id: term });
+      admin = await this.adminRepository.findOne({
+        where: {
+          id: term
+        },
+        relations: [
+          'clients',
+        ],
+      });
     } else {
       const queryBuilder = this.adminRepository.createQueryBuilder();
 
@@ -132,6 +147,21 @@ export class AdminService {
     }
 
     const updatedAdmin = plainToClass(Admin, updateAdminDto);
+
+    if (updateAdminDto.clients) {
+      const clients: Client[] = [];
+
+      for (const clientId of updateAdminDto.clients) {
+        const client = await this.clientRepository.findOneBy({ id: clientId });
+
+        if (!client)
+          throw new NotFoundException(`Client with id ${clientId} not found`);
+
+        clients.push(client);
+      }
+
+      updatedAdmin.clients = clients;
+    }
 
     Object.assign(admin, updatedAdmin);
 

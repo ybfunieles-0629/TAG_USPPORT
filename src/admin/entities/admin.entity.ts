@@ -1,6 +1,7 @@
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { User } from '../../users/entities/user.entity';
+import { Client } from 'src/clients/entities/client.entity';
 
 @Entity('admin_users')
 export class Admin {
@@ -36,4 +37,7 @@ export class Admin {
   //* --- FK --- *//
   @OneToOne(() => User, (user) => user.admin)
   user: User;
+
+  // @OneToMany(() => Client, (client) => client.admin)
+  // clients?: Client[];
 }

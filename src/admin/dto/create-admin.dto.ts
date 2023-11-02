@@ -13,6 +13,7 @@ export class CreateAdminDto {
   @IsString()
   user: string;
 
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
   clients: string[];
