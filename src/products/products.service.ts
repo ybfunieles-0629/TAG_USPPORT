@@ -38,7 +38,7 @@ export class ProductsService {
     if (lastProducts[0] && lastProducts[0].tagSku.trim() !== ''.trim()) {
       let skuNumber = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
 
-      skuNumber += 1;
+      skuNumber + 1;
 
       const newTagSku = `SKU-${skuNumber}`;
 
@@ -96,7 +96,7 @@ export class ProductsService {
       if (lastProducts[0] && lastProducts[0].tagSku.trim() !== ''.trim()) {
         let skuNumber = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
 
-        skuNumber += 1;
+        skuNumber + 1;
 
         const newTagSku = `SKU-${skuNumber}`;
 
