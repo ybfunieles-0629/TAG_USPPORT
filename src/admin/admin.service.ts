@@ -74,9 +74,6 @@ export class AdminService {
 
     newAdminUser.user = user;
 
-    await this.adminRepository.save(newAdminUser);
-
-
     if (createAdminDto.clients) {
       const clients: Client[] = [];
 
@@ -91,6 +88,8 @@ export class AdminService {
 
       newAdminUser.clients = clients;
     }
+
+    await this.adminRepository.save(newAdminUser);
 
     return {
       newAdminUser
