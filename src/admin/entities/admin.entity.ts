@@ -38,6 +38,6 @@ export class Admin {
   @OneToOne(() => User, (user) => user.admin)
   user: User;
 
-  // @OneToMany(() => Client, (client) => client.admin)
-  // clients?: Client[];
+  @OneToMany(() => Client, (client) => client.admin)
+  clients?: Client[];
 }
