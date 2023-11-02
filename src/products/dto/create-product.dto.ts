@@ -4,8 +4,9 @@ export class CreateProductDto {
   @IsString()
   supplierSku: string;
 
+  @IsOptional()
   @IsString()
-  tagSku: string;
+  tagSku?: string;
 
   @IsInt()
   large: number;
@@ -28,8 +29,8 @@ export class CreateProductDto {
   @IsInt()
   transitUnit: number;
 
-  @IsDate()
-  productArrivalDate: Date;
+  // @IsDate()
+  // productArrivalDate: Date;
 
   @IsInt()
   freeSample: number;
@@ -61,8 +62,8 @@ export class CreateProductDto {
   @IsInt()
   referencePrice: number;
 
-  @IsDate()
-  lastPriceUpdateDate: Date;
+  // @IsDate()
+  // lastPriceUpdateDate: Date;
 
   @IsString()
   tariffItem: string;

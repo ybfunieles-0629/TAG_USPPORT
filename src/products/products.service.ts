@@ -31,13 +31,18 @@ export class ProductsService {
   ) { }
 
   async create(createProductDto: CreateProductDto) {
-    const lastProduct = await this.productRepository.findOne({ order: { tagSku: 'DESC' } });
+    const lastProducts = await this.productRepository.find({
+      order: { createdAt: 'DESC' },
+    });
 
-    if (lastProduct) {
-      const lastSKU = lastProduct.tagSku;
-      const lastNumber = parseInt(lastSKU.split('-')[1]);
-      const nextNumber = lastNumber + 1;
-      createProductDto.tagSku = `SKU-${nextNumber.toString().padStart(4, '0')}`;
+    if (lastProducts[0] && lastProducts[0].tagSku.trim() !== ''.trim()) {
+      let skuNumber = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
+
+      skuNumber += 1;
+
+      const newTagSku = `SKU-${skuNumber}`;
+
+      createProductDto.tagSku = newTagSku;
     } else {
       createProductDto.tagSku = 'SKU-1001';
     }
