@@ -70,6 +70,9 @@ export class CreateProductDto {
   @IsString()
   refProduct: string;
 
+  @IsString()
+  markedDesignArea: string;
+
   @IsOptional()
   @IsArray()
   @IsString({ each: true })

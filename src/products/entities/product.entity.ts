@@ -129,7 +129,7 @@ export class Product {
   @Column('varchar', {
 
   })
-  marketDesignArea: string;
+  markedDesignArea: string;
 
   @Column('boolean', {
     default: true,
