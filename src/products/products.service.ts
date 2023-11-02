@@ -31,6 +31,17 @@ export class ProductsService {
   ) { }
 
   async create(createProductDto: CreateProductDto) {
+    const lastProduct = await this.productRepository.findOne({ order: { tagSku: 'DESC' } });
+
+    if (lastProduct) {
+      const lastSKU = lastProduct.tagSku;
+      const lastNumber = parseInt(lastSKU.split('-')[1]);
+      const nextNumber = lastNumber + 1;
+      createProductDto.tagSku = `SKU-${nextNumber.toString().padStart(4, '0')}`;
+    } else {
+      createProductDto.tagSku = 'SKU-1001';
+    }
+
     const newProduct = plainToClass(Product, createProductDto);
 
     const variantReferences: VariantReference[] = [];
