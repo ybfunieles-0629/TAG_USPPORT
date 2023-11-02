@@ -88,7 +88,23 @@ export class ProductsService {
   async createMultiple(createMultipleProducts: CreateProductDto[]) {
     const createdProducts = [];
 
+    const lastProducts = await this.productRepository.find({
+      order: { createdAt: 'DESC' },
+    });
+
     for (const createProductDto of createMultipleProducts) {
+      if (lastProducts[0] && lastProducts[0].tagSku.trim() !== ''.trim()) {
+        let skuNumber = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
+
+        skuNumber += 1;
+
+        const newTagSku = `SKU-${skuNumber}`;
+
+        createProductDto.tagSku = newTagSku;
+      } else {
+        createProductDto.tagSku = 'SKU-1001';
+      }
+
       const newProduct = plainToClass(Product, createProductDto);
 
       const colors: Color[] = [];
@@ -99,10 +115,10 @@ export class ProductsService {
           id: createProductDto.refProduct,
         },
       });
-  
+
       if (!refProduct)
         throw new NotFoundException(`Ref product with id ${createProductDto.refProduct} not found`);
-  
+
       newProduct.refProduct = refProduct;
 
       if (createProductDto.variantReferences) {
@@ -261,10 +277,10 @@ export class ProductsService {
           id: updateProductDto.refProduct,
         },
       });
-  
+
       if (!refProduct)
         throw new NotFoundException(`Ref product with id ${updateProductDto.refProduct} not found`);
-  
+
       updatedProduct.refProduct = refProduct;
 
       if (updateProductDto.variantReferences) {
