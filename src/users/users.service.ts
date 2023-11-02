@@ -331,7 +331,9 @@ export class UsersService {
 
     const user = await jwtStrategy.validate(passwordRecovery.token);
 
-    user.password = passwordRecovery.password;
+    const hashedPass = bcrypt.hashSync(passwordRecovery.password, 10);
+
+    user.password = hashedPass;
 
     await this.userRepository.save(user);
 
