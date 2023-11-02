@@ -1,9 +1,10 @@
-import { Column, CreateDateColumn, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { Address } from '../../addresses/entities/address.entity';
 import { User } from '../../users/entities/user.entity';
 import { Brand } from '../../brands/entities/brand.entity';
 import { CartQuote } from '../../cart-quotes/entities/cart-quote.entity';
+import { Admin } from '../../admin/entities/admin.entity';
 
 @Entity('clients')
 export class Client {
@@ -80,4 +81,7 @@ export class Client {
 
   @OneToMany(() => CartQuote, (cartQuote) => cartQuote.client)
   cartQuotes?: CartQuote[];
+
+  @ManyToOne(() => Admin, (admin) => admin.clients)
+  admin: Admin;
 }
