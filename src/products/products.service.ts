@@ -10,6 +10,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { Color } from '../colors/entities/color.entity';
 import { VariantReference } from '../variant-reference/entities/variant-reference.entity';
 import { RefProduct } from '../ref-products/entities/ref-product.entity';
+import axios from 'axios';
 
 
 @Injectable()
@@ -29,6 +30,54 @@ export class ProductsService {
     @InjectRepository(RefProduct)
     private readonly refProductRepository: Repository<RefProduct>,
   ) { }
+
+  async loadProducts() {
+    const apiUrl = 'http://44.194.12.161/marpico/listado_productos';
+
+    const { data: { results } } = await axios.get(apiUrl);
+
+    const totalMaterials = [];
+    const finalData = [];
+
+    for (const result of results) {
+      for (const material of result.materiales) {
+        totalMaterials.push(material);
+      }
+    }
+
+    for (const material of totalMaterials) {
+      const colors: Color[] = [];
+      
+      const color: Color = await this.colorRepository.findOne({
+        where: {
+          name: material.color_nombre,
+        },
+      });
+
+      if (!color)
+        throw new NotFoundException(`Color with id ${material.color_nombre} not found`);
+      
+      colors.push(color);
+
+      const newProduct = {
+        variantReferences: [],
+        colors,
+        referencePrice: material.precio,
+        promoDisccount: material.descuento,
+        availableUnit: material.inventario_almacen[0].cantidad,
+      }
+
+      const createdProduct = this.productRepository.create(newProduct);
+
+      // await this.productRepository.save(createdProduct);
+
+      finalData.push(createdProduct);
+    }
+
+    return {
+      finalData
+    };
+  }
 
   async create(createProductDto: CreateProductDto) {
     const lastProducts = await this.productRepository.find({
@@ -223,6 +272,7 @@ export class ProductsService {
     updatedProduct.refProduct = refProduct;
 
     const variantReferences: VariantReference[] = [];
+    const colors: Color[] = [];
 
     if (updateProductDto.variantReferences) {
       for (const variantReferenceId of updateProductDto.variantReferences) {
@@ -238,8 +288,24 @@ export class ProductsService {
         variantReferences.push(variantReference);
       }
     }
+    
+    if (updateProductDto.colors) {
+      for (const color of updateProductDto.colors) {
+        const colorInDb = await this.colorRepository.findOne({
+          where: {
+            id: color,
+          },
+        });
+
+        if (!colorInDb)
+          throw new NotFoundException(`Color with id ${color} not found`);
+
+        colors.push(colorInDb);
+      }
+    }
 
     updatedProduct.variantReferences = variantReferences;
+    updatedProduct.colors = colors;
 
     Object.assign(product, updatedProduct);
 

@@ -1,78 +1,100 @@
 import { IsArray, IsDate, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreateProductDto {
+  @IsOptional()
   @IsString()
-  supplierSku: string;
+  supplierSku?: string;
 
   @IsOptional()
   @IsString()
   tagSku?: string;
 
+  @IsOptional()
   @IsInt()
-  large: number;
+  large?: number;
 
+  @IsOptional()
   @IsInt()
-  width: number;
+  width?: number;
 
+  @IsOptional()
   @IsString()
-  importedNational: string;
+  importedNational?: string;
+
+  @IsOptional()
+  @IsInt()
+  height?: number;
+
+  @IsOptional()
+  @IsInt()
+  weight?: number;
 
   @IsInt()
-  height: number;
+  availableUnit?: number;
 
+  @IsOptional()
   @IsInt()
-  weight: number;
+  transitUnit?: number;
 
-  @IsInt()
-  availableUnit: number;
-
-  @IsInt()
-  transitUnit: number;
-
+  @IsOptional()
   @IsDate()
-  productArrivalDate: Date;
+  productArrivalDate?: Date;
 
+  @IsOptional()
   @IsInt()
-  freeSample: number;
+  freeSample?: number;
 
+  @IsOptional()
   @IsInt()
-  requiredSample: number;
+  requiredSample?: number;
 
+  @IsOptional()
   @IsInt()
-  loanSample: number;
+  loanSample?: number;
 
+  @IsOptional()
   @IsInt()
-  refundSampleTime: number;
+  refundSampleTime?: number;
 
+  @IsOptional()
   @IsInt()
-  iva: number;
+  iva?: number;
 
+  @IsOptional()
   @IsInt()
-  tagDisccount: number;
+  tagDisccount?: number;
 
+  @IsOptional()
   @IsInt()
-  promoDisccount: number;
+  promoDisccount?: number;
 
+  @IsOptional()
   @IsInt()
-  hasNetPrice: number;
+  hasNetPrice?: number;
 
+  @IsOptional()
   @IsInt()
-  samplePrice: number;
+  samplePrice?: number;
 
+  @IsOptional()
   @IsInt()
-  referencePrice: number;
+  referencePrice?: number;
 
+  @IsOptional()
   @IsDate()
-  lastPriceUpdateDate: Date;
+  lastPriceUpdateDate?: Date;
 
+  @IsOptional()
   @IsString()
-  tariffItem: string;
+  tariffItem?: string;
 
+  @IsOptional()
   @IsString()
-  refProduct: string;
+  refProduct?: string;
 
+  @IsOptional()
   @IsString()
-  markedDesignArea: string;
+  markedDesignArea?: string;
 
   @IsOptional()
   @IsArray()

@@ -8,6 +8,13 @@ import { CreateProductDto } from './dto/create-product.dto';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @Post('/load')
+  loadProducts(
+
+  ) {
+    return this.productsService.loadProducts();
+  }
+
   @Post()
   create(
     @Body() createProductDto: CreateProductDto
