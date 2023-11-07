@@ -14,6 +14,11 @@ export class TagSubTechnique {
   })
   name: string;
 
+  @Column('varchar', {
+
+  })
+  description: string;
+
   @Column('boolean', {
     default: true,
   })

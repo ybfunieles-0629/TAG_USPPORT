@@ -5,6 +5,9 @@ export class CreateTagSubTechniqueDto {
   name: string;
 
   @IsString()
+  description: string;
+
+  @IsString()
   createdBy: string;
 
   @IsOptional()
