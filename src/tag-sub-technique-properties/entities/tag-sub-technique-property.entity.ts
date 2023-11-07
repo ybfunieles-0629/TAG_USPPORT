@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, Prim
 
 import { MarkingServiceProperty } from '../../marking-service-properties/entities/marking-service-property.entity';
 import { TagSubTechnique } from '../../tag-sub-techniques/entities/tag-sub-technique.entity';
+import { Image } from '../../images/entities/image.entity';
 
 @Entity('tag_sub_technique_properties')
 export class TagSubTechniqueProperty {
@@ -12,6 +13,11 @@ export class TagSubTechniqueProperty {
 
   })
   name: string;
+
+  @Column('varchar', {
+
+  })
+  description: string;
 
   @Column('varchar', {
 
@@ -35,6 +41,9 @@ export class TagSubTechniqueProperty {
   updatedAt: Date;
 
   //* ---- FK ---- *//
+  @ManyToOne(() => Image, (image) => image.tagSubTechniqueProperties)
+  image: Image;
+
   @OneToOne(() => MarkingServiceProperty, (markingServiceProperty) => markingServiceProperty.tagSubTechniqueProperty)
   @JoinColumn()
   markingServiceProperty: MarkingServiceProperty;

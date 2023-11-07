@@ -1,8 +1,11 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class CreateTagSubTechniquePropertyDto {
   @IsString()
   name: string;
+
+  @IsString()
+  description: string;
 
   @IsString()
   createdBy: string;
@@ -14,4 +17,9 @@ export class CreateTagSubTechniquePropertyDto {
   @IsString()
   @IsOptional()
   tagSubTechnique?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  images?: string;
 }
