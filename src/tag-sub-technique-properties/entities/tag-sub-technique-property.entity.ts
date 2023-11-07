@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { MarkingServiceProperty } from '../../marking-service-properties/entities/marking-service-property.entity';
 import { TagSubTechnique } from '../../tag-sub-techniques/entities/tag-sub-technique.entity';
@@ -41,8 +41,8 @@ export class TagSubTechniqueProperty {
   updatedAt: Date;
 
   //* ---- FK ---- *//
-  @ManyToOne(() => Image, (image) => image.tagSubTechniqueProperties)
-  image: Image;
+  @OneToMany(() => Image, (image) => image.tagSubTechniqueProperty)
+  images: Image[];
 
   @OneToOne(() => MarkingServiceProperty, (markingServiceProperty) => markingServiceProperty.tagSubTechniqueProperty)
   @JoinColumn()
