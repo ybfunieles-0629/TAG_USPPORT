@@ -10,6 +10,11 @@ export class MarkingTagService {
   id: string;
 
   @Column('varchar', {
+
+  })
+  name: string;
+
+  @Column('varchar', {
     
   })
   description: string;
