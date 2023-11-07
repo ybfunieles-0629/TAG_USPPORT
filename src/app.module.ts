@@ -45,6 +45,7 @@ import { QuoteDetailsModule } from './quote-details/quote-details.module';
 import { CartQuotesModule } from './cart-quotes/cart-quotes.module';
 import { StatesModule } from './states/states.module';
 import { LogosModule } from './logos/logos.module';
+import { PurchaseOrderModule } from './purchase-order/purchase-order.module';
 
 @Module({
   imports: [
@@ -108,6 +109,7 @@ import { LogosModule } from './logos/logos.module';
     CartQuotesModule,
     StatesModule,
     LogosModule,
+    // PurchaseOrderModule,
   ],
 })
 export class AppModule { }
