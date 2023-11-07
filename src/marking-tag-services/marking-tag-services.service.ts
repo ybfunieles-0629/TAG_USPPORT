@@ -37,6 +37,9 @@ export class MarkingTagServicesService {
     return this.markingTagServiceRepository.find({
       take: limit,
       skip: offset,
+      relations: [
+        'tagSubTechniques',
+      ],
     });
   }
 
@@ -45,6 +48,9 @@ export class MarkingTagServicesService {
       where: {
         id,
       },
+      relations: [
+        'tagSubTechniques',
+      ],
     });
 
     if (!markingTagService)
