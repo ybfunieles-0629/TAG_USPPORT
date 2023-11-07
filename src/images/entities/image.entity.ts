@@ -1,6 +1,7 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { RefProduct } from '../../ref-products/entities/ref-product.entity';
+import { TagSubTechniqueProperty } from 'src/tag-sub-technique-properties/entities/tag-sub-technique-property.entity';
 
 @Entity('images')
 export class Image {
@@ -19,6 +20,9 @@ export class Image {
   updatedAt: Date;
 
   //* --- FK ---*//
+  @ManyToOne(() => TagSubTechniqueProperty, (tagSubTechniqueProperty) => tagSubTechniqueProperty.images)
+  tagSubTechniqueProperty: TagSubTechniqueProperty;
+
   @ManyToOne(() => RefProduct, (refProduct) => refProduct.images)
   refProduct: RefProduct;
 }
