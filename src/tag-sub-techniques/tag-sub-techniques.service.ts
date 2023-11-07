@@ -40,6 +40,33 @@ export class TagSubTechniquesService {
     };
   }
 
+  async createMultiple(createTagSubTechniques: CreateTagSubTechniqueDto[]) {
+    const createdSubTechniques: TagSubTechnique[] = [];
+
+    for (const createTagSubTechniqueDto of createTagSubTechniques) {
+      const newTagSubTechnique = plainToClass(TagSubTechnique, createTagSubTechniqueDto);
+
+      const markingTagService: MarkingTagService = await this.markingTagServiceRepository.findOne({
+        where: {
+          id: createTagSubTechniqueDto.markingTagService,
+        },
+      });
+
+      if (!markingTagService)
+        throw new NotFoundException(`Marking tag service with id ${createTagSubTechniqueDto.markingTagService} not found`);
+
+      newTagSubTechnique.markingTagService = markingTagService;
+
+      const createdTagSubTechnique = await this.tagSubTecniqueRepository.save(newTagSubTechnique);
+
+      createdSubTechniques.push(createdTagSubTechnique);
+    }
+
+    return {
+      createdSubTechniques
+    };
+  }
+
   findAll(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
 
@@ -105,6 +132,48 @@ export class TagSubTechniquesService {
     };
   }
 
+  async updateMultiple(updateTagSubTechniques: UpdateTagSubTechniqueDto[]) {
+    const updatedTagSubTechniques: TagSubTechnique[] = [];
+
+    for (const updateTagSubTechniqueDto of updateTagSubTechniques) {
+      
+      const tagSubTechnique = await this.tagSubTecniqueRepository.findOne({
+        where: {
+          id: updateTagSubTechniqueDto.id,
+        },
+        relations: [
+          'markingTagService',
+        ],
+      });
+
+      if (!tagSubTechnique)
+        throw new NotFoundException(`Tag sub technique with id ${updateTagSubTechniqueDto.id} not found`);
+
+      const updatedTagSubTechnique = plainToClass(TagSubTechnique, updateTagSubTechniqueDto);
+
+      const markingTagService: MarkingTagService = await this.markingTagServiceRepository.findOne({
+        where: {
+          id: updateTagSubTechniqueDto.markingTagService,
+        },
+      });
+
+      if (!markingTagService)
+        throw new NotFoundException(`Marking tag service with id ${updateTagSubTechniqueDto.markingTagService} not found`);
+
+      updatedTagSubTechnique.markingTagService = markingTagService;
+
+      Object.assign(tagSubTechnique, updatedTagSubTechnique);
+
+      const savedTagSubTechnique = await this.tagSubTecniqueRepository.save(tagSubTechnique);
+    
+      updatedTagSubTechniques.push(savedTagSubTechnique);
+    }
+
+    return {
+      updatedTagSubTechniques
+    };
+  }
+
   async desactivate(id: string) {
     const { tagSubTechnique } = await this.findOne(id);
 
@@ -121,7 +190,7 @@ export class TagSubTechniquesService {
     const { tagSubTechnique } = await this.findOne(id);
 
     await this.tagSubTecniqueRepository.remove(tagSubTechnique);
-    
+
     return {
       tagSubTechnique
     };
