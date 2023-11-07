@@ -40,6 +40,33 @@ export class TagSubTechniquePropertiesService {
     };
   }
 
+  async createMultiple(createTagSubTechniqueProperties: CreateTagSubTechniquePropertyDto[]) {
+    const createdTagSubTechniqueProperties: TagSubTechniqueProperty[] = [];
+
+    for (const createTagSubTechniquePropertyDto of createTagSubTechniqueProperties) {
+      const newTagSubTechniqueProperty = plainToClass(TagSubTechniqueProperty, createTagSubTechniquePropertyDto);
+
+      const tagSubTechnique: TagSubTechnique = await this.tagSubTechniqueRepository.findOne({
+        where: {
+          id: createTagSubTechniquePropertyDto.tagSubTechnique,
+        },
+      });
+
+      if (!tagSubTechnique)
+        throw new NotFoundException(`Tag sub technique with id ${createTagSubTechniquePropertyDto.tagSubTechnique}`);
+
+      newTagSubTechniqueProperty.tagSubTechnique = tagSubTechnique;
+
+      const createdTagSubTechniqueProperty = await this.tagSubTechniquePropertyRepository.save(newTagSubTechniqueProperty);
+
+      createdTagSubTechniqueProperties.push(createdTagSubTechniqueProperty);
+    }
+
+    return {
+      createdTagSubTechniqueProperties
+    };
+  }
+
   findAll(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
 
@@ -102,6 +129,47 @@ export class TagSubTechniquePropertiesService {
 
     return {
       tagSubTechniqueProperty
+    };
+  }
+
+  async updateMultiple(updateTagSubTechniqueProperties: UpdateTagSubTechniquePropertyDto[]) {
+    const updatedTagSubTechniqueProperties: TagSubTechniqueProperty[] = [];
+
+    for (const updateTagSubTechniquePropertyDto of updateTagSubTechniqueProperties) {
+      const tagSubTechniqueProperty = await this.tagSubTechniquePropertyRepository.findOne({
+        where: {
+          id: updateTagSubTechniquePropertyDto.id,
+        },
+        relations: [
+          'tagSubTechnique',
+        ],
+      });
+
+      if (!tagSubTechniqueProperty)
+        throw new NotFoundException(`Tag sub technique property with id ${updateTagSubTechniquePropertyDto.id} not found`);
+
+      const updatedTagSubTechniqueProperty = plainToClass(TagSubTechniqueProperty, updateTagSubTechniquePropertyDto);
+
+      const tagSubTechnique: TagSubTechnique = await this.tagSubTechniqueRepository.findOne({
+        where: {
+          id: updateTagSubTechniquePropertyDto.tagSubTechnique,
+        },
+      });
+
+      if (!tagSubTechnique)
+        throw new NotFoundException(`Tag sub technique with id ${updateTagSubTechniquePropertyDto.tagSubTechnique}`);
+
+      updatedTagSubTechniqueProperty.tagSubTechnique = tagSubTechnique;
+
+      Object.assign(tagSubTechniqueProperty, updatedTagSubTechniqueProperty);
+
+      const tagSubTechniquePropertySaved = await this.tagSubTechniquePropertyRepository.save(tagSubTechniqueProperty);
+    
+      updatedTagSubTechniqueProperties.push(tagSubTechniquePropertySaved);
+    }
+
+    return {
+      updatedTagSubTechniqueProperties
     };
   }
 

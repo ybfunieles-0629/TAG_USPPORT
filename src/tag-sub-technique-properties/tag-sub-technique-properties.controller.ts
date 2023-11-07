@@ -16,6 +16,13 @@ export class TagSubTechniquePropertiesController {
     return this.tagSubTechniquePropertiesService.create(createTagSubTechniquePropertyDto);
   }
 
+  @Post('create/multiple')
+  createMultiple(
+    @Body() createTagSubTechniqueProperties: CreateTagSubTechniquePropertyDto[]
+  ) {
+    return this.tagSubTechniquePropertiesService.createMultiple(createTagSubTechniqueProperties);
+  }
+
   @Get()
   findAll(
     @Query() paginationDto: PaginationDto
@@ -36,6 +43,13 @@ export class TagSubTechniquePropertiesController {
     @Body() updateTagSubTechniquePropertyDto: UpdateTagSubTechniquePropertyDto
   ) {
     return this.tagSubTechniquePropertiesService.update(id, updateTagSubTechniquePropertyDto);
+  }
+
+  @Patch('update/multiple')
+  updateMultiple(
+    @Body() updateTagSubTechniqueProperties: UpdateTagSubTechniquePropertyDto[]
+  ) {
+    return this.tagSubTechniquePropertiesService.updateMultiple(updateTagSubTechniqueProperties);
   }
 
   @Patch('/desactivate/:id')
