@@ -72,8 +72,8 @@ export class MarkingTagServicesService {
       },
       relations: [
         'tagSubTechniques',
-        'tagSubTechniques.tagSubTechniquesProperties',
-        'tagSubTechniques.tagSubTechniquesProperties.images',
+        'tagSubTechniques.tagSubTechniqueProperties',
+        'tagSubTechniques.tagSubTechniqueProperties.images',
       ],
     });
 
