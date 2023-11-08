@@ -17,9 +17,4 @@ export class CreateTagSubTechniquePropertyDto {
   @IsString()
   @IsOptional()
   tagSubTechnique?: string;
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  images?: string;
 }

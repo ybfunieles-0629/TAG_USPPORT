@@ -1,9 +1,14 @@
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateImageDto {
   // @IsString()
   // url: string;
 
+  @IsOptional()
   @IsString()
-  refProduct: string;
+  refProduct?: string;
+
+  @IsOptional()
+  @IsString()
+  tagSubTechniqueProperty?: string;
 }

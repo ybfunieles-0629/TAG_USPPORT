@@ -8,8 +8,6 @@ import { UpdateTagSubTechniquePropertyDto } from './dto/update-tag-sub-technique
 import { TagSubTechniqueProperty } from './entities/tag-sub-technique-property.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { TagSubTechnique } from '../tag-sub-techniques/entities/tag-sub-technique.entity';
-import { Image } from '../images/entities/image.entity';
-
 @Injectable()
 export class TagSubTechniquePropertiesService {
   constructor(
@@ -18,9 +16,6 @@ export class TagSubTechniquePropertiesService {
 
     @InjectRepository(TagSubTechnique)
     private readonly tagSubTechniqueRepository: Repository<TagSubTechnique>,
-  
-    @InjectRepository(Image)
-    private readonly imageRepository: Repository<Image>,
     ) { }
 
   async create(createTagSubTechniquePropertyDto: CreateTagSubTechniquePropertyDto) {
@@ -36,25 +31,6 @@ export class TagSubTechniquePropertiesService {
       throw new NotFoundException(`Tag sub technique with id ${createTagSubTechniquePropertyDto.tagSubTechnique}`);
 
     newTagSubTechniqueProperty.tagSubTechnique = tagSubTechnique;
-
-    if (createTagSubTechniquePropertyDto.images) {
-      const images: Image[] = [];
-
-      for (const imageId of createTagSubTechniquePropertyDto.images) {
-        const image: Image = await this.imageRepository.findOne({
-          where: {
-            id: imageId,
-          },
-        });
-
-        if (!image)
-          throw new NotFoundException(`Image with id ${imageId} not found`);
-
-        images.push(image);
-      }
-
-      newTagSubTechniqueProperty.images = images;
-    }
 
     await this.tagSubTechniquePropertyRepository.save(newTagSubTechniqueProperty);
 
@@ -79,25 +55,6 @@ export class TagSubTechniquePropertiesService {
         throw new NotFoundException(`Tag sub technique with id ${createTagSubTechniquePropertyDto.tagSubTechnique}`);
 
       newTagSubTechniqueProperty.tagSubTechnique = tagSubTechnique;
-
-      if (createTagSubTechniquePropertyDto.images) {
-        const images: Image[] = [];
-  
-        for (const imageId of createTagSubTechniquePropertyDto.images) {
-          const image: Image = await this.imageRepository.findOne({
-            where: {
-              id: imageId,
-            },
-          });
-  
-          if (!image)
-            throw new NotFoundException(`Image with id ${imageId} not found`);
-  
-          images.push(image);
-        }
-  
-        newTagSubTechniqueProperty.images = images;
-      }
 
       const createdTagSubTechniqueProperty = await this.tagSubTechniquePropertyRepository.save(newTagSubTechniqueProperty);
 
@@ -168,25 +125,6 @@ export class TagSubTechniquePropertiesService {
 
     updatedTagSubTechniqueProperty.tagSubTechnique = tagSubTechnique;
 
-    if (updateTagSubTechniquePropertyDto.images) {
-      const images: Image[] = [];
-
-      for (const imageId of updateTagSubTechniquePropertyDto.images) {
-        const image: Image = await this.imageRepository.findOne({
-          where: {
-            id: imageId,
-          },
-        });
-
-        if (!image)
-          throw new NotFoundException(`Image with id ${imageId} not found`);
-
-        images.push(image);
-      }
-
-      updatedTagSubTechniqueProperty.images = images;
-    }
-
     Object.assign(tagSubTechniqueProperty, updatedTagSubTechniqueProperty);
 
     await this.tagSubTechniquePropertyRepository.save(tagSubTechniqueProperty);
@@ -225,25 +163,6 @@ export class TagSubTechniquePropertiesService {
         throw new NotFoundException(`Tag sub technique with id ${updateTagSubTechniquePropertyDto.tagSubTechnique}`);
 
       updatedTagSubTechniqueProperty.tagSubTechnique = tagSubTechnique;
-
-      if (updateTagSubTechniquePropertyDto.images) {
-        const images: Image[] = [];
-  
-        for (const imageId of updateTagSubTechniquePropertyDto.images) {
-          const image: Image = await this.imageRepository.findOne({
-            where: {
-              id: imageId,
-            },
-          });
-  
-          if (!image)
-            throw new NotFoundException(`Image with id ${imageId} not found`);
-  
-          images.push(image);
-        }
-  
-        updatedTagSubTechniqueProperty.images = images;
-      }
 
       Object.assign(tagSubTechniqueProperty, updatedTagSubTechniqueProperty);
 

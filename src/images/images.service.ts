@@ -10,6 +10,7 @@ import { UpdateImageDto } from './dto/update-image.dto';
 import { Image } from './entities/image.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { RefProduct } from '../ref-products/entities/ref-product.entity';
+import { TagSubTechniqueProperty } from '../tag-sub-technique-properties/entities/tag-sub-technique-property.entity';
 
 @Injectable()
 export class ImagesService {
@@ -21,24 +22,45 @@ export class ImagesService {
 
     @InjectRepository(RefProduct)
     private readonly refProductRepository: Repository<RefProduct>,
+
+    @InjectRepository(TagSubTechniqueProperty)
+    private readonly tagSubTechniquePropertyRepository: Repository<TagSubTechniqueProperty>,
   ) { }
 
   async create(createImageDto: CreateImageDto, file: Express.Multer.File) {
     const newImage = plainToClass(Image, createImageDto);
 
-    const refProduct = await this.refProductRepository.findOne({
-      where: {
-        id: createImageDto.refProduct,
-      },
-    });
+    if (createImageDto.refProduct) {
+      const refProduct = await this.refProductRepository.findOne({
+        where: {
+          id: createImageDto.refProduct,
+        },
+      });
 
-    // if (!refProduct)
-    //   throw new NotFoundException(`Ref product with id ${createImageDto.refProduct} not found`);
+      if (!refProduct)
+        throw new NotFoundException(`Ref product with id ${createImageDto.refProduct} not found`);
 
-    // if (!refProduct.isActive)
-    //   throw new BadRequestException(`Ref product with id ${createImageDto.refProduct} is currently inactive`);
+      // if (!refProduct.isActive)
+      //   throw new BadRequestException(`Ref product with id ${createImageDto.refProduct} is currently inactive`);
 
-    newImage.refProduct = refProduct;
+      newImage.refProduct = refProduct;
+    }
+
+    if (createImageDto.tagSubTechniqueProperty) {
+      const tagSubTechniqueProperty = await this.tagSubTechniquePropertyRepository.findOne({
+        where: {
+          id: createImageDto.tagSubTechniqueProperty,
+        },
+      });
+
+      if (!tagSubTechniqueProperty)
+        throw new NotFoundException(`Tag sub technique property with id ${createImageDto.tagSubTechniqueProperty} not found`);
+
+      // if (!tagSubTechniqueProperty.isActive)
+      //   throw new BadRequestException(`Ref product with id ${createImageDto.tagSubTechniqueProperty} is currently inactive`);
+
+      newImage.tagSubTechniqueProperty = tagSubTechniqueProperty;
+    }
 
     let imageAwsUrl: string = '';
 
@@ -69,7 +91,8 @@ export class ImagesService {
       take: limit,
       skip: offset,
       relations: [
-        'refProduct'
+        'refProduct',
+        'tagSubTechniqueProperty',
       ],
     });
   }
@@ -80,7 +103,8 @@ export class ImagesService {
         id,
       },
       relations: [
-        'refProduct'
+        'refProduct',
+        'tagSubTechniqueProperty',
       ],
     });
 
@@ -98,7 +122,8 @@ export class ImagesService {
         id,
       },
       relations: [
-        'refProduct'
+        'refProduct',
+        'tagSubTechniqueProperty',
       ],
     });
 
@@ -107,19 +132,37 @@ export class ImagesService {
 
     const updatedImage = plainToClass(Image, updateImageDto);
 
-    const refProduct = await this.refProductRepository.findOne({
-      where: {
-        id: updateImageDto.refProduct,
-      },
-    });
+    if (updateImageDto.refProduct) {
+      const refProduct = await this.refProductRepository.findOne({
+        where: {
+          id: updateImageDto.refProduct,
+        },
+      });
 
-    if (!refProduct)
-      throw new NotFoundException(`Ref product with id ${updateImageDto.refProduct} not found`);
+      if (!refProduct)
+        throw new NotFoundException(`Ref product with id ${updateImageDto.refProduct} not found`);
 
-    if (!refProduct.isActive)
-      throw new BadRequestException(`Ref product with id ${updateImageDto.refProduct} is currently inactive`);
+      // if (!refProduct.isActive)
+      //   throw new BadRequestException(`Ref product with id ${updateImageDto.refProduct} is currently inactive`);
 
-    updatedImage.refProduct = refProduct;
+      updatedImage.refProduct = refProduct;
+    }
+
+    if (updateImageDto.tagSubTechniqueProperty) {
+      const tagSubTechniqueProperty = await this.tagSubTechniquePropertyRepository.findOne({
+        where: {
+          id: updateImageDto.tagSubTechniqueProperty,
+        },
+      });
+
+      if (!tagSubTechniqueProperty)
+        throw new NotFoundException(`Tag sub technique property with id ${updateImageDto.tagSubTechniqueProperty} not found`);
+
+      // if (!tagSubTechniqueProperty.isActive)
+      //   throw new BadRequestException(`Ref product with id ${updateImageDto.tagSubTechniqueProperty} is currently inactive`);
+
+      updatedImage.tagSubTechniqueProperty = tagSubTechniqueProperty;
+    }
 
     let imageAwsUrl: string = '';
 
