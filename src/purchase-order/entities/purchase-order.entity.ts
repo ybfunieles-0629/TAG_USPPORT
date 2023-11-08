@@ -1,4 +1,6 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+
+import { CommercialQualification } from '../../commercial-qualification/entities/commercial-qualification.entity';
 
 @Entity('purchase_order')
 export class PurchaseOrder {
@@ -65,6 +67,11 @@ export class PurchaseOrder {
   })
   retentionCost: number;
 
+  @Column('boolean', {
+    default: true,
+  })
+  isActive: true;
+
   @Column('varchar', {
 
   })
@@ -80,4 +87,8 @@ export class PurchaseOrder {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  //* ---- FK ---- *//
+  @OneToOne(() => CommercialQualification, (commercialQualification) => commercialQualification.purchaseOrder)
+  commercialQualification: CommercialQualification;
 }
