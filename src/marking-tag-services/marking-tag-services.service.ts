@@ -39,6 +39,8 @@ export class MarkingTagServicesService {
       skip: offset,
       relations: [
         'tagSubTechniques',
+        'tagSubTechniques.tagSubTechniquesProperties',
+        'tagSubTechniques.tagSubTechniquesProperties.images',
       ],
     });
   }
@@ -50,6 +52,8 @@ export class MarkingTagServicesService {
       },
       relations: [
         'tagSubTechniques',
+        'tagSubTechniques.tagSubTechniquesProperties',
+        'tagSubTechniques.tagSubTechniquesProperties.images',
       ],
     });
 
@@ -66,6 +70,11 @@ export class MarkingTagServicesService {
       where: {
         id,
       },
+      relations: [
+        'tagSubTechniques',
+        'tagSubTechniques.tagSubTechniquesProperties',
+        'tagSubTechniques.tagSubTechniquesProperties.images',
+      ],
     });
 
     if (!markingTagService)
