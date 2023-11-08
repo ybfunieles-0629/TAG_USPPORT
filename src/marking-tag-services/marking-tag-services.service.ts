@@ -39,8 +39,8 @@ export class MarkingTagServicesService {
       skip: offset,
       relations: [
         'tagSubTechniques',
-        'tagSubTechniques.tagSubTechniquesProperties',
-        'tagSubTechniques.tagSubTechniquesProperties.images',
+        'tagSubTechniques.tagSubTechniqueProperties',
+        'tagSubTechniques.tagSubTechniqueProperties.images',
       ],
     });
   }
