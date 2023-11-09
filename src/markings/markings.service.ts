@@ -122,6 +122,10 @@ export class MarkingsService {
     return this.markingRepository.find({
       take: limit,
       skip: offset,
+      relations: [
+        'company',
+        'markingTagService',
+      ],
     });
   }
 
@@ -130,6 +134,10 @@ export class MarkingsService {
       where: {
         id,
       },
+      relations: [
+        'company',
+        'markingTagService',
+      ],
     });
 
     if (!marking)
@@ -145,6 +153,10 @@ export class MarkingsService {
       where: {
         id,
       },
+      relations: [
+        'company',
+        'markingTagService',
+      ],
     });
 
     if (!marking)
@@ -201,6 +213,10 @@ export class MarkingsService {
         where: {
           id: updateMarkingDto.id,
         },
+        relations: [
+          'company',
+          'markingTagService',
+        ],
       });
 
       if (!marking)
