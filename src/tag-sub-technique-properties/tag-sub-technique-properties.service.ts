@@ -16,7 +16,7 @@ export class TagSubTechniquePropertiesService {
 
     @InjectRepository(TagSubTechnique)
     private readonly tagSubTechniqueRepository: Repository<TagSubTechnique>,
-    ) { }
+  ) { }
 
   async create(createTagSubTechniquePropertyDto: CreateTagSubTechniquePropertyDto) {
     const newTagSubTechniqueProperty = plainToClass(TagSubTechniqueProperty, createTagSubTechniquePropertyDto);
@@ -167,7 +167,7 @@ export class TagSubTechniquePropertiesService {
       Object.assign(tagSubTechniqueProperty, updatedTagSubTechniqueProperty);
 
       const tagSubTechniquePropertySaved = await this.tagSubTechniquePropertyRepository.save(tagSubTechniqueProperty);
-    
+
       updatedTagSubTechniqueProperties.push(tagSubTechniquePropertySaved);
     }
 
