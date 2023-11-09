@@ -91,9 +91,6 @@ export class Supplier {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @OneToOne(() => ExternalSubTechnique, (externalSubTechnique) => externalSubTechnique.supplier)
-  externalSubTechnique: ExternalSubTechnique;
-
   @OneToOne(() => User, (user) => user.supplier)
   user: User;
 
