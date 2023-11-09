@@ -16,6 +16,13 @@ export class ExternalSubTechniquesController {
     return this.externalSubTechniquesService.create(createExternalSubTechniqueDto);
   }
 
+  @Post('create/multiple')
+  createMultiple(
+    @Body() createExternalSubTechniques: CreateExternalSubTechniqueDto[]
+  ) {
+    return this.externalSubTechniquesService.createMultiple(createExternalSubTechniques);
+  }
+
   @Get()
   findAll(
     @Query() paginationDto: PaginationDto
@@ -36,6 +43,13 @@ export class ExternalSubTechniquesController {
     @Body() updateExternalSubTechniqueDto: UpdateExternalSubTechniqueDto
   ) {
     return this.externalSubTechniquesService.update(id, updateExternalSubTechniqueDto);
+  }
+
+  @Patch('update/multiple')
+  updateMultiple(
+    @Body() updateExternalSubTechniques: UpdateExternalSubTechniqueDto[]
+  ) {
+    return this.externalSubTechniquesService.updateMultiple(updateExternalSubTechniques);
   }
 
   @Patch('/desactivate/:id')

@@ -38,10 +38,6 @@ export class ExternalSubTechnique {
   updatedAt: Date;
 
   //* ---- FK ---- *//
-  @OneToOne(() => Supplier, (supplier) => supplier.externalSubTechnique)
-  @JoinColumn()
-  supplier: Supplier;
-
   @OneToOne(() => MarkingService, (markingService) => markingService.externalSubTechnique)
   markingService: MarkingService;
 

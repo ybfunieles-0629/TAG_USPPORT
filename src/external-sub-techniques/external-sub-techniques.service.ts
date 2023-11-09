@@ -9,6 +9,7 @@ import { ExternalSubTechnique } from './entities/external-sub-technique.entity';
 import { Marking } from '../markings/entities/marking.entity';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { TagSubTechnique } from '../tag-sub-techniques/entities/tag-sub-technique.entity';
 
 @Injectable()
 export class ExternalSubTechniquesService {
@@ -19,8 +20,8 @@ export class ExternalSubTechniquesService {
     @InjectRepository(Marking)
     private readonly markingRepository: Repository<Marking>,
 
-    @InjectRepository(Supplier)
-    private readonly supplierRepository: Repository<Supplier>,
+    @InjectRepository(TagSubTechnique)
+    private readonly tagSubTechniqueRepository: Repository<TagSubTechnique>,
   ) { }
 
   async create(createExternalSubTechniqueDto: CreateExternalSubTechniqueDto) {
@@ -35,22 +36,65 @@ export class ExternalSubTechniquesService {
     if (!marking)
       throw new NotFoundException(`Marking with id ${createExternalSubTechniqueDto.marking} not found`);
 
-    const supplier = await this.supplierRepository.findOne({
-      where: {
-        id: createExternalSubTechniqueDto.supplier,
-      },
-    });
+    if (createExternalSubTechniqueDto.tagSubTechnique) {
+      const tagSubTechnique = await this.tagSubTechniqueRepository.findOne({
+        where: {
+          id: createExternalSubTechniqueDto.tagSubTechnique,
+        },
+      });
 
-    if (!supplier)
-      throw new NotFoundException(`Supplier with id ${createExternalSubTechniqueDto.supplier} not found`);
+      if (!tagSubTechnique)
+        throw new NotFoundException(`Tag sub technique with id ${createExternalSubTechniqueDto.tagSubTechnique} not found`);
+
+      newExternalSubTechnique.tagSubTechnique = tagSubTechnique;
+    }
 
     newExternalSubTechnique.marking = marking;
-    newExternalSubTechnique.supplier = supplier;
 
     await this.externalSubTechniqueRepository.save(newExternalSubTechnique);
 
     return {
       newExternalSubTechnique
+    };
+  }
+
+  async createMultiple(createExternalSubTechniques: CreateExternalSubTechniqueDto[]) {
+    const createdExternalSubTechniques: ExternalSubTechnique[] = [];
+
+    for (const createExternalSubTechniqueDto of createExternalSubTechniques) {
+      const newExternalSubTechnique = plainToClass(ExternalSubTechnique, createExternalSubTechniqueDto);
+
+      const marking = await this.markingRepository.findOne({
+        where: {
+          id: createExternalSubTechniqueDto.marking,
+        },
+      });
+
+      if (!marking)
+        throw new NotFoundException(`Marking with id ${createExternalSubTechniqueDto.marking} not found`);
+
+      if (createExternalSubTechniqueDto.tagSubTechnique) {
+        const tagSubTechnique = await this.tagSubTechniqueRepository.findOne({
+          where: {
+            id: createExternalSubTechniqueDto.tagSubTechnique,
+          },
+        });
+
+        if (!tagSubTechnique)
+          throw new NotFoundException(`Tag sub technique with id ${createExternalSubTechniqueDto.tagSubTechnique} not found`);
+
+        newExternalSubTechnique.tagSubTechnique = tagSubTechnique;
+      }
+
+      newExternalSubTechnique.marking = marking;
+
+      const createdExternalSubTechnique = await this.externalSubTechniqueRepository.save(newExternalSubTechnique);
+
+      createdExternalSubTechniques.push(createdExternalSubTechnique);
+    }
+
+    return {
+      createdExternalSubTechniques
     };
   }
 
@@ -62,7 +106,7 @@ export class ExternalSubTechniquesService {
       skip: offset,
       relations: [
         'marking',
-        'supplier',
+        'tagSubTechnique',
       ],
     });
   }
@@ -74,12 +118,12 @@ export class ExternalSubTechniquesService {
       },
       relations: [
         'marking',
-        'supplier',
+        'tagSubTechnique',
       ],
     });
 
     if (!externalSubTechnique)
-      throw new NotFoundException(`External sub technique with id ${id} not found`);
+      throw new NotFoundException(`Tag sub technique with id ${id} not found`);
 
     return {
       externalSubTechnique
@@ -107,17 +151,21 @@ export class ExternalSubTechniquesService {
     if (!marking)
       throw new NotFoundException(`Marking with id ${updateExternalSubTechniqueDto.marking} not found`);
 
-    const supplier = await this.supplierRepository.findOne({
-      where: {
-        id: updateExternalSubTechniqueDto.supplier,
-      },
-    });
+    if (updateExternalSubTechniqueDto.tagSubTechnique) {
 
-    if (!supplier)
-      throw new NotFoundException(`Supplier with id ${updateExternalSubTechniqueDto.supplier} not found`);
+      const tagSubTechnique = await this.tagSubTechniqueRepository.findOne({
+        where: {
+          id: updateExternalSubTechniqueDto.tagSubTechnique,
+        },
+      });
+
+      if (!tagSubTechnique)
+        throw new NotFoundException(`Tag sub technique with id ${updateExternalSubTechniqueDto.tagSubTechnique} not found`);
+
+      updatedExternalSubTechnique.tagSubTechnique = tagSubTechnique;
+    }
 
     updatedExternalSubTechnique.marking = marking;
-    updatedExternalSubTechnique.supplier = supplier;
 
     Object.assign(externalSubTechnique, updatedExternalSubTechnique);
 
@@ -125,6 +173,59 @@ export class ExternalSubTechniquesService {
 
     return {
       externalSubTechnique
+    };
+  }
+
+  async updateMultiple(updateExternalSubTechniques: UpdateExternalSubTechniqueDto[]) {
+    const updatedExternalSubTechniques: ExternalSubTechnique[] = [];
+
+    for (const updateExternalSubTechniqueDto of updateExternalSubTechniques) {
+
+      const externalSubTechnique = await this.externalSubTechniqueRepository.findOne({
+        where: {
+          id: updateExternalSubTechniqueDto.id,
+        },
+      });
+
+      if (!externalSubTechnique)
+        throw new NotFoundException(`External sub technique with id ${updateExternalSubTechniqueDto.id} not found`);
+
+      const updatedExternalSubTechnique = plainToClass(ExternalSubTechnique, updateExternalSubTechniqueDto);
+
+      const marking = await this.markingRepository.findOne({
+        where: {
+          id: updateExternalSubTechniqueDto.marking,
+        },
+      });
+
+      if (!marking)
+        throw new NotFoundException(`Marking with id ${updateExternalSubTechniqueDto.marking} not found`);
+
+      if (updateExternalSubTechniqueDto.tagSubTechnique) {
+
+        const tagSubTechnique = await this.tagSubTechniqueRepository.findOne({
+          where: {
+            id: updateExternalSubTechniqueDto.tagSubTechnique,
+          },
+        });
+
+        if (!tagSubTechnique)
+          throw new NotFoundException(`Tag sub technique with id ${updateExternalSubTechniqueDto.tagSubTechnique} not found`);
+
+        updatedExternalSubTechnique.tagSubTechnique = tagSubTechnique;
+      }
+
+      updatedExternalSubTechnique.marking = marking;
+
+      Object.assign(externalSubTechnique, updatedExternalSubTechnique);
+
+      const updatedExternalSubTechniqueResult = await this.externalSubTechniqueRepository.save(externalSubTechnique);
+
+      updatedExternalSubTechniques.push(updatedExternalSubTechniqueResult);
+    }
+
+    return {
+      updatedExternalSubTechniques
     };
   }
 

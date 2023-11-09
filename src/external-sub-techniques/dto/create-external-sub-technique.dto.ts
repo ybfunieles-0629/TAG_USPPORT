@@ -5,6 +5,9 @@ export class CreateExternalSubTechniqueDto {
   name: string;
 
   @IsString()
+  description: string;
+
+  @IsString()
   @IsUUID()
   createdBy: string;
 
@@ -19,5 +22,5 @@ export class CreateExternalSubTechniqueDto {
 
   @IsOptional()
   @IsString()
-  supplier?: string;
+  tagSubTechnique?: string;
 }

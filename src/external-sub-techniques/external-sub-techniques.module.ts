@@ -6,10 +6,12 @@ import { ExternalSubTechniquesController } from './external-sub-techniques.contr
 import { ExternalSubTechnique } from './entities/external-sub-technique.entity';
 import { SuppliersModule } from '../suppliers/suppliers.module';
 import { MarkingsModule } from '../markings/markings.module';
+import { TagSubTechniquesModule } from '../tag-sub-techniques/tag-sub-techniques.module';
 
 @Module({
   imports: [
     MarkingsModule,
+    TagSubTechniquesModule,
     SuppliersModule,
     TypeOrmModule.forFeature([ExternalSubTechnique]),
   ],
