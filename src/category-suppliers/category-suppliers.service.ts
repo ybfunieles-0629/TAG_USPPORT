@@ -303,7 +303,7 @@ export class CategorySuppliersService {
   async findAll(paginationDto: PaginationDto) {
     const totalCount = await this.categorySupplierRepository.count();
 
-    const { limit = totalCount, offset = 0 } = paginationDto;
+    const { limit = 10, offset = 0 } = paginationDto;
 
     const results = await this.categorySupplierRepository.find({
       take: limit,
