@@ -20,11 +20,6 @@ export class Marking {
   })
   description: string;
 
-  @Column('varchar', {
-
-  })
-  markingTechnique: string;
-
   @Column('int', {
 
   })

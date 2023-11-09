@@ -29,6 +29,38 @@ export class MarkingsService {
   async create(createMarkingDto: CreateMarkingDto) {
     const newMarking = plainToClass(Marking, createMarkingDto);
 
+    if (createMarkingDto.markingTagService) {
+      const markingTagService = await this.markingTagServiceRepository.findOne({
+        where: {
+          id: createMarkingDto.markingTagService,
+        },
+      });
+
+      if (!markingTagService)
+        throw new NotFoundException(`Marking tag service with id ${createMarkingDto.markingTagService} not found`);
+
+      if (!markingTagService.isActive)
+        throw new BadRequestException(`Marking tag service with id ${createMarkingDto.markingTagService} is currently inactive`);
+
+      newMarking.markingTagService = markingTagService;
+    }
+
+    if (createMarkingDto.company) {
+      const company = await this.companyRepository.findOne({
+        where: {
+          id: createMarkingDto.company,
+        },
+      });
+
+      if (!company)
+        throw new NotFoundException(`Company with id ${createMarkingDto.company} not found`);
+
+      if (!company.isActive)
+        throw new BadRequestException(`Company with id ${createMarkingDto.company} is currently inactive`);
+
+      newMarking.company = company;
+    }
+
     await this.markingRepository.save(newMarking);
 
     return {
@@ -41,6 +73,38 @@ export class MarkingsService {
 
     for (const createMarkingDto of createMultipleMarkings) {
       const newMarking = plainToClass(Marking, createMarkingDto);
+
+      if (createMarkingDto.markingTagService) {
+        const markingTagService = await this.markingTagServiceRepository.findOne({
+          where: {
+            id: createMarkingDto.markingTagService,
+          },
+        });
+
+        if (!markingTagService)
+          throw new NotFoundException(`Marking tag service with id ${createMarkingDto.markingTagService} not found`);
+
+        if (!markingTagService.isActive)
+          throw new BadRequestException(`Marking tag service with id ${createMarkingDto.markingTagService} is currently inactive`);
+
+        newMarking.markingTagService = markingTagService;
+      }
+
+      if (createMarkingDto.company) {
+        const company = await this.companyRepository.findOne({
+          where: {
+            id: createMarkingDto.company,
+          },
+        });
+
+        if (!company)
+          throw new NotFoundException(`Company with id ${createMarkingDto.company} not found`);
+
+        if (!company.isActive)
+          throw new BadRequestException(`Company with id ${createMarkingDto.company} is currently inactive`);
+
+        newMarking.company = company;
+      }
 
       await this.markingRepository.save(newMarking);
 
@@ -88,6 +152,38 @@ export class MarkingsService {
 
     const updatedMarking = plainToClass(Marking, updateMarkingDto);
 
+    if (updateMarkingDto.markingTagService) {
+      const markingTagService = await this.markingTagServiceRepository.findOne({
+        where: {
+          id: updateMarkingDto.markingTagService,
+        },
+      });
+
+      if (!markingTagService)
+        throw new NotFoundException(`Marking tag service with id ${updateMarkingDto.markingTagService} not found`);
+
+      if (!markingTagService.isActive)
+        throw new BadRequestException(`Marking tag service with id ${updateMarkingDto.markingTagService} is currently inactive`);
+
+      updatedMarking.markingTagService = markingTagService;
+    }
+
+    if (updateMarkingDto.company) {
+      const company = await this.companyRepository.findOne({
+        where: {
+          id: updateMarkingDto.company,
+        },
+      });
+
+      if (!company)
+        throw new NotFoundException(`Company with id ${updateMarkingDto.company} not found`);
+
+      if (!company.isActive)
+        throw new BadRequestException(`Company with id ${updateMarkingDto.company} is currently inactive`);
+
+      updatedMarking.company = company;
+    }
+
     Object.assign(marking, updatedMarking);
 
     await this.markingRepository.save(marking);
@@ -111,6 +207,38 @@ export class MarkingsService {
         throw new NotFoundException(`Marking with id ${updateMarkingDto.id} not found`);
 
       const updatedMarking = plainToClass(Marking, updateMarkingDto);
+
+      if (updateMarkingDto.markingTagService) {
+        const markingTagService = await this.markingTagServiceRepository.findOne({
+          where: {
+            id: updateMarkingDto.markingTagService,
+          },
+        });
+
+        if (!markingTagService)
+          throw new NotFoundException(`Marking tag service with id ${updateMarkingDto.markingTagService} not found`);
+
+        if (!markingTagService.isActive)
+          throw new BadRequestException(`Marking tag service with id ${updateMarkingDto.markingTagService} is currently inactive`);
+
+        updatedMarking.markingTagService = markingTagService;
+      }
+
+      if (updateMarkingDto.company) {
+        const company = await this.companyRepository.findOne({
+          where: {
+            id: updateMarkingDto.company,
+          },
+        });
+
+        if (!company)
+          throw new NotFoundException(`Company with id ${updateMarkingDto.company} not found`);
+
+        if (!company.isActive)
+          throw new BadRequestException(`Company with id ${updateMarkingDto.company} is currently inactive`);
+
+        updatedMarking.company = company;
+      }
 
       Object.assign(marking, updatedMarking);
 

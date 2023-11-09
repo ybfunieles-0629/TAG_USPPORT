@@ -7,9 +7,6 @@ export class CreateMarkingDto {
   @IsString()
   description: string;
 
-  @IsString()
-  markingTechnique: string;
-
   @IsOptional()
   @IsInt()
   iva: number;
@@ -21,9 +18,4 @@ export class CreateMarkingDto {
   @IsOptional()
   @IsString()
   company: string;
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  markedServicePrices?: string[];
 }
