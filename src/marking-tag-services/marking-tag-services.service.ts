@@ -31,10 +31,12 @@ export class MarkingTagServicesService {
     }
   }
 
-  findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto) {
+    const totalCount = await this.markingTagServiceRepository.count();
+
     const { limit = 10, offset = 0 } = paginationDto;
 
-    return this.markingTagServiceRepository.find({
+    const results = await this.markingTagServiceRepository.find({
       take: limit,
       skip: offset,
       relations: [
@@ -43,6 +45,11 @@ export class MarkingTagServicesService {
         'tagSubTechniques.tagSubTechniqueProperties.images',
       ],
     });
+
+    return {
+      totalCount,
+      results
+    };
   }
 
   async findOne(id: string) {
