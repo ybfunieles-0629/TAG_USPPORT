@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn, OneToOne, JoinTable } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn, OneToOne, JoinTable, JoinColumn } from 'typeorm';
 
 import { MarkingTagService } from '../../marking-tag-services/entities/marking-tag-service.entity';
 import { Company } from '../../companies/entities/company.entity';
@@ -38,7 +38,7 @@ export class Marking {
 
   //* --- FK --- *//
   @OneToOne(() => MarkingTagService, (markingTagService) => markingTagService.marking)
-  @JoinTable()
+  @JoinColumn()
   markingTagService: MarkingTagService;
 
   @OneToOne(() => MarkingService, (markingService) => markingService.marking)
