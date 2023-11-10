@@ -5,11 +5,22 @@ import { ExternalSubTechnique } from '../../external-sub-techniques/entities/ext
 import { TagSubTechniqueProperty } from '../../tag-sub-technique-properties/entities/tag-sub-technique-property.entity';
 import { MarkingService } from '../../marking-services/entities/marking-service.entity';
 import { RefProduct } from '../../ref-products/entities/ref-product.entity';
+import { Image } from 'src/images/entities/image.entity';
 
 @Entity('marking_service_properties')
 export class MarkingServiceProperty {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column('varchar', {
+
+  })
+  name: string;
+
+  @Column('varchar', {
+
+  })
+  description: string;
 
   @Column('varchar', {
 
@@ -25,6 +36,16 @@ export class MarkingServiceProperty {
 
   })
   property: string;
+
+  @Column('int', {
+
+  })
+  large: number;
+
+  @Column('int', {
+
+  })
+  width: number;
 
   @Column('varchar', {
     
@@ -48,6 +69,9 @@ export class MarkingServiceProperty {
   updatedAt: Date;
 
   //* --- FK --- *//
+  @OneToMany(() => Image, (image) => image.markingServiceProperty)
+  images: Image[];
+
   @OneToOne(() => TagSubTechniqueProperty, (tagSubTechniqueProperty) => tagSubTechniqueProperty.markingServiceProperty)
   tagSubTechniqueProperty: TagSubTechniqueProperty;
 

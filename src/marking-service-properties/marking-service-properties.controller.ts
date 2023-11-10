@@ -14,6 +14,13 @@ export class MarkingServicePropertiesController {
     return this.markingServicePropertiesService.create(createMarkingServicePropertyDto);
   }
 
+  @Post('create/multiple')
+  createMultiple(
+    @Body() createMarkingServiceProperties: CreateMarkingServicePropertyDto[]
+  ) {
+    return this.markingServicePropertiesService.createMultiple(createMarkingServiceProperties);
+  }
+
   @Get()
   findAll(
     @Query() paginationDto: PaginationDto
@@ -32,6 +39,13 @@ export class MarkingServicePropertiesController {
     @Body() updateMarkingServicePropertyDto: UpdateMarkingServicePropertyDto
   ) {
     return this.markingServicePropertiesService.update(id, updateMarkingServicePropertyDto);
+  }
+
+  @Patch('update/multiple')
+  updateMultiple(
+    @Body() updateMarkingServiceProperties: UpdateMarkingServicePropertyDto[]
+  ) {
+    return this.markingServicePropertiesService.updateMultiple(updateMarkingServiceProperties);
   }
 
   @Patch('/desactivate/:id')
