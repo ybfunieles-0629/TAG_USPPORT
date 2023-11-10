@@ -42,6 +42,33 @@ export class MarkedServicePricesService {
     };
   }
 
+  async createMultiple(createMarkedServicePrices: CreateMarkedServicePriceDto[]) {
+    const createdMarkedServicePrices: MarkedServicePrice[] = [];
+
+    for (const createMarkedServicePriceDto of createMarkedServicePrices) {
+      const newMarkedServicePrice = plainToClass(MarkedServicePrice, createMarkedServicePriceDto);
+
+      const markingServiceProperty = await this.markingServicePropertyRepository.findOne({
+        where: {
+          id: createMarkedServicePriceDto.markingServiceProperty,
+        },
+      });
+
+      if (!markingServiceProperty)
+        throw new NotFoundException(`Marking service property with id ${createMarkedServicePriceDto.markingServiceProperty} not found`);
+
+      newMarkedServicePrice.markingServiceProperty = markingServiceProperty;
+
+      const createdMarkedServicePrice = await this.markedServicePriceRepository.save(newMarkedServicePrice);
+
+      createdMarkedServicePrices.push(createdMarkedServicePrice);
+    }
+
+    return {
+      createdMarkedServicePrices
+    };
+  }
+
   findAll(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
 
@@ -104,6 +131,47 @@ export class MarkedServicePricesService {
 
     return {
       markedServicePrice
+    };
+  }
+
+  async updateMultiple(updateMarkedServicePrices: UpdateMarkedServicePriceDto[]) {
+    const updatedMarkedServicePrices: MarkedServicePrice[] = [];
+
+    for (const updateMarkedServicePriceDto of updateMarkedServicePrices) {
+      const markedServicePrice = await this.markedServicePriceRepository.findOne({
+        where: {
+          id: updateMarkedServicePriceDto.id,
+        },
+        relations: [
+          'markedServicePrice',
+        ],
+      });
+
+      if (!markedServicePrice)
+        throw new NotFoundException(`Marked service price with id ${updateMarkedServicePriceDto.id} not found`);
+
+      const updatedMarkedServicePrice = plainToClass(MarkedServicePrice, updateMarkedServicePriceDto);
+
+      const markingServiceProperty = await this.markingServicePropertyRepository.findOne({
+        where: {
+          id: updateMarkedServicePriceDto.markingServiceProperty,
+        },
+      });
+
+      if (!markingServiceProperty)
+        throw new NotFoundException(`Marking service property with id ${updateMarkedServicePriceDto.markingServiceProperty} not found`);
+
+      updatedMarkedServicePrice.markingServiceProperty = markingServiceProperty;
+
+      Object.assign(markedServicePrice, updatedMarkedServicePrice);
+
+      const updatedMarkedServicePriceResult = await this.markedServicePriceRepository.save(markedServicePrice);
+
+      updatedMarkedServicePrices.push(updatedMarkedServicePriceResult);
+    }
+
+    return {
+      updatedMarkedServicePrices
     };
   }
 

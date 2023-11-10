@@ -14,6 +14,13 @@ export class MarkedServicePricesController {
     return this.markedServicePricesService.create(createMarkedServicePriceDto);
   }
 
+  @Post('creat/multiple')
+  createMultiple(
+    @Body() createMarkedServicePrices: CreateMarkedServicePriceDto[]
+  ) {
+    return this.markedServicePricesService.createMultiple(createMarkedServicePrices);
+  }
+
   @Get()
   findAll(
     @Query() paginationDto: PaginationDto
@@ -32,6 +39,13 @@ export class MarkedServicePricesController {
     @Body() updateMarkedServicePriceDto: UpdateMarkedServicePriceDto
   ) {
     return this.markedServicePricesService.update(id, updateMarkedServicePriceDto);
+  }
+
+  @Patch('update/multiple')
+  updateMultiple(
+    @Body() updateMarkedServicePrices: UpdateMarkedServicePriceDto[]
+  ) {
+    return this.markedServicePricesService.updateMultiple(updateMarkedServicePrices);
   }
 
   @Patch('/desactivate/:id')
