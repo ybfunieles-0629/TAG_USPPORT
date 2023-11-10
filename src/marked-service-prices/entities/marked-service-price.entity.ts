@@ -8,21 +8,6 @@ export class MarkedServicePrice {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('varchar', {
-
-  })
-  markedServiceTagTechnique: string;
-
-  @Column('varchar', {
-    
-  })
-  subTechnique: string;
-
-  @Column('varchar', {
-    
-  })
-  markedServiceSubTagTechnique: string;
-
   @Column('int', {
     
   })
@@ -32,21 +17,6 @@ export class MarkedServicePrice {
     
   })
   maxRange: number;
-
-  @Column('int', {
-    
-  })
-  maxLarge: number;
-
-  @Column('int', {
-    
-  })
-  maxWidth: number;
-
-  @Column('varchar', {
-    
-  })
-  property: string;
 
   @Column('float', {
     
