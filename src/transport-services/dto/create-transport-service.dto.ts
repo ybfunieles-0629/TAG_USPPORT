@@ -4,6 +4,9 @@ export class CreateTransportServiceDto {
   @IsInt()
   api: number;
 
+  @IsInt()
+  insurance: number;
+
   @IsString()
   @IsUUID()
   createdBy: string;

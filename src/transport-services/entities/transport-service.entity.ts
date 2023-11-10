@@ -13,6 +13,11 @@ export class TransportService {
   })
   api: number;
 
+  @Column('int', {
+
+  })
+  insurance: number;
+
   @Column('varchar', {
     
   })
