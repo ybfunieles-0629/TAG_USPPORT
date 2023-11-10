@@ -125,6 +125,10 @@ export class MarkingsService {
       relations: [
         'company',
         'markingTagService',
+        'externalSubTechniques.tagSubTechnique',
+        'externalSubTechniques.markingServiceProperties',
+        'externalSubTechniques.markingServiceProperties.markedServicePrices',
+        'externalSubTechniques.markingServiceProperties.tagSubTechniqueProperty',
       ],
     });
   }
@@ -137,6 +141,10 @@ export class MarkingsService {
       relations: [
         'company',
         'markingTagService',
+        'externalSubTechniques.tagSubTechnique',
+        'externalSubTechniques.markingServiceProperties',
+        'externalSubTechniques.markingServiceProperties.markedServicePrices',
+        'externalSubTechniques.markingServiceProperties.tagSubTechniqueProperty',
       ],
     });
 
@@ -156,6 +164,10 @@ export class MarkingsService {
       relations: [
         'company',
         'markingTagService',
+        'externalSubTechniques.tagSubTechnique',
+        'externalSubTechniques.markingServiceProperties',
+        'externalSubTechniques.markingServiceProperties.markedServicePrices',
+        'externalSubTechniques.markingServiceProperties.tagSubTechniqueProperty',
       ],
     });
 
@@ -216,6 +228,10 @@ export class MarkingsService {
         relations: [
           'company',
           'markingTagService',
+          'externalSubTechniques.tagSubTechnique',
+          'externalSubTechniques.markingServiceProperties',
+          'externalSubTechniques.markingServiceProperties.markedServicePrices',
+          'externalSubTechniques.markingServiceProperties.tagSubTechniqueProperty',
         ],
       });
 
