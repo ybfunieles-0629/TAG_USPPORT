@@ -19,6 +19,11 @@ export class ExternalSubTechnique {
   @Column('varchar', {
 
   })
+  description: string;
+
+  @Column('varchar', {
+
+  })
   createdBy: string;
 
   @Column('varchar', {
