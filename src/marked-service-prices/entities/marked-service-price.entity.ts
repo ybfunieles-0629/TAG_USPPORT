@@ -23,8 +23,8 @@ export class MarkedServicePrice {
   })
   unitPrice: number;
 
-  @Column('date')
-  deliveryTime: Date;
+  @Column('int')
+  deliveryTime: number;
 
   @Column('boolean', {
 

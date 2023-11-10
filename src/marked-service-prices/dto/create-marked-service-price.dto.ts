@@ -10,8 +10,8 @@ export class CreateMarkedServicePriceDto {
   @IsDecimal()
   unitPrice: number;
 
-  @IsDate()
-  deliveryTime: Date;
+  @IsInt()
+  deliveryTime: number;
 
   @IsString()
   markingServiceProperty: string;
