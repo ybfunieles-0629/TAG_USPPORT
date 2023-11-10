@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGenerate
 
 import { RefProduct } from '../../ref-products/entities/ref-product.entity';
 import { TagSubTechniqueProperty } from 'src/tag-sub-technique-properties/entities/tag-sub-technique-property.entity';
+import { MarkingServiceProperty } from 'src/marking-service-properties/entities/marking-service-property.entity';
 
 @Entity('images')
 export class Image {
@@ -22,6 +23,9 @@ export class Image {
   //* --- FK ---*//
   @ManyToOne(() => TagSubTechniqueProperty, (tagSubTechniqueProperty) => tagSubTechniqueProperty.images)
   tagSubTechniqueProperty: TagSubTechniqueProperty;
+
+  @ManyToOne(() => MarkingServiceProperty, (markingServiceProperty) => markingServiceProperty.images)
+  markingServiceProperty: MarkingServiceProperty;
 
   @ManyToOne(() => RefProduct, (refProduct) => refProduct.images)
   refProduct: RefProduct;
