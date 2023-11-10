@@ -105,7 +105,7 @@ export class MarkedServicePricesService {
         id,
       },
       relations: [
-        'markedServicePrice',
+        'markingServiceProperty',
       ],
     });
 
@@ -143,7 +143,7 @@ export class MarkedServicePricesService {
           id: updateMarkedServicePriceDto.id,
         },
         relations: [
-          'markedServicePrice',
+          'markingServiceProperty',
         ],
       });
 
