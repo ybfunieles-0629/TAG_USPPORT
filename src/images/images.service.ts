@@ -11,6 +11,7 @@ import { Image } from './entities/image.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { RefProduct } from '../ref-products/entities/ref-product.entity';
 import { TagSubTechniqueProperty } from '../tag-sub-technique-properties/entities/tag-sub-technique-property.entity';
+import { MarkingServiceProperty } from '../marking-service-properties/entities/marking-service-property.entity';
 
 @Injectable()
 export class ImagesService {
@@ -19,6 +20,9 @@ export class ImagesService {
   constructor(
     @InjectRepository(Image)
     private readonly imageRepository: Repository<Image>,
+
+    @InjectRepository(MarkingServiceProperty)
+    private readonly markingServicePropertyRepository: Repository<MarkingServiceProperty>,
 
     @InjectRepository(RefProduct)
     private readonly refProductRepository: Repository<RefProduct>,
@@ -62,6 +66,22 @@ export class ImagesService {
       newImage.tagSubTechniqueProperty = tagSubTechniqueProperty;
     }
 
+    if (createImageDto.markingServiceProperty) {
+      const markingServiceProperty = await this.markingServicePropertyRepository.findOne({
+        where: {
+          id: createImageDto.markingServiceProperty,
+        },
+      });
+
+      if (!markingServiceProperty)
+        throw new NotFoundException(`Marking service property with id ${createImageDto.markingServiceProperty} not found`);
+
+      // if (!markingServiceProperty.isActive)
+      //   throw new BadRequestException(`Ref product with id ${createImageDto.markingServiceProperty} is currently inactive`);
+
+      newImage.markingServiceProperty = markingServiceProperty;
+    }
+
     let imageAwsUrl: string = '';
 
     if (file !== null) {
@@ -93,6 +113,7 @@ export class ImagesService {
       relations: [
         'refProduct',
         'tagSubTechniqueProperty',
+        'markingServiceProperty',
       ],
     });
   }
@@ -105,6 +126,7 @@ export class ImagesService {
       relations: [
         'refProduct',
         'tagSubTechniqueProperty',
+        'markingServiceProperty',
       ],
     });
 
@@ -124,6 +146,7 @@ export class ImagesService {
       relations: [
         'refProduct',
         'tagSubTechniqueProperty',
+        'markingServiceProperty',
       ],
     });
 
@@ -162,6 +185,22 @@ export class ImagesService {
       //   throw new BadRequestException(`Ref product with id ${updateImageDto.tagSubTechniqueProperty} is currently inactive`);
 
       updatedImage.tagSubTechniqueProperty = tagSubTechniqueProperty;
+    }
+
+    if (updateImageDto.markingServiceProperty) {
+      const markingServiceProperty = await this.markingServicePropertyRepository.findOne({
+        where: {
+          id: updateImageDto.markingServiceProperty,
+        },
+      });
+
+      if (!markingServiceProperty)
+        throw new NotFoundException(`Marking service property with id ${updateImageDto.markingServiceProperty} not found`);
+
+      // if (!markingServiceProperty.isActive)
+      //   throw new BadRequestException(`Ref product with id ${updateImageDto.markingServiceProperty} is currently inactive`);
+
+      updatedImage.markingServiceProperty = markingServiceProperty;
     }
 
     let imageAwsUrl: string = '';

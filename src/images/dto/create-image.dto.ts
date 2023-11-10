@@ -11,4 +11,8 @@ export class CreateImageDto {
   @IsOptional()
   @IsString()
   tagSubTechniqueProperty?: string;
+
+  @IsOptional()
+  @IsString()
+  markingServiceProperty?: string;
 }
