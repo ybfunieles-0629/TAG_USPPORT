@@ -8,7 +8,7 @@ import { UpdateMarkingServicePropertyDto } from './dto/update-marking-service-pr
 import { MarkingServiceProperty } from './entities/marking-service-property.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { ExternalSubTechnique } from '../external-sub-techniques/entities/external-sub-technique.entity';
-import { Image } from '../images/entities/image.entity';
+import { TagSubTechniqueProperty } from 'src/tag-sub-technique-properties/entities/tag-sub-technique-property.entity';
 
 @Injectable()
 export class MarkingServicePropertiesService {
@@ -21,8 +21,8 @@ export class MarkingServicePropertiesService {
     @InjectRepository(ExternalSubTechnique)
     private readonly externalSubTechniqueRepository: Repository<ExternalSubTechnique>,
 
-    @InjectRepository(Image)
-    private readonly imageRepository: Repository<Image>,
+    @InjectRepository(TagSubTechniqueProperty)
+    private readonly tagSubTechniquePropertyRepository: Repository<TagSubTechniqueProperty>,
   ) { }
 
   async create(createMarkingServicePropertyDto: CreateMarkingServicePropertyDto) {
@@ -37,26 +37,23 @@ export class MarkingServicePropertiesService {
     if (!externalSubTechnique)
       throw new NotFoundException(`External sub technique with id ${createMarkingServicePropertyDto.externalSubTechnique} not found`);
 
-    newMarkingServiceProperty.externalSubTechnique = externalSubTechnique;
+    if (createMarkingServicePropertyDto.tagSubTechniqueProperty) {
+      const tagSubTechniqueProperty = await this.tagSubTechniquePropertyRepository.findOne({
+        where: {
+          id: createMarkingServicePropertyDto.tagSubTechniqueProperty,
+        },
+      });
 
-    if (createMarkingServicePropertyDto.images) {
-      const images: Image[] = [];
+      if (!tagSubTechniqueProperty)
+        throw new NotFoundException(`Tag sub technique property with id ${createMarkingServicePropertyDto.tagSubTechniqueProperty} not found`);
 
-      for (const imageId of createMarkingServicePropertyDto.images) {
-        const image: Image = await this.imageRepository.findOne({
-          where: {
-            id: imageId,
-          },
-        });
+      if (!tagSubTechniqueProperty.isActive)
+        throw new BadRequestException(`Tag sub technique property with id ${createMarkingServicePropertyDto.tagSubTechniqueProperty} is currently inactive`);
 
-        if (!image)
-          throw new NotFoundException(`Image with id ${imageId} not found`);
-
-        images.push(image);
-      };
-
-      newMarkingServiceProperty.images = images;
+      newMarkingServiceProperty.tagSubTechniqueProperty = tagSubTechniqueProperty;
     }
+
+    newMarkingServiceProperty.externalSubTechnique = externalSubTechnique;
 
     await this.markingServicePropertyRepository.save(newMarkingServiceProperty);
 
@@ -81,26 +78,23 @@ export class MarkingServicePropertiesService {
       if (!externalSubTechnique)
         throw new NotFoundException(`External sub technique with id ${createMarkingServicePropertyDto.externalSubTechnique} not found`);
 
-      newMarkingServiceProperty.externalSubTechnique = externalSubTechnique;
+      if (createMarkingServicePropertyDto.tagSubTechniqueProperty) {
+        const tagSubTechniqueProperty = await this.tagSubTechniquePropertyRepository.findOne({
+          where: {
+            id: createMarkingServicePropertyDto.tagSubTechniqueProperty,
+          },
+        });
 
-      if (createMarkingServicePropertyDto.images) {
-        const images: Image[] = [];
+        if (!tagSubTechniqueProperty)
+          throw new NotFoundException(`Tag sub technique property with id ${createMarkingServicePropertyDto.tagSubTechniqueProperty} not found`);
 
-        for (const imageId of createMarkingServicePropertyDto.images) {
-          const image: Image = await this.imageRepository.findOne({
-            where: {
-              id: imageId,
-            },
-          });
+        if (!tagSubTechniqueProperty.isActive)
+          throw new BadRequestException(`Tag sub technique property with id ${createMarkingServicePropertyDto.tagSubTechniqueProperty} is currently inactive`);
 
-          if (!image)
-            throw new NotFoundException(`Image with id ${imageId} not found`);
-
-          images.push(image);
-        };
-
-        newMarkingServiceProperty.images = images;
+        newMarkingServiceProperty.tagSubTechniqueProperty = tagSubTechniqueProperty;
       }
+
+      newMarkingServiceProperty.externalSubTechnique = externalSubTechnique;
 
       const createdMarkingServiceProperty = await this.markingServicePropertyRepository.save(newMarkingServiceProperty);
 
@@ -121,6 +115,7 @@ export class MarkingServicePropertiesService {
       relations: [
         'externalSubTechnique',
         'images',
+        'tagSubTechniqueProperty',
       ],
     });
   }
@@ -133,6 +128,7 @@ export class MarkingServicePropertiesService {
       relations: [
         'externalSubTechnique',
         'images',
+        'tagSubTechniqueProperty',
       ],
     });
 
@@ -152,6 +148,7 @@ export class MarkingServicePropertiesService {
       relations: [
         'externalSubTechnique',
         'images',
+        'tagSubTechniqueProperty',
       ],
     });
 
@@ -159,25 +156,6 @@ export class MarkingServicePropertiesService {
       throw new NotFoundException(`Marking service property with id ${id} not found`);
 
     const updatedMarkingServiceProperty = plainToClass(MarkingServiceProperty, updateMarkingServicePropertyDto);
-
-    if (updateMarkingServicePropertyDto.images) {
-      const images: Image[] = [];
-
-      for (const imageId of updateMarkingServicePropertyDto.images) {
-        const image: Image = await this.imageRepository.findOne({
-          where: {
-            id: imageId,
-          },
-        });
-
-        if (!image)
-          throw new NotFoundException(`Image with id ${imageId} not found`);
-
-        images.push(image);
-      };
-
-      updatedMarkingServiceProperty.images = images;
-    }
 
     const externalSubTechnique = await this.externalSubTechniqueRepository.findOne({
       where: {
@@ -189,6 +167,22 @@ export class MarkingServicePropertiesService {
       throw new NotFoundException(`External sub technique with id ${updateMarkingServicePropertyDto.externalSubTechnique} not found`);
 
     updatedMarkingServiceProperty.externalSubTechnique = externalSubTechnique;
+
+    if (updateMarkingServicePropertyDto.tagSubTechniqueProperty) {
+      const tagSubTechniqueProperty = await this.tagSubTechniquePropertyRepository.findOne({
+        where: {
+          id: updateMarkingServicePropertyDto.tagSubTechniqueProperty,
+        },
+      });
+
+      if (!tagSubTechniqueProperty)
+        throw new NotFoundException(`Tag sub technique property with id ${updateMarkingServicePropertyDto.tagSubTechniqueProperty} not found`);
+
+      if (!tagSubTechniqueProperty.isActive)
+        throw new BadRequestException(`Tag sub technique property with id ${updateMarkingServicePropertyDto.tagSubTechniqueProperty} is currently inactive`);
+
+      updatedMarkingServiceProperty.tagSubTechniqueProperty = tagSubTechniqueProperty;
+    }
 
     Object.assign(markingServiceProperty, updatedMarkingServiceProperty);
 
@@ -212,6 +206,7 @@ export class MarkingServicePropertiesService {
         relations: [
           'externalSubTechnique',
           'images',
+          'tagSubTechniqueProperty',
         ],
       });
 
@@ -219,25 +214,6 @@ export class MarkingServicePropertiesService {
         throw new NotFoundException(`Marking service property with id ${updateMarkingServicePropertyDto.id} not found`);
 
       const updatedMarkingServiceProperty = plainToClass(MarkingServiceProperty, updateMarkingServicePropertyDto);
-
-      if (updateMarkingServicePropertyDto.images) {
-        const images: Image[] = [];
-
-        for (const imageId of updateMarkingServicePropertyDto.images) {
-          const image: Image = await this.imageRepository.findOne({
-            where: {
-              id: imageId,
-            },
-          });
-
-          if (!image)
-            throw new NotFoundException(`Image with id ${imageId} not found`);
-
-          images.push(image);
-        };
-
-        updatedMarkingServiceProperty.images = images;
-      }
 
       const externalSubTechnique = await this.externalSubTechniqueRepository.findOne({
         where: {
@@ -250,10 +226,26 @@ export class MarkingServicePropertiesService {
 
       updatedMarkingServiceProperty.externalSubTechnique = externalSubTechnique;
 
+      if (updateMarkingServicePropertyDto.tagSubTechniqueProperty) {
+        const tagSubTechniqueProperty = await this.tagSubTechniquePropertyRepository.findOne({
+          where: {
+            id: updateMarkingServicePropertyDto.tagSubTechniqueProperty,
+          },
+        });
+
+        if (!tagSubTechniqueProperty)
+          throw new NotFoundException(`Tag sub technique property with id ${updateMarkingServicePropertyDto.tagSubTechniqueProperty} not found`);
+
+        if (!tagSubTechniqueProperty.isActive)
+          throw new BadRequestException(`Tag sub technique property with id ${updateMarkingServicePropertyDto.tagSubTechniqueProperty} is currently inactive`);
+
+        updatedMarkingServiceProperty.tagSubTechniqueProperty = tagSubTechniqueProperty;
+      }
+
       Object.assign(markingServiceProperty, updatedMarkingServiceProperty);
 
       const updatedMarkingServicePropertyResult = await this.markingServicePropertyRepository.save(markingServiceProperty);
-    
+
       updatedMarkingServiceProperties.push(updatedMarkingServicePropertyResult);
     }
 

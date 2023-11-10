@@ -22,21 +22,6 @@ export class MarkingServiceProperty {
   })
   description: string;
 
-  @Column('varchar', {
-
-  })
-  technicalPropertyTagService: string;
-
-  @Column('varchar', {
-
-  })
-  technicalSubTagProperty: string;
-
-  @Column('varchar', {
-
-  })
-  property: string;
-
   @Column('int', {
 
   })

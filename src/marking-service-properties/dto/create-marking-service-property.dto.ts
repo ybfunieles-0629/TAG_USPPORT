@@ -7,28 +7,18 @@ export class CreateMarkingServicePropertyDto {
   @IsString()
   description: string;
 
-  @IsString()
-  technicalPropertyTagService: string;
-
-  @IsString()
-  technicalSubTagProperty: string;
-
-  @IsString()
-  property: string;
-
+  
   @IsInt()
   large: number;
-
+  
   @IsInt()
   weigth: number;
+  
+  @IsString()
+  tagSubTechniqueProperty: string;
 
   @IsString()
   externalSubTechnique: string;
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  images?: string[];
 
   @IsOptional()
   @IsString()
