@@ -129,6 +129,7 @@ export class MarkingsService {
         'externalSubTechniques.markingServiceProperties',
         'externalSubTechniques.markingServiceProperties.markedServicePrices',
         'externalSubTechniques.markingServiceProperties.tagSubTechniqueProperty',
+        'externalSubTechniques.markingServiceProperties.images',
       ],
     });
   }
@@ -145,6 +146,7 @@ export class MarkingsService {
         'externalSubTechniques.markingServiceProperties',
         'externalSubTechniques.markingServiceProperties.markedServicePrices',
         'externalSubTechniques.markingServiceProperties.tagSubTechniqueProperty',
+        'externalSubTechniques.markingServiceProperties.images',
       ],
     });
 
@@ -168,6 +170,7 @@ export class MarkingsService {
         'externalSubTechniques.markingServiceProperties',
         'externalSubTechniques.markingServiceProperties.markedServicePrices',
         'externalSubTechniques.markingServiceProperties.tagSubTechniqueProperty',
+        'externalSubTechniques.markingServiceProperties.images',
       ],
     });
 
