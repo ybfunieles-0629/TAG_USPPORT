@@ -14,7 +14,7 @@ export class MarkedServicePricesController {
     return this.markedServicePricesService.create(createMarkedServicePriceDto);
   }
 
-  @Post('creat/multiple')
+  @Post('create/multiple')
   createMultiple(
     @Body() createMarkedServicePrices: CreateMarkedServicePriceDto[]
   ) {
