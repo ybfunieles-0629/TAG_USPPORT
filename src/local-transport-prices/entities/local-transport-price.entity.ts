@@ -30,7 +30,7 @@ export class LocalTransportPrice {
 
   })
   vehicleType: string;
-
+  
   @Column('varchar', {
 
   })
