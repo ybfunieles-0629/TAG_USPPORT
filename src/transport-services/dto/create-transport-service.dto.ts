@@ -16,6 +16,11 @@ export class CreateTransportServiceDto {
   @IsUUID()
   updatedBy?: string;
 
+  @IsOptional()
   @IsString()
-  quoteDetail: string;
+  company?: string;
+
+  @IsOptional()
+  @IsString()
+  quoteDetail?: string;
 }

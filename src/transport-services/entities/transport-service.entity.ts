@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateCol
 
 import { LocalTransportPrice } from '../../local-transport-prices/entities/local-transport-price.entity';
 import { QuoteDetail } from 'src/quote-details/entities/quote-detail.entity';
+import { Company } from 'src/companies/entities/company.entity';
 
 @Entity('transport_services')
 export class TransportService {
@@ -45,4 +46,7 @@ export class TransportService {
 
   @ManyToOne(() => QuoteDetail, (quoteDetail) => quoteDetail.transportServices)
   quoteDetail: QuoteDetail;
+
+  @ManyToOne(() => Company, (company) => company.transportServices)
+  company: Company;
 }

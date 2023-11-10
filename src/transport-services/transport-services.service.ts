@@ -8,12 +8,16 @@ import { UpdateTransportServiceDto } from './dto/update-transport-service.dto';
 import { TransportService } from './entities/transport-service.entity';
 import { QuoteDetail } from '../quote-details/entities/quote-detail.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { Company } from '../companies/entities/company.entity';
 
 @Injectable()
 export class TransportServicesService {
   constructor(
     @InjectRepository(TransportService)
     private readonly transportServiceRepository: Repository<TransportService>,
+
+    @InjectRepository(Company)
+    private readonly companyRepository: Repository<Company>,
 
     @InjectRepository(QuoteDetail)
     private readonly quoteDetailRepository: Repository<QuoteDetail>,
@@ -22,16 +26,31 @@ export class TransportServicesService {
   async create(createTransportServiceDto: CreateTransportServiceDto) {
     const newTransportService = plainToClass(TransportService, createTransportServiceDto);
 
-    const quoteDetail = await this.quoteDetailRepository.findOne({
-      where: {
-        id: createTransportServiceDto.quoteDetail,
-      },
-    });
+    if (createTransportServiceDto.quoteDetail) {
+      const quoteDetail = await this.quoteDetailRepository.findOne({
+        where: {
+          id: createTransportServiceDto.quoteDetail,
+        },
+      });
 
-    if (!quoteDetail)
-      throw new NotFoundException(`Quote detail with id ${createTransportServiceDto.quoteDetail} not found`);
+      if (!quoteDetail)
+        throw new NotFoundException(`Quote detail with id ${createTransportServiceDto.quoteDetail} not found`);
 
-    newTransportService.quoteDetail = quoteDetail;
+      newTransportService.quoteDetail = quoteDetail;
+    }
+
+    if (createTransportServiceDto.company) {
+      const company = await this.companyRepository.findOne({
+        where: {
+          id: createTransportServiceDto.company,
+        },
+      });
+
+      if (!company)
+        throw new NotFoundException(`Company with id ${createTransportServiceDto.company} not found`);
+
+      newTransportService.company = company;
+    }
 
     await this.transportServiceRepository.save(newTransportService);
 
@@ -47,6 +66,7 @@ export class TransportServicesService {
       take: limit,
       skip: offset,
       relations: [
+        'company',
         'quoteDetail',
       ],
     });
@@ -57,6 +77,10 @@ export class TransportServicesService {
       where: {
         id,
       },
+      relations: [
+        'company',
+        'quoteDetail',
+      ]
     });
 
     if (!transportService)
@@ -72,6 +96,10 @@ export class TransportServicesService {
       where: {
         id,
       },
+      relations: [
+        'company',
+        'quoteDetail',
+      ],
     });
 
     if (!transportService)
@@ -79,16 +107,31 @@ export class TransportServicesService {
 
     const updatedTransportService = plainToClass(TransportService, updateTransportServiceDto);
 
-    const quoteDetail = await this.quoteDetailRepository.findOne({
-      where: {
-        id: updateTransportServiceDto.quoteDetail,
-      },
-    });
+    if (updateTransportServiceDto.quoteDetail) {
+      const quoteDetail = await this.quoteDetailRepository.findOne({
+        where: {
+          id: updateTransportServiceDto.quoteDetail,
+        },
+      });
 
-    if (!quoteDetail)
-      throw new NotFoundException(`Quote detail with id ${updateTransportServiceDto.quoteDetail} not found`);
+      if (!quoteDetail)
+        throw new NotFoundException(`Quote detail with id ${updateTransportServiceDto.quoteDetail} not found`);
 
-    updatedTransportService.quoteDetail = quoteDetail;
+      updatedTransportService.quoteDetail = quoteDetail;
+    }
+
+    if (updateTransportServiceDto.company) {
+      const company = await this.companyRepository.findOne({
+        where: {
+          id: updateTransportServiceDto.company,
+        },
+      });
+
+      if (!company)
+        throw new NotFoundException(`Company with id ${updateTransportServiceDto.company} not found`);
+
+      updatedTransportService.company = company;
+    }
 
     Object.assign(transportService, updatedTransportService);
 
@@ -113,7 +156,7 @@ export class TransportServicesService {
 
   async remove(id: string) {
     const { transportService } = await this.findOne(id);
-  
+
     await this.transportServiceRepository.remove(transportService);
 
     return {
