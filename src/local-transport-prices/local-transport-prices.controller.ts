@@ -14,6 +14,14 @@ export class LocalTransportPricesController {
     return this.localTransportPricesService.create(createLocalTransportPriceDto);
   }
 
+  @Post('create/multiple')
+  createMultiple(
+    @Body() createLocalTransportPrices: CreateLocalTransportPriceDto[]
+  ) {
+    return this.localTransportPricesService.createMultiple(createLocalTransportPrices);
+  }
+
+
   @Get()
   findAll(
     @Query() paginationDto: PaginationDto
@@ -35,7 +43,14 @@ export class LocalTransportPricesController {
   ) {
     return this.localTransportPricesService.update(id, updateLocalTransportPriceDto);
   }
-  
+
+  @Patch('update/multiple')
+  updateMultiple(
+    @Body() updateLocalTransportPrices: UpdateLocalTransportPriceDto[]
+  ) {
+    return this.localTransportPricesService.updateMultiple(updateLocalTransportPrices);
+  }
+
   @Patch('/desactivate/:id')
   desactivate(
     @Param('id', ParseUUIDPipe) id: string

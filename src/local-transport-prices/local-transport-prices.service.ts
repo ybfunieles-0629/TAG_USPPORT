@@ -40,6 +40,34 @@ export class LocalTransportPricesService {
     };
   }
 
+  async createMultiple(createLocalTransportPrices: CreateLocalTransportPriceDto[]) {
+    const createdLocalTransportPrices: LocalTransportPrice[] = [];
+
+    for (const createLocalTransportPriceDto of createLocalTransportPrices) {
+
+      const newLocalTransportPrice = plainToClass(LocalTransportPrice, createLocalTransportPriceDto);
+
+      const transportService = await this.transportServiceRepository.findOne({
+        where: {
+          id: createLocalTransportPriceDto.transportService,
+        },
+      });
+
+      if (!transportService)
+        throw new NotFoundException(`Transport service with id ${createLocalTransportPriceDto.transportService} not found`);
+
+      newLocalTransportPrice.transportService = transportService;
+
+      const createdLocalTransportPrice = await this.localTransportPriceRepository.save(newLocalTransportPrice);
+
+      createdLocalTransportPrices.push(createdLocalTransportPrice);
+    }
+
+    return {
+      createdLocalTransportPrices
+    };
+  }
+
   findAll(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
 
@@ -102,6 +130,48 @@ export class LocalTransportPricesService {
 
     return {
       localTransportPrice
+    };
+  }
+
+  async updateMultiple(updateLocalTransportPrices: UpdateLocalTransportPriceDto[]) {
+    const updatedLocalTransportPrices: LocalTransportPrice[] = [];
+
+    for (const updateLocalTransportPriceDto of updateLocalTransportPrices) {
+
+      const localTransportPrice = await this.localTransportPriceRepository.findOne({
+        where: {
+          id: updateLocalTransportPriceDto.id,
+        },
+        relations: [
+          'transportPrice',
+        ],
+      });
+
+      if (!localTransportPrice)
+        throw new NotFoundException(`Local transport price with id ${updateLocalTransportPriceDto.id} not found`);
+
+      const updatedLocalTransportPrice = plainToClass(LocalTransportPrice, updateLocalTransportPriceDto);
+
+      const transportService = await this.transportServiceRepository.findOne({
+        where: {
+          id: updateLocalTransportPriceDto.transportService,
+        },
+      });
+
+      if (!transportService)
+        throw new NotFoundException(`Transport service with id ${updateLocalTransportPriceDto.transportService} not found`);
+
+      updatedLocalTransportPrice.transportService = transportService;
+
+      Object.assign(localTransportPrice, updatedLocalTransportPrice);
+
+      const updatedLocalTransportPriceResult = await this.localTransportPriceRepository.save(localTransportPrice);
+    
+      updatedLocalTransportPrices.push(updatedLocalTransportPriceResult);
+    }
+
+    return {
+      updatedLocalTransportPrices
     };
   }
 
