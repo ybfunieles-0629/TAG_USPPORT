@@ -9,22 +9,37 @@ export class LocalTransportPrice {
   @Column('int', {
 
   })
-  isNational: number;
-
-  @Column('int', {
-
-  })
-  maximumVolume: number;
-
-  @Column('int', {
-
-  })
   maximumWeight: number;
 
   @Column('int', {
 
   })
+  maximumLarge: number;
+
+  @Column('int', {
+
+  })
+  maximumHeight: number;
+
+  @Column('int', {
+
+  })
+  maximumWidth: number;
+
+  @Column('int', {
+
+  })
   price: number;
+
+  @Column('varchar', {
+
+  })
+  origin: string;
+
+  @Column('varchar', {
+
+  })
+  destination: string;
 
   @Column('varchar', {
 
