@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, Prima
 
 import { User } from '../../users/entities/user.entity';
 import { Marking } from '../../markings/entities/marking.entity';
+import { TransportService } from '../../transport-services/entities/transport-service.entity';
 
 @Entity({ name: 'companies' })
 export class Company {
@@ -135,4 +136,7 @@ export class Company {
 
   @OneToMany(() => Marking, (marking) => marking.company)
   markings: Marking[];
+
+  @OneToMany(() => TransportService, (transport) => transport.company)
+  transportServices: TransportService[];
 }
