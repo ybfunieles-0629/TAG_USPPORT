@@ -248,10 +248,12 @@ export class RefProductsService {
     };
   }
 
-  findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll(paginationDto: PaginationDto) {
+    const totalCount = await this.refProductRepository.count();
 
-    return this.refProductRepository.find({
+    const { limit = totalCount, offset = 0 } = paginationDto;
+
+    const results = await this.refProductRepository.find({
       take: limit,
       skip: offset,
       relations: [
@@ -270,6 +272,11 @@ export class RefProductsService {
         'variantReferences',
       ],
     });
+
+    return {
+      totalCount,
+      results
+    };
   }
 
   async findOne(id: string) {
