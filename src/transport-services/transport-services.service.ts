@@ -67,6 +67,7 @@ export class TransportServicesService {
       skip: offset,
       relations: [
         'company',
+        'localTransportPrices',
         'quoteDetail',
       ],
     });
@@ -79,6 +80,7 @@ export class TransportServicesService {
       },
       relations: [
         'company',
+        'localTransportPrices',
         'quoteDetail',
       ]
     });
@@ -98,6 +100,7 @@ export class TransportServicesService {
       },
       relations: [
         'company',
+        'localTransportPrices',
         'quoteDetail',
       ],
     });
