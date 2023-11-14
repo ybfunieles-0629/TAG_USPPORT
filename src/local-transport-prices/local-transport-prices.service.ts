@@ -104,7 +104,7 @@ export class LocalTransportPricesService {
         id,
       },
       relations: [
-        'transportPrice',
+        'transportService',
       ],
     });
 
@@ -143,7 +143,7 @@ export class LocalTransportPricesService {
           id: updateLocalTransportPriceDto.id,
         },
         relations: [
-          'transportPrice',
+          'transportService',
         ],
       });
 
