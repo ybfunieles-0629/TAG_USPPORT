@@ -41,6 +41,9 @@ export class SuppliersService {
     if (createSupplierDto.bills)
       createSupplierDto.bills = +createSupplierDto.bills;
 
+    if (!createSupplierDto.bankAccountNumber)
+      createSupplierDto.bankAccount = null;
+
     const newSupplier = plainToClass(Supplier, createSupplierDto);
 
     const user = await this.userRepository.findOne({
@@ -120,6 +123,9 @@ export class SuppliersService {
   }
 
   async update(id: string, updateSupplierDto: UpdateSupplierDto, file: Express.Multer.File) {
+    if (!updateSupplierDto.bankAccountNumber)
+      updateSupplierDto.bankAccount = null;
+
     const supplier = await this.supplierRepository.findOneBy({ id });
 
     if (!supplier) {

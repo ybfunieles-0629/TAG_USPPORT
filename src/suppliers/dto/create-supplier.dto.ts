@@ -29,12 +29,15 @@ export class CreateSupplierDto {
   @IsString()
   scheduledDaysToUpdate: number;
 
+  @IsOptional()
   @IsString()
   bankAccountType: string;
   
+  @IsOptional()
   @IsString()
   bankAccountNumber: string;
 
+  @IsOptional()
   @IsString()
   bankAccount: string;
 
