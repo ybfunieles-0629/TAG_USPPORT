@@ -445,6 +445,8 @@ export class ProductsService {
         'colors',
         'variantReferences',
         'packings',
+        'refProduct',
+        'refProduct.images',
       ],
     });
   }
@@ -458,6 +460,8 @@ export class ProductsService {
         'colors',
         'variantReferences',
         'packings',
+        'refProduct',
+        'refProduct.images',
       ],
     });
 
@@ -477,6 +481,9 @@ export class ProductsService {
       relations: [
         'colors',
         'variantReferences',
+        'packings',
+        'refProduct',
+        'refProduct.images',
       ],
     });
 
