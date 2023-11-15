@@ -58,11 +58,13 @@ export class CreateUserDto {
   @IsString({ each: true })
   roles: string[];
 
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  permissions: string[];
+  permissions?: string[];
   
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  privileges: string[];
+  privileges?: string[];
 }

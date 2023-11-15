@@ -50,7 +50,7 @@ export class UsersService {
   ) { }
 
   async seedUsers() {
-    const companyInDb = await this.companyRepository.findOne({
+    const companyInDb: Company = await this.companyRepository.findOne({
       where: {
         name: 'Tag',
       },
@@ -59,7 +59,7 @@ export class UsersService {
     if (!companyInDb)
       throw new NotFoundException(`Company Tag not found`);
 
-    const roleInDb = await this.roleRepository.findOne({
+    const roleInDb: Role = await this.roleRepository.findOne({
       where: {
         name: 'super-administrador',
       },
@@ -68,9 +68,9 @@ export class UsersService {
     if (!roleInDb)
       throw new NotFoundException(`Role super-administrador not found`);
 
-    const permissionsInDb = await this.permissionRepository.find();
+    const permissionsInDb: Permission[] = await this.permissionRepository.find();
 
-    const privilegesInDb = await this.privilegeRepository.find();
+    const privilegesInDb: Privilege[] = await this.privilegeRepository.find();
 
     const usersToSave = UsersList.map(({ password, company, privileges, permissions, roles, ...data }) => {
       return {
@@ -97,7 +97,7 @@ export class UsersService {
   }
 
   async createUser(createUserDto: CreateUserDto) {
-    const emailInUse = await this.userRepository.findOne({
+    const emailInUse: User = await this.userRepository.findOne({
       where: {
         email: createUserDto.email
       },
@@ -106,7 +106,7 @@ export class UsersService {
     if (emailInUse)
       throw new BadRequestException(`User with email ${createUserDto.email} is already registered`);
 
-    const dniInUse = await this.userRepository.findOne({
+    const dniInUse: User = await this.userRepository.findOne({
       where: {
         dni: createUserDto.dni,
       },
@@ -115,9 +115,9 @@ export class UsersService {
     if (dniInUse)
       throw new BadRequestException(`User with dni ${createUserDto.dni} is already registered`);
 
-    const newUser = plainToClass(User, createUserDto);
+    const newUser: User = plainToClass(User, createUserDto);
 
-    const company = await this.companyRepository.findOneBy({ id: createUserDto.company });
+    const company: Company = await this.companyRepository.findOneBy({ id: createUserDto.company });
 
     if (!company)
       throw new NotFoundException(`Company with id ${createUserDto.company} not found`);
@@ -125,8 +125,6 @@ export class UsersService {
     newUser.company = company;
 
     const roles: Role[] = [];
-    const permissions: Permission[] = [];
-    const privileges: Privilege[] = [];
     const brands: Brand[] = [];
 
     for (const roleId of createUserDto.roles) {
@@ -143,36 +141,44 @@ export class UsersService {
 
     newUser.roles = roles;
 
-    for (const permissionId of createUserDto.permissions) {
-      const permission = await this.permissionRepository.findOneBy({ id: permissionId });
+    if (createUserDto.permissions) {
+      const permissions: Permission[] = [];
 
-      if (!permission)
-        throw new NotFoundException(`Permission with id ${permissionId} not found`);
+      for (const permissionId of createUserDto.permissions) {
+        const permission: Permission = await this.permissionRepository.findOneBy({ id: permissionId });
 
-      if (!permission.isActive)
-        throw new BadRequestException(`Permission with id ${permissionId} is currently inactive`);
+        if (!permission)
+          throw new NotFoundException(`Permission with id ${permissionId} not found`);
 
-      permissions.push(permission);
+        if (!permission.isActive)
+          throw new BadRequestException(`Permission with id ${permissionId} is currently inactive`);
+
+        permissions.push(permission);
+      }
+
+      newUser.permissions = permissions;
     }
 
-    newUser.permissions = permissions;
+    if (createUserDto.privileges) {
+      const privileges: Privilege[] = [];
 
-    for (const privilegeId of createUserDto.privileges) {
-      const privilege = await this.privilegeRepository.findOneBy({ id: privilegeId });
+      for (const privilegeId of createUserDto.privileges) {
+        const privilege: Privilege = await this.privilegeRepository.findOneBy({ id: privilegeId });
 
-      if (!privilege)
-        throw new NotFoundException(`Privilege with id ${privilegeId} not found`);
+        if (!privilege)
+          throw new NotFoundException(`Privilege with id ${privilegeId} not found`);
 
-      if (!privilege.isActive)
-        throw new BadRequestException(`Privilege with id ${privilegeId} is currently inactive`);
+        if (!privilege.isActive)
+          throw new BadRequestException(`Privilege with id ${privilegeId} is currently inactive`);
 
-      privileges.push(privilege);
+        privileges.push(privilege);
+      }
+
+      newUser.privileges = privileges;;
     }
-
-    newUser.privileges = privileges;;
 
     for (const brandId of createUserDto.brands) {
-      const brand = await this.brandRepository.findOneBy({ id: brandId });
+      const brand: Brand = await this.brandRepository.findOneBy({ id: brandId });
 
       if (!brand)
         throw new NotFoundException(`Brand with id ${brandId} not found`);
@@ -510,7 +516,7 @@ export class UsersService {
   }
 
   async remove(id: string) {
-    const user = await this.userRepository.findOne({
+    const user: User = await this.userRepository.findOne({
       where: {
         id,
       },
@@ -528,7 +534,7 @@ export class UsersService {
     if (!user)
       throw new NotFoundException(`User with id ${id} not found`);
 
-    const company = await this.companyRepository.findOne({
+    const company: Company = await this.companyRepository.findOne({
       where: {
         id: user.company.id
       },
@@ -551,7 +557,7 @@ export class UsersService {
   }
 
   async changeIsAllowedStatus(id: string) {
-    const user = await this.userRepository.findOneBy({ id });
+    const user: User = await this.userRepository.findOneBy({ id });
 
     if (!user)
       throw new NotFoundException(`User with id ${id} not found`);
@@ -566,7 +572,7 @@ export class UsersService {
   }
 
   async desactivate(id: string) {
-    const user = await this.userRepository.findOneBy({ id });
+    const user: User = await this.userRepository.findOneBy({ id });
 
     if (!user)
       throw new NotFoundException(`User with id ${id} not found`);
