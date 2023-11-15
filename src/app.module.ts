@@ -46,6 +46,9 @@ import { CartQuotesModule } from './cart-quotes/cart-quotes.module';
 import { StatesModule } from './states/states.module';
 import { LogosModule } from './logos/logos.module';
 import { PurchaseOrderModule } from './purchase-order/purchase-order.module';
+import { SwiperHomeModule } from './swiper-home/swiper-home.module';
+import { SystemConfigsModule } from './system-configs/system-configs.module';
+import { FinancingCostProfitsModule } from './financing-cost-profits/financing-cost-profits.module';
 
 @Module({
   imports: [
@@ -109,6 +112,9 @@ import { PurchaseOrderModule } from './purchase-order/purchase-order.module';
     CartQuotesModule,
     StatesModule,
     LogosModule,
+    SystemConfigsModule,
+    FinancingCostProfitsModule,
+    // SwiperHomeModule,
     // PurchaseOrderModule,
   ],
 })
