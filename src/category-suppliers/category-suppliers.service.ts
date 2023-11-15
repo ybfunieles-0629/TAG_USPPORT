@@ -76,7 +76,7 @@ export class CategorySuppliersService {
       throw new NotFoundException(`User supplier for origin ${origin} not found`);
 
     if (userSupplier.supplier == null || userSupplier.supplier == undefined)
-      throw new BadRequestException(`The user is not a supplier`);
+      throw new BadRequestException(`The user is not a supplier`); 
 
     //* CLEAN DATA
     for (const parentCategory of data) {
@@ -93,7 +93,7 @@ export class CategorySuppliersService {
             parentCategory: '',
             apiReferenceId: parentCategory.jerarquia,
             supplier: userSupplier.supplier.id,
-            origin,
+            origin
           };
 
           cleanedParentCategories.push(newParentCategory);
