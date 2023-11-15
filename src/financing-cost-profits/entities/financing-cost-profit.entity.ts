@@ -5,6 +5,21 @@ import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Up
 export class FinancingCostProfit {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+  
+  @Column('int', {
+
+  })
+  days: number;
+
+  @Column('int', {
+
+  })
+  financingPercentage: number;
+
+  @Column('int', {
+
+  })
+  minimumAllowedUtility: number;
 
   @Column('boolean', {
     default: true,
