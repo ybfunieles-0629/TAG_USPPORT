@@ -2,6 +2,7 @@ import { Injectable, Logger, BadRequestException, InternalServerErrorException, 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { plainToClass } from 'class-transformer';
+import axios from 'axios';
 
 import { Product } from './entities/product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -10,73 +11,294 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { Color } from '../colors/entities/color.entity';
 import { VariantReference } from '../variant-reference/entities/variant-reference.entity';
 import { RefProduct } from '../ref-products/entities/ref-product.entity';
-import axios from 'axios';
+import { CategorySupplier } from '../category-suppliers/entities/category-supplier.entity';
+import { Image } from '../images/entities/image.entity';
+import { User } from '../users/entities/user.entity';
 
 
 @Injectable()
 export class ProductsService {
   private readonly logger: Logger = new Logger('ProductsService');
 
+  private readonly apiUrl: string = 'http://44.194.12.161';
+  private readonly imagesUrl: string = 'https://catalogospromocionales.com';
+
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
 
+    @InjectRepository(CategorySupplier)
+    private readonly categorySupplierRepository: Repository<CategorySupplier>,
+
     @InjectRepository(Color)
     private readonly colorRepository: Repository<Color>,
 
-    @InjectRepository(VariantReference)
-    private readonly variantReferenceRepository: Repository<VariantReference>,
+    @InjectRepository(Image)
+    private readonly imageRepository: Repository<Image>,
 
     @InjectRepository(RefProduct)
     private readonly refProductRepository: Repository<RefProduct>,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+
+    @InjectRepository(VariantReference)
+    private readonly variantReferenceRepository: Repository<VariantReference>,
   ) { }
 
-  async loadProducts() {
-    const apiUrl = 'http://44.194.12.161/marpico/listado_productos';
+  //* ---------- LOAD PROMOS PRODUCTS METHOD ---------- *//
+  private async loadPromosProducts() {
+    const { data: { categorias } } = await axios.get(`${this.apiUrl}/misproductos`);
 
-    const { data: { results } } = await axios.get(apiUrl);
+    const user: User = await this.userRepository.findOne({
+      where: {
+        name: 'Promos',
+      },
+      relations: [
+        'supplier',
+      ],
+    });
 
-    const totalMaterials = [];
-    const finalData = [];
+    if (!user)
+      throw new NotFoundException(`User supplier for promos not found`);
 
-    for (const result of results) {
-      for (const material of result.materiales) {
-        totalMaterials.push(material);
+    if (!user.supplier)
+      throw new BadRequestException(`The user is not a supplier`);
+
+    for (const product of categorias[0]) {
+      const images: Image[] = [];
+
+      const newImage = {
+        url: `${this.imagesUrl}/${product.imageUrl}`,
+      };
+
+      const image: Image = this.imageRepository.create(newImage);
+      const savedImage = await this.imageRepository.save(image);
+
+      images.push(savedImage);
+
+      const newReference = {
+        name: product.nombre,
+        description: product.resumen,
+        keywords: product.palabrasClaveSeo,
+        markedDesignArea: product.descripcionProducto,
+        images,
+        referenceCode: product.referencia,
+        mainCategory: product.idCategoria,
+        supplier: user.supplier,
+      };
+
+      const createdRefProduct: RefProduct = this.refProductRepository.create(newReference);
+      const savedRefProduct: RefProduct = await this.refProductRepository.save(createdRefProduct);
+
+      const lastProducts = await this.productRepository.find({
+        order: { createdAt: 'DESC' },
+      });
+
+      let tagSku: string = '';
+
+      if (lastProducts[0] && lastProducts[0].tagSku.trim() !== ''.trim()) {
+        let skuNumber: number = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
+
+        skuNumber++;
+
+        const newTagSku = `SKU-${skuNumber}`;
+
+        tagSku = newTagSku;
+      } else {
+        tagSku = 'SKU-1001';
+      }
+
+      const newProduct = {
+        tagSku,
+        refProduct: savedRefProduct,
+        referencePrice: product.precio1,
+      };
+
+      const createdProduct: Product = this.productRepository.create(newProduct);
+      const savedProduct: Product = await this.productRepository.save(createdProduct);
+    }
+  }
+
+  //* ---------- LOAD MARPICO PRODUCTS METHOD ---------- *//
+  private async loadMarpicoProducts() {
+    const apiUrl = 'https://marpicoprod.azurewebsites.net/api/inventarios/materialesAPI';
+    const apiKey = 'KZuMI3Fh5yfPSd7bJwqoIicdw2SNtDkhSZKmceR0PsKZzCm1gK81uiW59kL9n76z';
+
+    const config = {
+      headers: {
+        Authorization: `Api-Key ${apiKey}`,
+      },
+    };
+
+    const { data: { results } } = await axios.get(apiUrl, config);
+
+    const products = [];
+    const refProductsToSave = [];
+    const cleanedRefProducts = [];
+
+    const refProductsInDb = await this.refProductRepository.find();
+
+    const user = await this.userRepository.findOne({
+      where: {
+        name: 'Marpico',
+      },
+      relations: [
+        'supplier',
+      ],
+    });
+
+    if (!user)
+      throw new NotFoundException(`User supplier for marpico not found`);
+
+    if (!user.supplier)
+      throw new BadRequestException(`The user is not a supplier`);
+
+    for (const item of results) {
+      let keyword = '';
+
+      if (item.etiquetas.length >= 1) {
+        keyword = item.etiquetas[0].nombre;
+      }
+
+      if (item.etiquetas.length <= 0) {
+        keyword = '';
+      }
+
+      if (item.etiquetas.length >= 2) {
+        let joinedKeyword = '';
+
+        item.etiquetas.forEach(etiqueta => {
+          joinedKeyword = joinedKeyword + etiqueta.nombre + ';';
+        });
+
+        keyword = joinedKeyword;
+      }
+
+      const images: Image[] = [];
+
+      for (const imagen of item.imagenes) {
+        const newImage = {
+          url: imagen.imagen.file,
+        };
+
+        const createdImage: Image = this.imageRepository.create(newImage);
+        const savedImage: Image = await this.imageRepository.save(createdImage);
+
+        images.push(savedImage);
+      }
+
+      let newRefProduct = {
+        name: item.descripcion_comercial,
+        referenceCode: item.familia,
+        shortDescription: item.descripcion_comercial,
+        description: item.descripcion_larga,
+        mainCategory: item.subcategoria_1.categoria.jerarquia,
+        keywords: keyword,
+        large: +item.empaque_largo,
+        width: +item.empaque_ancho,
+        height: +item.empaque_alto,
+        weight: +item.empaque_peso_bruto,
+        importedNational: 1,
+        markedDesignArea: item.area_impresion || '',
+        supplier: user.supplier,
+        personalizableMarking: 0,
+        images
+      }
+
+      cleanedRefProducts.push(newRefProduct);
+
+      for (const material of item.materiales) {
+        const newProduct = {
+          familia: item.familia,
+          material
+        };
+
+        products.push(newProduct);
       }
     }
 
-    for (const material of totalMaterials) {
+    for (const refProduct of cleanedRefProducts) {
+      const refProductExists = refProductsInDb.some(refProductInDb => refProductInDb.referenceCode == refProduct.referenceCode);
+
+      if (refProductExists) {
+        console.log(`Ref product with reference code ${refProduct.referenceCode} is already registered`);
+      } else {
+        await this.refProductRepository.save(refProduct);
+        refProductsToSave.push(refProduct);
+      }
+    }
+
+    // //* ---- LOAD PRODUCTS ---- *//
+    for (const product of products) {
       const colors: Color[] = [];
-      
+
       const color: Color = await this.colorRepository.findOne({
         where: {
-          name: material.color_nombre,
+          name: product.material.color_nombre,
         },
       });
 
       if (!color)
-        throw new NotFoundException(`Color with id ${material.color_nombre} not found`);
-      
+        throw new NotFoundException(`Color with id ${product.material.color_nombre} not found`);
+
       colors.push(color);
 
-      const newProduct = {
-        variantReferences: [],
-        colors,
-        referencePrice: material.precio,
-        promoDisccount: material.descuento,
-        availableUnit: material.inventario_almacen[0].cantidad,
+      const refProduct = await this.refProductRepository.findOne({
+        where: {
+          referenceCode: product.familia,
+        },
+      });
+
+      if (!refProduct)
+        throw new NotFoundException(`Ref product for product with familia ${product.familia} not found`);
+
+      const lastProducts = await this.productRepository.find({
+        order: { createdAt: 'DESC' },
+      });
+
+      let tagSku: string = '';
+
+      if (lastProducts[0] && lastProducts[0].tagSku.trim() !== ''.trim()) {
+        let skuNumber: number = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
+
+        skuNumber++;
+
+        const newTagSku = `SKU-${skuNumber}`;
+
+        tagSku = newTagSku;
+      } else {
+        tagSku = 'SKU-1001';
       }
 
-      const createdProduct = this.productRepository.create(newProduct);
+      const newProduct = {
+        tagSku,
+        variantReferences: [],
+        colors,
+        referencePrice: +product.material.precio,
+        promoDisccount: parseFloat(product.material.descuento.replace('-', '')),
+        availableUnit: product?.material?.inventario_almacen[0]?.cantidad,
+        refProduct,
+      };
 
-      // await this.productRepository.save(createdProduct);
+      const createdProduct: Product = this.productRepository.create(newProduct);
 
-      finalData.push(createdProduct);
+      const savedProduct: Product = await this.productRepository.save(createdProduct);
     }
 
+
+    if (refProductsToSave.length === 0)
+      throw new BadRequestException(`There are no new products to save`);
+
     return {
-      finalData
+      refProductsToSave
     };
+  }
+
+  //* ---------- LOAD ALL PRODUCTS FROM EXT APIS ---------- *//
+  async loadProducts() {
+    await this.loadMarpicoProducts();
+    await this.loadPromosProducts();
   }
 
   async create(createProductDto: CreateProductDto) {
@@ -288,7 +510,7 @@ export class ProductsService {
         variantReferences.push(variantReference);
       }
     }
-    
+
     if (updateProductDto.colors) {
       for (const color of updateProductDto.colors) {
         const colorInDb = await this.colorRepository.findOne({
