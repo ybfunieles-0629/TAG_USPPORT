@@ -10,7 +10,6 @@ import { RefProduct } from './entities/ref-product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { CategorySupplier } from '../category-suppliers/entities/category-supplier.entity';
-import { User } from '../users/entities/user.entity';
 import { VariantReference } from '../variant-reference/entities/variant-reference.entity';
 import { MarkingServiceProperty } from '../marking-service-properties/entities/marking-service-property.entity';
 import { DeliveryTime } from '../delivery-times/entities/delivery-time.entity';
@@ -35,109 +34,9 @@ export class RefProductsService {
     @InjectRepository(MarkingServiceProperty)
     private readonly markingServicePropertyRepository: Repository<MarkingServiceProperty>,
 
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-
     @InjectRepository(VariantReference)
     private readonly variantReferenceRepository: Repository<VariantReference>,
   ) { }
-
-  async manageProductsFromExtApi(data: any) {
-    const productsToSave = [];
-    const cleanedProducts = [];
-
-    const productsInDb = await this.refProductRepository.find();
-
-    const user = await this.userRepository.findOne({
-      where: {
-        name: 'Promos',
-      },
-      relations: [
-        'supplier',
-      ],
-    });
-
-    if (!user)
-      throw new NotFoundException(`User from promos not found`);
-
-    for (const item of data) {
-      let keyword = '';
-
-      if (item.etiquetas.length >= 1) {
-        keyword = item.etiquetas[0].nombre;
-      }
-
-      if (item.etiquetas.length <= 0) {
-        keyword = '';
-      }
-
-      if (item.etiquetas.length >= 2) {
-        let joinedKeyword = '';
-
-        item.etiquetas.forEach(etiqueta => {
-          joinedKeyword = joinedKeyword + etiqueta.nombre + ';';
-        });
-
-        keyword = joinedKeyword;
-      }
-
-      let product = {
-        "name": item.descripcion_comercial,
-        "referenceCode": item.familia,
-        "referenceTagCode": null,
-        "shortDescription": item.descripcion_comercial,
-        "description": item.descripcion_larga,
-        "mainCategory": null,
-        "keywords": keyword,
-        "large": item.empaque_largo,
-        "width": item.empaque_ancho,
-        "height": item.empaque_alto,
-        "weight": item.empaque_peso_bruto,
-        "importedNational": "1",
-        "minQuantity": null,
-        "productInventoryLeadTime": null,
-        "productNoInventoryLeadTime": null,
-        "markedDesignArea": item.area_impresion,
-        "supplier": user.supplier.id,
-        "personalizableMarking": 0
-      }
-
-      cleanedProducts.push(product);
-    }
-
-    for (const product of cleanedProducts) {
-      const productExists = productsInDb.some(productInDb => productInDb.referenceCode == product.referenceCode);
-
-      if (productExists) {
-        console.log(`Product with reference code ${product.referenceCode} is already registered`);
-      } else {
-        await this.refProductRepository.save(product);
-        productsToSave.push(product);
-      }
-    }
-
-    if (productsToSave.length === 0)
-      throw new BadRequestException(`There are no new products to save`);
-
-    return {
-      productsToSave
-    };
-  }
-
-  async loadProductsFromExtApi() {
-    const apiUrl = 'https://marpicoprod.azurewebsites.net/api/inventarios/materialesAPI';
-    const apiKey = 'KZuMI3Fh5yfPSd7bJwqoIicdw2SNtDkhSZKmceR0PsKZzCm1gK81uiW59kL9n76z';
-
-    const config = {
-      headers: {
-        Authorization: `Api-Key ${apiKey}`,
-      },
-    };
-
-    const { data: { results } } = await axios.get(apiUrl, config);
-
-    await this.manageProductsFromExtApi(results);
-  }
 
   async create(createRefProductDto: CreateRefProductDto) {
     const newRefProduct = plainToClass(RefProduct, createRefProductDto);

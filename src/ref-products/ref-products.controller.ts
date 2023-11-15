@@ -9,13 +9,6 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 export class RefProductsController {
   constructor(private readonly refProductsService: RefProductsService) { }
 
-  @Post('/load')
-  loadProductsFromExtApi(
-
-  ) {
-    return this.refProductsService.loadProductsFromExtApi();
-  }
-
   @Post()
   create(@Body() createRefProductDto: CreateRefProductDto) {
     return this.refProductsService.create(createRefProductDto);
