@@ -18,7 +18,7 @@ export class CreateUserDto {
 
   @IsString()
   @IsOptional()
-  @MinLength(9)
+  @MinLength(7)
   dni?: string;
 
   @IsString()
