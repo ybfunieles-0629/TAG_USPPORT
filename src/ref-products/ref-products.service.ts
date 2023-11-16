@@ -149,13 +149,14 @@ export class RefProductsService {
 
   async findAll(paginationDto: PaginationDto) {
     const totalCount = await this.refProductRepository.count();
-
+  
     const { limit = totalCount, offset = 0 } = paginationDto;
-
+  
     const results = await this.refProductRepository.find({
       take: limit,
       skip: offset,
       relations: [
+        'images',
         'categorySuppliers',
         'deliveryTimes',
         'markingServiceProperties',
@@ -171,10 +172,14 @@ export class RefProductsService {
         'variantReferences',
       ],
     });
-
+  
+    results.forEach((refProduct) => {
+      refProduct.products.sort((a, b) => a.referencePrice - b.referencePrice);
+    });
+  
     return {
       totalCount,
-      results
+      results,
     };
   }
 
@@ -184,6 +189,7 @@ export class RefProductsService {
         id,
       },
       relations: [
+        'images',
         'categorySuppliers',
         'deliveryTimes',
         'markingServiceProperties',
