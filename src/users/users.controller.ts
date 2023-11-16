@@ -54,7 +54,7 @@ export class UsersController {
 
   @Get('role/:role')
   findByRole(
-    @Param() role: string,
+    @Param('role') role: string,
   ) {
     return this.usersService.findByRole(role);
   }

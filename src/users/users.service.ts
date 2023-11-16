@@ -417,7 +417,7 @@ export class UsersService {
   async findByRole(role: string) {
     const users: User[] = await this.userRepository.createQueryBuilder('user')
       .leftJoinAndSelect('user.roles', 'role')
-      .where('role.nombre = :role', { role })
+      .where('LOWER(role.name) =:roleName', { roleName: role })
       .getMany();
 
     if (!users)
