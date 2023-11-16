@@ -17,7 +17,6 @@ import { AddressesModule } from './addresses/addresses.module';
 import { BrandsModule } from './brands/brands.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
 import { AdminModule } from './admin/admin.module';
-import { SupplierTypesModule } from './supplier-types/supplier-types.module';
 import { SubSupplierProductTypesModule } from './sub-supplier-product-types/sub-supplier-product-types.module';
 import { CategoryTagModule } from './category-tag/category-tag.module';
 import { CategorySuppliersModule } from './category-suppliers/category-suppliers.module';
@@ -84,7 +83,6 @@ import { FinancingCostProfitsModule } from './financing-cost-profits/financing-c
     BrandsModule,
     SuppliersModule,
     AdminModule,
-    SupplierTypesModule,
     SubSupplierProductTypesModule,
     CategoryTagModule,
     CategorySuppliersModule,
