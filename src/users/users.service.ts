@@ -414,6 +414,20 @@ export class UsersService {
     return user;
   }
 
+  async findByRole(role: string) {
+    const users: User[] = await this.userRepository.createQueryBuilder('user')
+      .leftJoinAndSelect('user.roles', 'role')
+      .where('role.nombre = :role', { role })
+      .getMany();
+
+    if (!users)
+      throw new NotFoundException(`There are no users registered with role ${role}`);
+
+    return {
+      users
+    };
+  }
+
   //* IMPORTANTE
   //* IMPORTANTE
   //* IMPORTANTE

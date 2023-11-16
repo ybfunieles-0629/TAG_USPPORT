@@ -52,6 +52,13 @@ export class UsersController {
     return this.usersService.findAll(paginationDto);
   }
 
+  @Get('role/:role')
+  findByRole(
+    @Param() role: string,
+  ) {
+    return this.usersService.findByRole(role);
+  }
+
   @Get(':term')
   findOne(
     @Param('term') term: string
