@@ -34,7 +34,7 @@ export class CategoryTagService {
 
       await transporter.sendMail({
         from: this.emailSenderConfig.transport.from,
-        to: 'puertodaniela586@gmail.com',
+        to: ['puertodaniela586@gmail.com', 'locarr785@gmail.com', 'yeison.descargas@gmail.com'],
         subject: 'Solicitud de categoría Tag',
         html: `
           Nombre de la categoría: ${createCategoryTagDto.name} <br />
