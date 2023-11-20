@@ -61,15 +61,14 @@ export class UsersService {
 
     const roleInDb: Role = await this.roleRepository.findOne({
       where: {
-        name: 'super-administrador',
+        name: 'Super-Administrador',
       },
     });
 
     if (!roleInDb)
-      throw new NotFoundException(`Role super-administrador not found`);
+      throw new NotFoundException(`Role Super-Administrador not found`);
 
     const permissionsInDb: Permission[] = await this.permissionRepository.find();
-
     const privilegesInDb: Privilege[] = await this.privilegeRepository.find();
 
     const usersToSave = UsersList.map(({ password, company, privileges, permissions, roles, ...data }) => {
@@ -253,13 +252,13 @@ export class UsersService {
     if (!bcrypt.compareSync(password, user.password))
       throw new UnauthorizedException('Incorrect credentials');
 
-    const { id: userId, name: username, dni, city, address } = user;
-    const { id: companyId, billingEmail, nit } = user.company;
+    const { id: userId, name: username, dni, city, address, isCoorporative, mainSecondaryUser } = user;
+    const { id: companyId, billingEmail, nit, legalCapacity } = user.company;
 
     if (user.roles.some(role => role.name.toLowerCase().trim() === 'administrador') || user.roles.some(role => role.name.toLowerCase().trim() === 'super-administrador')) {
       payloadToSend = {
-        user: { userId, username, dni, city, address, email },
-        company: { companyId, billingEmail, nit },
+        user: { userId, username, dni, city, address, email, isCoorporative, mainSecondaryUser },
+        company: { companyId, billingEmail, nit, legalCapacity },
         roles: user.roles.map(role => ({ name: role.name })),
         permissions: user.permissions.map(permission => (({ name: permission.name }))),
       };
