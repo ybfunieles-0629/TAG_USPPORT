@@ -5,7 +5,8 @@ import { OrderRating } from '../../order-ratings/entities/order-rating.entity';
 import { MarkingService } from '../../marking-services/entities/marking-service.entity';
 import { TransportService } from '../../transport-services/entities/transport-service.entity';
 import { State } from '../../states/entities/state.entity';
-import { Product } from 'src/products/entities/product.entity';
+import { Product } from '../../products/entities/product.entity';
+import { CartQuote } from '../../cart-quotes/entities/cart-quote.entity';
 
 @Entity('order_list_details')
 export class OrderListDetail {
@@ -136,6 +137,9 @@ export class OrderListDetail {
   //* ---- FK ---- *//
   @OneToOne(() => OrderRating, (orderRating) => orderRating.orderListDetail)
   orderRating: OrderRating;
+
+  @OneToOne(() => CartQuote, (cartQuote) => cartQuote.orderListDetail)
+  cartQuote: CartQuote;
 
   @ManyToOne(() => PurchaseOrder, (purchaseOrder) => purchaseOrder.orderListDetails)
   purchaseOrder: PurchaseOrder;
