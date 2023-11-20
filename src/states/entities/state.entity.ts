@@ -3,6 +3,7 @@ import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, Prima
 import { CartQuote } from '../../cart-quotes/entities/cart-quote.entity';
 import { PurchaseOrder } from '../../purchase-order/entities/purchase-order.entity';
 import { OrderListDetail } from '../../order-list-details/entities/order-list-detail.entity';
+import { SupplierPurchaseOrder } from '../../supplier-purchase-orders/entities/supplier-purchase-order.entity';
 
 @Entity('states')
 export class State {
@@ -49,4 +50,7 @@ export class State {
 
   @OneToMany(() => OrderListDetail, (orderListDetail) => orderListDetail.state)
   orderListDetails: OrderListDetail[];
+
+  @OneToMany(() => SupplierPurchaseOrder, (supplierPurchaseOrder) => supplierPurchaseOrder.state)
+  supplierPurchaseOrders: SupplierPurchaseOrder[];
 }
