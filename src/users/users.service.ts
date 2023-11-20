@@ -258,7 +258,7 @@ export class UsersService {
 
     if (user.roles.some(role => role.name.toLowerCase().trim() === 'administrador') || user.roles.some(role => role.name.toLowerCase().trim() === 'super-administrador')) {
       payloadToSend = {
-        user: { userId, username, dni, city, address },
+        user: { userId, username, dni, city, address, email },
         company: { companyId, billingEmail, nit },
         roles: user.roles.map(role => ({ name: role.name })),
         permissions: user.permissions.map(permission => (({ name: permission.name }))),
