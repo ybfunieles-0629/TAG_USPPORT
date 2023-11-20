@@ -123,7 +123,7 @@ import { SupplierPurchaseOrdersModule } from './supplier-purchase-orders/supplie
     CommercialQualificationModule,
     StateChangesModule,
     SupplierPurchaseOrdersModule,
-    // PurchaseOrderModule,
+    PurchaseOrderModule,
   ],
 })
 export class AppModule { }
