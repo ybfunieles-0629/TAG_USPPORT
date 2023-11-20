@@ -48,6 +48,9 @@ import { PurchaseOrderModule } from './purchase-order/purchase-order.module';
 import { SwiperHomeModule } from './swiper-home/swiper-home.module';
 import { SystemConfigsModule } from './system-configs/system-configs.module';
 import { FinancingCostProfitsModule } from './financing-cost-profits/financing-cost-profits.module';
+import { OrderListDetailsModule } from './order-list-details/order-list-details.module';
+import { OrderRatingsModule } from './order-ratings/order-ratings.module';
+import { CommercialQualificationModule } from './commercial-qualification/commercial-qualification.module';
 
 @Module({
   imports: [
@@ -112,7 +115,10 @@ import { FinancingCostProfitsModule } from './financing-cost-profits/financing-c
     LogosModule,
     SystemConfigsModule,
     FinancingCostProfitsModule,
-    // SwiperHomeModule,
+    OrderListDetailsModule,
+    OrderRatingsModule,
+    SwiperHomeModule,
+    CommercialQualificationModule,
     // PurchaseOrderModule,
   ],
 })
