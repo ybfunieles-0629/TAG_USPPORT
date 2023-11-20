@@ -9,13 +9,15 @@ import { ColorsModule } from '../colors/colors.module';
 import { RefProductsModule } from '../ref-products/ref-products.module';
 import { CategorySuppliersModule } from '../category-suppliers/category-suppliers.module';
 import { ImagesModule } from '../images/images.module';
-import { UsersModule } from 'src/users/users.module';
+import { UsersModule } from '../users/users.module';
+import { MarkingsModule } from '../markings/markings.module';
 
 @Module({
   imports: [
     CategorySuppliersModule,
     ColorsModule,
     ImagesModule,
+    MarkingsModule,
     RefProductsModule,
     UsersModule,
     VariantReferenceModule,

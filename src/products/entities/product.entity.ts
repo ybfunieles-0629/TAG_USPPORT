@@ -10,6 +10,8 @@ import { DeliveryTime } from '../../delivery-times/entities/delivery-time.entity
 import { DiscountQuantity } from '../../discount-quantities/entities/discount-quantity.entity';
 import { SupplierPrice } from '../../supplier-prices/entities/supplier-price.entity';
 import { QuoteDetail } from '../../quote-details/entities/quote-detail.entity';
+import { OrderListDetail } from '../../order-list-details/entities/order-list-detail.entity';
+import { Marking } from '../../markings/entities/marking.entity';
 
 @Entity('products')
 export class Product {
@@ -161,6 +163,9 @@ export class Product {
   @OneToMany(() => QuoteDetail, (quoteDetail) => quoteDetail.product)
   quoteDetails?: QuoteDetail[];
 
+  @OneToMany(() => OrderListDetail, (orderListDetail) => orderListDetail.product)
+  orderListDetails: OrderListDetail[];
+
   @ManyToOne(() => RefProduct, (refProduct) => refProduct.products)
   refProduct: RefProduct;
 
@@ -177,6 +182,20 @@ export class Product {
     },
   })
   variantReferences?: VariantReference[];
+
+  @ManyToMany(() => Marking, (marking) => marking.products)
+  @JoinTable({
+    name: 'products_has_markings',
+    joinColumn: {
+      name: 'productId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'marking',
+      referencedColumnName: 'id',
+    },
+  })
+  markings?: Marking[];
 
   @ManyToMany(() => VariantReference, (variantReference) => variantReference.products)
   @JoinTable({

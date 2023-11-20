@@ -105,4 +105,9 @@ export class CreateProductDto {
   @IsArray()
   @IsString({ each: true })
   variantReferences?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  markings?: string[];
 }

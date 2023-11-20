@@ -14,6 +14,7 @@ import { RefProduct } from '../ref-products/entities/ref-product.entity';
 import { CategorySupplier } from '../category-suppliers/entities/category-supplier.entity';
 import { Image } from '../images/entities/image.entity';
 import { User } from '../users/entities/user.entity';
+import { Marking } from 'src/markings/entities/marking.entity';
 
 
 @Injectable()
@@ -35,6 +36,9 @@ export class ProductsService {
 
     @InjectRepository(Image)
     private readonly imageRepository: Repository<Image>,
+
+    @InjectRepository(Marking)
+    private readonly markingRepository: Repository<Marking>,
 
     @InjectRepository(RefProduct)
     private readonly refProductRepository: Repository<RefProduct>,
@@ -77,6 +81,19 @@ export class ProductsService {
 
       images.push(savedImage);
 
+      const categorySuppliers: CategorySupplier[] = [];
+
+      const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+        where: {
+          id: product.idCategoria,
+        },
+      });
+
+      if (!categorySupplier)
+        throw new NotFoundException(`Category with id ${product.idCategoria} not found`);
+
+      categorySuppliers.push(categorySupplier);
+
       const newReference = {
         name: product.nombre,
         description: product.resumen,
@@ -86,6 +103,7 @@ export class ProductsService {
         referenceCode: product.referencia,
         mainCategory: product.idCategoria,
         supplier: user.supplier,
+        categorySuppliers
       };
 
       const createdRefProduct: RefProduct = this.refProductRepository.create(newReference);
@@ -337,6 +355,28 @@ export class ProductsService {
       }
     }
 
+    if (createProductDto.markings) {
+      const markings: Marking[] = [];
+
+      for (const markingId of createProductDto.markings) {
+        const marking: Marking = await this.markingRepository.findOne({
+          where: {
+            id: markingId,
+          },
+        });
+
+        if (!marking)
+          throw new NotFoundException(`Marking with id ${markingId} not found`);
+
+        if (!marking.isActive)
+          throw new BadRequestException(`Marking with id ${markingId} is currently inactive`);
+
+        markings.push(marking);
+      }
+
+      newProduct.markings = markings;
+    }
+
     const refProduct = await this.refProductRepository.findOne({
       where: {
         id: createProductDto.refProduct,
@@ -422,6 +462,28 @@ export class ProductsService {
         }
       }
 
+      if (createProductDto.markings) {
+        const markings: Marking[] = [];
+
+        for (const markingId of createProductDto.markings) {
+          const marking: Marking = await this.markingRepository.findOne({
+            where: {
+              id: markingId,
+            },
+          });
+
+          if (!marking)
+            throw new NotFoundException(`Marking with id ${markingId} not found`);
+
+          if (!marking.isActive)
+            throw new BadRequestException(`Marking with id ${markingId} is currently inactive`);
+
+          markings.push(marking);
+        }
+
+        newProduct.markings = markings;
+      }
+
       newProduct.variantReferences = variantReferences;
       newProduct.colors = colors;
 
@@ -447,6 +509,7 @@ export class ProductsService {
         'packings',
         'refProduct',
         'refProduct.images',
+        'markings',
       ],
     });
   }
@@ -462,6 +525,7 @@ export class ProductsService {
         'packings',
         'refProduct',
         'refProduct.images',
+        'markings',
       ],
     });
 
@@ -484,6 +548,7 @@ export class ProductsService {
         'packings',
         'refProduct',
         'refProduct.images',
+        'markings',
       ],
     });
 
@@ -531,6 +596,28 @@ export class ProductsService {
 
         colors.push(colorInDb);
       }
+    }
+
+    if (updateProductDto.markings) {
+      const markings: Marking[] = [];
+
+      for (const markingId of updateProductDto.markings) {
+        const marking: Marking = await this.markingRepository.findOne({
+          where: {
+            id: markingId,
+          },
+        });
+
+        if (!marking)
+          throw new NotFoundException(`Marking with id ${markingId} not found`);
+
+        if (!marking.isActive)
+          throw new BadRequestException(`Marking with id ${markingId} is currently inactive`);
+
+        markings.push(marking);
+      }
+
+      updatedProduct.markings = markings;
     }
 
     updatedProduct.variantReferences = variantReferences;
@@ -606,6 +693,28 @@ export class ProductsService {
 
           colors.push(colorInDb);
         }
+      }
+
+      if (updateProductDto.markings) {
+        const markings: Marking[] = [];
+
+        for (const markingId of updateProductDto.markings) {
+          const marking: Marking = await this.markingRepository.findOne({
+            where: {
+              id: markingId,
+            },
+          });
+
+          if (!marking)
+            throw new NotFoundException(`Marking with id ${markingId} not found`);
+
+          if (!marking.isActive)
+            throw new BadRequestException(`Marking with id ${markingId} is currently inactive`);
+
+          markings.push(marking);
+        }
+
+        updatedProduct.markings = markings;
       }
 
       updatedProduct.variantReferences = variantReferences;
