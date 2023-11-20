@@ -55,7 +55,7 @@ export class Company {
   commerceChamberDocument: string;
 
   @Column('varchar', {
-
+    unique: true,
   })
   billingEmail: string;
 
