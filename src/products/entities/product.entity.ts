@@ -11,7 +11,7 @@ import { DiscountQuantity } from '../../discount-quantities/entities/discount-qu
 import { SupplierPrice } from '../../supplier-prices/entities/supplier-price.entity';
 import { QuoteDetail } from '../../quote-details/entities/quote-detail.entity';
 import { OrderListDetail } from '../../order-list-details/entities/order-list-detail.entity';
-import { Marking } from '../../markings/entities/marking.entity';
+import { MarkingServiceProperty } from '../../marking-service-properties/entities/marking-service-property.entity';
 
 @Entity('products')
 export class Product {
@@ -183,19 +183,19 @@ export class Product {
   })
   variantReferences?: VariantReference[];
 
-  @ManyToMany(() => Marking, (marking) => marking.products)
+  @ManyToMany(() => MarkingServiceProperty, (markingServiceProperty) => markingServiceProperty.products)
   @JoinTable({
-    name: 'products_has_markings',
+    name: 'products_has_marking_service_properties',
     joinColumn: {
       name: 'productId',
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-      name: 'marking',
+      name: 'markingServicePropertyId',
       referencedColumnName: 'id',
     },
   })
-  markings?: Marking[];
+  markingServiceProperties?: MarkingServiceProperty[];
 
   @ManyToMany(() => VariantReference, (variantReference) => variantReference.products)
   @JoinTable({

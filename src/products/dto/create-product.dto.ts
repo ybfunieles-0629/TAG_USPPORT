@@ -109,5 +109,5 @@ export class CreateProductDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  markings?: string[];
+  markingServiceProperties?: string[];
 }

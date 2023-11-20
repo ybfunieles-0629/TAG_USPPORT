@@ -14,7 +14,7 @@ import { RefProduct } from '../ref-products/entities/ref-product.entity';
 import { CategorySupplier } from '../category-suppliers/entities/category-supplier.entity';
 import { Image } from '../images/entities/image.entity';
 import { User } from '../users/entities/user.entity';
-import { Marking } from 'src/markings/entities/marking.entity';
+import { MarkingServiceProperty } from 'src/marking-service-properties/entities/marking-service-property.entity';
 
 
 @Injectable()
@@ -37,8 +37,8 @@ export class ProductsService {
     @InjectRepository(Image)
     private readonly imageRepository: Repository<Image>,
 
-    @InjectRepository(Marking)
-    private readonly markingRepository: Repository<Marking>,
+    @InjectRepository(MarkingServiceProperty)
+    private readonly markingServicePropertyRepository: Repository<MarkingServiceProperty>,
 
     @InjectRepository(RefProduct)
     private readonly refProductRepository: Repository<RefProduct>,
@@ -355,26 +355,26 @@ export class ProductsService {
       }
     }
 
-    if (createProductDto.markings) {
-      const markings: Marking[] = [];
+    if (createProductDto.markingServiceProperties) {
+      const markingServiceProperties: MarkingServiceProperty[] = [];
 
-      for (const markingId of createProductDto.markings) {
-        const marking: Marking = await this.markingRepository.findOne({
+      for (const markingServicePropertyId of createProductDto.markingServiceProperties) {
+        const markingServiceProperty: MarkingServiceProperty = await this.markingServicePropertyRepository.findOne({
           where: {
-            id: markingId,
+            id: markingServicePropertyId,
           },
         });
 
-        if (!marking)
-          throw new NotFoundException(`Marking with id ${markingId} not found`);
+        if (!markingServiceProperty)
+          throw new NotFoundException(`Marking service property with id ${markingServicePropertyId} not found`);
 
-        if (!marking.isActive)
-          throw new BadRequestException(`Marking with id ${markingId} is currently inactive`);
+        if (!markingServiceProperty.isActive)
+          throw new BadRequestException(`Marking service property with id ${markingServicePropertyId} is currently inactive`);
 
-        markings.push(marking);
+        markingServiceProperties.push(markingServiceProperty);
       }
 
-      newProduct.markings = markings;
+      newProduct.markingServiceProperties = markingServiceProperties;
     }
 
     const refProduct = await this.refProductRepository.findOne({
@@ -462,26 +462,26 @@ export class ProductsService {
         }
       }
 
-      if (createProductDto.markings) {
-        const markings: Marking[] = [];
+      if (createProductDto.markingServiceProperties) {
+        const markingServiceProperties: MarkingServiceProperty[] = [];
 
-        for (const markingId of createProductDto.markings) {
-          const marking: Marking = await this.markingRepository.findOne({
+        for (const markingServicePropertyId of createProductDto.markingServiceProperties) {
+          const markingServiceProperty: MarkingServiceProperty = await this.markingServicePropertyRepository.findOne({
             where: {
-              id: markingId,
+              id: markingServicePropertyId,
             },
           });
 
-          if (!marking)
-            throw new NotFoundException(`Marking with id ${markingId} not found`);
+          if (!markingServiceProperty)
+            throw new NotFoundException(`Marking service property with id ${markingServicePropertyId} not found`);
 
-          if (!marking.isActive)
-            throw new BadRequestException(`Marking with id ${markingId} is currently inactive`);
+          if (!markingServiceProperty.isActive)
+            throw new BadRequestException(`Marking service property with id ${markingServicePropertyId} is currently inactive`);
 
-          markings.push(marking);
+          markingServiceProperties.push(markingServiceProperty);
         }
 
-        newProduct.markings = markings;
+        newProduct.markingServiceProperties = markingServiceProperties;
       }
 
       newProduct.variantReferences = variantReferences;
@@ -509,7 +509,7 @@ export class ProductsService {
         'packings',
         'refProduct',
         'refProduct.images',
-        'markings',
+        'markingServiceProperties',
       ],
     });
   }
@@ -525,7 +525,7 @@ export class ProductsService {
         'packings',
         'refProduct',
         'refProduct.images',
-        'markings',
+        'markingServiceProperties',
       ],
     });
 
@@ -548,7 +548,7 @@ export class ProductsService {
         'packings',
         'refProduct',
         'refProduct.images',
-        'markings',
+        'markingServiceProperties',
       ],
     });
 
@@ -598,26 +598,26 @@ export class ProductsService {
       }
     }
 
-    if (updateProductDto.markings) {
-      const markings: Marking[] = [];
+    if (updateProductDto.markingServiceProperties) {
+      const markingServiceProperties: MarkingServiceProperty[] = [];
 
-      for (const markingId of updateProductDto.markings) {
-        const marking: Marking = await this.markingRepository.findOne({
+      for (const markingServicePropertyId of updateProductDto.markingServiceProperties) {
+        const markingServiceProperty: MarkingServiceProperty = await this.markingServicePropertyRepository.findOne({
           where: {
-            id: markingId,
+            id: markingServicePropertyId,
           },
         });
 
-        if (!marking)
-          throw new NotFoundException(`Marking with id ${markingId} not found`);
+        if (!markingServiceProperty)
+          throw new NotFoundException(`Marking service property with id ${markingServicePropertyId} not found`);
 
-        if (!marking.isActive)
-          throw new BadRequestException(`Marking with id ${markingId} is currently inactive`);
+        if (!markingServiceProperty.isActive)
+          throw new BadRequestException(`Marking service property with id ${markingServicePropertyId} is currently inactive`);
 
-        markings.push(marking);
+        markingServiceProperties.push(markingServiceProperty);
       }
 
-      updatedProduct.markings = markings;
+      updatedProduct.markingServiceProperties = markingServiceProperties;
     }
 
     updatedProduct.variantReferences = variantReferences;
@@ -695,26 +695,26 @@ export class ProductsService {
         }
       }
 
-      if (updateProductDto.markings) {
-        const markings: Marking[] = [];
+      if (updateProductDto.markingServiceProperties) {
+        const markingServiceProperties: MarkingServiceProperty[] = [];
 
-        for (const markingId of updateProductDto.markings) {
-          const marking: Marking = await this.markingRepository.findOne({
+        for (const markingServicePropertyId of updateProductDto.markingServiceProperties) {
+          const markingServiceProperty: MarkingServiceProperty = await this.markingServicePropertyRepository.findOne({
             where: {
-              id: markingId,
+              id: markingServicePropertyId,
             },
           });
 
-          if (!marking)
-            throw new NotFoundException(`Marking with id ${markingId} not found`);
+          if (!markingServiceProperty)
+            throw new NotFoundException(`Marking service property with id ${markingServicePropertyId} not found`);
 
-          if (!marking.isActive)
-            throw new BadRequestException(`Marking with id ${markingId} is currently inactive`);
+          if (!markingServiceProperty.isActive)
+            throw new BadRequestException(`Marking service property with id ${markingServicePropertyId} is currently inactive`);
 
-          markings.push(marking);
+          markingServiceProperties.push(markingServiceProperty);
         }
 
-        updatedProduct.markings = markings;
+        updatedProduct.markingServiceProperties = markingServiceProperties;
       }
 
       updatedProduct.variantReferences = variantReferences;
