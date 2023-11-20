@@ -37,8 +37,8 @@ export class Marking {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @OneToMany(() => MarkingTagService, (markingTagService) => markingTagService.marking)
-  markingTagServices: MarkingTagService[];
+  @ManyToOne(() => MarkingTagService, (markingTagService) => markingTagService.markings)
+  markingTagService: MarkingTagService;
 
   @OneToOne(() => MarkingService, (markingService) => markingService.marking)
   markingService: MarkingService;
