@@ -4,6 +4,7 @@ import { State } from '../../states/entities/state.entity';
 import { QuoteDetail } from '../../quote-details/entities/quote-detail.entity';
 import { User } from '../../users/entities/user.entity';
 import { Client } from '../../clients/entities/client.entity';
+import { OrderListDetail } from '../../order-list-details/entities/order-list-detail.entity';
 
 @Entity('cart_quotes')
 export class CartQuote {
@@ -65,6 +66,10 @@ export class CartQuote {
   @OneToOne(() => State, (state) => state.cartQuote)
   @JoinColumn()
   state: State;
+
+  @OneToOne(() => OrderListDetail, (orderListDetail) => orderListDetail.cartQuote)
+  @JoinColumn()
+  orderListDetail: OrderListDetail;
 
   @OneToMany(() => QuoteDetail, (quoteDetail) => quoteDetail.cartQuote)
   quoteDetails?: QuoteDetail[];
