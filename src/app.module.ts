@@ -51,6 +51,8 @@ import { FinancingCostProfitsModule } from './financing-cost-profits/financing-c
 import { OrderListDetailsModule } from './order-list-details/order-list-details.module';
 import { OrderRatingsModule } from './order-ratings/order-ratings.module';
 import { CommercialQualificationModule } from './commercial-qualification/commercial-qualification.module';
+import { StateChangesModule } from './state-changes/state-changes.module';
+import { SupplierPurchaseOrdersModule } from './supplier-purchase-orders/supplier-purchase-orders.module';
 
 @Module({
   imports: [
@@ -119,6 +121,8 @@ import { CommercialQualificationModule } from './commercial-qualification/commer
     OrderRatingsModule,
     SwiperHomeModule,
     CommercialQualificationModule,
+    StateChangesModule,
+    SupplierPurchaseOrdersModule,
     // PurchaseOrderModule,
   ],
 })
