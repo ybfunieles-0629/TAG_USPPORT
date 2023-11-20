@@ -44,6 +44,6 @@ export class MarkingTagService {
   @OneToMany(() => TagSubTechnique, (tagSubTechnique) => tagSubTechnique.markingTagService)
   tagSubTechniques?: TagSubTechnique[];
 
-  @OneToOne(() => Marking, (marking) => marking.markingTagService)
-  marking: Marking;
+  @OneToMany(() => Marking, (marking) => marking.markingTagService)
+  markings: Marking[];
 }
