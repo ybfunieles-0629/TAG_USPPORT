@@ -5,6 +5,7 @@ import { QuoteDetail } from '../../quote-details/entities/quote-detail.entity';
 import { MarkingServiceProperty } from '../../marking-service-properties/entities/marking-service-property.entity';
 import { ExternalSubTechnique } from '../../external-sub-techniques/entities/external-sub-technique.entity';
 import { Logo } from '../../logos/entities/logo.entity';
+import { OrderListDetail } from '../../order-list-details/entities/order-list-detail.entity';
 
 @Entity('marking_services')
 export class MarkingService {
@@ -59,6 +60,9 @@ export class MarkingService {
   @OneToOne(() =>  ExternalSubTechnique, (externalSubTechnique) => externalSubTechnique.markingService)
   @JoinColumn()
   externalSubTechnique: ExternalSubTechnique;
+
+  @OneToMany(() => OrderListDetail, (orderListDetail) => orderListDetail.markingService)
+  orderListDetails: OrderListDetail[];
 
   @OneToMany(() => Logo, (logo) => logo.markingService)
   logos?: Logo[];
