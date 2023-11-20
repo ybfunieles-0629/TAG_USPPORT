@@ -40,7 +40,7 @@ export class Company {
   documentType: string;
 
   @Column('varchar', {
-
+    unique: true,
   })
   nit: string;
 
