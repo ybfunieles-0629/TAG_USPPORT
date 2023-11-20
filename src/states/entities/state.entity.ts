@@ -1,8 +1,10 @@
-import { Column, CreateDateColumn, Entity, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { CartQuote } from '../../cart-quotes/entities/cart-quote.entity';
+import { PurchaseOrder } from '../../purchase-order/entities/purchase-order.entity';
+import { OrderListDetail } from '../../order-list-details/entities/order-list-detail.entity';
 
-@Entity()
+@Entity('states')
 export class State {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -41,4 +43,10 @@ export class State {
   //* ---- FK ---- *//
   @OneToOne(() => CartQuote, (cartQuote) => cartQuote.state)
   cartQuote: CartQuote;
+
+  @OneToMany(() => PurchaseOrder, (purchaseOrder) => purchaseOrder.state)
+  purchaseOrders: PurchaseOrder[];
+
+  @OneToMany(() => OrderListDetail, (orderListDetail) => orderListDetail.state)
+  orderListDetails: OrderListDetail[];
 }
