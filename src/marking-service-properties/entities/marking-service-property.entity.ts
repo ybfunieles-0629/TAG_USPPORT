@@ -5,7 +5,8 @@ import { ExternalSubTechnique } from '../../external-sub-techniques/entities/ext
 import { TagSubTechniqueProperty } from '../../tag-sub-technique-properties/entities/tag-sub-technique-property.entity';
 import { MarkingService } from '../../marking-services/entities/marking-service.entity';
 import { RefProduct } from '../../ref-products/entities/ref-product.entity';
-import { Image } from 'src/images/entities/image.entity';
+import { Image } from '../../images/entities/image.entity';
+import { Product } from '../../products/entities/product.entity';
 
 @Entity('marking_service_properties')
 export class MarkingServiceProperty {
@@ -33,7 +34,7 @@ export class MarkingServiceProperty {
   width: number;
 
   @Column('varchar', {
-    
+
   })
   createdBy: string;
 
@@ -41,7 +42,7 @@ export class MarkingServiceProperty {
 
   })
   updatedBy: string;
-  
+
   @Column('boolean', {
     default: true,
   })
@@ -54,21 +55,26 @@ export class MarkingServiceProperty {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @OneToMany(() => Image, (image) => image.markingServiceProperty)
-  images: Image[];
-
   @OneToOne(() => TagSubTechniqueProperty, (tagSubTechniqueProperty) => tagSubTechniqueProperty.markingServiceProperty)
   tagSubTechniqueProperty: TagSubTechniqueProperty;
 
   @OneToOne(() => MarkingService, (markingService) => markingService.markingServiceProperty)
   markingService: MarkingService;
 
-  @ManyToMany(() => RefProduct, (refProduct) => refProduct.markingServiceProperties)
-  refProducts?: RefProduct[];
+  @OneToMany(() => MarkedServicePrice, (markedServicePrice) => markedServicePrice.markingServiceProperty)
+  markedServicePrices?: MarkedServicePrice[];
+
+  @OneToMany(() => Image, (image) => image.markingServiceProperty)
+  images: Image[];
+
+  
 
   @ManyToOne(() => ExternalSubTechnique, (externalSubTechnique) => externalSubTechnique.markingServiceProperties)
   externalSubTechnique: ExternalSubTechnique;
 
-  @OneToMany(() => MarkedServicePrice, (markedServicePrice) => markedServicePrice.markingServiceProperty)
-  markedServicePrices?: MarkedServicePrice[];
+  @ManyToMany(() => RefProduct, (refProduct) => refProduct.markingServiceProperties)
+  refProducts?: RefProduct[];
+
+  @ManyToMany(() => Product, (product) => product.markingServiceProperties)
+  products?: Product[];
 }
