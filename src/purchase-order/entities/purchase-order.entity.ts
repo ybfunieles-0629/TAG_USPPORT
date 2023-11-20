@@ -1,6 +1,8 @@
-import { Column, CreateDateColumn, Entity, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { CommercialQualification } from '../../commercial-qualification/entities/commercial-qualification.entity';
+import { State } from '../../states/entities/state.entity';
+import { OrderListDetail } from '../../order-list-details/entities/order-list-detail.entity';
 
 @Entity('purchase_order')
 export class PurchaseOrder {
@@ -67,10 +69,20 @@ export class PurchaseOrder {
   })
   retentionCost: number;
 
+  @Column('varchar', {
+
+  })
+  billingNumber: string;
+
+  @Column('varchar', {
+
+  })
+  billingFile: string;
+
   @Column('boolean', {
     default: true,
   })
-  isActive: true;
+  isActive: boolean;
 
   @Column('varchar', {
 
@@ -90,5 +102,12 @@ export class PurchaseOrder {
 
   //* ---- FK ---- *//
   @OneToOne(() => CommercialQualification, (commercialQualification) => commercialQualification.purchaseOrder)
+  @JoinColumn()
   commercialQualification: CommercialQualification;
+
+  @OneToMany(() => OrderListDetail, (orderListDetail) => orderListDetail.purchaseOrder)
+  orderListDetails: OrderListDetail[];
+
+  @ManyToOne(() => State, (state) => state.purchaseOrders)
+  state: State;
 }
