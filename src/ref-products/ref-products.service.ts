@@ -149,10 +149,10 @@ export class RefProductsService {
 
   async findAll(paginationDto: PaginationDto) {
     const totalCount = await this.refProductRepository.count();
-  
+
     const { limit = totalCount, offset = 0 } = paginationDto;
-  
-    const results = await this.refProductRepository.find({
+
+    const results: RefProduct[] = await this.refProductRepository.find({
       take: limit,
       skip: offset,
       relations: [
@@ -172,14 +172,52 @@ export class RefProductsService {
         'variantReferences',
       ],
     });
-  
-    results.forEach((refProduct) => {
+
+    const staticQuantities: number[] = [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
+      150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
+      1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
+      7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
+      100000, 200000,
+    ];
+
+    const finalResults: RefProduct[] = results.map(result => {
+      const modifiedProducts = result.products.map(product => {
+        const burnPriceTable = [];
+
+        const initialValue: number = product.referencePrice;
+        let changingValue: number = initialValue;
+
+        for (let i = 0; i < staticQuantities.length; i++) {
+          let prices = {
+            quantity: staticQuantities[i],
+            value: changingValue,
+          };
+
+          burnPriceTable.push(prices);
+
+          const percentageDiscount: number = 0.01;
+
+          let value: number = changingValue * (1 - percentageDiscount);
+
+          value = Math.round(value);
+
+          changingValue = value;
+        }
+
+        return { ...product, burnPriceTable };
+      });
+
+      return { ...result, products: modifiedProducts };
+    });
+
+    finalResults.forEach((refProduct) => {
       refProduct.products.sort((a, b) => a.referencePrice - b.referencePrice);
     });
-  
+
     return {
       totalCount,
-      results,
+      results: finalResults,
     };
   }
 
