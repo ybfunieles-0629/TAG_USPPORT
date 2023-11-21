@@ -359,6 +359,22 @@ export class ProductsService {
       }
     }
 
+    if (createProductDto.images) {
+      const images: Image[] = [];
+
+      for (const imageId of createProductDto.images) {
+        const image: Image = await this.imageRepository.findOne({
+          where: {
+            id: imageId,
+          },
+        });
+
+        images.push(image);
+      };
+
+      newProduct.images = images;
+    }
+
     if (createProductDto.markingServiceProperties) {
       const markingServiceProperties: MarkingServiceProperty[] = [];
 
@@ -464,6 +480,22 @@ export class ProductsService {
 
           colors.push(colorInDb);
         }
+      }
+
+      if (createProductDto.images) {
+        const images: Image[] = [];
+
+        for (const imageId of createProductDto.images) {
+          const image: Image = await this.imageRepository.findOne({
+            where: {
+              id: imageId,
+            },
+          });
+
+          images.push(image);
+        };
+
+        newProduct.images = images;
       }
 
       if (createProductDto.markingServiceProperties) {

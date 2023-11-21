@@ -104,6 +104,11 @@ export class CreateProductDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
+  images?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
   variantReferences?: string[];
 
   @IsOptional()
