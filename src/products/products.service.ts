@@ -81,8 +81,6 @@ export class ProductsService {
 
       images.push(savedImage);
 
-      const categorySuppliers: CategorySupplier[] = [];
-
       const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
         where: {
           id: product.idCategoria,
@@ -92,8 +90,6 @@ export class ProductsService {
       if (!categorySupplier)
         throw new NotFoundException(`Category with id ${product.idCategoria} not found`);
 
-      categorySuppliers.push(categorySupplier);
-
       const newReference = {
         name: product.nombre,
         description: product.resumen,
@@ -101,9 +97,8 @@ export class ProductsService {
         markedDesignArea: product.descripcionProducto,
         images,
         referenceCode: product.referencia,
-        mainCategory: product.idCategoria,
+        mainCategory: categorySupplier.id,
         supplier: user.supplier,
-        categorySuppliers
       };
 
       const createdRefProduct: RefProduct = this.refProductRepository.create(newReference);
@@ -206,12 +201,21 @@ export class ProductsService {
         images.push(savedImage);
       }
 
+      const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+        where: {
+          id: item.subcategoria_1.categoria.jerarquia,
+        },
+      });
+
+      if (!categorySupplier)
+        throw new NotFoundException(`Category with id ${item.subcategoria_1.categoria.jerarquia} not found`);
+
       let newRefProduct = {
         name: item.descripcion_comercial,
         referenceCode: item.familia,
         shortDescription: item.descripcion_comercial,
         description: item.descripcion_larga,
-        mainCategory: item.subcategoria_1.categoria.jerarquia,
+        mainCategory: categorySupplier.id,
         keywords: keyword,
         large: +item.empaque_largo,
         width: +item.empaque_ancho,
