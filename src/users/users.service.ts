@@ -397,7 +397,7 @@ export class UsersService {
 
     const userRoles: string[] = user.roles.map(role => role.name);
 
-    const userPermissions = userRoles.reduce((permissions, roleName) => {
+    const userPermissions: Permission[] = userRoles.reduce((permissions, roleName): Permission[] => {
       const rolePermissions = permissionsForEachRole[roleName];
 
       if (!rolePermissions) {
