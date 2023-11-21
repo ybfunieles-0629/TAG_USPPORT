@@ -188,6 +188,12 @@ export class UsersService {
       brands.push(brand);
     }
 
+    if (newUser.roles.some(role => role.name === 'Super-Administrador')) {
+      const permissions: Permission[] = await this.permissionRepository.find();
+
+      newUser.permissions = permissions;
+    }
+
     newUser.brands = brands;
 
     const encryptedPassword = bcrypt.hashSync(createUserDto.password, 10);
@@ -347,6 +353,22 @@ export class UsersService {
     return {
       user
     };
+  }
+
+  async addPermissionsByUserRole(id: string) {
+    const user: User = await this.userRepository.findOne({
+      where: {
+        id,
+      },
+      relations: [
+        'roles',
+      ],
+    });
+
+    if (!user)
+      throw new NotFoundException(`User with id ${id} not found`);
+
+    // const role: Role = user.roles.find(role => role.name === 'Comercial');
   }
 
   findAll(paginationDto: PaginationDto) {
