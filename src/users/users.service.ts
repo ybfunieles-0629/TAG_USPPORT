@@ -401,7 +401,7 @@ export class UsersService {
       const rolePermissions = permissionsForEachRole[roleName];
 
       if (!rolePermissions) {
-        throw new NotFoundException(`Permisos no definidos para el rol: ${roleName}`);
+        throw new NotFoundException(`Permissions not found for role ${roleName}`);
       }
 
       rolePermissions.forEach(async permission => {
@@ -412,7 +412,7 @@ export class UsersService {
         });
 
         if (!permissionInDb) {
-          throw new NotFoundException(`Permiso con nombre ${permission.name} no encontrado`);
+          throw new NotFoundException(`Permission with name ${permission.name} not found`);
         }
 
         permissions.push(permissionInDb);
