@@ -368,7 +368,66 @@ export class UsersService {
     if (!user)
       throw new NotFoundException(`User with id ${id} not found`);
 
-    // const role: Role = user.roles.find(role => role.name === 'Comercial');
+    const permissionsForEachRole = {
+      Comercial: [
+        {
+          name: 'Usuarios',
+        },
+        {
+          name: 'Clientes',
+        },
+      ],
+      Cliente: [
+        {
+          name: 'Cotizaciones',
+        },
+        {
+          name: 'Pedidos',
+        },
+      ],
+      Proveedor: [
+        {
+          name: 'Productos',
+        },
+        {
+          name: 'Pedidos',
+        },
+      ],
+    };
+
+    const userRoles: string[] = user.roles.map(role => role.name);
+
+    const userPermissions = userRoles.reduce((permissions, roleName) => {
+      const rolePermissions = permissionsForEachRole[roleName];
+
+      if (!rolePermissions) {
+        throw new NotFoundException(`Permisos no definidos para el rol: ${roleName}`);
+      }
+
+      rolePermissions.forEach(async permission => {
+        const permissionInDb: Permission = await this.permissionRepository.findOne({
+          where: {
+            name: permission.name,
+          },
+        });
+
+        if (!permissionInDb) {
+          throw new NotFoundException(`Permiso con nombre ${permission.name} no encontrado`);
+        }
+
+        permissions.push(permissionInDb);
+      });
+
+      return permissions;
+    }, []);
+
+    user.permissions = userPermissions;
+
+    await this.userRepository.save(user);
+
+    return {
+      user
+    };
   }
 
   findAll(paginationDto: PaginationDto) {
