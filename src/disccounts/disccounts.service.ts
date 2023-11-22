@@ -43,13 +43,20 @@ export class DisccountsService {
     };
   }
 
-  findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll(paginationDto: PaginationDto) {
+    const count: number = await this.disccountsRepository.count();
 
-    return this.disccountsRepository.find({
+    const { limit = count, offset = 0 } = paginationDto;
+
+    const results: Disccounts[] = await this.disccountsRepository.find({
       take: limit,
       skip: offset,
     });
+
+    return {
+      count,
+      results
+    };
   }
 
   async findOne(id: string) {

@@ -69,10 +69,12 @@ export class DisccountService {
     };
   }
 
-  findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll(paginationDto: PaginationDto) {
+    const count: number = await this.disccountRepository.count();
+    
+    const { limit = count, offset = 0 } = paginationDto;
 
-    return this.disccountRepository.find({
+    const results: Disccount[] = await this.disccountRepository.find({
       take: limit,
       skip: offset,
       relations: [
@@ -81,6 +83,11 @@ export class DisccountService {
         'supplier.user',
       ],
     });
+
+    return {
+      count,
+      results
+    };
   }
 
   async findOne(id: string) {
