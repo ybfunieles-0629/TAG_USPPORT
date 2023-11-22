@@ -79,13 +79,20 @@ export class CategoryTagService {
     };
   }
 
-  findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll(paginationDto: PaginationDto) {
+    const count: number = await this.categoryTagRepository.count();
 
-    return this.categoryTagRepository.find({
+    const { limit = count, offset = 0 } = paginationDto;
+
+    const results: CategoryTag[] = await this.categoryTagRepository.find({
       take: limit,
       skip: offset,
     });
+
+    return {
+      count,
+      results
+    };
   }
 
   async findOne(id: string) {
