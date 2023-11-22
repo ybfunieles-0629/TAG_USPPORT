@@ -54,13 +54,20 @@ export class CompaniesService {
     }
   }
 
-  findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll(paginationDto: PaginationDto) {
+    const count: number = await this.companyRepository.count();
 
-    return this.companyRepository.find({
+    const { limit = count, offset = 0 } = paginationDto;
+
+    const results: Company[] = await this.companyRepository.find({
       take: limit,
       skip: offset,
     });
+
+    return {
+      count,
+      results
+    };
   }
 
   async findOne(term: string) {
