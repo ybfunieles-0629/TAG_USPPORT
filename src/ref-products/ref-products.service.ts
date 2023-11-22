@@ -13,6 +13,8 @@ import { CategorySupplier } from '../category-suppliers/entities/category-suppli
 import { VariantReference } from '../variant-reference/entities/variant-reference.entity';
 import { MarkingServiceProperty } from '../marking-service-properties/entities/marking-service-property.entity';
 import { DeliveryTime } from '../delivery-times/entities/delivery-time.entity';
+import { FilterRefProductsDto } from './dto/filter-ref-products.dto';
+import { CategoryTag } from '../category-tag/entities/category-tag.entity';
 
 @Injectable()
 export class RefProductsService {
@@ -24,6 +26,9 @@ export class RefProductsService {
 
     @InjectRepository(CategorySupplier)
     private readonly categorySupplierRepository: Repository<CategorySupplier>,
+
+    @InjectRepository(CategoryTag)
+    private readonly categoryTagRepository: Repository<CategoryTag>,
 
     @InjectRepository(DeliveryTime)
     private readonly deliveryTimeRepository: Repository<DeliveryTime>,
@@ -181,8 +186,8 @@ export class RefProductsService {
       100000, 200000,
     ];
 
-    const finalResults: RefProduct[] = results.map(result => {
-      const modifiedProducts = result.products.map(product => {
+    const finalResults = await Promise.all(results.map(async (result) => {
+      const modifiedProducts = await Promise.all(result.products.map(async (product) => {
         const burnPriceTable = [];
 
         const initialValue: number = product.referencePrice;
@@ -206,14 +211,19 @@ export class RefProductsService {
         }
 
         return { ...product, burnPriceTable };
+      }));
+
+      const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+        where: {
+          id: result.mainCategory,
+        },
       });
 
-      return { ...result, products: modifiedProducts };
-    });
+      if (!categorySupplier)
+        throw new NotFoundException(`Category supplier with id ${result.mainCategory} not found`);
 
-    finalResults.forEach((refProduct) => {
-      refProduct.products.sort((a, b) => a.referencePrice - b.referencePrice);
-    });
+      return { ...result, products: modifiedProducts, mainCategory: categorySupplier };
+    }));
 
     return {
       totalCount,
@@ -249,6 +259,71 @@ export class RefProductsService {
 
     return {
       refProduct
+    };
+  }
+
+  async filterProducts(filterRefProductsDto: FilterRefProductsDto) {
+    const refProductsToShow: RefProduct[] = [];
+
+    if (filterRefProductsDto.categoryTag) {
+      const categorySuppliersFound: CategorySupplier[] = [];
+
+      for (const categoryTagId of filterRefProductsDto.categoryTag) {
+        const categoryTag: CategoryTag[] = await this.categoryTagRepository.find({
+          where: {
+            id: categoryTagId,
+          },
+          relations: [
+            'categorySuppliers',
+          ],
+        });
+
+        if (!categoryTag)
+          throw new NotFoundException(`Category tag with id ${categoryTagId} not found`);
+
+        categoryTag.forEach(category => {
+          category.categorySuppliers.forEach(categorySupplier => {
+            categorySuppliersFound.push(categorySupplier);
+          });
+        });
+      }
+
+      categorySuppliersFound.forEach(categorySupplier => {
+        categorySupplier.refProducts.forEach(refProduct => {
+          refProductsToShow.push(refProduct);
+        });
+      });
+    };
+
+    if (filterRefProductsDto.prices) {
+      const [minPrice, maxPrice]: number[] = filterRefProductsDto.prices;
+
+      const refProducts: RefProduct[] = await this.refProductRepository
+        .createQueryBuilder('refProduct')
+        .innerJoinAndSelect('refProduct.products', 'product')
+        .where('product.referencePrice BETWEEN :minPrice AND :maxPrice', {
+          minPrice,
+          maxPrice,
+        })
+        .getMany();
+
+      refProductsToShow.push(...refProducts);
+    }
+
+    if (filterRefProductsDto.colors) {
+      const colorIds: string[] = filterRefProductsDto.colors;
+
+      const refProducts: RefProduct[] = await this.refProductRepository
+        .createQueryBuilder('refProduct')
+        .innerJoinAndSelect('refProduct.products', 'product')
+        .andWhere('product.colors IN (:...colorIds)', { colorIds })
+        .getMany();
+
+      refProductsToShow.push(...refProducts);
+    };
+
+    return {
+      refProducts: refProductsToShow
     };
   }
 

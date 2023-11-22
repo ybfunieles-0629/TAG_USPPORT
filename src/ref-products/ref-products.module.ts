@@ -10,9 +10,11 @@ import { UsersModule } from '../users/users.module';
 import { VariantReferenceModule } from '../variant-reference/variant-reference.module';
 import { MarkingServicePropertiesModule } from '../marking-service-properties/marking-service-properties.module';
 import { DeliveryTimesModule } from '../delivery-times/delivery-times.module';
+import { CategoryTagModule } from '../category-tag/category-tag.module';
 
 @Module({
   imports: [
+    CategoryTagModule,
     CategorySuppliersModule,
     DeliveryTimesModule,
     SuppliersModule,
