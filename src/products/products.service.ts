@@ -83,7 +83,7 @@ export class ProductsService {
 
       const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
         where: {
-          id: product.idCategoria,
+          apiReferenceId: product.idCategoria,
         },
       });
 
@@ -203,7 +203,7 @@ export class ProductsService {
 
       const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
         where: {
-          id: item.subcategoria_1.categoria.jerarquia,
+          apiReferenceId: item.subcategoria_1.categoria.jerarquia,
         },
       });
 
