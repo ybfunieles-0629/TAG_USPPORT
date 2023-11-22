@@ -59,10 +59,12 @@ export class TransportServicesService {
     };
   }
 
-  findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll(paginationDto: PaginationDto) {
+    const count: number = await this.transportServiceRepository.count();
 
-    return this.transportServiceRepository.find({
+    const { limit = count, offset = 0 } = paginationDto;
+
+    const results: TransportService[] = await this.transportServiceRepository.find({
       take: limit,
       skip: offset,
       relations: [
@@ -71,6 +73,11 @@ export class TransportServicesService {
         'quoteDetail',
       ],
     });
+  
+    return {
+      count,
+      results
+    };
   }
 
   async findOne(id: string) {
