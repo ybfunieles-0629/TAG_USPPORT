@@ -32,11 +32,11 @@ export class MarkingTagServicesService {
   }
 
   async findAll(paginationDto: PaginationDto) {
-    const totalCount = await this.markingTagServiceRepository.count();
+    const count: number = await this.markingTagServiceRepository.count();
 
-    const { limit = 10, offset = 0 } = paginationDto;
+    const { limit = count, offset = 0 } = paginationDto;
 
-    const results = await this.markingTagServiceRepository.find({
+    const results: MarkingTagService[] = await this.markingTagServiceRepository.find({
       take: limit,
       skip: offset,
       relations: [
@@ -47,7 +47,7 @@ export class MarkingTagServicesService {
     });
 
     return {
-      totalCount,
+      count,
       results
     };
   }
