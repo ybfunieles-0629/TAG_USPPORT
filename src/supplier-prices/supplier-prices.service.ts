@@ -86,10 +86,12 @@ export class SupplierPricesService {
     };
   }
 
-  findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll(paginationDto: PaginationDto) {
+    const count: number = await this.supplierPriceRepository.count();
 
-    return this.supplierPriceRepository.find({
+    const { limit = count, offset = 0 } = paginationDto;
+
+    const results: SupplierPrice[] = await this.supplierPriceRepository.find({
       take: limit,
       skip: offset,
       relations: [
@@ -102,6 +104,11 @@ export class SupplierPricesService {
         'listPrices',
       ],
     });
+
+    return {
+      count,
+      results
+    };
   }
 
   async findOne(id: string) {
