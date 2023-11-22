@@ -231,9 +231,22 @@ export class ProductsService {
       cleanedRefProducts.push(newRefProduct);
 
       for (const material of item.materiales) {
+        const productImages: Image[] = [];
+
+        material.imagenes.forEach(async imagen => {
+          const image: Image = this.imageRepository.create({
+            url: imagen.file,
+          });
+
+          await this.imageRepository.save(image);
+
+          productImages.push(image);
+        });
+
         const newProduct = {
           familia: item.familia,
-          material
+          images: productImages,
+          material,
         };
 
         products.push(newProduct);
