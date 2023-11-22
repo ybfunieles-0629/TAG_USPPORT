@@ -82,10 +82,12 @@ export class MarkingServicesService {
     };
   }
 
-  findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll(paginationDto: PaginationDto) {
+    const count: number = await this.markingServiceRepository.count();
 
-    return this.markingServiceRepository.find({
+    const { limit = count, offset = 0 } = paginationDto;
+
+    const results: MarkingService[] = await this.markingServiceRepository.find({
       take: limit,
       skip: offset,
       relations: [
@@ -94,7 +96,12 @@ export class MarkingServicesService {
         'externalSubTechnique',
         'quoteDetail',
       ],
-    })
+    });
+
+    return {
+      count,
+      results
+    };
   }
 
   async findOne(id: string) {
