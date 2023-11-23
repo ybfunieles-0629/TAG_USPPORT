@@ -21,6 +21,11 @@ export class CartQuote {
   })
   description: string;
 
+  @Column('varchar', {
+
+  })
+  deliveryAddress: string;
+
   @Column('int', {
 
   })

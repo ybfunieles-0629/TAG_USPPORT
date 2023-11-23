@@ -7,6 +7,9 @@ export class CreateCartQuoteDto {
   @IsString()
   description: string;
 
+  @IsString()
+  deliveryAddress: string;
+
   @IsInt()
   totalPrice: number;
 
