@@ -353,7 +353,13 @@ export class ProductsService {
       createProductDto.tagSku = 'SKU-1001';
     }
 
+    const { height, large, width } = createProductDto;
+
+    const volume: number = (height * large * width);
+
     const newProduct = plainToClass(Product, createProductDto);
+
+    newProduct.volume = volume;
 
     const variantReferences: VariantReference[] = [];
 
@@ -437,6 +443,10 @@ export class ProductsService {
     });
 
     for (const createProductDto of createMultipleProducts) {
+      const { height, large, width } = createProductDto;
+
+      const volume: number = (height * large * width);
+
       if (lastProducts[0] && lastProducts[0].tagSku.trim() !== ''.trim()) {
         let skuNumber: number = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
 
@@ -450,6 +460,8 @@ export class ProductsService {
       }
 
       const newProduct = plainToClass(Product, createProductDto);
+
+      newProduct.volume = volume;
 
       const colors: Color[] = [];
       const variantReferences: VariantReference[] = [];

@@ -52,6 +52,11 @@ export class Product {
   @Column('int', {
 
   })
+  volume: number;
+
+  @Column('int', {
+
+  })
   availableUnit: number;
 
   @Column('int', {
