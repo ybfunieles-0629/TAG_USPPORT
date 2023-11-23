@@ -28,6 +28,13 @@ export class CartQuotesController {
     return this.cartQuotesService.findOne(id);
   }
 
+  @Get('/filter-by-client/:clientId')
+  filterByClient(
+    @Param('clientId', ParseUUIDPipe) clientId: string,
+  ) {
+    return this.cartQuotesService.filterByClient(clientId);
+  }
+
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,

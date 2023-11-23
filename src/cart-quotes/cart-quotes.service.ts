@@ -105,6 +105,21 @@ export class CartQuotesService {
     };
   }
 
+  async filterByClient(clientId: string) {
+    const cartQuotes: CartQuote[] = await this.cartQuoteRepository
+      .createQueryBuilder('quote')
+      .leftJoinAndSelect('quote.client', 'client')
+      .where('client.id =: clientId', { clientId })
+      .getMany();
+
+    if (!cartQuotes)
+      throw new NotFoundException(`Cart quotes for client ${clientId} not found`);
+
+    return {
+      cartQuotes
+    };
+  };
+
   async update(id: string, updateCartQuoteDto: UpdateCartQuoteDto) {
     const cartQuote = await this.cartQuoteRepository.findOne({
       where: {
