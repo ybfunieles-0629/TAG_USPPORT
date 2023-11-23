@@ -546,10 +546,12 @@ export class ProductsService {
     };
   }
 
-  findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll(paginationDto: PaginationDto) {
+    const count: number = await this.productRepository.count();
 
-    return this.productRepository.find({
+    const { limit = count, offset = 0 } = paginationDto;
+
+    const results: Product[] = await this.productRepository.find({
       take: limit,
       skip: offset,
       relations: [
@@ -561,6 +563,11 @@ export class ProductsService {
         'markingServiceProperties',
       ],
     });
+
+    return {
+      count,
+      results
+    };
   }
 
   async findOne(id: string) {
