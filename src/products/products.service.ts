@@ -581,6 +581,7 @@ export class ProductsService {
         'packings',
         'refProduct',
         'refProduct.images',
+        'refProduct.packings',
         'markingServiceProperties',
       ],
     });
