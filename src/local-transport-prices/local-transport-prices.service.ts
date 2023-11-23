@@ -20,7 +20,13 @@ export class LocalTransportPricesService {
   ) { }
 
   async create(createLocalTransportPriceDto: CreateLocalTransportPriceDto) {
+    const { maximumHeight, maximumWidth, maximumLarge } = createLocalTransportPriceDto;
+
     const newLocalTransportPrice = plainToClass(LocalTransportPrice, createLocalTransportPriceDto);
+
+    const volume: number = (maximumHeight * maximumWidth * maximumLarge);
+
+    newLocalTransportPrice.volume = volume;
 
     const transportService = await this.transportServiceRepository.findOne({
       where: {
@@ -44,8 +50,13 @@ export class LocalTransportPricesService {
     const createdLocalTransportPrices: LocalTransportPrice[] = [];
 
     for (const createLocalTransportPriceDto of createLocalTransportPrices) {
+      const { maximumHeight, maximumWidth, maximumLarge } = createLocalTransportPriceDto;
 
       const newLocalTransportPrice = plainToClass(LocalTransportPrice, createLocalTransportPriceDto);
+
+      const volume: number = (maximumHeight * maximumWidth * maximumLarge);
+
+      newLocalTransportPrice.volume = volume;
 
       const transportService = await this.transportServiceRepository.findOne({
         where: {
@@ -173,7 +184,7 @@ export class LocalTransportPricesService {
       Object.assign(localTransportPrice, updatedLocalTransportPrice);
 
       const updatedLocalTransportPriceResult = await this.localTransportPriceRepository.save(localTransportPrice);
-    
+
       updatedLocalTransportPrices.push(updatedLocalTransportPriceResult);
     }
 
