@@ -75,7 +75,7 @@ export class RefProduct {
   })
   height: number;
 
-  @Column('number', {
+  @Column('int', {
 
   })
   volume: number;
