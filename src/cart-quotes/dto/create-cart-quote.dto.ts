@@ -18,7 +18,7 @@ export class CreateCartQuoteDto {
 
   @IsOptional()
   @IsDate()
-  creationDate?: Date;
+  creationDate?: string;
 
   @IsOptional()
   @IsDate()
