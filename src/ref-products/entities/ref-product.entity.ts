@@ -75,6 +75,11 @@ export class RefProduct {
   })
   height: number;
 
+  @Column('number', {
+
+  })
+  volume: number;
+
   @Column('varchar', {
 
   })

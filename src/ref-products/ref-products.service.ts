@@ -44,7 +44,13 @@ export class RefProductsService {
   ) { }
 
   async create(createRefProductDto: CreateRefProductDto) {
+    const { height, large, width } = createRefProductDto;
+
+    const volume: number = (height * large * width);
+
     const newRefProduct = plainToClass(RefProduct, createRefProductDto);
+
+    newRefProduct.volume = volume;
 
     const joinedKeywords: string = createRefProductDto.keywords.join(';') + ';';
 
