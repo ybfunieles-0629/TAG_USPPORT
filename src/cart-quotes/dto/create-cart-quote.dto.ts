@@ -17,8 +17,7 @@ export class CreateCartQuoteDto {
   weightToOrder: number;
 
   @IsOptional()
-  @IsDate()
-  creationDate?: string;
+  creationDate?: Date;
 
   @IsOptional()
   @IsDate()
