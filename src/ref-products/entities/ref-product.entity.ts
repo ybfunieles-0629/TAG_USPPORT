@@ -20,11 +20,6 @@ export class RefProduct {
   })
   name: string;
 
-  @Column('int', {
-
-  })
-  disccountPromo: number;
-
   @Column('varchar', {
 
   })

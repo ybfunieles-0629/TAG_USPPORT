@@ -4,10 +4,6 @@ export class CreateRefProductDto {
   @IsString()
   name: string;
 
-  @IsOptional()
-  @IsInt()
-  disccountPromo?: number;
-
   @IsString()
   referenceCode: string;
 
