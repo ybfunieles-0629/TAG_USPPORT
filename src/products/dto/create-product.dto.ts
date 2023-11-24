@@ -6,6 +6,10 @@ export class CreateProductDto {
   supplierSku?: string;
 
   @IsOptional()
+  @IsInt()
+  disccountPromo?: number;
+
+  @IsOptional()
   @IsString()
   tagSku?: string;
 

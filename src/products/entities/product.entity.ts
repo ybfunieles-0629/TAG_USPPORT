@@ -19,6 +19,11 @@ export class Product {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column('int', {
+
+  })
+  disccountPromo: number;
+
   @Column('varchar', {
 
   })
