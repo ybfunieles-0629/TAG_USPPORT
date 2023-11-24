@@ -72,7 +72,7 @@ export class MarkingServiceProperty {
   @ManyToOne(() => ExternalSubTechnique, (externalSubTechnique) => externalSubTechnique.markingServiceProperties)
   externalSubTechnique: ExternalSubTechnique;
 
-  @ManyToMany(() => RefProduct, (refProduct) => refProduct.markingServiceProperties)
+  @OneToMany(() => RefProduct, (refProduct) => refProduct.markingServiceProperty)
   refProducts?: RefProduct[];
 
   @ManyToMany(() => Product, (product) => product.markingServiceProperties)
