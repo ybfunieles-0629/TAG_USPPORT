@@ -258,19 +258,19 @@ export class UsersService {
     if (!bcrypt.compareSync(password, user.password))
       throw new UnauthorizedException('Incorrect credentials');
 
-    const { id: userId, name: username, dni, city, address, isCoorporative, mainSecondaryUser } = user;
+    const { id: userId, name: username, dni, city, address, isCoorporative, mainSecondaryUser, companyPosition } = user;
     const { id: companyId, billingEmail, nit, legalCapacity } = user.company;
 
     if (user.roles.some(role => role.name.toLowerCase().trim() === 'administrador') || user.roles.some(role => role.name.toLowerCase().trim() === 'super-administrador')) {
       payloadToSend = {
-        user: { userId, username, dni, city, address, email, isCoorporative, mainSecondaryUser },
+        user: { userId, username, dni, city, address, email, isCoorporative, mainSecondaryUser, companyPosition },
         company: { companyId, billingEmail, nit, legalCapacity },
         roles: user.roles.map(role => ({ name: role.name })),
         permissions: user.permissions.map(permission => (({ name: permission.name }))),
       };
     } else {
       payloadToSend = {
-        user: { userId, username, dni, city, address },
+        user: { userId, username, dni, city, address, companyPosition },
         company: { companyId, billingEmail, nit },
         client: user.client,
         roles: user.roles.map(role => ({ name: role.name })),
