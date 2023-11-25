@@ -573,6 +573,8 @@ export class ProductsService {
         'refProduct',
         'refProduct.images',
         'markingServiceProperties',
+        'markingServiceProperties.externalSubTechnique',
+        'markingServiceProperties.externalSubTechnique.marking',
       ],
     });
 
@@ -595,6 +597,8 @@ export class ProductsService {
         'refProduct.images',
         'refProduct.packings',
         'markingServiceProperties',
+        'markingServiceProperties.externalSubTechnique',
+        'markingServiceProperties.externalSubTechnique.marking',
       ],
     });
 
@@ -618,6 +622,8 @@ export class ProductsService {
         'refProduct',
         'refProduct.images',
         'markingServiceProperties',
+        'markingServiceProperties.externalSubTechnique',
+        'markingServiceProperties.externalSubTechnique.marking',
       ],
     });
 
