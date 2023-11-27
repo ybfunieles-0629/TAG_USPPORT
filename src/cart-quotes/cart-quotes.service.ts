@@ -109,7 +109,7 @@ export class CartQuotesService {
     const cartQuotes: CartQuote[] = await this.cartQuoteRepository
       .createQueryBuilder('quote')
       .leftJoinAndSelect('quote.client', 'client')
-      .where('client.id =: clientId', { clientId })
+      .where('client.id =:clientId', { id: clientId })
       .getMany();
 
     if (!cartQuotes)

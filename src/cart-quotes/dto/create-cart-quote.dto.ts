@@ -1,4 +1,4 @@
-import { IsDate, IsInt, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsBoolean, IsDate, IsInt, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateCartQuoteDto {
   @IsString()
@@ -13,8 +13,12 @@ export class CreateCartQuoteDto {
   @IsInt()
   totalPrice: number;
 
+  @IsOptional()
   @IsInt()
-  weightToOrder: number;
+  productsQuantity: number;
+
+  @IsBoolean()
+  weightToOrder: boolean;
 
   @IsOptional()
   creationDate?: Date;
