@@ -82,6 +82,63 @@ export class MarkingServicesService {
     };
   }
 
+  async createMultiple(createMarkingServices: CreateMarkingServiceDto[]) {
+    const createdMarkingServices: MarkingService[] = [];
+
+    for (const createMarkingServiceDto of createMarkingServices) {
+      const newMarkingService = plainToClass(MarkingService, createMarkingServiceDto);
+
+      const marking = await this.markingRepository.findOne({
+        where: {
+          id: createMarkingServiceDto.marking,
+        },
+      });
+
+      if (!marking)
+        throw new NotFoundException(`Marking with id ${createMarkingServiceDto.marking} not found`);
+
+      const externalSubTechnique = await this.externalSubTechniqueRepository.findOne({
+        where: {
+          id: createMarkingServiceDto.externalSubTechnique,
+        },
+      });
+
+      if (!externalSubTechnique)
+        throw new NotFoundException(`External sub technique with id ${createMarkingServiceDto.externalSubTechnique} not found`);
+
+      const markingServiceProperty = await this.markingServicePropertyRepository.findOne({
+        where: {
+          id: createMarkingServiceDto.markingServiceProperty,
+        },
+      });
+
+      if (!markingServiceProperty)
+        throw new NotFoundException(`Marking service property with id ${createMarkingServiceDto.markingServiceProperty} not found`);
+
+      const quoteDetail = await this.quoteDetailRepository.findOne({
+        where: {
+          id: createMarkingServiceDto.quoteDetail,
+        },
+      });
+
+      if (!quoteDetail)
+        throw new NotFoundException(`Quote detail with id ${createMarkingServiceDto.quoteDetail} not found`);
+
+      newMarkingService.marking = marking;
+      newMarkingService.externalSubTechnique = externalSubTechnique;
+      newMarkingService.markingServiceProperty = markingServiceProperty;
+      newMarkingService.quoteDetail = quoteDetail;
+
+      await this.markingRepository.save(newMarkingService);
+
+      createdMarkingServices.push(newMarkingService);
+    };
+
+    return {
+      createdMarkingServices
+    };
+  }
+
   async findAll(paginationDto: PaginationDto) {
     const count: number = await this.markingServiceRepository.count();
 
@@ -140,7 +197,7 @@ export class MarkingServicesService {
 
     if (!markingService)
       throw new NotFoundException(`Marking service with id ${id} not found`);
-    
+
     const marking = await this.markingRepository.findOne({
       where: {
         id: updateMarkingServiceDto.marking,

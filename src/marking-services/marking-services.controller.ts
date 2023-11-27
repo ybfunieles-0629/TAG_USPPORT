@@ -15,6 +15,13 @@ export class MarkingServicesController {
     return this.markingServicesService.create(createMarkingServiceDto);
   }
 
+  @Post('create/multiple')
+  createMultiple(
+    @Body() createMarkingServices: CreateMarkingServiceDto[]
+  ) {
+    return this.markingServicesService.createMultiple(createMarkingServices);
+  }
+
   @Get()
   findAll(
     @Query() paginationDto: PaginationDto,
