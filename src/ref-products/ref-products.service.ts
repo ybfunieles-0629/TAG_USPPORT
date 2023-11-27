@@ -477,6 +477,21 @@ export class RefProductsService {
     };
   }
 
+  async changeIsAllowedStatus(id: string) {
+    const refProduct: RefProduct = await this.refProductRepository.findOneBy({ id });
+
+    if (!refProduct)
+      throw new NotFoundException(`Ref product with id ${id} not found`);
+
+    refProduct.isAllowed == 0 ? refProduct.isAllowed = 1 : refProduct.isAllowed = 0;
+
+    await this.refProductRepository.save(refProduct);
+
+    return {
+      refProduct
+    };
+  }
+
   async remove(id: string) {
     const { refProduct } = await this.findOne(id);
 
