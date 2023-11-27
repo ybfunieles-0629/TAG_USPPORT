@@ -819,6 +819,21 @@ export class ProductsService {
     };
   }
 
+  async changeIsAllowedStatus(id: string) {
+    const product: Product = await this.productRepository.findOneBy({ id });
+
+    if (!product)
+      throw new NotFoundException(`Product with id ${id} not found`);
+
+    product.isAllowed == 0 ? product.isAllowed = 1 : product.isAllowed = 0;
+
+    await this.productRepository.save(product);
+
+    return {
+      product
+    };
+  }
+
   async remove(id: string) {
     const { product } = await this.findOne(id);
 

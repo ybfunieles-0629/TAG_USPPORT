@@ -24,6 +24,11 @@ export class Product {
   })
   disccountPromo: number;
 
+  @Column('int', {
+    default: 1,
+  })
+  isAllowed: number;
+
   @Column('varchar', {
 
   })

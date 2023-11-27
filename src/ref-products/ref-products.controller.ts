@@ -42,6 +42,13 @@ export class RefProductsController {
     return this.refProductsService.update(id, updateRefProductDto);
   }
 
+  @Patch('/allow/:id')
+  changeIsAllowedStatus(
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
+    return this.refProductsService.changeIsAllowedStatus(id);
+  }
+
   @Patch('/desactivate/:id')
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,

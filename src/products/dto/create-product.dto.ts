@@ -1,9 +1,13 @@
-import { IsArray, IsDate, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDate, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateProductDto {
   @IsOptional()
   @IsString()
   supplierSku?: string;
+
+  @IsOptional()
+  @IsNumber()
+  isAllowed?: number;
 
   @IsOptional()
   @IsInt()
