@@ -258,19 +258,19 @@ export class UsersService {
     if (!bcrypt.compareSync(password, user.password))
       throw new UnauthorizedException('Incorrect credentials');
 
-    const { id: userId, name: username, dni, city, address, isCoorporative, mainSecondaryUser } = user;
+    const { id: userId, name: username, dni, city, address, isCoorporative, mainSecondaryUser, companyPosition } = user;
     const { id: companyId, billingEmail, nit, legalCapacity } = user.company;
 
     if (user.roles.some(role => role.name.toLowerCase().trim() === 'administrador') || user.roles.some(role => role.name.toLowerCase().trim() === 'super-administrador')) {
       payloadToSend = {
-        user: { userId, username, dni, city, address, email, isCoorporative, mainSecondaryUser },
+        user: { userId, username, dni, city, address, email, isCoorporative, mainSecondaryUser, companyPosition },
         company: { companyId, billingEmail, nit, legalCapacity },
         roles: user.roles.map(role => ({ name: role.name })),
         permissions: user.permissions.map(permission => (({ name: permission.name }))),
       };
     } else {
       payloadToSend = {
-        user: { userId, username, dni, city, address },
+        user: { userId, username, dni, city, address, companyPosition },
         company: { companyId, billingEmail, nit },
         client: user.client,
         roles: user.roles.map(role => ({ name: role.name })),
@@ -368,7 +368,66 @@ export class UsersService {
     if (!user)
       throw new NotFoundException(`User with id ${id} not found`);
 
-    // const role: Role = user.roles.find(role => role.name === 'Comercial');
+    const permissionsForEachRole = {
+      Comercial: [
+        {
+          name: 'Usuarios',
+        },
+        {
+          name: 'Clientes',
+        },
+      ],
+      Cliente: [
+        {
+          name: 'Cotizaciones',
+        },
+        {
+          name: 'Pedidos',
+        },
+      ],
+      Proveedor: [
+        {
+          name: 'Productos',
+        },
+        {
+          name: 'Pedidos',
+        },
+      ],
+    };
+
+    const userRoles: string[] = user.roles.map(role => role.name);
+
+    const userPermissions: Permission[] = userRoles.reduce((permissions, roleName): Permission[] => {
+      const rolePermissions = permissionsForEachRole[roleName];
+
+      if (!rolePermissions) {
+        throw new NotFoundException(`Permissions not found for role ${roleName}`);
+      }
+
+      rolePermissions.forEach(async permission => {
+        const permissionInDb: Permission = await this.permissionRepository.findOne({
+          where: {
+            name: permission.name,
+          },
+        });
+
+        if (!permissionInDb) {
+          throw new NotFoundException(`Permission with name ${permission.name} not found`);
+        }
+
+        permissions.push(permissionInDb);
+      });
+
+      return permissions;
+    }, []);
+
+    user.permissions = userPermissions;
+
+    await this.userRepository.save(user);
+
+    return {
+      user
+    };
   }
 
   findAll(paginationDto: PaginationDto) {

@@ -159,7 +159,7 @@ export class CategorySuppliersService {
 
     const subCategoriesInDb: CategorySupplier[] = await this.categorySupplierRepository.find({
       where: {
-        offspringType: 'Sub',
+        offspringType: 'Subcategoria',
       },
     });
 
@@ -198,7 +198,7 @@ export class CategorySuppliersService {
 
         if (!referenceIdApiSet.has(subCategory.jerarquia)) {
           const newCategory = {
-            offspringType: 'Sub',
+            offspringType: 'Subcategoria',
             name: subCategory.nombre,
             description: '',
             categoryMargin: '',
@@ -218,7 +218,7 @@ export class CategorySuppliersService {
         firstPart = subCategory.idParent;
 
         const newCategory = {
-          offspringType: 'Sub',
+          offspringType: 'Subcategoria',
           name: subCategory.nombre,
           description: '',
           categoryMargin: '',

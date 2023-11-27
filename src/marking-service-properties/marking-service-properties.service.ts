@@ -106,10 +106,12 @@ export class MarkingServicePropertiesService {
     };
   }
 
-  findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll(paginationDto: PaginationDto) {
+    const count: number = await this.markingServicePropertyRepository.count();
+    
+    const { limit = count, offset = 0 } = paginationDto;
 
-    return this.markingServicePropertyRepository.find({
+    const results: MarkingServiceProperty[] = await this.markingServicePropertyRepository.find({
       take: limit,
       skip: offset,
       relations: [
@@ -118,6 +120,11 @@ export class MarkingServicePropertiesService {
         'tagSubTechniqueProperty',
       ],
     });
+    
+    return {
+      count,
+      results
+    };
   }
 
   async findOne(id: string) {

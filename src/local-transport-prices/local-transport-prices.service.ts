@@ -20,7 +20,13 @@ export class LocalTransportPricesService {
   ) { }
 
   async create(createLocalTransportPriceDto: CreateLocalTransportPriceDto) {
+    const { maximumHeight, maximumWidth, maximumLarge } = createLocalTransportPriceDto;
+
     const newLocalTransportPrice = plainToClass(LocalTransportPrice, createLocalTransportPriceDto);
+
+    const volume: number = (maximumHeight * maximumWidth * maximumLarge);
+
+    newLocalTransportPrice.volume = volume;
 
     const transportService = await this.transportServiceRepository.findOne({
       where: {
@@ -44,8 +50,13 @@ export class LocalTransportPricesService {
     const createdLocalTransportPrices: LocalTransportPrice[] = [];
 
     for (const createLocalTransportPriceDto of createLocalTransportPrices) {
+      const { maximumHeight, maximumWidth, maximumLarge } = createLocalTransportPriceDto;
 
       const newLocalTransportPrice = plainToClass(LocalTransportPrice, createLocalTransportPriceDto);
+
+      const volume: number = (maximumHeight * maximumWidth * maximumLarge);
+
+      newLocalTransportPrice.volume = volume;
 
       const transportService = await this.transportServiceRepository.findOne({
         where: {
@@ -68,16 +79,23 @@ export class LocalTransportPricesService {
     };
   }
 
-  findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll(paginationDto: PaginationDto) {
+    const count: number = await this.transportServiceRepository.count();
 
-    return this.localTransportPriceRepository.find({
+    const { limit = count, offset = 0 } = paginationDto;
+
+    const results: LocalTransportPrice[] = await this.localTransportPriceRepository.find({
       take: limit,
       skip: offset,
       relations: [
         'transportService',
       ],
     });
+
+    return {
+      count,
+      results
+    };
   }
 
   async findOne(id: string) {
@@ -166,7 +184,7 @@ export class LocalTransportPricesService {
       Object.assign(localTransportPrice, updatedLocalTransportPrice);
 
       const updatedLocalTransportPriceResult = await this.localTransportPriceRepository.save(localTransportPrice);
-    
+
       updatedLocalTransportPrices.push(updatedLocalTransportPriceResult);
     }
 

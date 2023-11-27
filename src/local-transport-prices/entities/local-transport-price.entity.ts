@@ -29,6 +29,11 @@ export class LocalTransportPrice {
   @Column('int', {
 
   })
+  volume: number;
+
+  @Column('int', {
+
+  })
   price: number;
 
   @Column('varchar', {

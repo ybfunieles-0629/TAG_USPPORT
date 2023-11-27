@@ -7,6 +7,9 @@ export class CreateCartQuoteDto {
   @IsString()
   description: string;
 
+  @IsString()
+  deliveryAddress: string;
+
   @IsInt()
   totalPrice: number;
 
@@ -14,7 +17,6 @@ export class CreateCartQuoteDto {
   weightToOrder: number;
 
   @IsOptional()
-  @IsDate()
   creationDate?: Date;
 
   @IsOptional()
@@ -24,6 +26,7 @@ export class CreateCartQuoteDto {
   @IsString()
   user: string;
 
+  @IsOptional()
   @IsString()
   state: string;
 

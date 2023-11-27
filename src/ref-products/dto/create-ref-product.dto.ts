@@ -4,10 +4,6 @@ export class CreateRefProductDto {
   @IsString()
   name: string;
 
-  @IsOptional()
-  @IsInt()
-  disccountPromo?: number;
-
   @IsString()
   referenceCode: string;
 
@@ -65,9 +61,8 @@ export class CreateRefProductDto {
   supplier: string;
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  markingServiceProperties?: string[];
+  @IsString()
+  markingServiceProperty?: string;
 
   @IsOptional()
   @IsArray()

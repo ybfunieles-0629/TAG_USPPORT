@@ -116,10 +116,12 @@ export class MarkingsService {
     };
   }
 
-  findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll(paginationDto: PaginationDto) {
+    const count: number = await this.markingRepository.count();
 
-    return this.markingRepository.find({
+    const { limit = count, offset = 0 } = paginationDto;
+
+    const results: Marking[] = await this.markingRepository.find({
       take: limit,
       skip: offset,
       relations: [
@@ -132,6 +134,11 @@ export class MarkingsService {
         'externalSubTechniques.markingServiceProperties.images',
       ],
     });
+
+    return {
+      count,
+      results
+    };
   }
 
   async findOne(id: string) {

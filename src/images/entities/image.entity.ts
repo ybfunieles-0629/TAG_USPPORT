@@ -1,8 +1,9 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { RefProduct } from '../../ref-products/entities/ref-product.entity';
-import { TagSubTechniqueProperty } from 'src/tag-sub-technique-properties/entities/tag-sub-technique-property.entity';
-import { MarkingServiceProperty } from 'src/marking-service-properties/entities/marking-service-property.entity';
+import { TagSubTechniqueProperty } from '../../tag-sub-technique-properties/entities/tag-sub-technique-property.entity';
+import { MarkingServiceProperty } from '../../marking-service-properties/entities/marking-service-property.entity';
+import { Product } from '../../products/entities/product.entity';
 
 @Entity('images')
 export class Image {
@@ -29,4 +30,7 @@ export class Image {
 
   @ManyToOne(() => RefProduct, (refProduct) => refProduct.images)
   refProduct: RefProduct;
+
+  @ManyToOne(() => Product, (product) => product.images)
+  product: Product;
 }

@@ -4,6 +4,7 @@ import { RefProductsService } from './ref-products.service';
 import { CreateRefProductDto } from './dto/create-ref-product.dto';
 import { UpdateRefProductDto } from './dto/update-ref-product.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { FilterRefProductsDto } from './dto/filter-ref-products.dto';
 
 @Controller('ref-products')
 export class RefProductsController {
@@ -19,6 +20,13 @@ export class RefProductsController {
     @Query() paginationDto: PaginationDto
   ) {
     return this.refProductsService.findAll(paginationDto);
+  }
+
+  @Get('filter')
+  filterRefProducts(
+    @Body() filterRefProductsDto: FilterRefProductsDto
+  ) {
+    return this.refProductsService.filterProducts(filterRefProductsDto);
   }
 
   @Get(':id')

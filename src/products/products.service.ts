@@ -81,18 +81,14 @@ export class ProductsService {
 
       images.push(savedImage);
 
-      const categorySuppliers: CategorySupplier[] = [];
-
       const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
         where: {
-          id: product.idCategoria,
+          apiReferenceId: product.idCategoria,
         },
       });
 
       if (!categorySupplier)
         throw new NotFoundException(`Category with id ${product.idCategoria} not found`);
-
-      categorySuppliers.push(categorySupplier);
 
       const newReference = {
         name: product.nombre,
@@ -101,9 +97,8 @@ export class ProductsService {
         markedDesignArea: product.descripcionProducto,
         images,
         referenceCode: product.referencia,
-        mainCategory: product.idCategoria,
+        mainCategory: categorySupplier.id,
         supplier: user.supplier,
-        categorySuppliers
       };
 
       const createdRefProduct: RefProduct = this.refProductRepository.create(newReference);
@@ -206,12 +201,21 @@ export class ProductsService {
         images.push(savedImage);
       }
 
+      const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+        where: {
+          apiReferenceId: item.subcategoria_1.categoria.jerarquia,
+        },
+      });
+
+      if (!categorySupplier)
+        throw new NotFoundException(`Category with id ${item.subcategoria_1.categoria.jerarquia} not found`);
+
       let newRefProduct = {
         name: item.descripcion_comercial,
         referenceCode: item.familia,
         shortDescription: item.descripcion_comercial,
         description: item.descripcion_larga,
-        mainCategory: item.subcategoria_1.categoria.jerarquia,
+        mainCategory: categorySupplier.id,
         keywords: keyword,
         large: +item.empaque_largo,
         width: +item.empaque_ancho,
@@ -227,9 +231,22 @@ export class ProductsService {
       cleanedRefProducts.push(newRefProduct);
 
       for (const material of item.materiales) {
+        const productImages: Image[] = [];
+
+        material.imagenes.forEach(async imagen => {
+          const image: Image = this.imageRepository.create({
+            url: imagen.file,
+          });
+
+          await this.imageRepository.save(image);
+
+          productImages.push(image);
+        });
+
         const newProduct = {
           familia: item.familia,
-          material
+          images: productImages,
+          material,
         };
 
         products.push(newProduct);
@@ -336,7 +353,13 @@ export class ProductsService {
       createProductDto.tagSku = 'SKU-1001';
     }
 
+    const { height, large, width } = createProductDto;
+
+    const volume: number = (height * large * width);
+
     const newProduct = plainToClass(Product, createProductDto);
+
+    newProduct.volume = volume;
 
     const variantReferences: VariantReference[] = [];
 
@@ -353,6 +376,22 @@ export class ProductsService {
 
         variantReferences.push(variantReference);
       }
+    }
+
+    if (createProductDto.images) {
+      const images: Image[] = [];
+
+      for (const imageId of createProductDto.images) {
+        const image: Image = await this.imageRepository.findOne({
+          where: {
+            id: imageId,
+          },
+        });
+
+        images.push(image);
+      };
+
+      newProduct.images = images;
     }
 
     if (createProductDto.markingServiceProperties) {
@@ -404,6 +443,10 @@ export class ProductsService {
     });
 
     for (const createProductDto of createMultipleProducts) {
+      const { height, large, width } = createProductDto;
+
+      const volume: number = (height * large * width);
+
       if (lastProducts[0] && lastProducts[0].tagSku.trim() !== ''.trim()) {
         let skuNumber: number = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
 
@@ -417,6 +460,8 @@ export class ProductsService {
       }
 
       const newProduct = plainToClass(Product, createProductDto);
+
+      newProduct.volume = volume;
 
       const colors: Color[] = [];
       const variantReferences: VariantReference[] = [];
@@ -462,6 +507,22 @@ export class ProductsService {
         }
       }
 
+      if (createProductDto.images) {
+        const images: Image[] = [];
+
+        for (const imageId of createProductDto.images) {
+          const image: Image = await this.imageRepository.findOne({
+            where: {
+              id: imageId,
+            },
+          });
+
+          images.push(image);
+        };
+
+        newProduct.images = images;
+      }
+
       if (createProductDto.markingServiceProperties) {
         const markingServiceProperties: MarkingServiceProperty[] = [];
 
@@ -497,10 +558,12 @@ export class ProductsService {
     };
   }
 
-  findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll(paginationDto: PaginationDto) {
+    const count: number = await this.productRepository.count();
 
-    return this.productRepository.find({
+    const { limit = count, offset = 0 } = paginationDto;
+
+    const results: Product[] = await this.productRepository.find({
       take: limit,
       skip: offset,
       relations: [
@@ -510,8 +573,15 @@ export class ProductsService {
         'refProduct',
         'refProduct.images',
         'markingServiceProperties',
+        'markingServiceProperties.externalSubTechnique',
+        'markingServiceProperties.externalSubTechnique.marking',
       ],
     });
+
+    return {
+      count,
+      results
+    };
   }
 
   async findOne(id: string) {
@@ -525,7 +595,10 @@ export class ProductsService {
         'packings',
         'refProduct',
         'refProduct.images',
+        'refProduct.packings',
         'markingServiceProperties',
+        'markingServiceProperties.externalSubTechnique',
+        'markingServiceProperties.externalSubTechnique.marking',
       ],
     });
 
@@ -549,6 +622,8 @@ export class ProductsService {
         'refProduct',
         'refProduct.images',
         'markingServiceProperties',
+        'markingServiceProperties.externalSubTechnique',
+        'markingServiceProperties.externalSubTechnique.marking',
       ],
     });
 

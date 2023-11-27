@@ -70,8 +70,8 @@ import { SupplierPurchaseOrdersModule } from './supplier-purchase-orders/supplie
       database: process.env.DB_NAME,
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
+      // synchronize: true,
       autoLoadEntities: true,
-      synchronize: true
     }),
     ClientsModule,
     UsersModule,

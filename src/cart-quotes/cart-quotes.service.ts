@@ -48,18 +48,21 @@ export class CartQuotesService {
     if (!user)
       throw new NotFoundException(`User with id ${createCartQuoteDto.user} not found`);
 
-    const state = await this.stateRepository.findOne({
-      where: {
-        id: createCartQuoteDto.state,
-      },
-    });
+    if (createCartQuoteDto.state) {
+      const state = await this.stateRepository.findOne({
+        where: {
+          id: createCartQuoteDto.state,
+        },
+      });
 
-    if (!state)
-      throw new NotFoundException(`State with id ${createCartQuoteDto.state} not found`);
+      if (!state)
+        throw new NotFoundException(`State with id ${createCartQuoteDto.state} not found`);
+
+      newCartQuote.state = state;
+    }
 
     newCartQuote.client = client;
     newCartQuote.user = user;
-    newCartQuote.state = state;
 
     await this.cartQuoteRepository.save(newCartQuote);
 
@@ -102,6 +105,21 @@ export class CartQuotesService {
     };
   }
 
+  async filterByClient(clientId: string) {
+    const cartQuotes: CartQuote[] = await this.cartQuoteRepository
+      .createQueryBuilder('quote')
+      .leftJoinAndSelect('quote.client', 'client')
+      .where('client.id =: clientId', { clientId })
+      .getMany();
+
+    if (!cartQuotes)
+      throw new NotFoundException(`Cart quotes for client ${clientId} not found`);
+
+    return {
+      cartQuotes
+    };
+  };
+
   async update(id: string, updateCartQuoteDto: UpdateCartQuoteDto) {
     const cartQuote = await this.cartQuoteRepository.findOne({
       where: {
@@ -137,19 +155,21 @@ export class CartQuotesService {
     if (!user)
       throw new NotFoundException(`User with id ${updateCartQuoteDto.user} not found`);
 
-    const state = await this.stateRepository.findOne({
-      where: {
-        id: updateCartQuoteDto.state,
-      },
-    });
+    if (updateCartQuoteDto.state) {
+      const state = await this.stateRepository.findOne({
+        where: {
+          id: updateCartQuoteDto.state,
+        },
+      });
 
-    if (!state)
-      throw new NotFoundException(`State with id ${updateCartQuoteDto.state} not found`);
+      if (!state)
+        throw new NotFoundException(`State with id ${updateCartQuoteDto.state} not found`);
 
+      updatedCartQuote.state = state;
+    }
 
     updatedCartQuote.client = client;
     updatedCartQuote.user = user;
-    updatedCartQuote.state = state;
 
     Object.assign(cartQuote, updatedCartQuote);
 

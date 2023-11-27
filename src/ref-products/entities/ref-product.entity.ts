@@ -20,11 +20,6 @@ export class RefProduct {
   })
   name: string;
 
-  @Column('int', {
-
-  })
-  disccountPromo: number;
-
   @Column('varchar', {
 
   })
@@ -74,6 +69,11 @@ export class RefProduct {
 
   })
   height: number;
+
+  @Column('int', {
+
+  })
+  volume: number;
 
   @Column('varchar', {
 
@@ -126,19 +126,8 @@ export class RefProduct {
   @ManyToOne(() => Supplier, (supplier) => supplier.refProducts)
   supplier: Supplier;
 
-  @ManyToMany(() => MarkingServiceProperty, (markingServiceProperty) => markingServiceProperty.refProducts)
-  @JoinTable({
-    name: 'ref_products_has_marking_service_properties',
-    joinColumn: {
-      name: 'refProductId',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'markingServicePropertyId',
-      referencedColumnName: 'id',
-    },
-  })
-  markingServiceProperties?: MarkingServiceProperty[];
+  @ManyToOne(() => MarkingServiceProperty, (markingServiceProperty) => markingServiceProperty.refProducts)
+  markingServiceProperty: MarkingServiceProperty;
 
   @ManyToMany(() => CategorySupplier, (categorySupplier) => categorySupplier.refProducts)
   @JoinTable({

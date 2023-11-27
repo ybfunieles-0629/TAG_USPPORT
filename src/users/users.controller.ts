@@ -93,6 +93,13 @@ export class UsersController {
     return this.usersService.desactivate(id);
   }
 
+  @Patch('/add/permissions/:id')
+  addPermissionsByUserRole(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.usersService.addPermissionsByUserRole(id);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);

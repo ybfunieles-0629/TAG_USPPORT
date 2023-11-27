@@ -6,6 +6,10 @@ export class CreateProductDto {
   supplierSku?: string;
 
   @IsOptional()
+  @IsInt()
+  disccountPromo?: number;
+
+  @IsOptional()
   @IsString()
   tagSku?: string;
 
@@ -100,6 +104,11 @@ export class CreateProductDto {
   @IsArray()
   @IsString({ each: true })
   colors?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  images?: string[];
 
   @IsOptional()
   @IsArray()

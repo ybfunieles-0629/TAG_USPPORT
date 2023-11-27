@@ -12,11 +12,17 @@ import { SupplierPrice } from '../../supplier-prices/entities/supplier-price.ent
 import { QuoteDetail } from '../../quote-details/entities/quote-detail.entity';
 import { OrderListDetail } from '../../order-list-details/entities/order-list-detail.entity';
 import { MarkingServiceProperty } from '../../marking-service-properties/entities/marking-service-property.entity';
+import { Image } from '../../images/entities/image.entity';
 
 @Entity('products')
 export class Product {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column('int', {
+
+  })
+  disccountPromo: number;
 
   @Column('varchar', {
 
@@ -47,6 +53,11 @@ export class Product {
 
   })
   weight: number;
+
+  @Column('int', {
+
+  })
+  volume: number;
 
   @Column('int', {
 
@@ -165,6 +176,9 @@ export class Product {
 
   @OneToMany(() => OrderListDetail, (orderListDetail) => orderListDetail.product)
   orderListDetails: OrderListDetail[];
+
+  @OneToMany(() => Image, (image) => image.product)
+  images?: Image[];
 
   @ManyToOne(() => RefProduct, (refProduct) => refProduct.products)
   refProduct: RefProduct;
