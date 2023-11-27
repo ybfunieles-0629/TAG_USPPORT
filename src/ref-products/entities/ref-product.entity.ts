@@ -35,6 +35,11 @@ export class RefProduct {
   })
   shortDescription: string;
 
+  @Column('int', {
+    default: 1,
+  })
+  isAllowed: number;
+
   @Column('varchar', {
 
   })

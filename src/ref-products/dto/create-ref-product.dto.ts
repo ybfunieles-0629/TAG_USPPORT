@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateRefProductDto {
   @IsString()
@@ -9,6 +9,10 @@ export class CreateRefProductDto {
 
   @IsString()
   referenceTagCode: string;
+
+  @IsOptional()
+  @IsNumber()
+  isAllowed?: number;
 
   @IsOptional()
   @IsString()
