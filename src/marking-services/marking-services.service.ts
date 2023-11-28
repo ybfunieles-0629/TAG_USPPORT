@@ -129,9 +129,9 @@ export class MarkingServicesService {
       newMarkingService.markingServiceProperty = markingServiceProperty;
       newMarkingService.quoteDetail = quoteDetail;
 
-      await this.markingRepository.save(newMarkingService);
+      const markingService: MarkingService = await this.markingRepository.save(newMarkingService);
 
-      createdMarkingServices.push(newMarkingService);
+      createdMarkingServices.push(markingService);
     };
 
     return {
