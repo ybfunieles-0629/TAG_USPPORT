@@ -9,7 +9,12 @@ export class Logo {
   @Column('varchar', {
     
   })
-  url: string;
+  logo: string;
+  
+  @Column('varchar', {
+    
+  })
+  mounting: string;
 
   @Column('varchar', {
 
