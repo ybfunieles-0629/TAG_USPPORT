@@ -11,6 +11,7 @@ import { UpdateLogoDto } from './dto/update-logo.dto';
 import { Logo } from './entities/logo.entity';
 import { MarkingService } from '../marking-services/entities/marking-service.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import path from 'path';
 
 @Injectable()
 export class LogosService {
@@ -22,7 +23,7 @@ export class LogosService {
     private readonly markingServiceRepository: Repository<MarkingService>,
   ) { }
 
-  async create(createLogoDto: CreateLogoDto, file: Express.Multer.File) {
+  async create(createLogoDto: CreateLogoDto, files: Record<string, Express.Multer.File>) {
     const newLogo = plainToClass(Logo, createLogoDto);
 
     const markingService = await this.markingServiceRepository.findOne({
@@ -41,16 +42,25 @@ export class LogosService {
 
     let imageAwsUrl: string = '';
 
-    if (file !== null) {
-      const uniqueFilename = `${uuidv4()}-${file.originalname}`;
+    for (const [fieldName, fileInfo] of Object.entries(files)) {
+      if (
+        path.extname(fileInfo[0].originalname).toLowerCase() !== '.png' ||
+        path.extname(fileInfo[0].originalname).toLowerCase() !== '.jpg' ||
+        path.extname(fileInfo[0].originalname).toLowerCase() !== '.jpeg'
+      ) {
+        throw new BadRequestException(`The file ${fileInfo[0].originalname} is not a valid pdf file`);
+      }
 
-      file.originalname = uniqueFilename;
+      const uniqueFilename = `${uuidv4()}-${fileInfo[0].originalname}`;
+      fileInfo[0].originalname = uniqueFilename;
 
-      const imageUrl = await this.uploadToAws(file);
+      await this.uploadToAws(fileInfo[0]);
 
-      imageAwsUrl = imageUrl;
-
-      newLogo.url = file.originalname;
+      if (fileInfo[0].fieldname === 'logo') {
+        newLogo.logo = uniqueFilename;
+      } else if (fileInfo[0].fieldname === 'dniRepresentativeDocument') {
+        newLogo.mounting = uniqueFilename;
+      }
     }
 
     await this.logoRepository.save(newLogo);
@@ -91,7 +101,7 @@ export class LogosService {
     };
   }
 
-  async update(id: string, updateLogoDto: UpdateLogoDto, file: Express.Multer.File) {
+  async update(id: string, updateLogoDto: UpdateLogoDto, files: Record<string, Express.Multer.File>) {
     const logo = await this.logoRepository.findOne({
       where: {
         id,
@@ -120,16 +130,25 @@ export class LogosService {
     if (!markingService.isActive)
       throw new BadRequestException(`Marking service with id ${updateLogoDto.markingService} is currently inactive`);
 
-    if (file !== null) {
-      const uniqueFilename = `${uuidv4()}-${file.originalname}`;
+    for (const [fieldName, fileInfo] of Object.entries(files)) {
+      if (
+        path.extname(fileInfo[0].originalname).toLowerCase() !== '.png' ||
+        path.extname(fileInfo[0].originalname).toLowerCase() !== '.jpg' ||
+        path.extname(fileInfo[0].originalname).toLowerCase() !== '.jpeg'
+      ) {
+        throw new BadRequestException(`The file ${fileInfo[0].originalname} is not a valid pdf file`);
+      }
 
-      file.originalname = uniqueFilename;
+      const uniqueFilename = `${uuidv4()}-${fileInfo[0].originalname}`;
+      fileInfo[0].originalname = uniqueFilename;
 
-      const imageUrl = await this.uploadToAws(file);
+      await this.uploadToAws(fileInfo[0]);
 
-      imageAwsUrl = imageUrl;
-
-      updatedLogo.url = file.originalname;
+      if (fileInfo[0].fieldname === 'logo') {
+        updatedLogo.logo = uniqueFilename;
+      } else if (fileInfo[0].fieldname === 'dniRepresentativeDocument') {
+        updatedLogo.mounting = uniqueFilename;
+      }
     }
 
     updatedLogo.markingService = markingService;

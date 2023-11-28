@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, ParseUUIDPipe, Query } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, ParseUUIDPipe, Query, UploadedFiles } from '@nestjs/common';
+import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
 
 import { LogosService } from './logos.service';
 import { CreateLogoDto } from './dto/create-logo.dto';
@@ -11,12 +11,17 @@ export class LogosController {
   constructor(private readonly logosService: LogosService) { }
 
   @Post()
-  @UseInterceptors(FileInterceptor('url'))
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'logo', maxCount: 1 },
+      { name: 'mounting', maxCount: 1 },
+    ])
+  )
   create(
     @Body() createLogoDto: CreateLogoDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Record<string, Express.Multer.File>
   ) {
-    return this.logosService.create(createLogoDto, file);
+    return this.logosService.create(createLogoDto, files);
   }
 
   @Get()
@@ -32,13 +37,18 @@ export class LogosController {
   }
 
   @Patch(':id')
-  @UseInterceptors(FileInterceptor('url'))
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'logo', maxCount: 1 },
+      { name: 'mounting', maxCount: 1 },
+    ])
+  )
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateLogoDto: UpdateLogoDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Record<string, Express.Multer.File>
   ) {
-    return this.logosService.update(id, updateLogoDto, file);
+    return this.logosService.update(id, updateLogoDto, files);
   }
 
   @Patch('/desactivate/:id')
