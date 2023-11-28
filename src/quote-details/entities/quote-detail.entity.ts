@@ -10,10 +10,15 @@ export class QuoteDetail {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('varchar', {
+  @Column('int', {
 
   })
-  quantities: string;
+  quantities: number;
+
+  @Column('int', {
+
+  })
+  unitPrice: number;
 
   @Column('int', {
 
