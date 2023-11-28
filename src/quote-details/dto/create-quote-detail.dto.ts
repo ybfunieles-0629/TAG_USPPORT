@@ -1,8 +1,11 @@
 import { IsInt, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateQuoteDetailDto {
-  @IsString()
-  quantities: string;
+  @IsInt()
+  quantities: number;
+
+  @IsInt()
+  unitPrice: number;
 
   @IsInt()
   totalPriceWithTransport: number;
