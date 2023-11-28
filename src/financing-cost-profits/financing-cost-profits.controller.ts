@@ -15,6 +15,13 @@ export class FinancingCostProfitsController {
     return this.financingCostProfitsService.create(createFinancingCostProfitDto);
   }
 
+  @Post('create/multiple')
+  createMultiple(
+    @Body() createFinancingCostProfits: CreateFinancingCostProfitDto[]
+  ) {
+    return this.financingCostProfitsService.createMultiple(createFinancingCostProfits);
+  }
+
   @Get()
   findAll(
     @Param() paginationDto: PaginationDto

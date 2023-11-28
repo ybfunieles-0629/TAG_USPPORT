@@ -45,6 +45,38 @@ export class FinancingCostProfitsService {
     };
   }
 
+  async createMultiple(createFinancingCostProfits: CreateFinancingCostProfitDto[]) {
+    const createdFinancingCostProfits: FinancingCostProfit[] = [];
+
+    for (const createFinancingCostProfitDto of createFinancingCostProfits) {
+      const newFinancingCostProfit: FinancingCostProfit = plainToClass(FinancingCostProfit, createFinancingCostProfitDto);
+
+      if (createFinancingCostProfitDto.systemConfig) {
+        const systemConfig: SystemConfig = await this.systemConfigRepository.findOne({
+          where: {
+            id: createFinancingCostProfitDto.systemConfig,
+          },
+        });
+
+        if (!systemConfig)
+          throw new NotFoundException(`System config with id ${createFinancingCostProfitDto.systemConfig} not found`);
+
+        if (!systemConfig.isActive)
+          throw new BadRequestException(`System config with id ${createFinancingCostProfitDto.systemConfig} id currently inactive`);
+
+        newFinancingCostProfit.systemConfig = systemConfig;
+      };
+
+      const createdFinancingCostProfit: FinancingCostProfit = await this.financingCostProfitRepository.save(newFinancingCostProfit);
+
+      createdFinancingCostProfits.push(createdFinancingCostProfit);
+    };
+
+    return {
+      createdFinancingCostProfits
+    };
+  }
+
   async findAll(paginationDto: PaginationDto) {
     const count: number = await this.financingCostProfitRepository.count();
 
@@ -93,7 +125,7 @@ export class FinancingCostProfitsService {
     });
 
     const updatedFinancingCostProfit: FinancingCostProfit = plainToClass(FinancingCostProfit, updateFinancingCostProfitDto);
-    
+
     if (updateFinancingCostProfitDto.systemConfig) {
       const systemConfig: SystemConfig = await this.systemConfigRepository.findOne({
         where: {
