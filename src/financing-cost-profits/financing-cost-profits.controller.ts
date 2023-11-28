@@ -44,6 +44,13 @@ export class FinancingCostProfitsController {
     return this.financingCostProfitsService.update(id, updateFinancingCostProfitDto);
   }
 
+  @Patch('update/multiple')
+  updateMultiple(
+    @Body() updateFinancingCostProfits: UpdateFinancingCostProfitDto[]
+  ) {
+    return this.financingCostProfitsService.updateMultiple(updateFinancingCostProfits);
+  }
+
   @Patch('desactivate/:id')
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,

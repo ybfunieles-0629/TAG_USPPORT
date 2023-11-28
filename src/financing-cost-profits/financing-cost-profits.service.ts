@@ -151,6 +151,49 @@ export class FinancingCostProfitsService {
     };
   }
 
+  async updateMultiple(updateFinancingCostProfits: UpdateFinancingCostProfitDto[]) {
+    const updatedFinancingCostProfits: FinancingCostProfit[] = [];
+
+    for (const updateFinancingCostProfitDto of updateFinancingCostProfits) {
+      const financingCostProfit: FinancingCostProfit = await this.financingCostProfitRepository.findOne({
+        where: {
+          id: updateFinancingCostProfitDto.id,
+        },
+        relations: [
+          'systemConfig',
+        ],
+      });
+
+      const updatedFinancingCostProfit: FinancingCostProfit = plainToClass(FinancingCostProfit, updateFinancingCostProfitDto);
+
+      if (updateFinancingCostProfitDto.systemConfig) {
+        const systemConfig: SystemConfig = await this.systemConfigRepository.findOne({
+          where: {
+            id: updateFinancingCostProfitDto.systemConfig,
+          },
+        });
+
+        if (!systemConfig)
+          throw new NotFoundException(`System config with id ${updateFinancingCostProfitDto.systemConfig} not found`);
+
+        if (!systemConfig.isActive)
+          throw new BadRequestException(`System config with id ${updateFinancingCostProfitDto.systemConfig} id currently inactive`);
+
+        updatedFinancingCostProfit.systemConfig = systemConfig;
+      };
+
+      Object.assign(financingCostProfit, updatedFinancingCostProfit);
+
+      const updatedFinancingCostProfitDb: FinancingCostProfit = await this.financingCostProfitRepository.save(financingCostProfit);
+
+      updatedFinancingCostProfits.push(updatedFinancingCostProfitDb);
+    }
+
+    return {
+      updatedFinancingCostProfits
+    };
+  }
+
   async desactivate(id: string) {
     const { financingCostProfit } = await this.findOne(id);
 
