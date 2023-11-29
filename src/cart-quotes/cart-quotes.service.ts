@@ -264,19 +264,173 @@ export class CartQuotesService {
         id,
       },
       relations: [
-        'client',
-        'user',
-        'state',
+        'quoteDetails',
+        'quoteDetails.transportServices',
+        'quoteDetails.product',
+        'quoteDetails.product.colors',
+        'quoteDetails.product.variantReferences',
+        'quoteDetails.product.images',
+        'quoteDetails.markingServices',
+        'quoteDetails.markingServices.logos',
+        'quoteDetails.markingServices.marking',
+        'quoteDetails.markingServices.externalSubTechnique',
+        'quoteDetails.markingServices.markingServiceProperty',
+        'quoteDetails.markingServices.markingServiceProperty.markedServicePrices',
+        'quoteDetails.product.packings',
+        'quoteDetails.product.refProduct',
+        'quoteDetails.product.refProduct.packings',
       ],
     });
 
     if (!cartQuote)
       throw new NotFoundException(`Cart quote with id ${id} not found`);
 
+
+    const localTransportPricesDb: LocalTransportPrice[] = await this.localTransportPriceRepository.find({
+      where: {
+        origin: 'Bogota',
+      },
+    });
+
+    let markingTotalPrice: number = 0;
+
+    const finalCartQuote = {
+      id: cartQuote.id,
+      quoteName: cartQuote.quoteName,
+      description: cartQuote.description,
+      deliveryAddress: cartQuote.deliveryAddress,
+      totalPrice: cartQuote.totalPrice,
+      productsQuantity: cartQuote.productsQuantity,
+      weightToOrder: cartQuote.weightToOrder,
+      products: cartQuote.quoteDetails.map((quoteDetail: QuoteDetail) => {
+        return {
+          name: quoteDetail.product.refProduct.name,
+          unitPrice: quoteDetail.unitPrice,
+          quantity: quoteDetail.quantities,
+          image: quoteDetail.product?.images[0]?.url || 'default.png',
+          color: quoteDetail.product.colors[0].name,
+          samplePrice: quoteDetail.product.samplePrice,
+          refundSampleTime: quoteDetail.product.refundSampleTime,
+          loanSample: quoteDetail.product.loanSample,
+          packings: quoteDetail.product.packings
+            ? quoteDetail.product.packings.map((packing: Packing) => {
+              const packingVolume: number = (packing.height * packing.width * packing.height);
+              const productQuantity: number = quoteDetail.quantities;
+              const volumeWithQuantities: number = (packingVolume * productQuantity);
+
+              const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination = cartQuote.deliveryAddress);
+
+              const closestLocalTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
+                ? localTransportPrices.sort((a, b) => {
+                  const diffA = Math.abs(a.volume - volumeWithQuantities);
+                  const diffB = Math.abs(b.volume - volumeWithQuantities);
+                  return diffA - diffB;
+                })[0]
+                : undefined;
+
+              const { origin, destination, price, volume } = closestLocalTransportPrice;
+
+              const transportCalculation = [{
+                packingVolume,
+                productQuantity,
+                volumeWithQuantities
+              }];
+
+              return {
+                unities: packing.unities,
+                large: packing.large,
+                width: packing.width,
+                height: packing.height,
+                smallPackingWeight: packing.smallPackingWeight,
+                transportCalculation,
+                localTransportPrice: {
+                  origin,
+                  destination,
+                  price,
+                  volume
+                },
+              };
+            })
+            : quoteDetail.product.refProduct.packings.map((packing: Packing) => {
+              const packingVolume: number = (packing.height * packing.width * packing.height);
+              const productQuantity: number = quoteDetail.quantities;
+              const volumeWithQuantities: number = (packingVolume * productQuantity);
+
+              const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination = cartQuote.deliveryAddress);
+
+              const closestLocalTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
+                ? localTransportPrices.sort((a, b) => {
+                  const diffA = Math.abs(a.volume - volumeWithQuantities);
+                  const diffB = Math.abs(b.volume - volumeWithQuantities);
+                  return diffA - diffB;
+                })[0]
+                : undefined;
+
+              const { origin, destination, price, volume } = closestLocalTransportPrice;
+
+              const transportCalculation = [{
+                packingVolume,
+                productQuantity,
+                volumeWithQuantities
+              }];
+
+              return {
+                unities: packing.unities,
+                large: packing.large,
+                width: packing.width,
+                height: packing.height,
+                smallPackingWeight: packing.smallPackingWeight,
+                transportCalculation,
+                localTransportPrice: {
+                  origin,
+                  destination,
+                  price,
+                  volume
+                },
+              };
+            }),
+          variantReferences: quoteDetail.product.variantReferences.map((variantReference: VariantReference) => {
+            return {
+              name: variantReference.name,
+            };
+          }),
+          markingServices: quoteDetail.markingServices.map((markingService: MarkingService) => {
+            return {
+              logo: markingService.logos.map((logo: Logo) => {
+                return {
+                  logo: logo.logo,
+                  mounting: logo.mounting
+                };
+              }),
+              calculatedMarkingPrice: markingService.calculatedMarkingPrice,
+              markingTransportPrice: markingService.markingTransportPrice,
+              marking: markingService.marking.name,
+              externalSubTechnique: markingService.externalSubTechnique.name,
+              markingServiceProperty: {
+                name: markingService.markingServiceProperty.name,
+                prices: (markingService.markingServiceProperty.markedServicePrices || [])
+                  .slice()
+                  .sort((a: MarkedServicePrice, b: MarkedServicePrice) => (a?.unitPrice || 0) - (b?.unitPrice || 0))
+                  .map((markedServicePrice: MarkedServicePrice) => {
+                    markingTotalPrice += markedServicePrice.unitPrice;
+
+                    return {
+                      markedServicePrice: markedServicePrice?.unitPrice || 0
+                    };
+                  }),
+              },
+            };
+          }),
+          markingTotalPrice,
+        };
+      }),
+    };
+
     return {
-      cartQuote
+      cartQuote: finalCartQuote
     };
   }
+
 
   async filterByClient(clientId: string) {
     const cartQuotes: CartQuote[] = await this.cartQuoteRepository
@@ -354,7 +508,14 @@ export class CartQuotesService {
   }
 
   async desactivate(id: string) {
-    const { cartQuote } = await this.findOne(id);
+    const cartQuote = await this.cartQuoteRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!cartQuote)
+      throw new NotFoundException(`Cart quote with id ${id} not found`);
 
     cartQuote.isActive = !cartQuote.isActive;
 
@@ -366,7 +527,14 @@ export class CartQuotesService {
   }
 
   async remove(id: string) {
-    const { cartQuote } = await this.findOne(id);
+    const cartQuote = await this.cartQuoteRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!cartQuote)
+      throw new NotFoundException(`Cart quote with id ${id} not found`);
 
     await this.cartQuoteRepository.remove(cartQuote);
 
