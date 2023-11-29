@@ -22,11 +22,12 @@ export class RefProductsController {
     return this.refProductsService.findAll(paginationDto);
   }
 
-  @Get('filter')
+  @Post('filter')
   filterRefProducts(
+    @Query() paginationDto: PaginationDto,
     @Body() filterRefProductsDto: FilterRefProductsDto
   ) {
-    return this.refProductsService.filterProducts(filterRefProductsDto);
+    return this.refProductsService.filterProducts(filterRefProductsDto, paginationDto);
   }
 
   @Get(':id')

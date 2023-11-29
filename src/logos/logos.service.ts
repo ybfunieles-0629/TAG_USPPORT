@@ -131,13 +131,13 @@ export class LogosService {
       throw new BadRequestException(`Marking service with id ${updateLogoDto.markingService} is currently inactive`);
 
     for (const [fieldName, fileInfo] of Object.entries(files)) {
-      if (
-        path.extname(fileInfo[0].originalname).toLowerCase() !== '.png' ||
-        path.extname(fileInfo[0].originalname).toLowerCase() !== '.jpg' ||
-        path.extname(fileInfo[0].originalname).toLowerCase() !== '.jpeg'
-      ) {
-        throw new BadRequestException(`The file ${fileInfo[0].originalname} is not a valid pdf file`);
-      }
+      // if (
+      //   path.extname(fileInfo[0].originalname).toLowerCase() !== '.png' ||
+      //   path.extname(fileInfo[0].originalname).toLowerCase() !== '.jpg' ||
+      //   path.extname(fileInfo[0].originalname).toLowerCase() !== '.jpeg'
+      // ) {
+      //   throw new BadRequestException(`The file ${fileInfo[0].originalname} is not a valid pdf file`);
+      // }
 
       const uniqueFilename = `${uuidv4()}-${fileInfo[0].originalname}`;
       fileInfo[0].originalname = uniqueFilename;
