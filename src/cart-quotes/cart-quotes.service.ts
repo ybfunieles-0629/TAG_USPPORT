@@ -106,7 +106,12 @@ export class CartQuotesService {
         'quoteDetails.markingServices.markingServiceProperty.markedServicePrices',
         'quoteDetails.product.packings',
         'quoteDetails.product.refProduct',
+        'quoteDetails.product.refProduct.images',
+        'quoteDetails.product.refProduct.supplier',
+        'quoteDetails.product.refProduct.supplier.disccounts',
+        'quoteDetails.product.refProduct.supplier.disccounts.disccounts',
         'quoteDetails.product.refProduct.packings',
+        'state',
       ],
     });
 
@@ -127,17 +132,31 @@ export class CartQuotesService {
         totalPrice: cartQuote.totalPrice,
         productsQuantity: cartQuote.productsQuantity,
         weightToOrder: cartQuote.weightToOrder,
+        createdAt: cartQuote.createdAt,
+        state: cartQuote.state?.name || '',
         products: cartQuote.quoteDetails.map((quoteDetail: QuoteDetail) => {
           return {
             name: quoteDetail.product.refProduct.name,
             unitPrice: quoteDetail.unitPrice,
             quantity: quoteDetail.quantities,
-            image: quoteDetail.product?.images[0]?.url || 'default.png',
+            image: quoteDetail.product?.refProduct?.images[0]?.url || 'default.png',
             color: quoteDetail.product.colors[0].name,
             samplePrice: quoteDetail.product.samplePrice,
             refundSampleTime: quoteDetail.product.refundSampleTime,
             loanSample: quoteDetail.product.loanSample,
-            packings: quoteDetail.product.packings
+            discount: quoteDetail.product.refProduct.supplier.disccounts[0].disccounts.reduce((maxDiscount, disccount) => {
+              if (disccount.maxQuantity !== 0) {
+                if (quoteDetail.quantities >= disccount.minQuantity && quoteDetail.quantities <= disccount.maxQuantity) {
+                  return Math.max(maxDiscount, disccount.disccountValue);
+                }
+              } else {
+                if (quoteDetail.quantities >= disccount.minQuantity) {
+                  return Math.max(maxDiscount, disccount.disccountValue);
+                }
+              }
+              return maxDiscount;
+            }, 0),
+            packings: quoteDetail.product.packings !== undefined
               ? quoteDetail.product.packings.map((packing: Packing) => {
                 const packingVolume: number = (packing.height * packing.width * packing.height);
                 const productQuantity: number = quoteDetail.quantities;
@@ -484,7 +503,7 @@ export class CartQuotesService {
             samplePrice: quoteDetail.product.samplePrice,
             refundSampleTime: quoteDetail.product.refundSampleTime,
             loanSample: quoteDetail.product.loanSample,
-            packings: quoteDetail.product.packings
+            packings: quoteDetail.product.packings !== undefined
               ? quoteDetail.product.packings.map((packing: Packing) => {
                 const packingVolume: number = (packing.height * packing.width * packing.height);
                 const productQuantity: number = quoteDetail.quantities;
