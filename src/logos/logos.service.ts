@@ -48,7 +48,7 @@ export class LogosService {
         path.extname(fileInfo[0].originalname).toLowerCase() !== '.jpg' ||
         path.extname(fileInfo[0].originalname).toLowerCase() !== '.jpeg'
       ) {
-        throw new BadRequestException(`The file ${fileInfo[0].originalname} is not a valid pdf file`);
+        throw new BadRequestException(`The file ${fileInfo[0].originalname} is not a valid image file`);
       }
 
       const uniqueFilename = `${uuidv4()}-${fileInfo[0].originalname}`;
