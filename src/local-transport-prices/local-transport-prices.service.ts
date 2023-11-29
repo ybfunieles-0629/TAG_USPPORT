@@ -131,6 +131,12 @@ export class LocalTransportPricesService {
 
     const updatedLocalTransportPrice = plainToClass(LocalTransportPrice, updateLocalTransportPriceDto);
 
+    const { maximumHeight, maximumWidth, maximumLarge } = updateLocalTransportPriceDto;
+
+    const volume: number = (maximumHeight * maximumWidth * maximumLarge);
+
+    updatedLocalTransportPrice.volume = volume;
+
     const transportService = await this.transportServiceRepository.findOne({
       where: {
         id: updateLocalTransportPriceDto.transportService,
@@ -169,6 +175,13 @@ export class LocalTransportPricesService {
         throw new NotFoundException(`Local transport price with id ${updateLocalTransportPriceDto.id} not found`);
 
       const updatedLocalTransportPrice = plainToClass(LocalTransportPrice, updateLocalTransportPriceDto);
+
+      const { maximumHeight, maximumWidth, maximumLarge } = updateLocalTransportPriceDto;
+
+      const volume: number = (maximumHeight * maximumWidth * maximumLarge);
+
+      updatedLocalTransportPrice.volume = volume;
+
 
       const transportService = await this.transportServiceRepository.findOne({
         where: {
