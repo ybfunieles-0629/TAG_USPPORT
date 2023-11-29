@@ -436,16 +436,173 @@ export class CartQuotesService {
     const cartQuotes: CartQuote[] = await this.cartQuoteRepository
       .createQueryBuilder('quote')
       .leftJoinAndSelect('quote.client', 'client')
-      .where('client.id =:clientId', { clientId: clientId })
+      .leftJoinAndSelect('quote.quoteDetails', 'quoteDetails')
+      .leftJoinAndSelect('quoteDetails.transportServices', 'transportServices')
+      .leftJoinAndSelect('quoteDetails.product', 'product')
+      .leftJoinAndSelect('product.colors', 'colors')
+      .leftJoinAndSelect('product.variantReferences', 'variantReferences')
+      .leftJoinAndSelect('product.images', 'images')
+      .leftJoinAndSelect('quoteDetails.markingServices', 'markingServices')
+      .leftJoinAndSelect('markingServices.logos', 'logos')
+      .leftJoinAndSelect('markingServices.marking', 'marking')
+      .leftJoinAndSelect('markingServices.externalSubTechnique', 'externalSubTechnique')
+      .leftJoinAndSelect('markingServices.markingServiceProperty', 'markingServiceProperty')
+      .leftJoinAndSelect('markingServiceProperty.markedServicePrices', 'markedServicePrices')
+      .leftJoinAndSelect('product.packings', 'packings')
+      .leftJoinAndSelect('product.refProduct', 'refProduct')
+      .leftJoinAndSelect('refProduct.packings', 'refPackings')
+      .where('client.id = :clientId', { clientId: clientId })
       .getMany();
 
-    if (!cartQuotes)
+    if (!cartQuotes || cartQuotes.length === 0)
       throw new NotFoundException(`Cart quotes for client ${clientId} not found`);
 
+    const localTransportPricesDb: LocalTransportPrice[] = await this.localTransportPriceRepository.find({
+      where: {
+        origin: 'Bogota',
+      },
+    });
+
+    const result = cartQuotes.map((cartQuote: CartQuote) => {
+      let markingTotalPrice: number = 0;
+
+      return {
+        id: cartQuote.id,
+        quoteName: cartQuote.quoteName,
+        description: cartQuote.description,
+        deliveryAddress: cartQuote.deliveryAddress,
+        totalPrice: cartQuote.totalPrice,
+        productsQuantity: cartQuote.productsQuantity,
+        weightToOrder: cartQuote.weightToOrder,
+        products: cartQuote.quoteDetails.map((quoteDetail: QuoteDetail) => {
+          return {
+            name: quoteDetail.product.refProduct.name,
+            unitPrice: quoteDetail.unitPrice,
+            quantity: quoteDetail.quantities,
+            image: quoteDetail.product?.images[0]?.url || 'default.png',
+            color: quoteDetail.product.colors[0].name,
+            samplePrice: quoteDetail.product.samplePrice,
+            refundSampleTime: quoteDetail.product.refundSampleTime,
+            loanSample: quoteDetail.product.loanSample,
+            packings: quoteDetail.product.packings
+              ? quoteDetail.product.packings.map((packing: Packing) => {
+                const packingVolume: number = (packing.height * packing.width * packing.height);
+                const productQuantity: number = quoteDetail.quantities;
+                const volumeWithQuantities: number = (packingVolume * productQuantity);
+
+                const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination = cartQuote.deliveryAddress);
+
+                const closestLocalTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
+                  ? localTransportPrices.sort((a, b) => {
+                    const diffA = Math.abs(a.volume - volumeWithQuantities);
+                    const diffB = Math.abs(b.volume - volumeWithQuantities);
+                    return diffA - diffB;
+                  })[0]
+                  : undefined;
+
+                const { origin, destination, price, volume } = closestLocalTransportPrice;
+
+                const transportCalculation = [{
+                  packingVolume,
+                  productQuantity,
+                  volumeWithQuantities
+                }];
+
+                return {
+                  unities: packing.unities,
+                  large: packing.large,
+                  width: packing.width,
+                  height: packing.height,
+                  smallPackingWeight: packing.smallPackingWeight,
+                  transportCalculation,
+                  localTransportPrice: {
+                    origin,
+                    destination,
+                    price,
+                    volume
+                  },
+                };
+              })
+              : quoteDetail.product.refProduct.packings.map((packing: Packing) => {
+                const packingVolume: number = (packing.height * packing.width * packing.height);
+                const productQuantity: number = quoteDetail.quantities;
+                const volumeWithQuantities: number = (packingVolume * productQuantity);
+
+                const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination = cartQuote.deliveryAddress);
+
+                const closestLocalTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
+                  ? localTransportPrices.sort((a, b) => {
+                    const diffA = Math.abs(a.volume - volumeWithQuantities);
+                    const diffB = Math.abs(b.volume - volumeWithQuantities);
+                    return diffA - diffB;
+                  })[0]
+                  : undefined;
+
+                const { origin, destination, price, volume } = closestLocalTransportPrice;
+
+                const transportCalculation = [{
+                  packingVolume,
+                  productQuantity,
+                  volumeWithQuantities
+                }];
+
+                return {
+                  unities: packing.unities,
+                  large: packing.large,
+                  width: packing.width,
+                  height: packing.height,
+                  smallPackingWeight: packing.smallPackingWeight,
+                  transportCalculation,
+                  localTransportPrice: {
+                    origin,
+                    destination,
+                    price,
+                    volume
+                  },
+                };
+              }),
+            variantReferences: quoteDetail.product.variantReferences.map((variantReference: VariantReference) => {
+              return {
+                name: variantReference.name,
+              };
+            }),
+            markingServices: quoteDetail.markingServices.map((markingService: MarkingService) => {
+              return {
+                logo: markingService.logos.map((logo: Logo) => {
+                  return {
+                    logo: logo.logo,
+                    mounting: logo.mounting
+                  };
+                }),
+                calculatedMarkingPrice: markingService.calculatedMarkingPrice,
+                markingTransportPrice: markingService.markingTransportPrice,
+                marking: markingService.marking.name,
+                externalSubTechnique: markingService.externalSubTechnique.name,
+                markingServiceProperty: {
+                  name: markingService.markingServiceProperty.name,
+                  prices: (markingService.markingServiceProperty.markedServicePrices || [])
+                    .slice()
+                    .sort((a: MarkedServicePrice, b: MarkedServicePrice) => (a?.unitPrice || 0) - (b?.unitPrice || 0))
+                    .map((markedServicePrice: MarkedServicePrice) => {
+                      markingTotalPrice += markedServicePrice.unitPrice;
+
+                      return {
+                        markedServicePrice: markedServicePrice?.unitPrice || 0
+                      };
+                    }),
+                },
+              };
+            }),
+            markingTotalPrice,
+          };
+        }),
+      };
+    });
+
     return {
-      cartQuotes
+      cartQuotes: result
     };
-  };
+  }
 
   async update(id: string, updateCartQuoteDto: UpdateCartQuoteDto) {
     const cartQuote = await this.cartQuoteRepository.findOne({
@@ -464,23 +621,31 @@ export class CartQuotesService {
 
     const updatedCartQuote = plainToClass(CartQuote, updateCartQuoteDto);
 
-    const client = await this.clientRepository.findOne({
-      where: {
-        id: updateCartQuoteDto.client,
-      },
-    });
+    if (updateCartQuoteDto.client) {
+      const client = await this.clientRepository.findOne({
+        where: {
+          id: updateCartQuoteDto.client,
+        },
+      });
 
-    if (!client)
-      throw new NotFoundException(`Client with id ${updateCartQuoteDto.client} not found`);
+      if (!client)
+        throw new NotFoundException(`Client with id ${updateCartQuoteDto.client} not found`);
 
-    const user = await this.userRepository.findOne({
-      where: {
-        id: updateCartQuoteDto.user,
-      },
-    });
+      updatedCartQuote.client = client;
+    };
 
-    if (!user)
-      throw new NotFoundException(`User with id ${updateCartQuoteDto.user} not found`);
+    if (updateCartQuoteDto.user) {
+      const user = await this.userRepository.findOne({
+        where: {
+          id: updateCartQuoteDto.user,
+        },
+      });
+
+      if (!user)
+        throw new NotFoundException(`User with id ${updateCartQuoteDto.user} not found`);
+
+      updatedCartQuote.user = user;
+    }
 
     if (updateCartQuoteDto.state) {
       const state = await this.stateRepository.findOne({
@@ -494,9 +659,6 @@ export class CartQuotesService {
 
       updatedCartQuote.state = state;
     }
-
-    updatedCartQuote.client = client;
-    updatedCartQuote.user = user;
 
     Object.assign(cartQuote, updatedCartQuote);
 
