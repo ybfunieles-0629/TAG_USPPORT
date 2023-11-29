@@ -58,7 +58,7 @@ export class LogosService {
 
         if (fileInfo[0].fieldname === 'logo') {
           newLogo.logo = uniqueFilename;
-        } else if (fileInfo[0].fieldname === 'dniRepresentativeDocument') {
+        } else if (fileInfo[0].fieldname === 'mounting') {
           newLogo.mounting = uniqueFilename;
         }
     }
@@ -146,7 +146,7 @@ export class LogosService {
 
       if (fileInfo[0].fieldname === 'logo') {
         updatedLogo.logo = uniqueFilename;
-      } else if (fileInfo[0].fieldname === 'dniRepresentativeDocument') {
+      } else if (fileInfo[0].fieldname === 'mounting') {
         updatedLogo.mounting = uniqueFilename;
       }
     }
