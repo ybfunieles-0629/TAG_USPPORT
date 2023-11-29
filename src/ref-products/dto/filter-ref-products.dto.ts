@@ -36,4 +36,12 @@ export class FilterRefProductsDto {
   @IsOptional()
   @IsString()
   keywords?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isNew?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  hasDiscount?: boolean;
 }

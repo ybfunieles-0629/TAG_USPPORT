@@ -372,6 +372,34 @@ export class RefProductsService {
       refProductsToShow.push(...refProducts);
     };
 
+    if (filterRefProductsDto.isNew) {
+      const isNew: boolean = filterRefProductsDto.isNew;
+
+      if (isNew) {
+        const refProducts: RefProduct[] = await this.refProductRepository
+          .createQueryBuilder('refProduct')
+          .innerJoinAndSelect('refProduct.products', 'product')
+          .orderBy('product.createdAt', 'DESC')
+          .getMany();
+
+        refProductsToShow.push(...refProducts);
+      };
+    };
+
+    if (filterRefProductsDto.hasDiscount) {
+      const hasDiscount: boolean = filterRefProductsDto.hasDiscount;
+
+      if (hasDiscount) {
+        const refProducts: RefProduct[] = await this.refProductRepository
+          .createQueryBuilder('refProduct')
+          .innerJoinAndSelect('refProduct.products', 'product')
+          .orderBy('product.disccountPromo', 'DESC')
+          .getMany();
+
+        refProductsToShow.push(...refProducts);
+      };
+    };
+
     if (filterRefProductsDto.isAsc) {
       const isAsc: boolean = filterRefProductsDto.isAsc;
 
