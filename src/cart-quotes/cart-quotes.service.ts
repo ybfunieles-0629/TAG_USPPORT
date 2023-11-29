@@ -128,6 +128,7 @@ export class CartQuotesService {
         id: cartQuote.id,
         quoteName: cartQuote.quoteName,
         description: cartQuote.description,
+        destinationCity: cartQuote.destinationCity,
         deliveryAddress: cartQuote.deliveryAddress,
         totalPrice: cartQuote.totalPrice,
         productsQuantity: cartQuote.productsQuantity,
@@ -163,7 +164,7 @@ export class CartQuotesService {
                 const productQuantity: number = quoteDetail.quantities;
                 const volumeWithQuantities: number = (packingVolume * productQuantity);
 
-                const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination = cartQuote.destinationCity);
+                const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination == cartQuote.destinationCity);
 
                 const closestLocalTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
                   ? localTransportPrices.sort((a, b) => {
@@ -201,7 +202,7 @@ export class CartQuotesService {
                 const productQuantity: number = quoteDetail.quantities;
                 const volumeWithQuantities: number = (packingVolume * productQuantity);
 
-                const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination = cartQuote.destinationCity);
+                const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination == cartQuote.destinationCity);
 
                 const closestLocalTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
                   ? localTransportPrices.sort((a, b) => {
@@ -323,6 +324,7 @@ export class CartQuotesService {
       id: cartQuote.id,
       quoteName: cartQuote.quoteName,
       description: cartQuote.description,
+      destinationCity: cartQuote.destinationCity,
       deliveryAddress: cartQuote.deliveryAddress,
       totalPrice: cartQuote.totalPrice,
       productsQuantity: cartQuote.productsQuantity,
@@ -358,7 +360,7 @@ export class CartQuotesService {
               const productQuantity: number = quoteDetail.quantities;
               const volumeWithQuantities: number = (packingVolume * productQuantity);
 
-              const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination = cartQuote.destinationCity);
+              const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination == cartQuote.destinationCity);
 
               const closestLocalTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
                 ? localTransportPrices.sort((a, b) => {
@@ -396,7 +398,7 @@ export class CartQuotesService {
               const productQuantity: number = quoteDetail.quantities;
               const volumeWithQuantities: number = (packingVolume * productQuantity);
 
-              const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination = cartQuote.destinationCity);
+              const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination == cartQuote.destinationCity);
 
               const closestLocalTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
                 ? localTransportPrices.sort((a, b) => {
@@ -515,6 +517,7 @@ export class CartQuotesService {
         id: cartQuote.id,
         quoteName: cartQuote.quoteName,
         description: cartQuote.description,
+        destinationCity: cartQuote.destinationCity,
         deliveryAddress: cartQuote.deliveryAddress,
         totalPrice: cartQuote.totalPrice,
         productsQuantity: cartQuote.productsQuantity,
@@ -550,7 +553,7 @@ export class CartQuotesService {
                 const productQuantity: number = quoteDetail.quantities;
                 const volumeWithQuantities: number = (packingVolume * productQuantity);
 
-                const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination = cartQuote.destinationCity);
+                const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination == cartQuote.destinationCity);
 
                 const closestLocalTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
                   ? localTransportPrices.sort((a, b) => {
@@ -588,7 +591,7 @@ export class CartQuotesService {
                 const productQuantity: number = quoteDetail.quantities;
                 const volumeWithQuantities: number = (packingVolume * productQuantity);
 
-                const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination = cartQuote.destinationCity);
+                const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination == cartQuote.destinationCity);
 
                 const closestLocalTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
                   ? localTransportPrices.sort((a, b) => {
