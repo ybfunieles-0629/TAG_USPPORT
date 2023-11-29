@@ -11,7 +11,7 @@ export class Image {
   id: string;
 
   @Column('varchar', {
-    unique: true,
+
   })
   url: string;
 
