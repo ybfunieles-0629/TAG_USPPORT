@@ -181,6 +181,18 @@ export class CartQuotesService {
                 const productQuantity: number = quoteDetail.quantities;
                 const volumeWithQuantities: number = (packingVolume * productQuantity);
 
+                const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination = cartQuote.deliveryAddress);
+
+                const closestLocalTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
+                  ? localTransportPrices.sort((a, b) => {
+                    const diffA = Math.abs(a.volume - volumeWithQuantities);
+                    const diffB = Math.abs(b.volume - volumeWithQuantities);
+                    return diffA - diffB;
+                  })[0]
+                  : undefined;
+
+                const { origin, destination, price, volume } = closestLocalTransportPrice;
+
                 const transportCalculation = [{
                   packingVolume,
                   productQuantity,
@@ -193,7 +205,13 @@ export class CartQuotesService {
                   width: packing.width,
                   height: packing.height,
                   smallPackingWeight: packing.smallPackingWeight,
-                  transportCalculation
+                  transportCalculation,
+                  localTransportPrice: {
+                    origin,
+                    destination,
+                    price,
+                    volume
+                  },
                 };
               }),
             variantReferences: quoteDetail.product.variantReferences.map((variantReference: VariantReference) => {
