@@ -10,6 +10,13 @@ import { Client } from '../clients/entities/client.entity';
 import { User } from '../users/entities/user.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { State } from '../states/entities/state.entity';
+import { QuoteDetail } from '../quote-details/entities/quote-detail.entity';
+import { VariantReference } from '../variant-reference/entities/variant-reference.entity';
+import { MarkingServiceProperty } from '../marking-service-properties/entities/marking-service-property.entity';
+import { MarkedServicePrice } from 'src/marked-service-prices/entities/marked-service-price.entity';
+import { MarkingService } from 'src/marking-services/entities/marking-service.entity';
+import { ExternalSubTechnique } from 'src/external-sub-techniques/entities/external-sub-technique.entity';
+import { Logo } from 'src/logos/entities/logo.entity';
 
 @Injectable()
 export class CartQuotesService {
@@ -71,18 +78,78 @@ export class CartQuotesService {
     };
   }
 
-  findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll(paginationDto: PaginationDto) {
+    const count: number = await this.cartQuoteRepository.count();
 
-    return this.cartQuoteRepository.find({
+    const { limit = count, offset = 0 } = paginationDto;
+
+    const cartQuotes: CartQuote[] = await this.cartQuoteRepository.find({
       take: limit,
       skip: offset,
       relations: [
-        'client',
-        'user',
-        'state',
+        'quoteDetails',
+        'quoteDetails.transportServices',
+        'quoteDetails.product',
+        'quoteDetails.product.colors',
+        'quoteDetails.product.variantReferences',
+        'quoteDetails.product.images',
+        'quoteDetails.markingServices',
+        'quoteDetails.markingServices.marking',
+        'quoteDetails.markingServices.externalSubTechnique',
+        'quoteDetails.markingServices.markingServiceProperty',
+        'quoteDetails.product.refProduct',
       ],
     });
+
+    const finalCartQuotes = cartQuotes.map((cartQuote: CartQuote) => {
+
+      return {
+        id: cartQuote.id,
+        quoteName: cartQuote.quoteName,
+        description: cartQuote.description,
+        deliveryAddress: cartQuote.deliveryAddress,
+        totalPrice: cartQuote.totalPrice,
+        productsQuantity: cartQuote.productsQuantity,
+        weightToOrder: cartQuote.weightToOrder,
+        products: cartQuote.quoteDetails.map((quoteDetail: QuoteDetail) => {
+          return {
+            name: quoteDetail.product.refProduct.name,
+            unitPrice: quoteDetail.unitPrice,
+            quantity: quoteDetail.quantities,
+            image: quoteDetail.product?.images[0]?.url || 'default.png',
+            color: quoteDetail.product.colors[0].name,
+            samplePrice: quoteDetail.product.samplePrice,
+            refundSampleTime: quoteDetail.product.refundSampleTime,
+            loanSample: quoteDetail.product.loanSample,
+            variantReferences: quoteDetail.product.variantReferences.map((variantReference: VariantReference) => {
+              return {
+                name: variantReference.name,
+              };
+            }),
+            markingServices: quoteDetail.markingServices.map((markingService: MarkingService) => {
+              return {
+                logo: markingService.logos.map((logo: Logo) => {
+                  return {
+                    logo: logo.logo,
+                    mounting: logo.mounting
+                  };
+                }),
+                calculatedMarkingPrice: markingService.calculatedMarkingPrice,
+                markingTransportPrice: markingService.markingTransportPrice,
+                marking: markingService.marking.name,
+                externalSubTechnique: markingService.externalSubTechnique.name,
+                markingServiceProperty: markingService.markingServiceProperty.name,
+              };
+            }),
+          };
+        }),
+      };
+    });
+
+    return {
+      count,
+      finalCartQuotes
+    };
   }
 
   async findOne(id: string) {

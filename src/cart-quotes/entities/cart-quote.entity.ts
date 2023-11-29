@@ -36,10 +36,10 @@ export class CartQuote {
   })
   productsQuantity: number;
 
-  @Column('boolean', {
+  @Column('int', {
 
   })
-  weightToOrder: boolean;
+  weightToOrder: number;
 
   @Column('date', {
 

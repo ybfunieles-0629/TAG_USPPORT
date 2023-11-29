@@ -40,8 +40,8 @@ export class Marking {
   @ManyToOne(() => MarkingTagService, (markingTagService) => markingTagService.markings)
   markingTagService: MarkingTagService;
 
-  @OneToOne(() => MarkingService, (markingService) => markingService.marking)
-  markingService: MarkingService;
+  @OneToMany(() => MarkingService, (markingService) => markingService.marking)
+  markingServices: MarkingService[];
 
   @OneToMany(() => ExternalSubTechnique, (externalSubTechnique) => externalSubTechnique.marking)
   externalSubTechniques?: ExternalSubTechnique[];

@@ -49,8 +49,7 @@ export class MarkingService {
   updatedAt: Date;
 
   //* ---- FK ---- *//
-  @OneToOne(() => Marking, (marking) => marking.markingService)
-  @JoinColumn()
+  @ManyToOne(() => Marking, (marking) => marking.markingServices)
   marking: Marking;
 
   @OneToOne(() =>  MarkingServiceProperty, (markingServiceProperty) => markingServiceProperty.markingService)
