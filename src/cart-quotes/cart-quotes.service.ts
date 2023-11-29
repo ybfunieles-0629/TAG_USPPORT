@@ -142,6 +142,7 @@ export class CartQuotesService {
             image: quoteDetail.product?.refProduct?.images[0]?.url || 'default.png',
             color: quoteDetail.product.colors[0].name,
             samplePrice: quoteDetail.product.samplePrice,
+            iva: quoteDetail.product.iva,
             refundSampleTime: quoteDetail.product.refundSampleTime,
             loanSample: quoteDetail.product.loanSample,
             discount: quoteDetail.product.refProduct.supplier.disccounts[0].disccounts.reduce((maxDiscount, disccount) => {
@@ -335,6 +336,7 @@ export class CartQuotesService {
           quantity: quoteDetail.quantities,
           image: quoteDetail.product?.refProduct?.images[0]?.url || 'default.png',
           color: quoteDetail.product.colors[0].name,
+          iva: quoteDetail.product.iva,
           samplePrice: quoteDetail.product.samplePrice,
           refundSampleTime: quoteDetail.product.refundSampleTime,
           loanSample: quoteDetail.product.loanSample,
@@ -528,6 +530,7 @@ export class CartQuotesService {
             color: quoteDetail.product.colors[0].name,
             samplePrice: quoteDetail.product.samplePrice,
             refundSampleTime: quoteDetail.product.refundSampleTime,
+            iva: quoteDetail.product.iva,
             loanSample: quoteDetail.product.loanSample,
             discount: quoteDetail.product.refProduct.supplier.disccounts[0].disccounts.reduce((maxDiscount, disccount) => {
               if (disccount.maxQuantity !== 0) {
