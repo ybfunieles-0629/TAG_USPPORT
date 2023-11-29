@@ -272,7 +272,7 @@ export class RefProductsService {
     };
   }
 
-  async filterProducts(filterRefProductsDto: FilterRefProductsDto) {
+  async filterProducts(filterRefProductsDto: FilterRefProductsDto, paginationDto: PaginationDto) {
     const refProductsToShow: RefProduct[] = [];
 
     if (filterRefProductsDto.categoryTag) {
