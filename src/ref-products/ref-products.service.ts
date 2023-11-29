@@ -273,7 +273,9 @@ export class RefProductsService {
   }
 
   async filterProducts(filterRefProductsDto: FilterRefProductsDto, paginationDto: PaginationDto) {
-    const refProductsToShow: RefProduct[] = [];
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    let refProductsToShow: RefProduct[] = [];
 
     if (filterRefProductsDto.categoryTag) {
       const categorySuppliersFound: CategorySupplier[] = [];
@@ -318,7 +320,33 @@ export class RefProductsService {
         .getMany();
 
       refProductsToShow.push(...refProducts);
-    }
+    };
+
+    if (filterRefProductsDto.budget) {
+      const budget: number = filterRefProductsDto.budget;
+
+      const refProducts: RefProduct[] = await this.refProductRepository
+        .createQueryBuilder('refProduct')
+        .innerJoinAndSelect('refProduct.products', 'product')
+        .andWhere('product.referencePrice <= :budget', { budget })
+        .getMany();
+
+      refProductsToShow.push(...refProducts);
+    };
+
+    if (filterRefProductsDto.inventory) {
+      const inventory: number = filterRefProductsDto.inventory;
+
+      const refProducts: RefProduct[] = await this.refProductRepository
+        .createQueryBuilder('refProduct')
+        .innerJoinAndSelect('refProduct.products', 'product')
+        .select(['refProduct.id', 'SUM(product.availableUnit) AS totalAvailableUnit'])
+        .groupBy('refProduct.id')
+        .having('totalAvailableUnit < :inventory', { inventory })
+        .getMany();
+
+      refProductsToShow.push(...refProducts);
+    };
 
     if (filterRefProductsDto.colors) {
       const colorIds: string[] = filterRefProductsDto.colors;
@@ -332,8 +360,55 @@ export class RefProductsService {
       refProductsToShow.push(...refProducts);
     };
 
+    if (filterRefProductsDto.variantReferences) {
+      const variantReferences: string[] = filterRefProductsDto.variantReferences;
+
+      const refProducts: RefProduct[] = await this.refProductRepository
+        .createQueryBuilder('refProduct')
+        .innerJoinAndSelect('refProduct.products', 'product')
+        .andWhere('product.variantReferences IN (: ...variantReferences)', { variantReferences })
+        .getMany();
+
+      refProductsToShow.push(...refProducts);
+    };
+
+    if (filterRefProductsDto.isAsc) {
+      const isAsc: boolean = filterRefProductsDto.isAsc;
+
+      if (refProductsToShow.length > 0) {
+
+        if (isAsc) {
+          refProductsToShow.sort((a, b) => {
+            const priceA = a.products[0]?.referencePrice || 0;
+            const priceB = b.products[0]?.referencePrice || 0;
+            return priceA - priceB;
+          });
+        } else {
+          refProductsToShow.sort((a, b) => {
+            const priceA = a.products[0]?.referencePrice || 0;
+            const priceB = b.products[0]?.referencePrice || 0;
+            return priceB - priceA;
+          });
+        }
+      }
+    };
+
+    if (filterRefProductsDto.keywords) {
+      const searchKeywords: string = filterRefProductsDto.keywords.toLowerCase();
+      const keywordsArray: string[] = searchKeywords.split(' ');
+
+      refProductsToShow = refProductsToShow.filter((refProduct) => {
+        const productKeywords: string = (refProduct.keywords || '').toLowerCase();
+
+        return keywordsArray.every(keyword => productKeywords.includes(keyword));
+      });
+    };
+
+    const paginatedRefProducts: RefProduct[] = refProductsToShow.slice(offset, offset + limit);
+
     return {
-      refProducts: refProductsToShow
+      count: refProductsToShow.length,
+      refProducts: paginatedRefProducts
     };
   }
 
