@@ -17,8 +17,8 @@ export class CreateCartQuoteDto {
   @IsInt()
   productsQuantity: number;
 
-  @IsBoolean()
-  weightToOrder: boolean;
+  @IsInt()
+  weightToOrder: number;
 
   @IsOptional()
   creationDate?: Date;
