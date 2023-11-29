@@ -1,4 +1,4 @@
-import { IsArray, IsInt, IsOptional, IsString } from "class-validator";
+import { IsArray, IsBoolean, IsInt, IsOptional, IsString } from "class-validator";
 
 export class FilterRefProductsDto {
   @IsOptional()
@@ -16,5 +16,32 @@ export class FilterRefProductsDto {
   @IsArray()
   prices?: number[];
 
-  
+  @IsOptional()
+  @IsInt()
+  budget?: number;
+
+  @IsOptional()
+  @IsString()
+  @IsArray({ each: true })
+  variantReferences?: string[];
+
+  @IsOptional()
+  @IsInt()
+  inventory?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  isAsc?: boolean;
+
+  @IsOptional()
+  @IsString()
+  keywords?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isNew?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  hasDiscount?: boolean;
 }
