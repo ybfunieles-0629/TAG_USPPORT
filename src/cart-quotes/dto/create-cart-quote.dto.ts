@@ -8,6 +8,9 @@ export class CreateCartQuoteDto {
   description: string;
 
   @IsString()
+  destinationCity: string;
+
+  @IsString()
   deliveryAddress: string;
 
   @IsInt()
