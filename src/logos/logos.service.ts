@@ -43,24 +43,24 @@ export class LogosService {
     let imageAwsUrl: string = '';
 
     for (const [fieldName, fileInfo] of Object.entries(files)) {
-      if (
-        path.extname(fileInfo[0].originalname).toLowerCase() !== '.png' ||
-        path.extname(fileInfo[0].originalname).toLowerCase() !== '.jpg' ||
-        path.extname(fileInfo[0].originalname).toLowerCase() !== '.jpeg'
-      ) {
-        throw new BadRequestException(`The file ${fileInfo[0].originalname} is not a valid image file`);
-      }
+        // if (
+        //   path.extname(fileInfo[0].originalname).toLowerCase() !== '.png' ||
+        //   path.extname(fileInfo[0].originalname).toLowerCase() !== '.jpg' ||
+        //   path.extname(fileInfo[0].originalname).toLowerCase() !== '.jpeg'
+        // ) {
+        //   throw new BadRequestException(`The file ${fileInfo[0].originalname} is not a valid image file`);
+        // }
 
-      const uniqueFilename = `${uuidv4()}-${fileInfo[0].originalname}`;
-      fileInfo[0].originalname = uniqueFilename;
+        const uniqueFilename = `${uuidv4()}-${fileInfo[0].originalname}`;
+        fileInfo[0].originalname = uniqueFilename;
 
-      await this.uploadToAws(fileInfo[0]);
+        await this.uploadToAws(fileInfo[0]);
 
-      if (fileInfo[0].fieldname === 'logo') {
-        newLogo.logo = uniqueFilename;
-      } else if (fileInfo[0].fieldname === 'dniRepresentativeDocument') {
-        newLogo.mounting = uniqueFilename;
-      }
+        if (fileInfo[0].fieldname === 'logo') {
+          newLogo.logo = uniqueFilename;
+        } else if (fileInfo[0].fieldname === 'dniRepresentativeDocument') {
+          newLogo.mounting = uniqueFilename;
+        }
     }
 
     await this.logoRepository.save(newLogo);
