@@ -473,6 +473,7 @@ export class CartQuotesService {
   async filterByClient(clientId: string) {
     const cartQuotes: CartQuote[] = await this.cartQuoteRepository
       .createQueryBuilder('quote')
+      .leftJoinAndSelect('quote.state', 'state')
       .leftJoinAndSelect('quote.client', 'client')
       .leftJoinAndSelect('quote.quoteDetails', 'quoteDetails')
       .leftJoinAndSelect('quoteDetails.transportServices', 'transportServices')
@@ -493,7 +494,6 @@ export class CartQuotesService {
       .leftJoinAndSelect('supplier.disccounts', 'disccounts')
       .leftJoinAndSelect('disccounts.disccounts', 'discounts')
       .leftJoinAndSelect('refProduct.packings', 'refPackings')
-      .leftJoinAndSelect('state', 'state')
       .where('client.id = :clientId', { clientId: clientId })
       .getMany();
 
