@@ -93,6 +93,9 @@ export class CartQuotesService {
       skip: offset,
       relations: [
         'quoteDetails',
+        'client',
+        'client.user',
+        'client.user.company',
         'quoteDetails.transportServices',
         'quoteDetails.product',
         'quoteDetails.product.colors',
@@ -131,6 +134,9 @@ export class CartQuotesService {
         destinationCity: cartQuote.destinationCity,
         deliveryAddress: cartQuote.deliveryAddress,
         totalPrice: cartQuote.totalPrice,
+        client: cartQuote.client,
+        user: cartQuote.client.user,
+        company: cartQuote.client.user.company,
         productsQuantity: cartQuote.productsQuantity,
         weightToOrder: cartQuote.weightToOrder,
         createdAt: cartQuote.createdAt,
@@ -479,6 +485,7 @@ export class CartQuotesService {
       .createQueryBuilder('quote')
       .leftJoinAndSelect('quote.state', 'state')
       .leftJoinAndSelect('quote.client', 'client')
+      .leftJoinAndSelect('client.user', 'user')
       .leftJoinAndSelect('quote.quoteDetails', 'quoteDetails')
       .leftJoinAndSelect('quoteDetails.transportServices', 'transportServices')
       .leftJoinAndSelect('quoteDetails.product', 'product')
@@ -498,6 +505,7 @@ export class CartQuotesService {
       .leftJoinAndSelect('supplier.disccounts', 'disccounts')
       .leftJoinAndSelect('disccounts.disccounts', 'discounts')
       .leftJoinAndSelect('refProduct.packings', 'refPackings')
+      .addSelect(['user.company'])
       .where('client.id = :clientId', { clientId: clientId })
       .getMany();
 
@@ -513,10 +521,13 @@ export class CartQuotesService {
     const result = cartQuotes.map((cartQuote: CartQuote) => {
       let markingTotalPrice: number = 0;
 
+      console.log(cartQuote.client.user);
+
       return {
         id: cartQuote.id,
         quoteName: cartQuote.quoteName,
         description: cartQuote.description,
+        clientCompany: cartQuote.client.user.company.name,
         destinationCity: cartQuote.destinationCity,
         deliveryAddress: cartQuote.deliveryAddress,
         totalPrice: cartQuote.totalPrice,
