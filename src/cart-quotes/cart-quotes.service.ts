@@ -486,6 +486,7 @@ export class CartQuotesService {
       .leftJoinAndSelect('quote.state', 'state')
       .leftJoinAndSelect('quote.client', 'client')
       .leftJoinAndSelect('client.user', 'user')
+      .leftJoinAndSelect('user.company', 'company')
       .leftJoinAndSelect('quote.quoteDetails', 'quoteDetails')
       .leftJoinAndSelect('quoteDetails.transportServices', 'transportServices')
       .leftJoinAndSelect('quoteDetails.product', 'product')
@@ -505,7 +506,6 @@ export class CartQuotesService {
       .leftJoinAndSelect('supplier.disccounts', 'disccounts')
       .leftJoinAndSelect('disccounts.disccounts', 'discounts')
       .leftJoinAndSelect('refProduct.packings', 'refPackings')
-      .addSelect(['user.company'])
       .where('client.id = :clientId', { clientId: clientId })
       .getMany();
 
@@ -527,7 +527,7 @@ export class CartQuotesService {
         id: cartQuote.id,
         quoteName: cartQuote.quoteName,
         description: cartQuote.description,
-        clientCompany: cartQuote.client.user.company.name,
+        clientCompany: cartQuote?.client?.user?.company?.name,
         destinationCity: cartQuote.destinationCity,
         deliveryAddress: cartQuote.deliveryAddress,
         totalPrice: cartQuote.totalPrice,
