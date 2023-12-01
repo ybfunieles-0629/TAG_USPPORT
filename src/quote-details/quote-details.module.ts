@@ -6,10 +6,12 @@ import { QuoteDetailsController } from './quote-details.controller';
 import { QuoteDetail } from './entities/quote-detail.entity';
 import { CartQuotesModule } from '../cart-quotes/cart-quotes.module';
 import { ProductsModule } from '../products/products.module';
+import { MarkingServicesModule } from '../marking-services/marking-services.module';
 
 @Module({
   imports: [
     CartQuotesModule,
+    MarkingServicesModule,
     ProductsModule,
     TypeOrmModule.forFeature([QuoteDetail]),
   ],

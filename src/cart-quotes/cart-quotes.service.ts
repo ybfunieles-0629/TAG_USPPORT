@@ -455,8 +455,8 @@ export class CartQuotesService {
               marking: markingService.marking.name,
               externalSubTechnique: markingService.externalSubTechnique.name,
               markingServiceProperty: {
-                name: markingService.markingServiceProperty.name,
-                prices: (markingService.markingServiceProperty.markedServicePrices || [])
+                name: markingService?.markingServiceProperty?.name,
+                prices: (markingService?.markingServiceProperty?.markedServicePrices || [])
                   .slice()
                   .sort((a: MarkedServicePrice, b: MarkedServicePrice) => (a?.unitPrice || 0) - (b?.unitPrice || 0))
                   .map((markedServicePrice: MarkedServicePrice) => {
@@ -653,7 +653,7 @@ export class CartQuotesService {
                 marking: markingService.marking.name,
                 externalSubTechnique: markingService.externalSubTechnique.name,
                 markingServiceProperty: {
-                  name: markingService.markingServiceProperty.name,
+                  name: markingService?.markingServiceProperty?.name,
                   prices: (markingService.markingServiceProperty.markedServicePrices || [])
                     .slice()
                     .sort((a: MarkedServicePrice, b: MarkedServicePrice) => (a?.unitPrice || 0) - (b?.unitPrice || 0))

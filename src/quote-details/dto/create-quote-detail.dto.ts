@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsArray, IsInt, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateQuoteDetailDto {
   @IsInt()
@@ -21,6 +21,11 @@ export class CreateQuoteDetailDto {
 
   @IsString()
   product: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  markingServices?: string[];
 
   @IsString()
   @IsUUID()
