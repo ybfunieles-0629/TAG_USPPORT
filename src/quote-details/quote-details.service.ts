@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { plainToClass } from 'class-transformer';
@@ -9,6 +9,7 @@ import { QuoteDetail } from './entities/quote-detail.entity';
 import { CartQuote } from '../cart-quotes/entities/cart-quote.entity';
 import { Product } from '../products/entities/product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { MarkingService } from '../marking-services/entities/marking-service.entity';
 
 @Injectable()
 export class QuoteDetailsService {
@@ -19,14 +20,17 @@ export class QuoteDetailsService {
     @InjectRepository(CartQuote)
     private readonly cartQuoteRepository: Repository<CartQuote>,
 
+    @InjectRepository(MarkingService)
+    private readonly markingServiceRepository: Repository<MarkingService>,
+
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
   ) { }
 
   async create(createQuoteDetailDto: CreateQuoteDetailDto) {
-    const newQuoteDetail = plainToClass(QuoteDetail, createQuoteDetailDto);
+    const newQuoteDetail: QuoteDetail = plainToClass(QuoteDetail, createQuoteDetailDto);
 
-    const cartQuote = await this.cartQuoteRepository.findOne({
+    const cartQuote: CartQuote = await this.cartQuoteRepository.findOne({
       where: {
         id: createQuoteDetailDto.cartQuote,
       },
@@ -35,7 +39,7 @@ export class QuoteDetailsService {
     if (!cartQuote)
       throw new NotFoundException(`Cart quote with id ${createQuoteDetailDto} not found`);
 
-    const product = await this.productRepository.findOne({
+    const product: Product = await this.productRepository.findOne({
       where: {
         id: createQuoteDetailDto.product,
       },
@@ -46,6 +50,28 @@ export class QuoteDetailsService {
 
     newQuoteDetail.cartQuote = cartQuote;
     newQuoteDetail.product = product;
+
+    if (createQuoteDetailDto.markingServices) {
+      const markingServices: MarkingService[] = [];
+      
+      for (const markingServiceId of createQuoteDetailDto.markingServices) {
+        const markingService: MarkingService = await this.markingServiceRepository.findOne({
+          where: {
+            id: markingServiceId,
+          },
+        });
+
+        if (!markingService)
+          throw new NotFoundException(`Marking service with id ${markingServiceId} not found`);
+
+        if (!markingService.isActive)
+          throw new BadRequestException(`Marking service with id ${markingServiceId} is currently inactive`);
+
+        markingServices.push(markingService);
+      }
+      
+      newQuoteDetail.markingServices = markingServices;
+    };
 
     await this.quoteDetailRepository.save(newQuoteDetail);
 
@@ -60,6 +86,9 @@ export class QuoteDetailsService {
     return this.quoteDetailRepository.find({
       take: limit,
       skip: offset,
+      relations: [
+        'markingServices',
+      ],
     });
   }
 
@@ -68,6 +97,9 @@ export class QuoteDetailsService {
       where: {
         id,
       },
+      relations: [
+        'markingServices',
+      ],
     });
 
     if (!quoteDetail)
