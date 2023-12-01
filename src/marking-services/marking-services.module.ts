@@ -6,7 +6,6 @@ import { MarkingServicesController } from './marking-services.controller';
 import { MarkingService } from './entities/marking-service.entity';
 import { MarkingsModule } from '../markings/markings.module';
 import { ExternalSubTechniquesModule } from '../external-sub-techniques/external-sub-techniques.module';
-import { QuoteDetailsModule } from '../quote-details/quote-details.module';
 import { MarkingServicePropertiesModule } from '../marking-service-properties/marking-service-properties.module';
 
 @Module({
@@ -14,7 +13,6 @@ import { MarkingServicePropertiesModule } from '../marking-service-properties/ma
     ExternalSubTechniquesModule,
     MarkingsModule,
     MarkingServicePropertiesModule,
-    QuoteDetailsModule,
     TypeOrmModule.forFeature([MarkingService]),
   ],
   controllers: [MarkingServicesController],

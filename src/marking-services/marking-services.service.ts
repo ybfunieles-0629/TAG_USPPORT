@@ -8,7 +8,6 @@ import { UpdateMarkingServiceDto } from './dto/update-marking-service.dto';
 import { MarkingService } from './entities/marking-service.entity';
 import { Marking } from '../markings/entities/marking.entity';
 import { ExternalSubTechnique } from '../external-sub-techniques/entities/external-sub-technique.entity';
-import { QuoteDetail } from '../quote-details/entities/quote-detail.entity';
 import { MarkingServiceProperty } from '../marking-service-properties/entities/marking-service-property.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 
@@ -26,9 +25,6 @@ export class MarkingServicesService {
 
     @InjectRepository(MarkingServiceProperty)
     private readonly markingServicePropertyRepository: Repository<MarkingServiceProperty>,
-
-    @InjectRepository(QuoteDetail)
-    private readonly quoteDetailRepository: Repository<QuoteDetail>,
   ) { }
 
   async create(createMarkingServiceDto: CreateMarkingServiceDto) {
@@ -61,19 +57,9 @@ export class MarkingServicesService {
     if (!markingServiceProperty)
       throw new NotFoundException(`Marking service property with id ${createMarkingServiceDto.markingServiceProperty} not found`);
 
-    const quoteDetail = await this.quoteDetailRepository.findOne({
-      where: {
-        id: createMarkingServiceDto.quoteDetail,
-      },
-    });
-
-    if (!quoteDetail)
-      throw new NotFoundException(`Quote detail with id ${createMarkingServiceDto.quoteDetail} not found`);
-
     newMarkingService.marking = marking;
     newMarkingService.externalSubTechnique = externalSubTechnique;
     newMarkingService.markingServiceProperty = markingServiceProperty;
-    newMarkingService.quoteDetail = quoteDetail;
 
     await this.markingRepository.save(newMarkingService);
 
@@ -115,19 +101,9 @@ export class MarkingServicesService {
       if (!markingServiceProperty)
         throw new NotFoundException(`Marking service property with id ${createMarkingServiceDto.markingServiceProperty} not found`);
 
-      const quoteDetail = await this.quoteDetailRepository.findOne({
-        where: {
-          id: createMarkingServiceDto.quoteDetail,
-        },
-      });
-
-      if (!quoteDetail)
-        throw new NotFoundException(`Quote detail with id ${createMarkingServiceDto.quoteDetail} not found`);
-
       newMarkingService.marking = marking;
       newMarkingService.externalSubTechnique = externalSubTechnique;
       newMarkingService.markingServiceProperty = markingServiceProperty;
-      newMarkingService.quoteDetail = quoteDetail;
 
       const markingService: MarkingService = await this.markingServiceRepository.save(newMarkingService);
 
@@ -224,15 +200,6 @@ export class MarkingServicesService {
 
     if (!markingServiceProperty)
       throw new NotFoundException(`Marking service property with id ${updateMarkingServiceDto.markingServiceProperty} not found`);
-
-    const quoteDetail = await this.quoteDetailRepository.findOne({
-      where: {
-        id: updateMarkingServiceDto.quoteDetail,
-      },
-    });
-
-    if (!quoteDetail)
-      throw new NotFoundException(`Quote detail with id ${updateMarkingServiceDto.quoteDetail} not found`);
   }
 
   async desactivate(id: string) {
