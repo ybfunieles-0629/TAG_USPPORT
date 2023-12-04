@@ -224,12 +224,11 @@ export class RefProductsService {
       if (!categorySupplier)
         throw new NotFoundException(`Category supplier with id ${result.mainCategory} not found`);
 
-      return { ...result, products: modifiedProducts, mainCategory: categorySupplier };
+      return { ...result, isPending: 1, products: modifiedProducts, mainCategory: categorySupplier };
     }));
 
     return {
       totalCount,
-      isPending: 1,
       results: finalResults,
     };
   }
@@ -265,7 +264,6 @@ export class RefProductsService {
       throw new NotFoundException(`Ref product with id ${id} not found`);
 
     return {
-      isPending: 1,
       refProduct
     };
   }
@@ -433,7 +431,6 @@ export class RefProductsService {
     const paginatedRefProducts: RefProduct[] = refProductsToShow.slice(offset, offset + limit);
 
     return {
-      isPending: 1,
       count: refProductsToShow.length,
       refProducts: paginatedRefProducts
     };
@@ -454,6 +451,7 @@ export class RefProductsService {
       if (refProduct.isAllowed === 0 || refProduct.products.some(product => product.isAllowed === 0)) {
         refProductsToShow.push({
           ...refProduct,
+          isAllowed: 1,
           isPending: 0,
           products: refProduct.products.filter(product => product.isAllowed === 0),
         });
