@@ -440,7 +440,9 @@ export class RefProductsService {
     };
   }
 
-  async filterReferencesByIsAllowed() {
+  async filterReferencesByIsAllowed(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
     const refProducts: RefProduct[] = await this.refProductRepository.find({
       relations: [
         'products',
@@ -458,7 +460,12 @@ export class RefProductsService {
       };
     };
 
-    return refProductsToShow;
+    const paginatedRefProducts: RefProduct[] = refProductsToShow.slice(offset, offset + limit);
+
+    return {
+      count: paginatedRefProducts.length,
+      paginatedRefProducts
+    };
   }
 
   async update(id: string, updateRefProductDto: UpdateRefProductDto) {

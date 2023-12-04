@@ -31,8 +31,10 @@ export class RefProductsController {
   }
 
   @Get('is/allowed')
-  filterReferencesByIsAllowed() {
-    return this.refProductsService.filterReferencesByIsAllowed();
+  filterReferencesByIsAllowed(
+    @Query() paginationDto: PaginationDto
+  ) {
+    return this.refProductsService.filterReferencesByIsAllowed(paginationDto);
   }
 
   @Get(':id')
