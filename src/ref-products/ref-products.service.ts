@@ -442,7 +442,7 @@ export class RefProductsService {
     const refProducts: RefProduct[] = await this.refProductRepository.find({
       relations: [
         'products',
-        'suppliers',
+        'supplier',
       ],
     });
 
