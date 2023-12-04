@@ -453,6 +453,24 @@ export class UsersService {
     });
   }
 
+  async getClientsByCommercial(id: string) {
+    const user: User[] = await this.userRepository.find({
+      where: {
+        id,
+      },
+      relations: [
+        'client'
+      ],
+    });
+
+    if (!user)
+      throw new NotFoundException(`Users not found for commercial user ${id}`);
+
+    return {
+      user
+    };
+  }
+
   async findOne(term: string) {
     let user: User;
 

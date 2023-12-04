@@ -66,6 +66,13 @@ export class UsersController {
     return this.usersService.findOne(term);
   }
 
+  @Get('commercial/clients/:id')
+  getClientsByCommercial(
+    @Param('id', ParseUUIDPipe) id: string,  
+  ) {
+    return this.usersService.getClientsByCommercial(id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
