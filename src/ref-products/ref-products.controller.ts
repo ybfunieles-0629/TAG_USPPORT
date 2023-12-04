@@ -30,14 +30,14 @@ export class RefProductsController {
     return this.refProductsService.filterProducts(filterRefProductsDto, paginationDto);
   }
 
+  @Get('is/allowed')
+  filterReferencesByIsAllowed() {
+    return this.refProductsService.filterReferencesByIsAllowed();
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.refProductsService.findOne(id);
-  }
-
-  @Get('is-allowed')
-  filterReferencesByIsAllowed() {
-    return this.refProductsService.filterReferencesByIsAllowed();
   }
 
   @Patch(':id')
