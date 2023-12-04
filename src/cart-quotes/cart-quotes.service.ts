@@ -762,6 +762,34 @@ export class CartQuotesService {
     };
   }
 
+  async changeStatus(id: string, updateCartQuoteDto: UpdateCartQuoteDto) {
+    const cartQuote = await this.cartQuoteRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!cartQuote)
+      throw new NotFoundException(`Cart quote with id ${id} not found`);
+
+    const state: State = await this.stateRepository.findOne({
+      where: {
+        id: updateCartQuoteDto.state,
+      },
+    });
+
+    if (!state)
+      throw new NotFoundException(`State with id ${updateCartQuoteDto.state} not found`);
+
+    cartQuote.state = state;
+
+    await this.cartQuoteRepository.save(cartQuote);
+
+    return {
+      cartQuote
+    };
+  }
+
   async remove(id: string) {
     const cartQuote = await this.cartQuoteRepository.findOne({
       where: {
