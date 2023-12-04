@@ -438,7 +438,9 @@ export class RefProductsService {
 
   async filterReferencesByIsAllowed() {
     const refProducts: RefProduct[] = await this.refProductRepository.find({
-      relations: ['products'],
+      relations: [
+        'products',
+      ],
     });
 
     const refProductsToShow: RefProduct[] = [];
