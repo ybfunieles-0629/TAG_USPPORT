@@ -35,6 +35,11 @@ export class RefProductsController {
     return this.refProductsService.findOne(id);
   }
 
+  @Get('is-allowed')
+  filterReferencesByIsAllowed() {
+    return this.refProductsService.filterReferencesByIsAllowed();
+  }
+
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
