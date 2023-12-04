@@ -679,7 +679,7 @@ export class CartQuotesService {
   async getCartQuotesByCommercial(id: string, paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
 
-    const paginatedCartQuotes: CartQuote[] = await this.cartQuoteRepository
+    const cartQuotes: CartQuote[] = await this.cartQuoteRepository
       .createQueryBuilder('quote')
       .leftJoinAndSelect('quote.client', 'client')
       .leftJoinAndSelect('client.user', 'user')
@@ -688,8 +688,11 @@ export class CartQuotesService {
       .skip(offset)
       .getMany();
 
+    if (!cartQuotes)
+      throw new NotFoundException(`No cart quotes found for clients with commercial ${id}`);
+
     return {
-      paginatedCartQuotes
+      cartQuotes
     };
   }
 
