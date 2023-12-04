@@ -12,12 +12,10 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { State } from '../states/entities/state.entity';
 import { QuoteDetail } from '../quote-details/entities/quote-detail.entity';
 import { VariantReference } from '../variant-reference/entities/variant-reference.entity';
-import { MarkingServiceProperty } from '../marking-service-properties/entities/marking-service-property.entity';
-import { MarkedServicePrice } from 'src/marked-service-prices/entities/marked-service-price.entity';
-import { MarkingService } from 'src/marking-services/entities/marking-service.entity';
-import { ExternalSubTechnique } from 'src/external-sub-techniques/entities/external-sub-technique.entity';
-import { Logo } from 'src/logos/entities/logo.entity';
-import { Packing } from 'src/packings/entities/packing.entity';
+import { MarkedServicePrice } from '../marked-service-prices/entities/marked-service-price.entity';
+import { MarkingService } from '../marking-services/entities/marking-service.entity';
+import { Logo } from '../logos/entities/logo.entity';
+import { Packing } from '../packings/entities/packing.entity';
 import { LocalTransportPrice } from '../local-transport-prices/entities/local-transport-price.entity';
 
 @Injectable()
@@ -675,6 +673,23 @@ export class CartQuotesService {
 
     return {
       cartQuotes: result
+    };
+  }
+
+  async getCartQuotesByCommercial(id: string, paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    const paginatedCartQuotes: CartQuote[] = await this.cartQuoteRepository
+      .createQueryBuilder('quote')
+      .leftJoinAndSelect('quote.client', 'client')
+      .leftJoinAndSelect('client.user', 'user')
+      .where('user.id = :id', { id })
+      .take(limit)
+      .skip(offset)
+      .getMany();
+
+    return {
+      paginatedCartQuotes
     };
   }
 
