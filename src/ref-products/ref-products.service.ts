@@ -443,6 +443,7 @@ export class RefProductsService {
       relations: [
         'products',
         'supplier',
+        'supplier.user',
       ],
     });
 
