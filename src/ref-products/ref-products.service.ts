@@ -452,12 +452,13 @@ export class RefProductsService {
       ],
     });
 
-    const refProductsToShow: RefProduct[] = [];
+    const refProductsToShow = [];
 
     for (const refProduct of refProducts) {
       if (refProduct.isAllowed === 0 || refProduct.products.some(product => product.isAllowed === 0)) {
         refProductsToShow.push({
           ...refProduct,
+          isPending: 0,
           products: refProduct.products.filter(product => product.isAllowed === 0),
         });
       };
@@ -467,7 +468,6 @@ export class RefProductsService {
 
     return {
       count: paginatedRefProducts.length,
-      isPending: 0,
       paginatedRefProducts
     };
   }
