@@ -229,6 +229,7 @@ export class RefProductsService {
 
     return {
       totalCount,
+      isPending: 1,
       results: finalResults,
     };
   }
@@ -264,6 +265,7 @@ export class RefProductsService {
       throw new NotFoundException(`Ref product with id ${id} not found`);
 
     return {
+      isPending: 1,
       refProduct
     };
   }
@@ -431,6 +433,7 @@ export class RefProductsService {
     const paginatedRefProducts: RefProduct[] = refProductsToShow.slice(offset, offset + limit);
 
     return {
+      isPending: 1,
       count: refProductsToShow.length,
       refProducts: paginatedRefProducts
     };
@@ -460,6 +463,7 @@ export class RefProductsService {
 
     return {
       count: paginatedRefProducts.length,
+      isPending: 0,
       paginatedRefProducts
     };
   }
