@@ -50,6 +50,14 @@ export class CartQuotesController {
     return this.cartQuotesService.desactivate(id);
   }
 
+  @Patch('change-status/:id')
+  changeStatus(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateCartQuoteDto: UpdateCartQuoteDto,
+  ) {
+    return this.cartQuotesService.changeStatus(id, updateCartQuoteDto);
+  }
+
   @Delete(':id')
   remove(
     @Param('id', ParseUUIDPipe) id: string

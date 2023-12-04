@@ -436,6 +436,25 @@ export class RefProductsService {
     };
   }
 
+  async filterReferencesByIsAllowed() {
+    const refProducts: RefProduct[] = await this.refProductRepository.find({
+      relations: ['products'],
+    });
+
+    const refProductsToShow: RefProduct[] = [];
+
+    for (const refProduct of refProducts) {
+      if (refProduct.isAllowed === 0 || refProduct.products.some(product => product.isAllowed === 0)) {
+        refProductsToShow.push({
+          ...refProduct,
+          products: refProduct.products.filter(product => product.isAllowed === 0),
+        });
+      };
+    };
+
+    return refProductsToShow;
+  }
+
   async update(id: string, updateRefProductDto: UpdateRefProductDto) {
     const refProduct = await this.refProductRepository.findOne({
       where: {
