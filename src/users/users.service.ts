@@ -454,17 +454,14 @@ export class UsersService {
   }
 
   async getClientsByCommercial(id: string) {
-    const user: User[] = await this.userRepository.find({
-      where: {
-        id,
-      },
-      relations: [
-        'client'
-      ],
-    });
+    const user: User = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.client', 'client')
+      .where('client.commercialId =: id', { id })
+      .getOne();
 
     if (!user)
-      throw new NotFoundException(`Users not found for commercial user ${id}`);
+      throw new NotFoundException(`Clients not found for commercial user ${id}`);
 
     return {
       user
