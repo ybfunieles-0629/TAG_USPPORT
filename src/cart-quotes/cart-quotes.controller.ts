@@ -35,6 +35,14 @@ export class CartQuotesController {
     return this.cartQuotesService.filterByClient(clientId);
   }
 
+  @Get('commercial/:id')
+  getCartQuotesByCommercial(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query() paginationDto: PaginationDto
+  ) {
+    return this.cartQuotesService.getCartQuotesByCommercial(id, paginationDto);
+  }
+
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
