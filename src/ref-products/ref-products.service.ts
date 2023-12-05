@@ -445,9 +445,24 @@ export class RefProductsService {
 
     const refProducts: RefProduct[] = await this.refProductRepository.find({
       relations: [
+        'images',
+        'categorySuppliers',
+        'deliveryTimes',
+        'markingServiceProperty',
+        'markingServiceProperty.externalSubTechnique',
+        'markingServiceProperty.externalSubTechnique.marking',
+        'packings',
         'products',
+        'products.colors',
+        'products.variantReferences',
+        'products.packings',
+        'products.markingServiceProperties',
+        'products.markingServiceProperties.images',
+        'products.markingServiceProperties.externalSubTechnique',
+        'products.markingServiceProperties.externalSubTechnique.marking',
         'supplier',
         'supplier.user',
+        'variantReferences',
       ],
     });
 
