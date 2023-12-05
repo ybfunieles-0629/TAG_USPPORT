@@ -463,17 +463,17 @@ export class UsersService {
         'admin',
         'admin.clients',
         'admin.clients.user',
+        'admin.clients.user.brands',
+        'admin.clients.user.client',
+        'admin.clients.user.client.addresses',
+        'admin.clients.user.company',
       ],
     });
   
     if (!user)
       throw new NotFoundException(`Clients not found for commercial user ${id}`);
   
-    const clients = user.admin.clients.map(client => classToPlain(client, { exposeDefaultValues: true }));
-  
-    return {
-      clients,
-    };
+    return user.admin.clients.map(client => classToPlain(client, { exposeDefaultValues: true }));
   }
 
   async findOne(term: string) {
