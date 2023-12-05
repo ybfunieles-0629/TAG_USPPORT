@@ -457,8 +457,8 @@ export class UsersService {
   async getClientsByCommercial(id: string) {
     const user: User = await this.userRepository
       .createQueryBuilder('user')
-      .leftJoinAndSelect('user.client', 'client')
-      .where('client.commercialId =: id', { id })
+      .innerJoinAndSelect('user.client', 'client')
+      .andWhere('client.commercialId =:id', { id })
       .getOne();
 
     if (!user)
