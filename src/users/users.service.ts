@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, InternalServerErrorException, 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { validate as isUUID } from 'uuid';
-import { plainToClass } from 'class-transformer';
+import { classToPlain, plainToClass } from 'class-transformer';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
@@ -460,15 +460,19 @@ export class UsersService {
         id,
       },
       relations: [
-        'client',
+        'admin',
+        'admin.clients',
+        'admin.clients.user',
       ],
-    })
-
+    });
+  
     if (!user)
       throw new NotFoundException(`Clients not found for commercial user ${id}`);
-
+  
+    const clients = user.admin.clients.map(client => classToPlain(client, { exposeDefaultValues: true }));
+  
     return {
-      user
+      clients,
     };
   }
 
