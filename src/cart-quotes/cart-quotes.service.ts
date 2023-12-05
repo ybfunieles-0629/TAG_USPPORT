@@ -684,7 +684,7 @@ export class CartQuotesService {
       .leftJoinAndSelect('quote.client', 'client')
       .leftJoinAndSelect('client.user', 'userClient')
       .andWhere('userClient.id =:id', { id })
-      .leftJoinAndSelect('user.admin', 'admin')
+      .leftJoinAndSelect('userClient.admin', 'admin')
       .leftJoinAndSelect('admin.clients', 'clients')
       .leftJoinAndSelect('clients.user', 'clientsUser')
       .take(limit)
