@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { plainToClass } from 'class-transformer';
+import { classToPlain, plainToClass } from 'class-transformer';
 
 import { CreateCartQuoteDto } from './dto/create-cart-quote.dto';
 import { UpdateCartQuoteDto } from './dto/update-cart-quote.dto';
@@ -679,24 +679,26 @@ export class CartQuotesService {
   async getCartQuotesByCommercial(id: string, paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
 
-    const cartQuotes: CartQuote[] = await this.cartQuoteRepository
-      .createQueryBuilder('quote')
-      .leftJoinAndSelect('quote.client', 'client')
-      .leftJoinAndSelect('client.user', 'userClient')
-      .andWhere('userClient.id =:id', { id })
-      .leftJoinAndSelect('userClient.admin', 'admin')
-      .leftJoinAndSelect('admin.clients', 'clients')
-      .leftJoinAndSelect('clients.user', 'clientsUser')
-      .take(limit)
-      .skip(offset)
-      .getMany();
+    const commercialUser = await this.userRepository.findOne({
+      where: { id },
+      relations: [
+        'admin',
+        'admin.clients',
+        'admin.clients.user',
+        'admin.clients.cartQuotes',
+      ],
+    });
 
-    if (!cartQuotes)
-      throw new NotFoundException(`No cart quotes found for clients with commercial ${id}`);
+    if (!commercialUser)
+      throw new NotFoundException(`Commercial user with ID ${id} not found.`);
 
-    return {
-      cartQuotes
-    };
+    const clientsWithCartQuotes = commercialUser.admin.clients.map(client => {
+      const clientInfo = classToPlain(client.user, { exposeDefaultValues: true });
+      clientInfo.cartQuotes = client.cartQuotes.map(cartQuote => classToPlain(cartQuote, { exposeDefaultValues: true }));
+      return clientInfo;
+    });
+
+    return clientsWithCartQuotes;
   }
 
   async update(id: string, updateCartQuoteDto: UpdateCartQuoteDto) {
