@@ -270,7 +270,7 @@ export class UsersService {
       };
     } else {
       payloadToSend = {
-        user: { userId, username, dni, city, address, companyPosition },
+        user: { userId, username, dni, city, address, email, isCoorporative, mainSecondaryUser, companyPosition },
         company: { companyId, billingEmail, nit },
         client: user.client,
         commercialId: user?.client?.commercialId,
