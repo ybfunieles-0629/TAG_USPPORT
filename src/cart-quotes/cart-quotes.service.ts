@@ -681,8 +681,9 @@ export class CartQuotesService {
 
     const cartQuotes: CartQuote[] = await this.cartQuoteRepository
       .createQueryBuilder('quote')
-      .innerJoinAndSelect('quote.client', 'client')
-      .andWhere('client.commercialId =:id', { id })
+      .leftJoinAndSelect('quote.client', 'client')
+      .leftJoinAndSelect('client.user', 'user')
+      .andWhere('user.id =:id', { id })
       .take(limit)
       .skip(offset)
       .getMany();
