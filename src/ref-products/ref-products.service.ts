@@ -308,9 +308,9 @@ export class RefProductsService {
 
       const refProducts: RefProduct[] = await this.refProductRepository
         .createQueryBuilder('refProduct')
-        .innerJoinAndSelect('refProduct.images', 'images')
-        .innerJoinAndSelect('refProduct.products', 'product')
-        .innerJoinAndSelect('product.images', 'productImages')
+        .leftJoinAndSelect('refProduct.images', 'images')
+        .leftJoinAndSelect('refProduct.products', 'product')
+        .leftJoinAndSelect('product.images', 'productImages')
         .where('product.referencePrice BETWEEN :minPrice AND :maxPrice', {
           minPrice,
           maxPrice,
@@ -325,9 +325,9 @@ export class RefProductsService {
 
       const refProducts: RefProduct[] = await this.refProductRepository
         .createQueryBuilder('refProduct')
-        .innerJoinAndSelect('refProduct.images', 'images')
-        .innerJoinAndSelect('refProduct.products', 'product')
-        .innerJoinAndSelect('product.images', 'productImages')
+        .leftJoinAndSelect('refProduct.images', 'images')
+        .leftJoinAndSelect('refProduct.products', 'product')
+        .leftJoinAndSelect('product.images', 'productImages')
         .andWhere('product.referencePrice <= :budget', { budget })
         .getMany();
 
@@ -339,9 +339,9 @@ export class RefProductsService {
 
       const refProducts: RefProduct[] = await this.refProductRepository
         .createQueryBuilder('refProduct')
-        .innerJoinAndSelect('refProduct.images', 'images')
-        .innerJoinAndSelect('refProduct.products', 'product')
-        .innerJoinAndSelect('product.images', 'productImages')
+        .leftJoinAndSelect('refProduct.images', 'images')
+        .leftJoinAndSelect('refProduct.products', 'product')
+        .leftJoinAndSelect('product.images', 'productImages')
         .select(['refProduct.id', 'SUM(product.availableUnit) AS totalAvailableUnit'])
         .groupBy('refProduct.id')
         .having('totalAvailableUnit < :inventory', { inventory })
@@ -355,9 +355,9 @@ export class RefProductsService {
 
       const refProducts: RefProduct[] = await this.refProductRepository
         .createQueryBuilder('refProduct')
-        .innerJoinAndSelect('refProduct.images', 'images')
-        .innerJoinAndSelect('refProduct.products', 'product')
-        .innerJoinAndSelect('product.images', 'productImages')
+        .leftJoinAndSelect('refProduct.images', 'images')
+        .leftJoinAndSelect('refProduct.products', 'product')
+        .leftJoinAndSelect('product.images', 'productImages')
         .andWhere('product.colors IN (:...colorIds)', { colorIds })
         .getMany();
 
@@ -369,9 +369,9 @@ export class RefProductsService {
 
       const refProducts: RefProduct[] = await this.refProductRepository
         .createQueryBuilder('refProduct')
-        .innerJoinAndSelect('refProduct.images', 'images')
-        .innerJoinAndSelect('refProduct.products', 'product')
-        .innerJoinAndSelect('product.images', 'productImages')
+        .leftJoinAndSelect('refProduct.images', 'images')
+        .leftJoinAndSelect('refProduct.products', 'product')
+        .leftJoinAndSelect('product.images', 'productImages')
         .andWhere('product.variantReferences IN (: ...variantReferences)', { variantReferences })
         .getMany();
 
@@ -384,9 +384,9 @@ export class RefProductsService {
       if (isNew) {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
-          .innerJoinAndSelect('refProduct.images', 'images')
-          .innerJoinAndSelect('refProduct.products', 'product')
-          .innerJoinAndSelect('product.images', 'productImages')
+          .leftJoinAndSelect('refProduct.images', 'images')
+          .leftJoinAndSelect('refProduct.products', 'product')
+          .leftJoinAndSelect('product.images', 'productImages')
           .orderBy('product.createdAt', 'DESC')
           .getMany();
 
@@ -400,9 +400,9 @@ export class RefProductsService {
       if (hasDiscount) {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
-          .innerJoinAndSelect('refProduct.images', 'images')
-          .innerJoinAndSelect('refProduct.products', 'product')
-          .innerJoinAndSelect('product.images', 'productImages')
+          .leftJoinAndSelect('refProduct.images', 'images')
+          .leftJoinAndSelect('refProduct.products', 'product')
+          .leftJoinAndSelect('product.images', 'productImages')
           .orderBy('product.disccountPromo', 'DESC')
           .getMany();
 
