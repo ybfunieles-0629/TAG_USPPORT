@@ -678,7 +678,7 @@ export class CartQuotesService {
 
   async getCartQuotesByCommercial(id: string, paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
-
+  
     const commercialUser = await this.userRepository.findOne({
       where: { id },
       relations: [
@@ -686,19 +686,28 @@ export class CartQuotesService {
         'admin.clients',
         'admin.clients.user',
         'admin.clients.cartQuotes',
+        'admin.clients.cartQuotes.client',
+        'admin.clients.cartQuotes.user',
+        'admin.clients.cartQuotes.user.company',
+        'admin.clients.cartQuotes.state',
       ],
     });
-
+  
     if (!commercialUser)
       throw new NotFoundException(`Commercial user with ID ${id} not found.`);
-
+  
     const clientsWithCartQuotes = commercialUser.admin.clients.map(client => {
       const clientInfo = classToPlain(client.user, { exposeDefaultValues: true });
       clientInfo.cartQuotes = client.cartQuotes.map(cartQuote => classToPlain(cartQuote, { exposeDefaultValues: true }));
       return clientInfo;
     });
-
-    return clientsWithCartQuotes;
+  
+    const paginatedResult = clientsWithCartQuotes.slice(offset, offset + limit);
+  
+    return {
+      total: clientsWithCartQuotes.length,
+      items: paginatedResult,
+    };
   }
 
   async update(id: string, updateCartQuoteDto: UpdateCartQuoteDto) {
