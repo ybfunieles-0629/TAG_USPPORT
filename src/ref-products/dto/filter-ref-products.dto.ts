@@ -2,13 +2,13 @@ import { IsArray, IsBoolean, IsInt, IsOptional, IsString } from "class-validator
 
 export class FilterRefProductsDto {
   @IsOptional()
-  @IsString()
-  @IsArray({ each: true })
+  @IsArray()
+  @IsString({ each: true })
   categoryTag?: string[];
 
   @IsOptional()
-  @IsString()
-  @IsArray({ each: true })
+  @IsArray()
+  @IsString({ each: true })
   colors?: string[];
 
   @IsOptional()
@@ -21,8 +21,8 @@ export class FilterRefProductsDto {
   budget?: number;
 
   @IsOptional()
-  @IsString()
-  @IsArray({ each: true })
+  @IsArray()
+  @IsString({ each: true })
   variantReferences?: string[];
 
   @IsOptional()
