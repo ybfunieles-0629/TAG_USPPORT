@@ -315,6 +315,10 @@ export class RefProductsService {
         .leftJoinAndSelect('refProduct.images', 'images')
         .leftJoinAndSelect('refProduct.products', 'product')
         .leftJoinAndSelect('product.images', 'productImages')
+        .leftJoinAndSelect('product.colors', 'productColors')
+        .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+        .leftJoinAndSelect('product.packings', 'productPackings')
+        .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
         .where('product.referencePrice BETWEEN :minPrice AND :maxPrice', {
           minPrice,
           maxPrice,
@@ -332,6 +336,10 @@ export class RefProductsService {
         .leftJoinAndSelect('refProduct.images', 'images')
         .leftJoinAndSelect('refProduct.products', 'product')
         .leftJoinAndSelect('product.images', 'productImages')
+        .leftJoinAndSelect('product.colors', 'productColors')
+        .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+        .leftJoinAndSelect('product.packings', 'productPackings')
+        .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
         .andWhere('product.referencePrice <= :budget', { budget })
         .getMany();
 
@@ -346,6 +354,10 @@ export class RefProductsService {
         .leftJoinAndSelect('refProduct.images', 'images')
         .leftJoinAndSelect('refProduct.products', 'product')
         .leftJoinAndSelect('product.images', 'productImages')
+        .leftJoinAndSelect('product.colors', 'productColors')
+        .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+        .leftJoinAndSelect('product.packings', 'productPackings')
+        .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
         .select(['refProduct.id', 'SUM(product.availableUnit) AS totalAvailableUnit'])
         .groupBy('refProduct.id')
         .having('totalAvailableUnit < :inventory', { inventory })
@@ -362,6 +374,10 @@ export class RefProductsService {
         .leftJoinAndSelect('refProduct.images', 'images')
         .leftJoinAndSelect('refProduct.products', 'product')
         .leftJoinAndSelect('product.images', 'productImages')
+        .leftJoinAndSelect('product.colors', 'productColors')
+        .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+        .leftJoinAndSelect('product.packings', 'productPackings')
+        .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
         .andWhere('product.colors IN (:...colorIds)', { colorIds })
         .getMany();
 
@@ -376,6 +392,10 @@ export class RefProductsService {
         .leftJoinAndSelect('refProduct.images', 'images')
         .leftJoinAndSelect('refProduct.products', 'product')
         .leftJoinAndSelect('product.images', 'productImages')
+        .leftJoinAndSelect('product.colors', 'productColors')
+        .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+        .leftJoinAndSelect('product.packings', 'productPackings')
+        .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
         .andWhere('product.variantReferences IN (: ...variantReferences)', { variantReferences })
         .getMany();
 
@@ -391,6 +411,10 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.images', 'images')
           .leftJoinAndSelect('refProduct.products', 'product')
           .leftJoinAndSelect('product.images', 'productImages')
+          .leftJoinAndSelect('product.colors', 'productColors')
+          .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+          .leftJoinAndSelect('product.packings', 'productPackings')
+          .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
           .orderBy('product.createdAt', 'DESC')
           .getMany();
 
@@ -407,6 +431,10 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.images', 'images')
           .leftJoinAndSelect('refProduct.products', 'product')
           .leftJoinAndSelect('product.images', 'productImages')
+          .leftJoinAndSelect('product.colors', 'productColors')
+          .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+          .leftJoinAndSelect('product.packings', 'productPackings')
+          .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
           .orderBy('product.disccountPromo', 'DESC')
           .getMany();
 
@@ -446,10 +474,57 @@ export class RefProductsService {
       });
     };
 
-    const paginatedRefProducts: RefProduct[] = refProductsToShow.slice(offset, offset + limit);
+    const finalResults = await Promise.all(refProductsToShow.map(async (result) => {
+      const modifiedProducts = await Promise.all(result.products.map(async (product) => {
+        const burnPriceTable = [];
+
+        const initialValue: number = product.referencePrice;
+        let changingValue: number = initialValue;
+
+        const staticQuantities: number[] = [
+          1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
+          150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
+          1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
+          7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
+          100000, 200000,
+        ];
+
+        for (let i = 0; i < staticQuantities.length; i++) {
+          let prices = {
+            quantity: staticQuantities[i],
+            value: changingValue,
+          };
+
+          burnPriceTable.push(prices);
+
+          const percentageDiscount: number = 0.01;
+
+          let value: number = changingValue * (1 - percentageDiscount);
+
+          value = Math.round(value);
+
+          changingValue = value;
+        }
+
+        return { ...product, burnPriceTable };
+      }));
+
+      const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+        where: {
+          id: result.mainCategory,
+        },
+      });
+
+      if (!categorySupplier)
+        throw new NotFoundException(`Category supplier with id ${result.mainCategory} not found`);
+
+      return { ...result, isPending: 1, products: modifiedProducts, mainCategory: categorySupplier };
+    }));
+
+    const paginatedRefProducts = finalResults.slice(offset, offset + limit);
 
     return {
-      count: refProductsToShow.length,
+      count: finalResults.length,
       refProducts: paginatedRefProducts
     };
   }
