@@ -274,10 +274,8 @@ export class RefProductsService {
     let refProductsToShow: RefProduct[] = [];
 
     if (filterRefProductsDto.categoryTag) {
-      const categorySuppliersFound: CategorySupplier[] = [];
-
       for (const categoryTagId of filterRefProductsDto.categoryTag) {
-        const categoryTag: CategoryTag[] = await this.categoryTagRepository.find({
+        const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
           where: {
             id: categoryTagId,
           },
@@ -286,21 +284,43 @@ export class RefProductsService {
           ],
         });
 
-        if (!categoryTag)
-          throw new NotFoundException(`Category tag with id ${categoryTagId} not found`);
+        const mainCategoryId = categoryTag.mainCategory;
+        const parentCategoryId = categoryTag.parentCategory;
 
-        categoryTag.forEach(category => {
-          category.categorySuppliers.forEach(categorySupplier => {
-            categorySuppliersFound.push(categorySupplier);
+        const categorySuppliersWithTagId: CategorySupplier[] = await this.categorySupplierRepository
+          .createQueryBuilder('categorySupplier')
+          .leftJoinAndSelect('categorySupplier.categoryTag', 'categoryTag')
+          .andWhere('categoryTag.id =:categoryTagId', { categoryTagId })
+          .getMany();
+
+        const categorySuppliersWithMainId: CategorySupplier[] = await this.categorySupplierRepository
+          .createQueryBuilder('categorySupplier')
+          .where('categorySupplier.mainCategory =:mainCategoryId', { mainCategoryId })
+          .getMany();
+
+        const categorySuppliersWithParentId: CategorySupplier[] = await this.categorySupplierRepository
+          .createQueryBuilder('categorySupplier')
+          .where('categorySupplier.parentCategory =:parentCategoryId', { parentCategoryId })
+          .getMany();
+
+        categorySuppliersWithTagId.forEach(categorySupplier => {
+          categorySupplier.refProducts.forEach(refProduct => {
+            refProductsToShow.push(refProduct);
           });
         });
-      }
-
-      categorySuppliersFound.forEach(categorySupplier => {
-        categorySupplier.refProducts.forEach(refProduct => {
-          refProductsToShow.push(refProduct);
+        
+        categorySuppliersWithMainId.forEach(categorySupplier => {
+          categorySupplier.refProducts.forEach(refProduct => {
+            refProductsToShow.push(refProduct);
+          });
         });
-      });
+
+        categorySuppliersWithParentId.forEach(categorySupplier => {
+          categorySupplier.refProducts.forEach(refProduct => {
+            refProductsToShow.push(refProduct);
+          });
+        });
+      };
     };
 
     if (filterRefProductsDto.prices) {
