@@ -690,6 +690,8 @@ export class CartQuotesService {
         'admin.clients.cartQuotes.user',
         'admin.clients.cartQuotes.user.company',
         'admin.clients.cartQuotes.state',
+        'admin.clients.cartQuotes.quoteDetails',
+        'admin.clients.cartQuotes.quoteDetails.product'
       ],
     });
   
