@@ -478,37 +478,94 @@ export class CartQuotesService {
   }
 
 
-  async filterByClient(clientId: string) {
-    const cartQuotes: CartQuote[] = await this.cartQuoteRepository
-      .createQueryBuilder('quote')
-      .leftJoinAndSelect('quote.state', 'state')
-      .leftJoinAndSelect('quote.client', 'client')
-      .leftJoinAndSelect('client.user', 'user')
-      .leftJoinAndSelect('user.company', 'company')
-      .leftJoinAndSelect('quote.quoteDetails', 'quoteDetails')
-      .leftJoinAndSelect('quoteDetails.transportServices', 'transportServices')
-      .leftJoinAndSelect('quoteDetails.product', 'product')
-      .leftJoinAndSelect('product.colors', 'colors')
-      .leftJoinAndSelect('product.variantReferences', 'variantReferences')
-      .leftJoinAndSelect('product.images', 'images')
-      .leftJoinAndSelect('quoteDetails.markingServices', 'markingServices')
-      .leftJoinAndSelect('markingServices.logos', 'logos')
-      .leftJoinAndSelect('markingServices.marking', 'marking')
-      .leftJoinAndSelect('markingServices.externalSubTechnique', 'externalSubTechnique')
-      .leftJoinAndSelect('markingServices.markingServiceProperty', 'markingServiceProperty')
-      .leftJoinAndSelect('markingServiceProperty.markedServicePrices', 'markedServicePrices')
-      .leftJoinAndSelect('product.packings', 'packings')
-      .leftJoinAndSelect('product.refProduct', 'refProduct')
-      .leftJoinAndSelect('refProduct.images', 'refImages')
-      .leftJoinAndSelect('refProduct.supplier', 'supplier')
-      .leftJoinAndSelect('supplier.disccounts', 'disccounts')
-      .leftJoinAndSelect('disccounts.disccounts', 'discounts')
-      .leftJoinAndSelect('refProduct.packings', 'refPackings')
-      .where('client.id = :clientId', { clientId: clientId })
-      .getMany();
+  async filterByClient(id: string, isCommercial: any) {
+    let cartQuotes: CartQuote[] = [];
+
+    if (isCommercial === 1) {
+      const commercialUser = await this.userRepository.findOne({
+        where: { id },
+        relations: [
+          'admin',
+          'admin.clients',
+          'admin.clients.user',
+          'admin.clients.cartQuotes',
+          'admin.clients.cartQuotes.client',
+          'admin.clients.cartQuotes.user',
+          'admin.clients.cartQuotes.user.company',
+          'admin.clients.cartQuotes.state',
+          'admin.clients.cartQuotes.quoteDetails',
+          'admin.clients.cartQuotes.quoteDetails.transportServices',
+          'admin.clients.cartQuotes.quoteDetails.product',
+          'admin.clients.cartQuotes.quoteDetails.product.colors',
+          'admin.clients.cartQuotes.quoteDetails.product.variantReferences',
+          'admin.clients.cartQuotes.quoteDetails.product.images',
+          'admin.clients.cartQuotes.quoteDetails.product.packings',
+          'admin.clients.cartQuotes.quoteDetails.product.refProduct',
+          'admin.clients.cartQuotes.quoteDetails.product.refProduct.images',
+          'admin.clients.cartQuotes.quoteDetails.product.refProduct.packings',
+          'admin.clients.cartQuotes.quoteDetails.product.refProduct.supplier',
+          'admin.clients.cartQuotes.quoteDetails.product.refProduct.supplier.disccounts',
+          'admin.clients.cartQuotes.quoteDetails.product.refProduct.supplier.disccounts.disccounts',
+          'admin.clients.cartQuotes.quoteDetails.markingServices',
+          'admin.clients.cartQuotes.quoteDetails.markingServices.logos',
+          'admin.clients.cartQuotes.quoteDetails.markingServices.marking',
+          'admin.clients.cartQuotes.quoteDetails.markingServices.externalSubTechnique',
+          'admin.clients.cartQuotes.quoteDetails.markingServices.markingServiceProperty',
+          'admin.clients.cartQuotes.quoteDetails.markingServices.markingServiceProperty.markedServicePrices',
+        ],
+      });
+    
+      if (!commercialUser)
+        throw new NotFoundException(`Commercial user with ID ${id} not found.`);
+    
+      const clientsWithCartQuotes = commercialUser.admin.clients.map(client => {
+        const clientInfo = classToPlain(client.user, { exposeDefaultValues: true });
+        clientInfo.cartQuotes = client.cartQuotes.map(cartQuote => classToPlain(cartQuote, { exposeDefaultValues: true }));
+        return clientInfo;
+      });
+
+      cartQuotes = clientsWithCartQuotes.map(client => {
+        const cartQuotesForClient = client.cartQuotes.map(cartQuote =>
+          plainToClass(CartQuote, cartQuote)
+        );
+      
+        return {
+          ...plainToClass(CartQuote, client),
+          cartQuotes: cartQuotesForClient,
+        };
+      });
+    } else {
+      cartQuotes = await this.cartQuoteRepository
+        .createQueryBuilder('quote')
+        .leftJoinAndSelect('quote.state', 'state')
+        .leftJoinAndSelect('quote.client', 'client')
+        .leftJoinAndSelect('client.user', 'user')
+        .leftJoinAndSelect('user.company', 'company')
+        .leftJoinAndSelect('quote.quoteDetails', 'quoteDetails')
+        .leftJoinAndSelect('quoteDetails.transportServices', 'transportServices')
+        .leftJoinAndSelect('quoteDetails.product', 'product')
+        .leftJoinAndSelect('product.colors', 'colors')
+        .leftJoinAndSelect('product.variantReferences', 'variantReferences')
+        .leftJoinAndSelect('product.images', 'images')
+        .leftJoinAndSelect('quoteDetails.markingServices', 'markingServices')
+        .leftJoinAndSelect('markingServices.logos', 'logos')
+        .leftJoinAndSelect('markingServices.marking', 'marking')
+        .leftJoinAndSelect('markingServices.externalSubTechnique', 'externalSubTechnique')
+        .leftJoinAndSelect('markingServices.markingServiceProperty', 'markingServiceProperty')
+        .leftJoinAndSelect('markingServiceProperty.markedServicePrices', 'markedServicePrices')
+        .leftJoinAndSelect('product.packings', 'packings')
+        .leftJoinAndSelect('product.refProduct', 'refProduct')
+        .leftJoinAndSelect('refProduct.images', 'refImages')
+        .leftJoinAndSelect('refProduct.supplier', 'supplier')
+        .leftJoinAndSelect('supplier.disccounts', 'disccounts')
+        .leftJoinAndSelect('disccounts.disccounts', 'discounts')
+        .leftJoinAndSelect('refProduct.packings', 'refPackings')
+        .where('client.id = :clientId', { id })
+        .getMany();
+    }
 
     if (!cartQuotes || cartQuotes.length === 0)
-      throw new NotFoundException(`Cart quotes for client ${clientId} not found`);
+      throw new NotFoundException(`Cart quotes for client ${id} not found`);
 
     const localTransportPricesDb: LocalTransportPrice[] = await this.localTransportPriceRepository.find({
       where: {
@@ -673,42 +730,6 @@ export class CartQuotesService {
 
     return {
       cartQuotes: result
-    };
-  }
-
-  async getCartQuotesByCommercial(id: string, paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
-  
-    const commercialUser = await this.userRepository.findOne({
-      where: { id },
-      relations: [
-        'admin',
-        'admin.clients',
-        'admin.clients.user',
-        'admin.clients.cartQuotes',
-        'admin.clients.cartQuotes.client',
-        'admin.clients.cartQuotes.user',
-        'admin.clients.cartQuotes.user.company',
-        'admin.clients.cartQuotes.state',
-        'admin.clients.cartQuotes.quoteDetails',
-        'admin.clients.cartQuotes.quoteDetails.product'
-      ],
-    });
-  
-    if (!commercialUser)
-      throw new NotFoundException(`Commercial user with ID ${id} not found.`);
-  
-    const clientsWithCartQuotes = commercialUser.admin.clients.map(client => {
-      const clientInfo = classToPlain(client.user, { exposeDefaultValues: true });
-      clientInfo.cartQuotes = client.cartQuotes.map(cartQuote => classToPlain(cartQuote, { exposeDefaultValues: true }));
-      return clientInfo;
-    });
-  
-    const paginatedResult = clientsWithCartQuotes.slice(offset, offset + limit);
-  
-    return {
-      total: clientsWithCartQuotes.length,
-      items: paginatedResult,
     };
   }
 
