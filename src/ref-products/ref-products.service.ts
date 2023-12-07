@@ -298,6 +298,7 @@ export class RefProductsService {
         const categorySuppliersWithTagId: CategorySupplier[] = await this.categorySupplierRepository
           .createQueryBuilder('categorySupplier')
           .leftJoinAndSelect('categorySupplier.refProducts', 'refProducts')
+          .leftJoinAndSelect('refProducts.images', 'images')
           .leftJoinAndSelect('refProducts.products', 'products')
           .leftJoinAndSelect('categorySupplier.categoryTag', 'categoryTag')
           .where('categoryTag.id =:categoryTagId', { categoryTagId })
@@ -306,6 +307,7 @@ export class RefProductsService {
         const categorySuppliersWithMainId: CategorySupplier[] = await this.categorySupplierRepository
           .createQueryBuilder('categorySupplier')
           .leftJoinAndSelect('categorySupplier.refProducts', 'refProducts')
+          .leftJoinAndSelect('refProducts.images', 'images')
           .leftJoinAndSelect('refProducts.products', 'products')
           .leftJoinAndSelect('categorySupplier.categoryTag', 'categoryTag')
           .where('categoryTag.id =:mainCategoryId', { mainCategoryId })
@@ -314,6 +316,7 @@ export class RefProductsService {
         const categorySuppliersWithParentId: CategorySupplier[] = await this.categorySupplierRepository
           .createQueryBuilder('categorySupplier')
           .leftJoinAndSelect('categorySupplier.refProducts', 'refProducts')
+          .leftJoinAndSelect('refProducts.images', 'images')
           .leftJoinAndSelect('refProducts.products', 'products')
           .leftJoinAndSelect('categorySupplier.categoryTag', 'categoryTag')
           .where('categoryTag.id =:parentCategoryId', { parentCategoryId })
@@ -325,7 +328,24 @@ export class RefProductsService {
               mainCategory: categorySupplier.id,
             },
             relations: [
+              'images',
+              'categorySuppliers',
+              'deliveryTimes',
+              'markingServiceProperty',
+              'markingServiceProperty.externalSubTechnique',
+              'markingServiceProperty.externalSubTechnique.marking',
+              'packings',
               'products',
+              'products.colors',
+              'products.variantReferences',
+              'products.packings',
+              'products.markingServiceProperties',
+              'products.markingServiceProperties.images',
+              'products.markingServiceProperties.externalSubTechnique',
+              'products.markingServiceProperties.externalSubTechnique.marking',
+              'supplier',
+              'supplier.user',
+              'variantReferences',
             ],
           });
 
@@ -338,7 +358,24 @@ export class RefProductsService {
               mainCategory: categorySupplier.id,
             },
             relations: [
+              'images',
+              'categorySuppliers',
+              'deliveryTimes',
+              'markingServiceProperty',
+              'markingServiceProperty.externalSubTechnique',
+              'markingServiceProperty.externalSubTechnique.marking',
+              'packings',
               'products',
+              'products.colors',
+              'products.variantReferences',
+              'products.packings',
+              'products.markingServiceProperties',
+              'products.markingServiceProperties.images',
+              'products.markingServiceProperties.externalSubTechnique',
+              'products.markingServiceProperties.externalSubTechnique.marking',
+              'supplier',
+              'supplier.user',
+              'variantReferences',
             ],
           });
 
@@ -351,7 +388,24 @@ export class RefProductsService {
               mainCategory: categorySupplier.id,
             },
             relations: [
+              'images',
+              'categorySuppliers',
+              'deliveryTimes',
+              'markingServiceProperty',
+              'markingServiceProperty.externalSubTechnique',
+              'markingServiceProperty.externalSubTechnique.marking',
+              'packings',
               'products',
+              'products.colors',
+              'products.variantReferences',
+              'products.packings',
+              'products.markingServiceProperties',
+              'products.markingServiceProperties.images',
+              'products.markingServiceProperties.externalSubTechnique',
+              'products.markingServiceProperties.externalSubTechnique.marking',
+              'supplier',
+              'supplier.user',
+              'variantReferences',
             ],
           });
 
@@ -383,13 +437,24 @@ export class RefProductsService {
       } else {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
+          .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+          .leftJoinAndSelect('refProduct.packings', 'packings')
+          .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
+          .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
+          .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
+          .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
+          .leftJoinAndSelect('refProduct.supplier', 'supplier')
+          .leftJoinAndSelect('supplier.user', 'user')
+          .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
           .leftJoinAndSelect('refProduct.images', 'images')
           .leftJoinAndSelect('refProduct.products', 'product')
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.colors', 'productColors')
           .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
           .leftJoinAndSelect('product.packings', 'productPackings')
-          .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
+          .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
+          .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'externalSubTechnique')
+          .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
           .where('product.referencePrice BETWEEN :minPrice AND :maxPrice', {
             minPrice,
             maxPrice,
@@ -421,13 +486,24 @@ export class RefProductsService {
       } else {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
+          .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+          .leftJoinAndSelect('refProduct.packings', 'packings')
+          .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
+          .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
+          .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
+          .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
+          .leftJoinAndSelect('refProduct.supplier', 'supplier')
+          .leftJoinAndSelect('supplier.user', 'user')
+          .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
           .leftJoinAndSelect('refProduct.images', 'images')
           .leftJoinAndSelect('refProduct.products', 'product')
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.colors', 'productColors')
           .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
           .leftJoinAndSelect('product.packings', 'productPackings')
-          .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
+          .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
+          .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'externalSubTechnique')
+          .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
           .andWhere('product.referencePrice <= :budget', { budget })
           .getMany();
 
@@ -456,13 +532,24 @@ export class RefProductsService {
       } else {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
+          .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+          .leftJoinAndSelect('refProduct.packings', 'packings')
+          .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
+          .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
+          .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
+          .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
+          .leftJoinAndSelect('refProduct.supplier', 'supplier')
+          .leftJoinAndSelect('supplier.user', 'user')
+          .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
           .leftJoinAndSelect('refProduct.images', 'images')
           .leftJoinAndSelect('refProduct.products', 'product')
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.colors', 'productColors')
           .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
           .leftJoinAndSelect('product.packings', 'productPackings')
-          .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
+          .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
+          .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'externalSubTechnique')
+          .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
           .select(['refProduct.id', 'SUM(product.availableUnit) AS totalAvailableUnit'])
           .groupBy('refProduct.id')
           .having('totalAvailableUnit < :inventory', { inventory })
@@ -493,13 +580,24 @@ export class RefProductsService {
       } else {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
+          .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+          .leftJoinAndSelect('refProduct.packings', 'packings')
+          .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
+          .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
+          .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
+          .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
+          .leftJoinAndSelect('refProduct.supplier', 'supplier')
+          .leftJoinAndSelect('supplier.user', 'user')
+          .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
           .leftJoinAndSelect('refProduct.images', 'images')
           .leftJoinAndSelect('refProduct.products', 'product')
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.colors', 'productColors')
           .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
           .leftJoinAndSelect('product.packings', 'productPackings')
-          .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
+          .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
+          .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'externalSubTechnique')
+          .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
           .andWhere('product.colors IN (:...colorIds)', { colorIds })
           .getMany();
 
@@ -532,13 +630,24 @@ export class RefProductsService {
       } else {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
+          .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+          .leftJoinAndSelect('refProduct.packings', 'packings')
+          .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
+          .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
+          .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
+          .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
+          .leftJoinAndSelect('refProduct.supplier', 'supplier')
+          .leftJoinAndSelect('supplier.user', 'user')
+          .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
           .leftJoinAndSelect('refProduct.images', 'images')
           .leftJoinAndSelect('refProduct.products', 'product')
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.colors', 'productColors')
           .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
           .leftJoinAndSelect('product.packings', 'productPackings')
-          .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
+          .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
+          .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'externalSubTechnique')
+          .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
           .andWhere('product.variantReferences IN (: ...variantReferences)', { variantReferences })
           .getMany();
 
@@ -561,13 +670,24 @@ export class RefProductsService {
         } else {
           const refProducts: RefProduct[] = await this.refProductRepository
             .createQueryBuilder('refProduct')
+            .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+            .leftJoinAndSelect('refProduct.packings', 'packings')
+            .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
+            .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
+            .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
+            .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
+            .leftJoinAndSelect('refProduct.supplier', 'supplier')
+            .leftJoinAndSelect('supplier.user', 'user')
+            .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
             .leftJoinAndSelect('refProduct.images', 'images')
             .leftJoinAndSelect('refProduct.products', 'product')
             .leftJoinAndSelect('product.images', 'productImages')
             .leftJoinAndSelect('product.colors', 'productColors')
             .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
             .leftJoinAndSelect('product.packings', 'productPackings')
-            .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
+            .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
+            .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'externalSubTechnique')
+            .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
             .orderBy('product.createdAt', 'DESC')
             .getMany();
 
@@ -589,13 +709,24 @@ export class RefProductsService {
         } else {
           const refProducts: RefProduct[] = await this.refProductRepository
             .createQueryBuilder('refProduct')
+            .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+            .leftJoinAndSelect('refProduct.packings', 'packings')
+            .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
+            .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
+            .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
+            .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
+            .leftJoinAndSelect('refProduct.supplier', 'supplier')
+            .leftJoinAndSelect('supplier.user', 'user')
+            .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
             .leftJoinAndSelect('refProduct.images', 'images')
             .leftJoinAndSelect('refProduct.products', 'product')
             .leftJoinAndSelect('product.images', 'productImages')
             .leftJoinAndSelect('product.colors', 'productColors')
             .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
             .leftJoinAndSelect('product.packings', 'productPackings')
-            .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
+            .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
+            .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'externalSubTechnique')
+            .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
             .orderBy('product.disccountPromo', 'DESC')
             .getMany();
 
