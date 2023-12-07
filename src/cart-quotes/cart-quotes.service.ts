@@ -481,7 +481,9 @@ export class CartQuotesService {
   async filterByClient(id: string, isCommercial: any) {
     let cartQuotes: CartQuote[] = [];
 
-    if (isCommercial === 1) {
+    const { isCommercial: isCommercialUser = 0 } = isCommercial;
+
+    if (isCommercialUser == 1) {
       const commercialUser = await this.userRepository.findOne({
         where: { id },
         relations: [
@@ -490,6 +492,7 @@ export class CartQuotesService {
           'admin.clients.user',
           'admin.clients.cartQuotes',
           'admin.clients.cartQuotes.client',
+          'admin.clients.cartQuotes.client.user',
           'admin.clients.cartQuotes.user',
           'admin.clients.cartQuotes.user.company',
           'admin.clients.cartQuotes.state',
@@ -514,31 +517,27 @@ export class CartQuotesService {
           'admin.clients.cartQuotes.quoteDetails.markingServices.markingServiceProperty.markedServicePrices',
         ],
       });
-    
+
       if (!commercialUser)
         throw new NotFoundException(`Commercial user with ID ${id} not found.`);
-    
+
       const clientsWithCartQuotes = commercialUser.admin.clients.map(client => {
         const clientInfo = classToPlain(client.user, { exposeDefaultValues: true });
         clientInfo.cartQuotes = client.cartQuotes.map(cartQuote => classToPlain(cartQuote, { exposeDefaultValues: true }));
         return clientInfo;
       });
 
-      cartQuotes = clientsWithCartQuotes.map(client => {
-        const cartQuotesForClient = client.cartQuotes.map(cartQuote =>
+      cartQuotes = clientsWithCartQuotes.flatMap(client => {
+        return client.cartQuotes.map(cartQuote =>
           plainToClass(CartQuote, cartQuote)
         );
-      
-        return {
-          ...plainToClass(CartQuote, client),
-          cartQuotes: cartQuotesForClient,
-        };
       });
     } else {
       cartQuotes = await this.cartQuoteRepository
         .createQueryBuilder('quote')
         .leftJoinAndSelect('quote.state', 'state')
         .leftJoinAndSelect('quote.client', 'client')
+        .where('client.id =:id', { id })
         .leftJoinAndSelect('client.user', 'user')
         .leftJoinAndSelect('user.company', 'company')
         .leftJoinAndSelect('quote.quoteDetails', 'quoteDetails')
@@ -560,7 +559,6 @@ export class CartQuotesService {
         .leftJoinAndSelect('supplier.disccounts', 'disccounts')
         .leftJoinAndSelect('disccounts.disccounts', 'discounts')
         .leftJoinAndSelect('refProduct.packings', 'refPackings')
-        .where('client.id = :clientId', { id })
         .getMany();
     }
 
@@ -575,8 +573,6 @@ export class CartQuotesService {
 
     const result = cartQuotes.map((cartQuote: CartQuote) => {
       let markingTotalPrice: number = 0;
-
-      console.log(cartQuote.client.user);
 
       return {
         id: cartQuote.id,
