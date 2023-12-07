@@ -810,6 +810,8 @@ export class RefProductsService {
       return { ...result, isPending: 1, products: modifiedProducts, mainCategory: categorySupplier };
     }));
 
+    refProductsToShow = refProductsToShow.filter((refProduct) => refProduct.products.length > 0);
+    
     const paginatedRefProducts = finalResults.slice(offset, offset + limit);
 
     return {
