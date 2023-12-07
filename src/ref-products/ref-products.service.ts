@@ -593,7 +593,7 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.products', 'product')
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.colors', 'productColors')
-          .andWhere('productColors IN (:...colorIds)', { colorIds })
+          .andWhere('productColors.id IN (:...colorIds)', { colorIds })
           .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
           .leftJoinAndSelect('product.packings', 'productPackings')
           .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
@@ -760,13 +760,43 @@ export class RefProductsService {
       const searchKeywords: string = filterRefProductsDto.keywords.toLowerCase();
       const keywordsArray: string[] = searchKeywords.split(' ');
 
-      refProductsToShow = refProductsToShow.filter((refProduct) => {
-        const productKeywords: string = (refProduct.keywords || '').toLowerCase();
+      if (refProductsToShow.length > 0) {
+        refProductsToShow = refProductsToShow.filter((refProduct) => {
+          const productKeywords: string = (refProduct.keywords || '').toLowerCase();
 
-        return keywordsArray.every(keyword => productKeywords.includes(keyword));
-      });
+          return keywordsArray.every(keyword => productKeywords.includes(keyword));
+        });
+      } else {
+        const refProducts: RefProduct[] = await this.refProductRepository
+          .createQueryBuilder('refProduct')
+          .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+          .leftJoinAndSelect('refProduct.packings', 'packings')
+          .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
+          .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
+          .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
+          .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
+          .leftJoinAndSelect('refProduct.supplier', 'supplier')
+          .leftJoinAndSelect('supplier.user', 'user')
+          .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
+          .leftJoinAndSelect('refProduct.images', 'images')
+          .leftJoinAndSelect('refProduct.products', 'product')
+          .leftJoinAndSelect('product.images', 'productImages')
+          .leftJoinAndSelect('product.colors', 'productColors')
+          .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+          .leftJoinAndSelect('product.packings', 'productPackings')
+          .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
+          .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'markingExternalSubTechnique')
+          .leftJoinAndSelect('markingExternalSubTechnique.marking', 'markingExternalSubTechniqueMarking')
+          .where(
+            keywordsArray.map(keyword => `LOWER(refProduct.keywords) REGEXP :keyword`).join(' OR '),
+            { keyword: keywordsArray }
+          )
+          .getMany();
+
+        refProductsToShow.push(...refProducts)
+      };
     };
-    
+
     refProductsToShow = refProductsToShow.filter((refProduct) => refProduct.products.length > 0);
 
     const finalResults = await Promise.all(refProductsToShow.map(async (result) => {
@@ -815,7 +845,7 @@ export class RefProductsService {
 
       return { ...result, isPending: 1, products: modifiedProducts, mainCategory: categorySupplier };
     }));
-    
+
     const paginatedRefProducts = finalResults.slice(offset, offset + limit);
 
     return {
