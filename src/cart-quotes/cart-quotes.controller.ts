@@ -28,20 +28,21 @@ export class CartQuotesController {
     return this.cartQuotesService.findOne(id);
   }
 
-  @Get('/filter-by-client/:clientId')
+  @Get('/filter-by-client/:id')
   filterByClient(
-    @Param('clientId', ParseUUIDPipe) clientId: string,
-  ) {
-    return this.cartQuotesService.filterByClient(clientId);
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query() isCommercial: any
+    ) {
+    return this.cartQuotesService.filterByClient(id, isCommercial);
   }
 
-  @Get('commercial/:id')
-  getCartQuotesByCommercial(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Query() paginationDto: PaginationDto
-  ) {
-    return this.cartQuotesService.getCartQuotesByCommercial(id, paginationDto);
-  }
+  // @Get('commercial/:id')
+  // getCartQuotesByCommercial(
+  //   @Param('id', ParseUUIDPipe) id: string,
+  //   @Query() paginationDto: PaginationDto
+  // ) {
+  //   return this.cartQuotesService.getCartQuotesByCommercial(id, paginationDto);
+  // }
 
   @Patch(':id')
   update(
