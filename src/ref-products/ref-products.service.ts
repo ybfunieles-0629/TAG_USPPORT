@@ -441,7 +441,7 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.packings', 'packings')
           .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
           .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
-          .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'markingExternalSubTechnique')
+          .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
           .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
           .leftJoinAndSelect('refProduct.supplier', 'supplier')
           .leftJoinAndSelect('supplier.user', 'user')
@@ -454,7 +454,7 @@ export class RefProductsService {
           .leftJoinAndSelect('product.packings', 'productPackings')
           .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
           .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'markingExternalSubTechnique')
-          .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
+          .leftJoinAndSelect('markingExternalSubTechnique.marking', 'markingExternalSubTechniqueMarking')
           .where('product.referencePrice BETWEEN :minPrice AND :maxPrice', {
             minPrice,
             maxPrice,
@@ -490,7 +490,7 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.packings', 'packings')
           .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
           .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
-          .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'markingExternalSubTechnique')
+          .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
           .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
           .leftJoinAndSelect('refProduct.supplier', 'supplier')
           .leftJoinAndSelect('supplier.user', 'user')
@@ -503,7 +503,7 @@ export class RefProductsService {
           .leftJoinAndSelect('product.packings', 'productPackings')
           .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
           .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'markingExternalSubTechnique')
-          .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
+          .leftJoinAndSelect('markingExternalSubTechnique.marking', 'markingExternalSubTechniqueMarking')
           .andWhere('product.referencePrice <= :budget', { budget })
           .getMany();
 
@@ -536,7 +536,7 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.packings', 'packings')
           .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
           .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
-          .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'markingExternalSubTechnique')
+          .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
           .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
           .leftJoinAndSelect('refProduct.supplier', 'supplier')
           .leftJoinAndSelect('supplier.user', 'user')
@@ -549,7 +549,7 @@ export class RefProductsService {
           .leftJoinAndSelect('product.packings', 'productPackings')
           .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
           .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'markingExternalSubTechnique')
-          .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
+          .leftJoinAndSelect('markingExternalSubTechnique.marking', 'markingExternalSubTechniqueMarking')
           .select(['refProduct.id', 'SUM(product.availableUnit) AS totalAvailableUnit'])
           .groupBy('refProduct.id')
           .having('totalAvailableUnit < :inventory', { inventory })
@@ -584,7 +584,7 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.packings', 'packings')
           .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
           .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
-          .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'markingExternalSubTechnique')
+          .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
           .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
           .leftJoinAndSelect('refProduct.supplier', 'supplier')
           .leftJoinAndSelect('supplier.user', 'user')
@@ -597,7 +597,7 @@ export class RefProductsService {
           .leftJoinAndSelect('product.packings', 'productPackings')
           .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
           .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'markingExternalSubTechnique')
-          .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
+          .leftJoinAndSelect('markingExternalSubTechnique.marking', 'markingExternalSubTechniqueMarking')
           .andWhere('product.colors IN (:...colorIds)', { colorIds })
           .getMany();
 
@@ -634,7 +634,7 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.packings', 'packings')
           .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
           .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
-          .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'markingExternalSubTechnique')
+          .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
           .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
           .leftJoinAndSelect('refProduct.supplier', 'supplier')
           .leftJoinAndSelect('supplier.user', 'user')
@@ -647,7 +647,7 @@ export class RefProductsService {
           .leftJoinAndSelect('product.packings', 'productPackings')
           .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
           .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'markingExternalSubTechnique')
-          .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
+          .leftJoinAndSelect('markingExternalSubTechnique.marking', 'markingExternalSubTechniqueMarking')
           .andWhere('product.variantReferences IN (: ...variantReferences)', { variantReferences })
           .getMany();
 
@@ -687,7 +687,7 @@ export class RefProductsService {
             .leftJoinAndSelect('product.packings', 'productPackings')
             .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
             .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'markingExternalSubTechnique')
-            .leftJoinAndSelect('markingExternalSubTechnique.marking', 'marking')
+            .leftJoinAndSelect('markingExternalSubTechnique.marking', 'markingExternalSubTechniqueMarking')
             .orderBy('product.createdAt', 'DESC')
             .getMany();
 
@@ -713,7 +713,7 @@ export class RefProductsService {
             .leftJoinAndSelect('refProduct.packings', 'packings')
             .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
             .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
-            .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'markingExternalSubTechnique')
+            .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
             .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
             .leftJoinAndSelect('refProduct.supplier', 'supplier')
             .leftJoinAndSelect('supplier.user', 'user')
@@ -726,7 +726,7 @@ export class RefProductsService {
             .leftJoinAndSelect('product.packings', 'productPackings')
             .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
             .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'markingExternalSubTechnique')
-            .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
+            .leftJoinAndSelect('markingExternalSubTechnique.marking', 'markingExternalSubTechniqueMarking')
             .orderBy('product.disccountPromo', 'DESC')
             .getMany();
 
