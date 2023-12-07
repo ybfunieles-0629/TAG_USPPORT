@@ -284,44 +284,56 @@ export class RefProductsService {
           ],
         });
 
+        if (!categoryTag)
+          throw new NotFoundException(`Category tag with id ${categoryTagId} not found`);
+
         const mainCategoryId = categoryTag.mainCategory;
         const parentCategoryId = categoryTag.parentCategory;
 
         const categorySuppliersWithTagId: CategorySupplier[] = await this.categorySupplierRepository
           .createQueryBuilder('categorySupplier')
+          .leftJoinAndSelect('categorySupplier.refProducts', 'refProducts')
+          .leftJoinAndSelect('refProducts.products', 'products')
           .leftJoinAndSelect('categorySupplier.categoryTag', 'categoryTag')
-          .andWhere('categoryTag.id =:categoryTagId', { categoryTagId })
+          .where('categoryTag.id =:categoryTagId', { categoryTagId })
           .getMany();
 
         const categorySuppliersWithMainId: CategorySupplier[] = await this.categorySupplierRepository
           .createQueryBuilder('categorySupplier')
+          .leftJoinAndSelect('categorySupplier.refProducts', 'refProducts')
+          .leftJoinAndSelect('refProducts.products', 'products')
+          .leftJoinAndSelect('categorySupplier.categoryTag', 'categoryTag')
           .where('categorySupplier.mainCategory =:mainCategoryId', { mainCategoryId })
           .getMany();
 
         const categorySuppliersWithParentId: CategorySupplier[] = await this.categorySupplierRepository
           .createQueryBuilder('categorySupplier')
+          .leftJoinAndSelect('categorySupplier.refProducts', 'refProducts')
+          .leftJoinAndSelect('refProducts.products', 'products')
+          .leftJoinAndSelect('categorySupplier.categoryTag', 'categoryTag')
           .where('categorySupplier.parentCategory =:parentCategoryId', { parentCategoryId })
           .getMany();
 
-        categorySuppliersWithTagId.forEach(categorySupplier => {
-          categorySupplier.refProducts.forEach(refProduct => {
-            refProductsToShow.push(refProduct);
-          });
+        console.log(categoryTag);
+        console.log(categorySuppliersWithTagId);
+        console.log(categorySuppliersWithParentId);
+        console.log(categorySuppliersWithMainId);
+
+        categorySuppliersWithTagId.forEach((categorySupplier: CategorySupplier) => {
+          refProductsToShow.push(...categorySupplier.refProducts);
         });
-        
+
         categorySuppliersWithMainId.forEach(categorySupplier => {
-          categorySupplier.refProducts.forEach(refProduct => {
-            refProductsToShow.push(refProduct);
-          });
+          refProductsToShow.push(...categorySupplier.refProducts);
         });
 
         categorySuppliersWithParentId.forEach(categorySupplier => {
-          categorySupplier.refProducts.forEach(refProduct => {
-            refProductsToShow.push(refProduct);
-          });
+          refProductsToShow.push(...categorySupplier.refProducts);
         });
       };
     };
+
+    console.log(refProductsToShow);
 
     if (filterRefProductsDto.prices) {
       const [minPrice, maxPrice]: number[] = filterRefProductsDto.prices;
