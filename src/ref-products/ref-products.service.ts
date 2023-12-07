@@ -315,31 +315,33 @@ export class RefProductsService {
           .where('categoryTag.id =:parentCategoryId', { parentCategoryId })
           .getMany();
 
-        for (const categorySupplier of categorySuppliersWithTagId) {
+        const promisesTagId: Promise<void>[] = categorySuppliersWithTagId.map(async (categorySupplier: CategorySupplier) => {
           const refProducts: RefProduct[] = await this.refProductRepository.find({
             where: {
               mainCategory: categorySupplier.id,
             },
+            relations: [
+              'products',
+            ],
           });
 
-          console.log(refProducts);
-
           refProductsToShow.push(...refProducts);
-        }
+        });
 
-        for (const categorySupplier of categorySuppliersWithMainId) {
+        const promisesMainId: Promise<void>[] = categorySuppliersWithMainId.map(async (categorySupplier: CategorySupplier) => {
           const refProducts: RefProduct[] = await this.refProductRepository.find({
             where: {
               mainCategory: categorySupplier.id,
             },
+            relations: [
+              'products',
+            ],
           });
 
-          console.log(refProducts);
-
           refProductsToShow.push(...refProducts);
-        }
+        });
 
-        const promises: Promise<void>[] = categorySuppliersWithParentId.map(async (categorySupplier: CategorySupplier) => {
+        const promisesParentId: Promise<void>[] = categorySuppliersWithParentId.map(async (categorySupplier: CategorySupplier) => {
           const refProducts: RefProduct[] = await this.refProductRepository.find({
             where: {
               mainCategory: categorySupplier.id,
@@ -352,146 +354,249 @@ export class RefProductsService {
           refProductsToShow.push(...categorySupplier.refProducts, ...refProducts);
         });
 
-        await Promise.all(promises);
+        await Promise.all([...promisesMainId, ...promisesParentId, ...promisesTagId]);
       }
     }
 
     if (filterRefProductsDto.prices) {
       const [minPrice, maxPrice]: number[] = filterRefProductsDto.prices;
 
-      // if (refProductsToShow.length > 0) {
+      if (refProductsToShow.length > 0) {
+        const filteredRefProducts = refProductsToShow
+          .filter((refProduct: RefProduct) => {
+            if (
+              refProduct.products &&
+              refProduct.products.some(
+                (product) => product.referencePrice >= minPrice && product.referencePrice <= maxPrice
+              )
+            ) {
+              return true;
+            }
+            return false;
+          });
 
-      // };
+        refProductsToShow = filteredRefProducts;
+      } else {
+        const refProducts: RefProduct[] = await this.refProductRepository
+          .createQueryBuilder('refProduct')
+          .leftJoinAndSelect('refProduct.images', 'images')
+          .leftJoinAndSelect('refProduct.products', 'product')
+          .leftJoinAndSelect('product.images', 'productImages')
+          .leftJoinAndSelect('product.colors', 'productColors')
+          .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+          .leftJoinAndSelect('product.packings', 'productPackings')
+          .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
+          .where('product.referencePrice BETWEEN :minPrice AND :maxPrice', {
+            minPrice,
+            maxPrice,
+          })
+          .getMany();
 
-      const refProducts: RefProduct[] = await this.refProductRepository
-        .createQueryBuilder('refProduct')
-        .leftJoinAndSelect('refProduct.images', 'images')
-        .leftJoinAndSelect('refProduct.products', 'product')
-        .leftJoinAndSelect('product.images', 'productImages')
-        .leftJoinAndSelect('product.colors', 'productColors')
-        .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
-        .leftJoinAndSelect('product.packings', 'productPackings')
-        .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
-        .where('product.referencePrice BETWEEN :minPrice AND :maxPrice', {
-          minPrice,
-          maxPrice,
-        })
-        .getMany();
-
-      refProductsToShow.push(...refProducts);
+        refProductsToShow.push(...refProducts);
+      }
     };
 
     if (filterRefProductsDto.budget) {
       const budget: number = filterRefProductsDto.budget;
 
-      const refProducts: RefProduct[] = await this.refProductRepository
-        .createQueryBuilder('refProduct')
-        .leftJoinAndSelect('refProduct.images', 'images')
-        .leftJoinAndSelect('refProduct.products', 'product')
-        .leftJoinAndSelect('product.images', 'productImages')
-        .leftJoinAndSelect('product.colors', 'productColors')
-        .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
-        .leftJoinAndSelect('product.packings', 'productPackings')
-        .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
-        .andWhere('product.referencePrice <= :budget', { budget })
-        .getMany();
+      if (refProductsToShow.length > 0) {
+        const filteredRefProducts = refProductsToShow
+          .filter((refProduct: RefProduct) => {
+            if (
+              refProduct.products &&
+              refProduct.products.some(
+                (product) => product.referencePrice <= budget
+              )
+            ) {
+              return true;
+            }
+            return false;
+          });
 
-      refProductsToShow.push(...refProducts);
+        refProductsToShow = filteredRefProducts;
+      } else {
+        const refProducts: RefProduct[] = await this.refProductRepository
+          .createQueryBuilder('refProduct')
+          .leftJoinAndSelect('refProduct.images', 'images')
+          .leftJoinAndSelect('refProduct.products', 'product')
+          .leftJoinAndSelect('product.images', 'productImages')
+          .leftJoinAndSelect('product.colors', 'productColors')
+          .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+          .leftJoinAndSelect('product.packings', 'productPackings')
+          .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
+          .andWhere('product.referencePrice <= :budget', { budget })
+          .getMany();
+
+        refProductsToShow.push(...refProducts);
+      }
     };
 
     if (filterRefProductsDto.inventory) {
       const inventory: number = filterRefProductsDto.inventory;
 
-      const refProducts: RefProduct[] = await this.refProductRepository
-        .createQueryBuilder('refProduct')
-        .leftJoinAndSelect('refProduct.images', 'images')
-        .leftJoinAndSelect('refProduct.products', 'product')
-        .leftJoinAndSelect('product.images', 'productImages')
-        .leftJoinAndSelect('product.colors', 'productColors')
-        .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
-        .leftJoinAndSelect('product.packings', 'productPackings')
-        .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
-        .select(['refProduct.id', 'SUM(product.availableUnit) AS totalAvailableUnit'])
-        .groupBy('refProduct.id')
-        .having('totalAvailableUnit < :inventory', { inventory })
-        .getMany();
+      if (refProductsToShow.length > 0) {
+        const filteredRefProducts = refProductsToShow
+          .filter((refProduct: RefProduct) => {
+            if (
+              refProduct.products &&
+              refProduct.products.some(
+                (product) => product.availableUnit === inventory
+              )
+            ) {
+              return true;
+            }
+            return false;
+          });
 
-      refProductsToShow.push(...refProducts);
+        refProductsToShow = filteredRefProducts;
+      } else {
+        const refProducts: RefProduct[] = await this.refProductRepository
+          .createQueryBuilder('refProduct')
+          .leftJoinAndSelect('refProduct.images', 'images')
+          .leftJoinAndSelect('refProduct.products', 'product')
+          .leftJoinAndSelect('product.images', 'productImages')
+          .leftJoinAndSelect('product.colors', 'productColors')
+          .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+          .leftJoinAndSelect('product.packings', 'productPackings')
+          .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
+          .select(['refProduct.id', 'SUM(product.availableUnit) AS totalAvailableUnit'])
+          .groupBy('refProduct.id')
+          .having('totalAvailableUnit < :inventory', { inventory })
+          .getMany();
+
+        refProductsToShow.push(...refProducts);
+      }
     };
 
     if (filterRefProductsDto.colors) {
       const colorIds: string[] = filterRefProductsDto.colors;
 
-      const refProducts: RefProduct[] = await this.refProductRepository
-        .createQueryBuilder('refProduct')
-        .leftJoinAndSelect('refProduct.images', 'images')
-        .leftJoinAndSelect('refProduct.products', 'product')
-        .leftJoinAndSelect('product.images', 'productImages')
-        .leftJoinAndSelect('product.colors', 'productColors')
-        .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
-        .leftJoinAndSelect('product.packings', 'productPackings')
-        .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
-        .andWhere('product.colors IN (:...colorIds)', { colorIds })
-        .getMany();
+      if (refProductsToShow.length > 0) {
+        const filteredRefProducts = refProductsToShow
+          .filter((refProduct: RefProduct) => {
+            if (
+              refProduct.products &&
+              refProduct.products.some(
+                (product) => product.colors.some((color) => color.id && colorIds.includes(color.id))
+              )
+            ) {
+              return true;
+            }
+            return false;
+          });
 
-      refProductsToShow.push(...refProducts);
+        refProductsToShow = filteredRefProducts;
+      } else {
+        const refProducts: RefProduct[] = await this.refProductRepository
+          .createQueryBuilder('refProduct')
+          .leftJoinAndSelect('refProduct.images', 'images')
+          .leftJoinAndSelect('refProduct.products', 'product')
+          .leftJoinAndSelect('product.images', 'productImages')
+          .leftJoinAndSelect('product.colors', 'productColors')
+          .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+          .leftJoinAndSelect('product.packings', 'productPackings')
+          .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
+          .andWhere('product.colors IN (:...colorIds)', { colorIds })
+          .getMany();
+
+        refProductsToShow.push(...refProducts);
+      }
     };
 
     if (filterRefProductsDto.variantReferences) {
       const variantReferences: string[] = filterRefProductsDto.variantReferences;
 
-      const refProducts: RefProduct[] = await this.refProductRepository
-        .createQueryBuilder('refProduct')
-        .leftJoinAndSelect('refProduct.images', 'images')
-        .leftJoinAndSelect('refProduct.products', 'product')
-        .leftJoinAndSelect('product.images', 'productImages')
-        .leftJoinAndSelect('product.colors', 'productColors')
-        .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
-        .leftJoinAndSelect('product.packings', 'productPackings')
-        .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
-        .andWhere('product.variantReferences IN (: ...variantReferences)', { variantReferences })
-        .getMany();
+      if (refProductsToShow.length > 0) {
+        const filteredRefProducts = refProductsToShow
+          .filter((refProduct: RefProduct) => {
+            if (
+              refProduct.products &&
+              refProduct.products.some(
+                (product) =>
+                  product.variantReferences &&
+                  product.variantReferences.some(
+                    (variantRef: VariantReference) => variantReferences.includes(variantRef.id)
+                  )
+              )
+            ) {
+              return true;
+            }
+            return false;
+          });
 
-      refProductsToShow.push(...refProducts);
+        refProductsToShow = filteredRefProducts;
+      } else {
+        const refProducts: RefProduct[] = await this.refProductRepository
+          .createQueryBuilder('refProduct')
+          .leftJoinAndSelect('refProduct.images', 'images')
+          .leftJoinAndSelect('refProduct.products', 'product')
+          .leftJoinAndSelect('product.images', 'productImages')
+          .leftJoinAndSelect('product.colors', 'productColors')
+          .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+          .leftJoinAndSelect('product.packings', 'productPackings')
+          .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
+          .andWhere('product.variantReferences IN (: ...variantReferences)', { variantReferences })
+          .getMany();
+
+        refProductsToShow.push(...refProducts);
+      }
     };
 
     if (filterRefProductsDto.isNew) {
       const isNew: boolean = filterRefProductsDto.isNew;
 
       if (isNew) {
-        const refProducts: RefProduct[] = await this.refProductRepository
-          .createQueryBuilder('refProduct')
-          .leftJoinAndSelect('refProduct.images', 'images')
-          .leftJoinAndSelect('refProduct.products', 'product')
-          .leftJoinAndSelect('product.images', 'productImages')
-          .leftJoinAndSelect('product.colors', 'productColors')
-          .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
-          .leftJoinAndSelect('product.packings', 'productPackings')
-          .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
-          .orderBy('product.createdAt', 'DESC')
-          .getMany();
+        if (refProductsToShow.length > 0) {
+          refProductsToShow.forEach((refProduct: RefProduct) => {
+            if (refProduct.products && refProduct.products.length > 0) {
+              refProduct.products.sort((a, b) => {
+                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+              });
+            }
+          });
+        } else {
+          const refProducts: RefProduct[] = await this.refProductRepository
+            .createQueryBuilder('refProduct')
+            .leftJoinAndSelect('refProduct.images', 'images')
+            .leftJoinAndSelect('refProduct.products', 'product')
+            .leftJoinAndSelect('product.images', 'productImages')
+            .leftJoinAndSelect('product.colors', 'productColors')
+            .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+            .leftJoinAndSelect('product.packings', 'productPackings')
+            .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
+            .orderBy('product.createdAt', 'DESC')
+            .getMany();
 
-        refProductsToShow.push(...refProducts);
-      };
+          refProductsToShow.push(...refProducts);
+        };
+      }
     };
 
     if (filterRefProductsDto.hasDiscount) {
       const hasDiscount: boolean = filterRefProductsDto.hasDiscount;
 
       if (hasDiscount) {
-        const refProducts: RefProduct[] = await this.refProductRepository
-          .createQueryBuilder('refProduct')
-          .leftJoinAndSelect('refProduct.images', 'images')
-          .leftJoinAndSelect('refProduct.products', 'product')
-          .leftJoinAndSelect('product.images', 'productImages')
-          .leftJoinAndSelect('product.colors', 'productColors')
-          .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
-          .leftJoinAndSelect('product.packings', 'productPackings')
-          .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
-          .orderBy('product.disccountPromo', 'DESC')
-          .getMany();
+        if (refProductsToShow.length > 0) {
+          refProductsToShow.forEach((refProduct: RefProduct) => {
+            if (refProduct.products && refProduct.products.length > 0) {
+              refProduct.products.sort((a, b) => b.disccountPromo - a.disccountPromo);
+            }
+          });
+        } else {
+          const refProducts: RefProduct[] = await this.refProductRepository
+            .createQueryBuilder('refProduct')
+            .leftJoinAndSelect('refProduct.images', 'images')
+            .leftJoinAndSelect('refProduct.products', 'product')
+            .leftJoinAndSelect('product.images', 'productImages')
+            .leftJoinAndSelect('product.colors', 'productColors')
+            .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+            .leftJoinAndSelect('product.packings', 'productPackings')
+            .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
+            .orderBy('product.disccountPromo', 'DESC')
+            .getMany();
 
-        refProductsToShow.push(...refProducts);
+          refProductsToShow.push(...refProducts);
+        }
       };
     };
 
