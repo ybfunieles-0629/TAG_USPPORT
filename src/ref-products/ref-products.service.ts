@@ -674,7 +674,7 @@ export class RefProductsService {
             .leftJoinAndSelect('refProduct.packings', 'packings')
             .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
             .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
-            .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'markingExternalSubTechnique')
+            .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
             .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
             .leftJoinAndSelect('refProduct.supplier', 'supplier')
             .leftJoinAndSelect('supplier.user', 'user')
@@ -687,7 +687,7 @@ export class RefProductsService {
             .leftJoinAndSelect('product.packings', 'productPackings')
             .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
             .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'markingExternalSubTechnique')
-            .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
+            .leftJoinAndSelect('markingExternalSubTechnique.marking', 'marking')
             .orderBy('product.createdAt', 'DESC')
             .getMany();
 
