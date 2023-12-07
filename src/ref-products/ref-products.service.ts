@@ -589,12 +589,12 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.products', 'product')
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.colors', 'productColors')
+          .andWhere('productColors IN (:...colorIds)', { colorIds })
           .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
           .leftJoinAndSelect('product.packings', 'productPackings')
           .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
           .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'markingExternalSubTechnique')
           .leftJoinAndSelect('markingExternalSubTechnique.marking', 'markingExternalSubTechniqueMarking')
-          .andWhere('product.colors IN (:...colorIds)', { colorIds })
           .getMany();
 
         refProductsToShow.push(...refProducts);
