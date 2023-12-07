@@ -12,8 +12,8 @@ export class FilterRefProductsDto {
   colors?: string[];
 
   @IsOptional()
-  @IsInt()
   @IsArray()
+  @IsInt({ each: true })
   prices?: number[];
 
   @IsOptional()

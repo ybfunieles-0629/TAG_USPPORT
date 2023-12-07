@@ -284,8 +284,9 @@ export class RefProductsService {
           ],
         });
 
-        if (!categoryTag)
+        if (!categoryTag) {
           throw new NotFoundException(`Category tag with id ${categoryTagId} not found`);
+        }
 
         const mainCategoryId = categoryTag.mainCategory;
         const parentCategoryId = categoryTag.parentCategory;
@@ -303,7 +304,7 @@ export class RefProductsService {
           .leftJoinAndSelect('categorySupplier.refProducts', 'refProducts')
           .leftJoinAndSelect('refProducts.products', 'products')
           .leftJoinAndSelect('categorySupplier.categoryTag', 'categoryTag')
-          .where('categorySupplier.mainCategory =:mainCategoryId', { mainCategoryId })
+          .where('categoryTag.id =:mainCategoryId', { mainCategoryId })
           .getMany();
 
         const categorySuppliersWithParentId: CategorySupplier[] = await this.categorySupplierRepository
@@ -311,32 +312,56 @@ export class RefProductsService {
           .leftJoinAndSelect('categorySupplier.refProducts', 'refProducts')
           .leftJoinAndSelect('refProducts.products', 'products')
           .leftJoinAndSelect('categorySupplier.categoryTag', 'categoryTag')
-          .where('categorySupplier.parentCategory =:parentCategoryId', { parentCategoryId })
+          .where('categoryTag.id =:parentCategoryId', { parentCategoryId })
           .getMany();
 
-        console.log(categoryTag);
-        console.log(categorySuppliersWithTagId);
-        console.log(categorySuppliersWithParentId);
-        console.log(categorySuppliersWithMainId);
+        for (const categorySupplier of categorySuppliersWithTagId) {
+          const refProducts: RefProduct[] = await this.refProductRepository.find({
+            where: {
+              mainCategory: categorySupplier.id,
+            },
+          });
 
-        categorySuppliersWithTagId.forEach((categorySupplier: CategorySupplier) => {
-          refProductsToShow.push(...categorySupplier.refProducts);
+          console.log(refProducts);
+
+          refProductsToShow.push(...refProducts);
+        }
+
+        for (const categorySupplier of categorySuppliersWithMainId) {
+          const refProducts: RefProduct[] = await this.refProductRepository.find({
+            where: {
+              mainCategory: categorySupplier.id,
+            },
+          });
+
+          console.log(refProducts);
+
+          refProductsToShow.push(...refProducts);
+        }
+
+        const promises: Promise<void>[] = categorySuppliersWithParentId.map(async (categorySupplier: CategorySupplier) => {
+          const refProducts: RefProduct[] = await this.refProductRepository.find({
+            where: {
+              mainCategory: categorySupplier.id,
+            },
+            relations: [
+              'products',
+            ],
+          });
+
+          refProductsToShow.push(...categorySupplier.refProducts, ...refProducts);
         });
 
-        categorySuppliersWithMainId.forEach(categorySupplier => {
-          refProductsToShow.push(...categorySupplier.refProducts);
-        });
-
-        categorySuppliersWithParentId.forEach(categorySupplier => {
-          refProductsToShow.push(...categorySupplier.refProducts);
-        });
-      };
-    };
-
-    console.log(refProductsToShow);
+        await Promise.all(promises);
+      }
+    }
 
     if (filterRefProductsDto.prices) {
       const [minPrice, maxPrice]: number[] = filterRefProductsDto.prices;
+
+      // if (refProductsToShow.length > 0) {
+
+      // };
 
       const refProducts: RefProduct[] = await this.refProductRepository
         .createQueryBuilder('refProduct')
