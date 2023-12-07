@@ -762,6 +762,8 @@ export class RefProductsService {
         return keywordsArray.every(keyword => productKeywords.includes(keyword));
       });
     };
+    
+    refProductsToShow = refProductsToShow.filter((refProduct) => refProduct.products.length > 0);
 
     const finalResults = await Promise.all(refProductsToShow.map(async (result) => {
       const modifiedProducts = await Promise.all(result.products.map(async (product) => {
@@ -809,8 +811,6 @@ export class RefProductsService {
 
       return { ...result, isPending: 1, products: modifiedProducts, mainCategory: categorySupplier };
     }));
-
-    refProductsToShow = refProductsToShow.filter((refProduct) => refProduct.products.length > 0);
     
     const paginatedRefProducts = finalResults.slice(offset, offset + limit);
 
