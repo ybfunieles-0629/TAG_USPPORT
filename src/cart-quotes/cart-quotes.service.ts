@@ -141,7 +141,7 @@ export class CartQuotesService {
         state: cartQuote.state?.name || '',
         products: cartQuote.quoteDetails.map((quoteDetail: QuoteDetail) => {
           return {
-            name: quoteDetail.product.refProduct.name,
+            name: quoteDetail.product?.refProduct?.name || '',
             unitPrice: quoteDetail.unitPrice,
             quantity: quoteDetail.quantities,
             image: quoteDetail.product?.refProduct?.images[0]?.url || 'default.png',
@@ -254,10 +254,10 @@ export class CartQuotesService {
                 }),
                 calculatedMarkingPrice: markingService.calculatedMarkingPrice,
                 markingTransportPrice: markingService.markingTransportPrice,
-                marking: markingService.marking.name,
+                marking: markingService?.marking?.name || '',
                 externalSubTechnique: markingService.externalSubTechnique.name,
                 markingServiceProperty: {
-                  name: markingService.markingServiceProperty.name,
+                  name: markingService.markingServiceProperty?.name || '',
                   prices: (markingService.markingServiceProperty.markedServicePrices || [])
                     .slice()
                     .sort((a: MarkedServicePrice, b: MarkedServicePrice) => (a?.unitPrice || 0) - (b?.unitPrice || 0))
@@ -701,10 +701,10 @@ export class CartQuotesService {
                 }),
                 calculatedMarkingPrice: markingService.calculatedMarkingPrice,
                 markingTransportPrice: markingService.markingTransportPrice,
-                marking: markingService.marking.name,
+                marking: markingService?.marking?.name || '',
                 externalSubTechnique: markingService.externalSubTechnique.name,
                 markingServiceProperty: {
-                  name: markingService?.markingServiceProperty?.name,
+                  name: markingService?.markingServiceProperty?.name || '',
                   prices: (markingService.markingServiceProperty.markedServicePrices || [])
                     .slice()
                     .sort((a: MarkedServicePrice, b: MarkedServicePrice) => (a?.unitPrice || 0) - (b?.unitPrice || 0))
