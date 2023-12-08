@@ -145,7 +145,7 @@ export class CartQuotesService {
             unitPrice: quoteDetail.unitPrice,
             quantity: quoteDetail.quantities,
             image: quoteDetail.product?.refProduct?.images[0]?.url || 'default.png',
-            color: quoteDetail.product.colors[0].name,
+            color: quoteDetail.product?.colors[0]?.name || '',
             samplePrice: quoteDetail.product.samplePrice,
             iva: quoteDetail.product.iva,
             refundSampleTime: quoteDetail.product.refundSampleTime,
@@ -241,21 +241,21 @@ export class CartQuotesService {
               }),
             variantReferences: quoteDetail.product.variantReferences.map((variantReference: VariantReference) => {
               return {
-                name: variantReference.name,
+                name: variantReference?.name || '',
               };
             }),
             markingServices: quoteDetail.markingServices.map((markingService: MarkingService) => {
               return {
                 logo: markingService.logos.map((logo: Logo) => {
                   return {
-                    logo: logo.logo,
-                    mounting: logo.mounting
+                    logo: logo?.logo || '',
+                    mounting: logo?.mounting || ''
                   };
                 }),
                 calculatedMarkingPrice: markingService.calculatedMarkingPrice,
                 markingTransportPrice: markingService.markingTransportPrice,
                 marking: markingService?.marking?.name || '',
-                externalSubTechnique: markingService.externalSubTechnique.name,
+                externalSubTechnique: markingService?.externalSubTechnique?.name || '',
                 markingServiceProperty: {
                   name: markingService.markingServiceProperty?.name || '',
                   prices: (markingService.markingServiceProperty.markedServicePrices || [])
@@ -592,7 +592,7 @@ export class CartQuotesService {
             unitPrice: quoteDetail.unitPrice,
             quantity: quoteDetail.quantities,
             image: quoteDetail.product?.refProduct?.images[0]?.url || 'default.png',
-            color: quoteDetail.product.colors[0].name,
+            color: quoteDetail.product?.colors[0]?.name || '',
             samplePrice: quoteDetail.product.samplePrice,
             refundSampleTime: quoteDetail.product.refundSampleTime,
             iva: quoteDetail.product.iva,
@@ -688,15 +688,15 @@ export class CartQuotesService {
               }),
             variantReferences: quoteDetail.product.variantReferences.map((variantReference: VariantReference) => {
               return {
-                name: variantReference.name,
+                name: variantReference?.name || '',
               };
             }),
             markingServices: quoteDetail?.markingServices?.map((markingService: MarkingService) => {
               return {
                 logo: markingService?.logos?.map((logo: Logo) => {
                   return {
-                    logo: logo.logo,
-                    mounting: logo.mounting
+                    logo: logo?.logo || '',
+                    mounting: logo?.mounting || ''
                   };
                 }),
                 calculatedMarkingPrice: markingService?.calculatedMarkingPrice || '',
