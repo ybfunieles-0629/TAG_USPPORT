@@ -691,18 +691,18 @@ export class CartQuotesService {
                 name: variantReference.name,
               };
             }),
-            markingServices: quoteDetail.markingServices.map((markingService: MarkingService) => {
+            markingServices: quoteDetail?.markingServices?.map((markingService: MarkingService) => {
               return {
-                logo: markingService.logos.map((logo: Logo) => {
+                logo: markingService?.logos?.map((logo: Logo) => {
                   return {
                     logo: logo.logo,
                     mounting: logo.mounting
                   };
                 }),
-                calculatedMarkingPrice: markingService.calculatedMarkingPrice,
-                markingTransportPrice: markingService.markingTransportPrice,
+                calculatedMarkingPrice: markingService?.calculatedMarkingPrice || '',
+                markingTransportPrice: markingService?.markingTransportPrice || '',
                 marking: markingService?.marking?.name || '',
-                externalSubTechnique: markingService.externalSubTechnique.name,
+                externalSubTechnique: markingService?.externalSubTechnique?.name || '',
                 markingServiceProperty: {
                   name: markingService?.markingServiceProperty?.name || '',
                   prices: (markingService.markingServiceProperty.markedServicePrices || [])
