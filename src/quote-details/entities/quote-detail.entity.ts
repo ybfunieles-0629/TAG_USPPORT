@@ -35,6 +35,51 @@ export class QuoteDetail {
   })
   negotiationDiscount: number;
 
+  @Column('int', {
+
+  })
+  totalValue: number;
+
+  @Column('int', {
+
+  })
+  unitDiscount: number;
+
+  @Column('int', {
+
+  })
+  markingTotalPrice: number;
+
+  @Column('int', {
+
+  })
+  sampleValue: number;
+
+  @Column('int', {
+
+  })
+  subTotal: number;
+
+  @Column('int', {
+
+  })
+  discount: number;
+
+  @Column('int', {
+
+  })
+  subTotalWithDiscount: number;
+
+  @Column('int', {
+
+  })
+  iva: number;
+
+  @Column('int', {
+
+  })
+  total: number;
+
   @Column('varchar', {
 
   })
