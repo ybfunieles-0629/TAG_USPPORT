@@ -14,6 +14,15 @@ export class CreateSystemConfigDto {
   withholdingAtSource: number;
 
   @IsInt()
+  supplierFinancingPercentage: number;
+
+  @IsInt()
+  marginForDialingServices: number;
+
+  @IsInt()
+  marginForTransportServices: number;
+
+  @IsInt()
   maxDiscount: number;
 
   @IsString()

@@ -29,6 +29,21 @@ export class SystemConfig {
   @Column('int', {
 
   })
+  supplierFinancingPercentage: number;
+
+  @Column('int', {
+
+  })
+  marginForDialingServices: number;
+
+  @Column('int', {
+
+  })
+  marginForTransportServices: number;
+
+  @Column('int', {
+
+  })
   maxDiscount: number;
 
   @Column('boolean', {
