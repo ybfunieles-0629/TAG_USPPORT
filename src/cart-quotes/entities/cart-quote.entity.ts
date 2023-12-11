@@ -78,8 +78,7 @@ export class CartQuote {
   updatedAt: Date;
 
   //* ---- FK ---- *//
-  @OneToOne(() => State, (state) => state.cartQuote)
-  @JoinColumn()
+  @ManyToOne(() => State, (state) => state.cartQuotes)
   state: State;
 
   @OneToOne(() => OrderListDetail, (orderListDetail) => orderListDetail.cartQuote)
