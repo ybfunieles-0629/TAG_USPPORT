@@ -117,7 +117,19 @@ export class QuoteDetailsService {
     newQuoteDetail.iva = (newQuoteDetail.subTotalWithDiscount * (newQuoteDetail.iva / 100));
     newQuoteDetail.total = newQuoteDetail.subTotalWithDiscount + newQuoteDetail.iva;
 
+    const cartQuoteDb: CartQuote = await this.cartQuoteRepository.findOne({
+      where: {
+        id: newQuoteDetail.cartQuote.id,
+      }
+    });
 
+    if (!cartQuoteDb)
+      throw new NotFoundException(`Cart quote with id ${newQuoteDetail.cartQuote.id} not found`);
+
+    cartQuoteDb.totalPrice += newQuoteDetail.total;
+    cartQuoteDb.productsQuantity += newQuoteDetail.quantities; 
+
+    await this.cartQuoteRepository.save(cartQuoteDb);
     await this.quoteDetailRepository.save(newQuoteDetail);
 
     return {
