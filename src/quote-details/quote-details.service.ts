@@ -10,6 +10,7 @@ import { CartQuote } from '../cart-quotes/entities/cart-quote.entity';
 import { Product } from '../products/entities/product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { MarkingService } from '../marking-services/entities/marking-service.entity';
+import { MarkedServicePrice } from 'src/marked-service-prices/entities/marked-service-price.entity';
 
 @Injectable()
 export class QuoteDetailsService {
@@ -52,13 +53,19 @@ export class QuoteDetailsService {
     newQuoteDetail.product = product;
 
     if (createQuoteDetailDto.markingServices) {
+      let markingTotalPrice: number = 0;
+
       const markingServices: MarkingService[] = [];
-      
+
       for (const markingServiceId of createQuoteDetailDto.markingServices) {
         const markingService: MarkingService = await this.markingServiceRepository.findOne({
           where: {
             id: markingServiceId,
           },
+          relations: [
+            'markingServiceProperty',
+            'markingServiceProperty.markedServicePrices',
+          ],
         });
 
         if (!markingService)
@@ -69,9 +76,47 @@ export class QuoteDetailsService {
 
         markingServices.push(markingService);
       }
-      
+
+      markingServices.forEach((markingService: MarkingService) => {
+        (markingService?.markingServiceProperty?.markedServicePrices || [])
+          .slice()
+          .sort((a: MarkedServicePrice, b: MarkedServicePrice) => (a?.unitPrice || 0) - (b?.unitPrice || 0))
+          .map((markedServicePrice: MarkedServicePrice) => {
+            markingTotalPrice += markedServicePrice.unitPrice;
+
+            return {
+              markedServicePrice: markedServicePrice?.unitPrice || 0
+            };
+          });
+      });
+
       newQuoteDetail.markingServices = markingServices;
+      newQuoteDetail.markingTotalPrice = markingTotalPrice;
     };
+
+    const discountProduct: number = newQuoteDetail.product.refProduct.supplier.disccounts[0].disccounts.reduce((maxDiscount, disccount) => {
+      if (disccount.maxQuantity !== 0) {
+        if (newQuoteDetail.quantities >= disccount.minQuantity && newQuoteDetail.quantities <= disccount.maxQuantity) {
+          return Math.max(maxDiscount, disccount.disccountValue);
+        }
+      } else {
+        if (newQuoteDetail.quantities >= disccount.minQuantity) {
+          return Math.max(maxDiscount, disccount.disccountValue);
+        }
+      }
+      return maxDiscount;
+    }, 0);
+
+    newQuoteDetail.sampleValue = product.samplePrice;
+    newQuoteDetail.totalValue = newQuoteDetail.unitPrice * newQuoteDetail.quantities;
+    newQuoteDetail.unitDiscount = newQuoteDetail.unitPrice * (discountProduct);
+    newQuoteDetail.subTotal = newQuoteDetail.unitPrice * newQuoteDetail.quantities + newQuoteDetail.markingTotalPrice;
+    newQuoteDetail.discount = newQuoteDetail.unitPrice * (discountProduct / 100) * newQuoteDetail.quantities | 0;
+
+    newQuoteDetail.subTotalWithDiscount = newQuoteDetail.subTotal - newQuoteDetail.discount;
+    newQuoteDetail.iva = (newQuoteDetail.subTotalWithDiscount * (newQuoteDetail.iva / 100));
+    newQuoteDetail.total = newQuoteDetail.subTotalWithDiscount + newQuoteDetail.iva;
+
 
     await this.quoteDetailRepository.save(newQuoteDetail);
 
@@ -142,6 +187,29 @@ export class QuoteDetailsService {
 
     updatedQuoteDetail.cartQuote = cartQuote;
     updatedQuoteDetail.product = product;
+
+    const discountProduct: number = updatedQuoteDetail.product.refProduct.supplier.disccounts[0].disccounts.reduce((maxDiscount, disccount) => {
+      if (disccount.maxQuantity !== 0) {
+        if (updatedQuoteDetail.quantities >= disccount.minQuantity && updatedQuoteDetail.quantities <= disccount.maxQuantity) {
+          return Math.max(maxDiscount, disccount.disccountValue);
+        }
+      } else {
+        if (updatedQuoteDetail.quantities >= disccount.minQuantity) {
+          return Math.max(maxDiscount, disccount.disccountValue);
+        }
+      }
+      return maxDiscount;
+    }, 0);
+
+    updatedQuoteDetail.sampleValue = product.samplePrice;
+    updatedQuoteDetail.totalValue = updatedQuoteDetail.unitPrice * updatedQuoteDetail.quantities;
+    updatedQuoteDetail.unitDiscount = updatedQuoteDetail.unitPrice * (discountProduct);
+    updatedQuoteDetail.subTotal = updatedQuoteDetail.unitPrice * updatedQuoteDetail.quantities + updatedQuoteDetail.markingTotalPrice;
+    updatedQuoteDetail.discount = updatedQuoteDetail.unitPrice * (discountProduct / 100) * updatedQuoteDetail.quantities | 0;
+    
+    updatedQuoteDetail.subTotalWithDiscount = updatedQuoteDetail.subTotal - updatedQuoteDetail.discount;
+    updatedQuoteDetail.iva = (updatedQuoteDetail.subTotalWithDiscount * (updatedQuoteDetail.iva / 100));
+    updatedQuoteDetail.total = updatedQuoteDetail.subTotalWithDiscount + updatedQuoteDetail.iva;
 
     Object.assign(quoteDetail, updatedQuoteDetail);
 
