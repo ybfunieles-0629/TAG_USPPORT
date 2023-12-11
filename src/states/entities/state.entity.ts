@@ -42,8 +42,8 @@ export class State {
   updatedAt: Date;
 
   //* ---- FK ---- *//
-  @OneToOne(() => CartQuote, (cartQuote) => cartQuote.state)
-  cartQuote: CartQuote;
+  @OneToMany(() => CartQuote, (cartQuote) => cartQuote.state)
+  cartQuotes: CartQuote[];
 
   @OneToMany(() => PurchaseOrder, (purchaseOrder) => purchaseOrder.state)
   purchaseOrders: PurchaseOrder[];
