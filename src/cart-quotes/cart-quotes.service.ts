@@ -589,26 +589,32 @@ export class CartQuotesService {
         products: cartQuote.quoteDetails.map((quoteDetail: QuoteDetail) => {
           return {
             name: quoteDetail.product.refProduct.name,
+            discount: quoteDetail.discount,
+            iva: quoteDetail.iva,
+            subTotal: quoteDetail.subTotal,
+            subTotalWithDiscount: quoteDetail.subTotalWithDiscount,
+            totalValue: quoteDetail.totalValue,
+            total: quoteDetail.total,
             unitPrice: quoteDetail.unitPrice,
             quantity: quoteDetail.quantities,
             image: quoteDetail.product?.refProduct?.images[0]?.url || 'default.png',
             color: quoteDetail.product?.colors[0]?.name || '',
             samplePrice: quoteDetail.product.samplePrice,
             refundSampleTime: quoteDetail.product.refundSampleTime,
-            iva: quoteDetail.product.iva,
+            productIva: quoteDetail.product.iva,
             loanSample: quoteDetail.product.loanSample,
-            discount: quoteDetail.product.refProduct.supplier.disccounts[0].disccounts.reduce((maxDiscount, disccount) => {
-              if (disccount.maxQuantity !== 0) {
-                if (quoteDetail.quantities >= disccount.minQuantity && quoteDetail.quantities <= disccount.maxQuantity) {
-                  return Math.max(maxDiscount, disccount.disccountValue);
-                }
-              } else {
-                if (quoteDetail.quantities >= disccount.minQuantity) {
-                  return Math.max(maxDiscount, disccount.disccountValue);
-                }
-              }
-              return maxDiscount;
-            }, 0),
+            // discount: quoteDetail.product.refProduct.supplier.disccounts[0].disccounts.reduce((maxDiscount, disccount) => {
+            //   if (disccount.maxQuantity !== 0) {
+            //     if (quoteDetail.quantities >= disccount.minQuantity && quoteDetail.quantities <= disccount.maxQuantity) {
+            //       return Math.max(maxDiscount, disccount.disccountValue);
+            //     }
+            //   } else {
+            //     if (quoteDetail.quantities >= disccount.minQuantity) {
+            //       return Math.max(maxDiscount, disccount.disccountValue);
+            //     }
+            //   }
+            //   return maxDiscount;
+            // }, 0),
             packings: quoteDetail.product.packings !== undefined
               ? quoteDetail.product.packings.map((packing: Packing) => {
                 const packingVolume: number = (packing.height * packing.width * packing.height);
