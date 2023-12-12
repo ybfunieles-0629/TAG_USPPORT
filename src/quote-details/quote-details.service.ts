@@ -117,13 +117,19 @@ export class QuoteDetailsService {
     newQuoteDetail.totalValue = newQuoteDetail.unitPrice * newQuoteDetail.quantities;
     newQuoteDetail.unitDiscount = newQuoteDetail.unitPrice * (discountProduct);
     newQuoteDetail.subTotal = (newQuoteDetail.unitPrice * newQuoteDetail.quantities) + markingTotalPrice;
-    
-    newQuoteDetail.discount = 
+
+    newQuoteDetail.discount =
       newQuoteDetail.unitPrice * (discountProduct / 100) * newQuoteDetail.quantities |
       newQuoteDetail.unitPrice * (product.disccountPromo / 100) * newQuoteDetail.quantities | 0;
 
-    newQuoteDetail.subTotalWithDiscount = newQuoteDetail.subTotal - newQuoteDetail.discount | 0;
-    newQuoteDetail.iva = (newQuoteDetail.subTotalWithDiscount * (newQuoteDetail.iva / 100)) | 0;
+    newQuoteDetail.subTotalWithDiscount = 
+      newQuoteDetail.subTotal - newQuoteDetail.discount |
+      newQuoteDetail.subTotal - product.disccountPromo | 0;
+
+    newQuoteDetail.iva =
+      (newQuoteDetail.subTotalWithDiscount * (newQuoteDetail.iva / 100)) |
+      (newQuoteDetail.subTotalWithDiscount * (product.iva / 100)) | 0;
+
     newQuoteDetail.total = newQuoteDetail.subTotalWithDiscount + newQuoteDetail.iva | 0;
 
     console.log(newQuoteDetail);
@@ -138,7 +144,7 @@ export class QuoteDetailsService {
       throw new NotFoundException(`Cart quote with id ${newQuoteDetail.cartQuote.id} not found`);
 
     cartQuoteDb.totalPrice += newQuoteDetail.total;
-    cartQuoteDb.productsQuantity += newQuoteDetail.quantities; 
+    cartQuoteDb.productsQuantity += newQuoteDetail.quantities;
 
     await this.cartQuoteRepository.save(cartQuoteDb);
     await this.quoteDetailRepository.save(newQuoteDetail);
@@ -229,7 +235,7 @@ export class QuoteDetailsService {
     updatedQuoteDetail.unitDiscount = updatedQuoteDetail.unitPrice * (discountProduct);
     updatedQuoteDetail.subTotal = updatedQuoteDetail.unitPrice * updatedQuoteDetail.quantities + updatedQuoteDetail.markingTotalPrice;
     updatedQuoteDetail.discount = updatedQuoteDetail.unitPrice * (discountProduct / 100) * updatedQuoteDetail.quantities | 0;
-    
+
     updatedQuoteDetail.subTotalWithDiscount = updatedQuoteDetail.subTotal - updatedQuoteDetail.discount;
     updatedQuoteDetail.iva = (updatedQuoteDetail.subTotalWithDiscount * (updatedQuoteDetail.iva / 100));
     updatedQuoteDetail.total = updatedQuoteDetail.subTotalWithDiscount + updatedQuoteDetail.iva;
