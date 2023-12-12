@@ -907,11 +907,11 @@ export class RefProductsService {
         refProductsToShow.push({
           ...refProduct,
           isPendingRef: refProduct.isAllowed == 0 ? 0 : 1,
-          products: refProduct.products.filter((product) => {
+          products: refProduct.products.map((product) => {
             if (product.isAllowed === 0) {
               return {
+                isPendingProd: product.isAllowed === 0 ? 0 : 1,
                 ...product,
-                isPendingProd: product.isAllowed == 0 ? 0 : 1,
               };
             };
           }),
