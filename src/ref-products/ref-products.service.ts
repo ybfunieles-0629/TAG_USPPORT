@@ -911,14 +911,7 @@ export class RefProductsService {
         refProductsToShow.push({
           ...refProduct,
           isAllowed: 1,
-          isPending: 0,
-          products: refProduct.products.filter(product => product.isAllowed === 0),
-        });
-      } else if (refProduct.isAllowed === 1 && refProduct.products.length == 0) {
-        refProductsToShow.push({
-          ...refProduct,
-          isAllowed: 1,
-          isPending: 1,
+          isPending: refProduct.products.length == 0 ? 1 : 0,
           products: refProduct.products.filter(product => product.isAllowed === 0),
         });
       }
