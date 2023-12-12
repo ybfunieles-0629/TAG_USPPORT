@@ -910,8 +910,15 @@ export class RefProductsService {
       if (refProduct.isAllowed === 0 || refProduct.products.some(product => product.isAllowed === 0)) {
         refProductsToShow.push({
           ...refProduct,
-          isPending: refProduct.products.length == 0 ? 1 : 0,
-          products: refProduct.products.filter(product => product.isAllowed === 0),
+          isPendingRef: refProduct.isAllowed == 0 ? 0 : 1,
+          products: refProduct.products.filter((product) => {
+            if (product.isAllowed === 0) {
+              return {
+                ...product,
+                isPendingProd: product.isAllowed == 0 ? 0 : 1,
+              };
+            };
+          }),
         });
       }
     };
