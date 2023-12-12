@@ -914,7 +914,14 @@ export class RefProductsService {
           isPending: 0,
           products: refProduct.products.filter(product => product.isAllowed === 0),
         });
-      };
+      } else if (refProduct.isAllowed === 1 && refProduct.products.length == 0) {
+        refProductsToShow.push({
+          ...refProduct,
+          isAllowed: 1,
+          isPending: 1,
+          products: refProduct.products.filter(product => product.isAllowed === 0),
+        });
+      }
     };
 
     const paginatedRefProducts: RefProduct[] = refProductsToShow.slice(offset, offset + limit);
