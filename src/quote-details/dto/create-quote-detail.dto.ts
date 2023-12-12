@@ -8,6 +8,14 @@ export class CreateQuoteDetailDto {
   unitPrice: number;
 
   @IsInt()
+  @IsOptional()
+  iva: number;
+
+  @IsInt()
+  @IsOptional()
+  discount: number;
+
+  @IsInt()
   totalPriceWithTransport: number;
 
   @IsInt()
