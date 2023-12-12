@@ -117,7 +117,10 @@ export class QuoteDetailsService {
     newQuoteDetail.totalValue = newQuoteDetail.unitPrice * newQuoteDetail.quantities;
     newQuoteDetail.unitDiscount = newQuoteDetail.unitPrice * (discountProduct);
     newQuoteDetail.subTotal = (newQuoteDetail.unitPrice * newQuoteDetail.quantities) + markingTotalPrice;
-    newQuoteDetail.discount = newQuoteDetail.unitPrice * (discountProduct / 100) * newQuoteDetail.quantities | 0;
+    
+    newQuoteDetail.discount = 
+      newQuoteDetail.unitPrice * (discountProduct / 100) * newQuoteDetail.quantities |
+      newQuoteDetail.unitPrice * (product.disccountPromo / 100) * newQuoteDetail.quantities | 0;
 
     newQuoteDetail.subTotalWithDiscount = newQuoteDetail.subTotal - newQuoteDetail.discount | 0;
     newQuoteDetail.iva = (newQuoteDetail.subTotalWithDiscount * (newQuoteDetail.iva / 100)) | 0;
