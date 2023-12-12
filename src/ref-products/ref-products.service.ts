@@ -910,6 +910,7 @@ export class RefProductsService {
       if (refProduct.isAllowed === 0 || refProduct.products.some(product => product.isAllowed === 0)) {
         refProductsToShow.push({
           ...refProduct,
+          isPending: 0,
           isPendingRef: refProduct.isAllowed == 0 ? 0 : 1,
           products: refProduct.products.map((product) => {
             if (product.isAllowed === 0) {
