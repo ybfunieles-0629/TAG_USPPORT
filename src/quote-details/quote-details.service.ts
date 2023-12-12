@@ -44,6 +44,12 @@ export class QuoteDetailsService {
       where: {
         id: createQuoteDetailDto.product,
       },
+      relations: [
+        'refProduct',
+        'refProduct.supplier',
+        'refProduct.supplier.disccounts',
+        'refProduct.supplier.disccounts.disccounts',
+      ],
     });
 
     if (!product)
@@ -52,9 +58,9 @@ export class QuoteDetailsService {
     newQuoteDetail.cartQuote = cartQuote;
     newQuoteDetail.product = product;
 
-    if (createQuoteDetailDto.markingServices) {
-      let markingTotalPrice: number = 0;
+    let markingTotalPrice: number = 0;
 
+    if (createQuoteDetailDto.markingServices) {
       const markingServices: MarkingService[] = [];
 
       for (const markingServiceId of createQuoteDetailDto.markingServices) {
@@ -110,12 +116,14 @@ export class QuoteDetailsService {
     newQuoteDetail.sampleValue = product.samplePrice;
     newQuoteDetail.totalValue = newQuoteDetail.unitPrice * newQuoteDetail.quantities;
     newQuoteDetail.unitDiscount = newQuoteDetail.unitPrice * (discountProduct);
-    newQuoteDetail.subTotal = newQuoteDetail.unitPrice * newQuoteDetail.quantities + newQuoteDetail.markingTotalPrice;
+    newQuoteDetail.subTotal = (newQuoteDetail.unitPrice * newQuoteDetail.quantities) + markingTotalPrice;
     newQuoteDetail.discount = newQuoteDetail.unitPrice * (discountProduct / 100) * newQuoteDetail.quantities | 0;
 
-    newQuoteDetail.subTotalWithDiscount = newQuoteDetail.subTotal - newQuoteDetail.discount;
-    newQuoteDetail.iva = (newQuoteDetail.subTotalWithDiscount * (newQuoteDetail.iva / 100));
-    newQuoteDetail.total = newQuoteDetail.subTotalWithDiscount + newQuoteDetail.iva;
+    newQuoteDetail.subTotalWithDiscount = newQuoteDetail.subTotal - newQuoteDetail.discount | 0;
+    newQuoteDetail.iva = (newQuoteDetail.subTotalWithDiscount * (newQuoteDetail.iva / 100)) | 0;
+    newQuoteDetail.total = newQuoteDetail.subTotalWithDiscount + newQuoteDetail.iva | 0;
+
+    console.log(newQuoteDetail);
 
     const cartQuoteDb: CartQuote = await this.cartQuoteRepository.findOne({
       where: {
