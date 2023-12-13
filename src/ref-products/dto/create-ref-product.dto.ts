@@ -34,16 +34,16 @@ export class CreateRefProductDto {
   @IsInt()
   personalizableMarking: number;
 
-  @IsDecimal()
+  @IsDecimal({ decimal_digits: '1,2' })
   large: number;
 
-  @IsDecimal()
+  @IsDecimal({ decimal_digits: '1,2' })
   width: number;
 
-  @IsDecimal()
+  @IsDecimal({ decimal_digits: '1,2' })
   height: number;
 
-  @IsDecimal()
+  @IsDecimal({ decimal_digits: '1,2' })
   weight: number;
 
   @IsInt()
