@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDecimal, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateRefProductDto {
   @IsString()
@@ -34,16 +34,16 @@ export class CreateRefProductDto {
   @IsInt()
   personalizableMarking: number;
 
-  @IsInt()
+  @IsDecimal()
   large: number;
 
-  @IsInt()
+  @IsDecimal()
   width: number;
 
-  @IsInt()
+  @IsDecimal()
   height: number;
 
-  @IsInt()
+  @IsDecimal()
   weight: number;
 
   @IsInt()

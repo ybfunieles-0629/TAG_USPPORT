@@ -1,4 +1,4 @@
-import { IsArray, IsDate, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDate, IsDecimal, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateProductDto {
   @IsOptional()
@@ -18,11 +18,11 @@ export class CreateProductDto {
   tagSku?: string;
 
   @IsOptional()
-  @IsInt()
+  @IsDecimal()
   large?: number;
 
   @IsOptional()
-  @IsInt()
+  @IsDecimal()
   width?: number;
 
   @IsOptional()
@@ -30,11 +30,11 @@ export class CreateProductDto {
   importedNational?: string;
 
   @IsOptional()
-  @IsInt()
+  @IsDecimal()
   height?: number;
 
   @IsOptional()
-  @IsInt()
+  @IsDecimal()
   weight?: number;
 
   @IsInt()
