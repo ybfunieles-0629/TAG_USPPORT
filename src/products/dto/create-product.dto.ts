@@ -18,11 +18,11 @@ export class CreateProductDto {
   tagSku?: string;
 
   @IsOptional()
-  @IsDecimal()
+  @IsDecimal({ decimal_digits: '1,2' })
   large?: number;
 
   @IsOptional()
-  @IsDecimal()
+  @IsDecimal({ decimal_digits: '1,2' })
   width?: number;
 
   @IsOptional()
@@ -30,11 +30,11 @@ export class CreateProductDto {
   importedNational?: string;
 
   @IsOptional()
-  @IsDecimal()
+  @IsDecimal({ decimal_digits: '1,2' })
   height?: number;
 
   @IsOptional()
-  @IsDecimal()
+  @IsDecimal({ decimal_digits: '1,2' })
   weight?: number;
 
   @IsInt()
