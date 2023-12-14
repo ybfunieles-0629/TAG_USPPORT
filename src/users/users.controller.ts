@@ -7,6 +7,7 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { AssignClientsDto } from './dto/assign-clients.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { PasswordRecoveryDto } from './dto/password-recovery.dto';
+import { FilterManyByRolesDto } from './dto/filter-many-by-roles.dto';
 
 @Controller('users')
 export class UsersController {
@@ -69,7 +70,7 @@ export class UsersController {
   @Post('filter-by-many/roles')
   filterUsersByManyRoles(
     @Query() paginationDto: PaginationDto,
-    @Body() roles: string[],
+    @Body() roles: FilterManyByRolesDto,
   ) {
     return this.usersService.filterUsersByManyRoles(roles, paginationDto)
   }

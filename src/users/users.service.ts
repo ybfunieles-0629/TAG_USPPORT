@@ -20,6 +20,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Brand } from '../brands/entities/brand.entity';
 import { PasswordRecoveryDto } from './dto/password-recovery.dto';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { FilterManyByRolesDto } from './dto/filter-many-by-roles.dto';
 
 @Injectable()
 export class UsersService {
@@ -332,33 +333,30 @@ export class UsersService {
     };
   }
 
-  async filterUsersByManyRoles(roles: string[], paginationDto: PaginationDto) {
+  async filterUsersByManyRoles(roles: FilterManyByRolesDto, paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
-    
+
     const usersToShow: User[] = [];
 
-    for (const role of roles) {
-      const users: User[] = await this.userRepository.find({
-        where: {
-          name: role,
-        },
-        relations: [
-          'admin',
-          'admin.clients',
-          'admin.clients.user',
-          'brands',
-          'client',
-          'client.addresses',
-          'supplier',
-          'supplier.subSupplierProductType',
-          'company',
-          'roles',
-          'permissions',
-          'privileges',
-        ],
-        take: limit,
-        skip: offset,
-      });
+    for (const role of roles.roles) {
+      const users: User[] = await this.userRepository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.roles', 'roles')
+        .where('roles.name =:role', { role })
+        .leftJoinAndSelect('user.brands', 'brands')
+        .leftJoinAndSelect('user.company', 'company')
+        .leftJoinAndSelect('user.privileges', 'privileges')
+        .leftJoinAndSelect('user.permissions', 'permissions')
+        .leftJoinAndSelect('user.admin', 'admin')
+        .leftJoinAndSelect('admin.clients', 'adminClients')
+        .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
+        .leftJoinAndSelect('user.client', 'client')
+        .leftJoinAndSelect('client.addresses', 'clientAddresses')
+        .leftJoinAndSelect('user.supplier', 'supplier')
+        .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
+        .take(limit)
+        .skip(offset)
+        .getMany();
 
       if (!users)
         throw new NotFoundException(`Users with role ${role} not found`);
@@ -366,9 +364,11 @@ export class UsersService {
       usersToShow.push(...users);
     };
 
+    const paginatedUsers: User[] = usersToShow.slice(offset, offset + limit);
+
     return {
-      count: usersToShow.length,
-      usersToShow
+      count: paginatedUsers.length,
+      users: paginatedUsers
     };
   };
 
