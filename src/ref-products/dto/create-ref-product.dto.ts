@@ -30,6 +30,18 @@ export class CreateRefProductDto {
   @IsArray()
   @IsString({ each: true })
   keywords?: string[];
+  
+  @IsOptional()
+  @IsString()
+  rejectionReason?: string;
+
+  @IsOptional()
+  @IsInt()
+  registeredNewOrUpdated?: number;
+
+  @IsOptional()
+  @IsString()
+  updateReason?: string;
 
   @IsInt()
   personalizableMarking: number;
