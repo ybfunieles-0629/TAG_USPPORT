@@ -333,45 +333,6 @@ export class UsersService {
     };
   }
 
-  async filterUsersByManyRoles(roles: FilterManyByRolesDto, paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
-
-    const usersToShow: User[] = [];
-
-    for (const role of roles.roles) {
-      const users: User[] = await this.userRepository
-        .createQueryBuilder('user')
-        .leftJoinAndSelect('user.roles', 'roles')
-        .where('roles.name =:role', { role })
-        .leftJoinAndSelect('user.brands', 'brands')
-        .leftJoinAndSelect('user.company', 'company')
-        .leftJoinAndSelect('user.privileges', 'privileges')
-        .leftJoinAndSelect('user.permissions', 'permissions')
-        .leftJoinAndSelect('user.admin', 'admin')
-        .leftJoinAndSelect('admin.clients', 'adminClients')
-        .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
-        .leftJoinAndSelect('user.client', 'client')
-        .leftJoinAndSelect('client.addresses', 'clientAddresses')
-        .leftJoinAndSelect('user.supplier', 'supplier')
-        .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
-        .take(limit)
-        .skip(offset)
-        .getMany();
-
-      if (!users)
-        throw new NotFoundException(`Users with role ${role} not found`);
-
-      usersToShow.push(...users);
-    };
-
-    const paginatedUsers: User[] = usersToShow.slice(offset, offset + limit);
-
-    return {
-      count: paginatedUsers.length,
-      users: paginatedUsers
-    };
-  };
-
   async passwordRecovery(passwordRecovery: PasswordRecoveryDto) {
     if (!passwordRecovery.password)
       throw new BadRequestException(`The password is required`);
@@ -579,10 +540,109 @@ export class UsersService {
     };
   }
 
-  //* IMPORTANTE
-  //* IMPORTANTE
-  //* IMPORTANTE
-  // TODO: Verificar el tipo de dato del updateUserDto ya que da error, por ahora se deja en any
+  async filterUsersByManyRoles(roles: FilterManyByRolesDto, user: User, paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    const usersToShow: User[] = [];
+
+    if (roles.isCommercial) {
+      const commercialWithClients: User = await this.userRepository
+        .createQueryBuilder('user')
+        .where('user.id =:userId', { userId: user.id })
+        .leftJoinAndSelect('user.roles', 'roles')
+        .leftJoinAndSelect('user.brands', 'brands')
+        .leftJoinAndSelect('user.company', 'company')
+        .leftJoinAndSelect('user.privileges', 'privileges')
+        .leftJoinAndSelect('user.permissions', 'permissions')
+        .leftJoinAndSelect('user.admin', 'admin')
+        .leftJoinAndSelect('admin.clients', 'adminClients')
+        .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
+        .leftJoinAndSelect('user.client', 'client')
+        .leftJoinAndSelect('client.addresses', 'clientAddresses')
+        .leftJoinAndSelect('user.supplier', 'supplier')
+        .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
+        .getOne();
+
+      usersToShow.push(commercialWithClients);
+    } else {
+      for (const role of roles.roles) {
+        const users: User[] = await this.userRepository
+          .createQueryBuilder('user')
+          .leftJoinAndSelect('user.roles', 'roles')
+          .where('roles.name =:role', { role })
+          .leftJoinAndSelect('user.brands', 'brands')
+          .leftJoinAndSelect('user.company', 'company')
+          .leftJoinAndSelect('user.privileges', 'privileges')
+          .leftJoinAndSelect('user.permissions', 'permissions')
+          .leftJoinAndSelect('user.admin', 'admin')
+          .leftJoinAndSelect('admin.clients', 'adminClients')
+          .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
+          .leftJoinAndSelect('user.client', 'client')
+          .leftJoinAndSelect('client.addresses', 'clientAddresses')
+          .leftJoinAndSelect('user.supplier', 'supplier')
+          .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
+          .take(limit)
+          .skip(offset)
+          .getMany();
+
+        if (!users)
+          throw new NotFoundException(`Users with role ${role} not found`);
+
+        usersToShow.push(...users);
+      };
+    }
+
+    const paginatedUsers: User[] = usersToShow.slice(offset, offset + limit);
+
+    return {
+      count: paginatedUsers.length,
+      users: paginatedUsers
+    };
+  };
+
+  async getSecondaryClient(user: User, paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    const userInDb: User = await this.userRepository.findOne({
+      where: {
+        id: user.id,
+      },
+      relations: [
+        'company',
+      ],
+    });
+
+    const companyInDb: Company = await this.companyRepository
+      .createQueryBuilder('company')
+      .where('company.id =:companyId', { companyId: userInDb.company.id })
+      .leftJoinAndSelect('company.users', 'user')
+      .where('user.mainSecondaryUser = :mainSecondaryUserValue', { mainSecondaryUserValue: 1 })
+      .leftJoinAndSelect('user.roles', 'role')
+      .andWhere('role.name =:client', { client: 'cliente' })
+      .leftJoinAndSelect('user.brands', 'brands')
+      .leftJoinAndSelect('user.company', 'userCompany')
+      .leftJoinAndSelect('user.privileges', 'privileges')
+      .leftJoinAndSelect('user.permissions', 'permissions')
+      .leftJoinAndSelect('user.admin', 'admin')
+      .leftJoinAndSelect('admin.clients', 'adminClients')
+      .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
+      .leftJoinAndSelect('user.client', 'client')
+      .leftJoinAndSelect('client.addresses', 'clientAddresses')
+      .leftJoinAndSelect('user.supplier', 'supplier')
+      .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
+      .getOne();
+
+    if (!companyInDb)
+      throw new NotFoundException(`No users found with the requirements`);
+
+    const paginatedResults: User[] = companyInDb.users.slice(offset, offset + limit);
+
+    return {
+      count: paginatedResults.length,
+      results: paginatedResults
+    };
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.findOne({
       where: {

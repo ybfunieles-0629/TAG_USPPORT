@@ -8,7 +8,7 @@ import { Company } from '../../companies/entities/company.entity';
 import { Client } from '../../clients/entities/client.entity';
 import { Supplier } from '../../suppliers/entities/supplier.entity';
 import { Brand } from '../../brands/entities/brand.entity';
-import { CartQuote } from 'src/cart-quotes/entities/cart-quote.entity';
+import { CartQuote } from '../../cart-quotes/entities/cart-quote.entity';
 
 @Entity({ name: 'users' })
 export class User {
