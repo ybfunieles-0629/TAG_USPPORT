@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { validate as isUUID } from 'uuid';
 import { classToPlain, plainToClass } from 'class-transformer';
 import { JwtService } from '@nestjs/jwt';
+import * as nodemailer from 'nodemailer';
 import * as bcrypt from 'bcrypt';
 
 import { UsersList } from './data/usersList';
@@ -18,7 +19,6 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Brand } from '../brands/entities/brand.entity';
 import { PasswordRecoveryDto } from './dto/password-recovery.dto';
-import * as nodemailer from 'nodemailer';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Injectable()
@@ -52,12 +52,12 @@ export class UsersService {
   async seedUsers() {
     const companyInDb: Company = await this.companyRepository.findOne({
       where: {
-        name: 'Tag',
+        name: 'Ebulky',
       },
     });
 
     if (!companyInDb)
-      throw new NotFoundException(`Company Tag not found`);
+      throw new NotFoundException(`Company Ebulky not found`);
 
     const roleInDb: Role = await this.roleRepository.findOne({
       where: {
@@ -332,6 +332,46 @@ export class UsersService {
     };
   }
 
+  async filterUsersByManyRoles(roles: string[], paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+    
+    const usersToShow: User[] = [];
+
+    for (const role of roles) {
+      const users: User[] = await this.userRepository.find({
+        where: {
+          name: role,
+        },
+        relations: [
+          'admin',
+          'admin.clients',
+          'admin.clients.user',
+          'brands',
+          'client',
+          'client.addresses',
+          'supplier',
+          'supplier.subSupplierProductType',
+          'company',
+          'roles',
+          'permissions',
+          'privileges',
+        ],
+        take: limit,
+        skip: offset,
+      });
+
+      if (!users)
+        throw new NotFoundException(`Users with role ${role} not found`);
+
+      usersToShow.push(...users);
+    };
+
+    return {
+      count: usersToShow.length,
+      usersToShow
+    };
+  };
+
   async passwordRecovery(passwordRecovery: PasswordRecoveryDto) {
     if (!passwordRecovery.password)
       throw new BadRequestException(`The password is required`);
@@ -473,14 +513,14 @@ export class UsersService {
         'admin.clients.user.supplier',
       ],
     });
-  
+
     if (!user)
       throw new NotFoundException(`Clients not found for commercial user ${id}`);
-  
+
     const clientsList = user.admin.clients.map(client => classToPlain(client, { exposeDefaultValues: true }));
-  
+
     const usersList = clientsList.map(client => client.user);
-  
+
     return usersList;
   }
 
