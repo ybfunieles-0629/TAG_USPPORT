@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
@@ -11,15 +12,17 @@ import { PermissionsModule } from '../permissions/permissions.module';
 import { PrivilegesModule } from '../privileges/privileges.module';
 import { BrandsModule } from '../brands/brands.module';
 import { EmailSenderModule } from '../email-sender/email-sender.module';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, JwtStrategy],
   imports: [
     BrandsModule,
     CompaniesModule,
     EmailSenderModule,
     RolesModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     PermissionsModule,
     PrivilegesModule,
     TypeOrmModule.forFeature([User]),
@@ -36,6 +39,6 @@ import { EmailSenderModule } from '../email-sender/email-sender.module';
       }
     })
   ],
-  exports: [TypeOrmModule, UsersService]
+  exports: [TypeOrmModule, UsersService, PassportModule]
 })
 export class UsersModule { }
