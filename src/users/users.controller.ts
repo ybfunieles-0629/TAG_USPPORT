@@ -66,6 +66,14 @@ export class UsersController {
     return this.usersService.findOne(term);
   }
 
+  @Get('filter-by-many/roles')
+  filterUsersByManyRoles(
+    @Query() paginationDto: PaginationDto,
+    @Body() roles: string[],
+  ) {
+    return this.usersService.filterUsersByManyRoles(roles, paginationDto)
+  }
+
   @Get('commercial/clients/:id')
   getClientsByCommercial(
     @Param('id', ParseUUIDPipe) id: string,  
