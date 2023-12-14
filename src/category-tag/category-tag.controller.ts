@@ -40,6 +40,13 @@ export class CategoryTagController {
     return this.categoryTagService.findOne(id);
   }
 
+  @Get('filter-by-parent/:id')
+  filterSubCategoryByParent(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.categoryTagService.filterSubCategoryByParent(id);
+  }
+
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image'))
   update(

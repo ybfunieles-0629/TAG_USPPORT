@@ -96,13 +96,47 @@ export class CategoryTagService {
   }
 
   async findOne(id: string) {
-    const categoryTag = await this.categoryTagRepository.findOneBy({ id });
+    const categoryTag = await this.categoryTagRepository.findOne({
+      where: {
+        id,
+      },
+      relations: [
+        'categorySuppliers'
+      ],
+    });
 
     if (!categoryTag)
       throw new NotFoundException(`Category tag with id ${id} not found`);
 
     return {
       categoryTag
+    };
+  }
+
+  async filterSubCategoryByParent(id: string) {
+    const parentCategory: CategoryTag = await this.categoryTagRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!parentCategory)
+      throw new NotFoundException(`Parent category with id ${id} not found`);
+
+    if (!parentCategory.mainCategory)
+      throw new BadRequestException(`The category with id ${id} is not a parent category`);
+
+    const subCategory: CategoryTag[] = await this.categoryTagRepository.find({
+      where: {
+        parentCategory: id,
+      },
+    });
+
+    if (!subCategory)
+      throw new NotFoundException(`Sub category with parent category ${id} not found`);
+
+    return {
+      subCategory
     };
   }
 
