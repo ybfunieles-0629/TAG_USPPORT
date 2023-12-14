@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards, Req } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -8,6 +9,9 @@ import { AssignClientsDto } from './dto/assign-clients.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { PasswordRecoveryDto } from './dto/password-recovery.dto';
 import { FilterManyByRolesDto } from './dto/filter-many-by-roles.dto';
+import { GetUser } from './decorators/get-user.decorator';
+import { Company } from '../companies/entities/company.entity';
+import { User } from './entities/user.entity';
 
 @Controller('users')
 export class UsersController {
@@ -68,11 +72,22 @@ export class UsersController {
   }
 
   @Post('filter-by-many/roles')
+  @UseGuards(AuthGuard())
   filterUsersByManyRoles(
+    @GetUser() user: User,
     @Query() paginationDto: PaginationDto,
     @Body() roles: FilterManyByRolesDto,
   ) {
-    return this.usersService.filterUsersByManyRoles(roles, paginationDto)
+    return this.usersService.filterUsersByManyRoles(roles, user, paginationDto)
+  }
+
+  @Get('filter-by/secondary-client')
+  @UseGuards(AuthGuard())
+  getSecondaryClient(
+    @GetUser() user: User,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    return this.usersService.getSecondaryClient(user, paginationDto);
   }
 
   @Get('commercial/clients/:id')
