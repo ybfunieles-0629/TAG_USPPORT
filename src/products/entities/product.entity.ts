@@ -147,6 +147,21 @@ export class Product {
   @Column('varchar', {
 
   })
+  rejectionReason: string;
+
+  @Column('int', {
+
+  })
+  registeredNewOrUpdated: number;
+
+  @Column('varchar', {
+
+  })
+  updateReason: string;
+
+  @Column('varchar', {
+
+  })
   markedDesignArea: string;
 
   @Column('boolean', {

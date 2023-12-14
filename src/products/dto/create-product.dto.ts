@@ -37,6 +37,18 @@ export class CreateProductDto {
   @IsDecimal({ decimal_digits: '1,2' })
   weight?: number;
 
+  @IsOptional()
+  @IsString()
+  rejectionReason?: string;
+
+  @IsOptional()
+  @IsInt()
+  registeredNewOrUpdated?: number;
+
+  @IsOptional()
+  @IsString()
+  updateReason?: string;
+
   @IsInt()
   availableUnit?: number;
 

@@ -110,6 +110,21 @@ export class RefProduct {
   })
   productOnDemand: number;
 
+  @Column('varchar', {
+
+  })
+  rejectionReason: string;
+
+  @Column('int', {
+
+  })
+  registeredNewOrUpdated: number;
+
+  @Column('varchar', {
+
+  })
+  updateReason: string;
+
   @Column('boolean', {
     default: true,
   })
