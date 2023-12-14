@@ -66,7 +66,7 @@ export class UsersController {
     return this.usersService.findOne(term);
   }
 
-  @Get('filter-by-many/roles')
+  @Post('filter-by-many/roles')
   filterUsersByManyRoles(
     @Query() paginationDto: PaginationDto,
     @Body() roles: string[],
