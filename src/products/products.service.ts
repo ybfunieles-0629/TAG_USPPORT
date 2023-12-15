@@ -1,7 +1,8 @@
-import { Injectable, Logger, BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException, InternalServerErrorException, NotFoundException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { plainToClass } from 'class-transformer';
+import * as nodemailer from 'nodemailer';
 import axios from 'axios';
 
 import { Product } from './entities/product.entity';
@@ -14,7 +15,8 @@ import { RefProduct } from '../ref-products/entities/ref-product.entity';
 import { CategorySupplier } from '../category-suppliers/entities/category-supplier.entity';
 import { Image } from '../images/entities/image.entity';
 import { User } from '../users/entities/user.entity';
-import { MarkingServiceProperty } from 'src/marking-service-properties/entities/marking-service-property.entity';
+import { MarkingServiceProperty } from '../marking-service-properties/entities/marking-service-property.entity';
+import { RequireProductDto } from './dto/require-product.dto';
 
 
 @Injectable()
@@ -48,6 +50,8 @@ export class ProductsService {
 
     @InjectRepository(VariantReference)
     private readonly variantReferenceRepository: Repository<VariantReference>,
+
+    @Inject('EMAIL_CONFIG') private emailSenderConfig,
   ) { }
 
   //* ---------- LOAD PROMOS PRODUCTS METHOD ---------- *//
@@ -806,6 +810,45 @@ export class ProductsService {
       updatedProducts,
     };
   }
+
+  async requireProduct(requireProductDto: RequireProductDto) {
+    const {
+      name,
+      email,
+      phone,
+      productName,
+      quantity,
+      productDescription
+    } = requireProductDto;
+    
+    try {
+      // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      });
+
+      await transporter.sendMail({
+        from: this.emailSenderConfig.transport.from,
+        to: ['puertodaniela586@gmail.com', 'locarr785@gmail.com', 'yeison.descargas@gmail.com'],
+        subject: 'Solicitud de producto',
+        text: `
+        Nombre: ${name},
+        Correo electrónico: ${email},
+        Teléfono: ${phone},
+        Nombre del product. ${productName},
+        Cantidad: ${quantity},
+        Descripción del producto: ${productDescription}
+        `,
+      });
+    } catch (error) {
+      console.log('Failed to send the password recovery email', error);
+      throw new InternalServerErrorException(`Internal server error`);
+    }
+  };
 
   async desactivate(id: string) {
     const { product } = await this.findOne(id);
