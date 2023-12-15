@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { OrderListDetailsService } from './order-list-details.service';
@@ -18,7 +18,7 @@ import { ProductsModule } from '../products/products.module';
     PurchaseOrderModule,
     ProductsModule,
     StatesModule,
-    TransportServicesModule,
+    forwardRef(() => TransportServicesModule),
     TypeOrmModule.forFeature([OrderListDetail])
   ],
   controllers: [OrderListDetailsController],

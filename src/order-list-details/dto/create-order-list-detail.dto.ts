@@ -28,6 +28,9 @@ export class CreateOrderListDetailDto {
   @IsDate()
   estimatedDeliveryDate: Date;
 
+  @IsDate()
+  expirationDate: Date;
+
   @IsString()
   deliveryProofDocument: string;
 
