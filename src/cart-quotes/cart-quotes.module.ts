@@ -8,10 +8,12 @@ import { ClientsModule } from '../clients/clients.module';
 import { UsersModule } from '../users/users.module';
 import { StatesModule } from '../states/states.module';
 import { LocalTransportPricesModule } from '../local-transport-prices/local-transport-prices.module';
+import { OrderListDetailsModule } from '../order-list-details/order-list-details.module';
 
 @Module({
   imports: [
     ClientsModule,
+    OrderListDetailsModule,
     forwardRef(() => LocalTransportPricesModule),
     UsersModule,
     StatesModule,
