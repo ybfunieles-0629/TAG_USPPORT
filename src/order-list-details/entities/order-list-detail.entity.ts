@@ -53,6 +53,11 @@ export class OrderListDetail {
   })
   estimatedDeliveryDate: Date;
 
+  @Column('date', {
+
+  })
+  expirationDate: Date;
+
   @Column('varchar', {
 
   })

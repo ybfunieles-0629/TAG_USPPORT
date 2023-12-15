@@ -1,8 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put, Query } from '@nestjs/common';
+
 import { ProductsService } from './products.service';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateProductDto } from './dto/create-product.dto';
+import { RequireProductDto } from './dto/require-product.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -27,6 +29,13 @@ export class ProductsController {
     @Body() createMultipleProducts: CreateProductDto[]
   ) {
     return this.productsService.createMultiple(createMultipleProducts);
+  }
+
+  @Post('require/product')
+  requireProduct(
+    @Body() requireProductDto: RequireProductDto,
+  ) {
+    return this.productsService.requireProduct(requireProductDto);
   }
 
   @Get()

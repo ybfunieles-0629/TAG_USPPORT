@@ -1,6 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import axios from 'axios';
 import { classToPlain, plainToClass } from 'class-transformer';
 
 import { CreateCartQuoteDto } from './dto/create-cart-quote.dto';
@@ -17,6 +18,7 @@ import { MarkingService } from '../marking-services/entities/marking-service.ent
 import { Logo } from '../logos/entities/logo.entity';
 import { Packing } from '../packings/entities/packing.entity';
 import { LocalTransportPrice } from '../local-transport-prices/entities/local-transport-price.entity';
+import { OrderListDetail } from '../order-list-details/entities/order-list-detail.entity';
 
 @Injectable()
 export class CartQuotesService {
@@ -35,6 +37,9 @@ export class CartQuotesService {
 
     @InjectRepository(LocalTransportPrice)
     private readonly localTransportPriceRepository: Repository<LocalTransportPrice>,
+
+    @InjectRepository(OrderListDetail)
+    private readonly orderListDetailRepository: Repository<OrderListDetail>,
   ) { }
 
   async create(createCartQuoteDto: CreateCartQuoteDto) {
@@ -846,10 +851,47 @@ export class CartQuotesService {
 
     cartQuote.state = state;
 
+    let orderListDetailCreated: OrderListDetail;
+
+    if (updateCartQuoteDto.epaycoCode) {
+      const epaycoCode: string = updateCartQuoteDto.epaycoCode;
+
+      const { data: { data: response } } = await axios.get(`https://secure.epayco.co/validation/v1/reference/8832fb2b46b346206f71a569`);
+
+      const orderListDetailData = {
+        orderCode: response.x_id_factura,
+        quantities: cartQuote.productsQuantity,
+        productTotalPrice: response.x_amount,
+        clientTagTransportService: 1,
+        estimatedProfit: 10000,
+        realProfit: 50000,
+        secondaryState: 'secondary state',
+        estimatedMarkedDate: new Date(),
+        estimatedDeliveryDate: new Date(),
+        expirationDate: new Date(),
+        deliveryProofDocument: 'proof.pdf',
+        realCost: 5000,
+        estimatedQuoteCost: 10000,
+        costNote: 5000,
+        tagProductTotalCost: 1000,
+        samplePrice: 1000,
+        tagMarkingTotalCost: 1000,
+        transportCost: 3000,
+        realTransportCost: 1000,
+        realMarkingCost: 4000,
+        otherRealCosts: 1000
+      };
+
+      const orderListDetail: OrderListDetail = await plainToClass(OrderListDetail, orderListDetailData);
+
+      orderListDetailCreated = await this.orderListDetailRepository.save(orderListDetail);
+    };
+
     await this.cartQuoteRepository.save(cartQuote);
 
     return {
-      cartQuote
+      cartQuote,
+      orderListDetailCreated
     };
   }
 

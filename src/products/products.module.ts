@@ -11,9 +11,11 @@ import { CategorySuppliersModule } from '../category-suppliers/category-supplier
 import { ImagesModule } from '../images/images.module';
 import { UsersModule } from '../users/users.module';
 import { MarkingServicePropertiesModule } from '../marking-service-properties/marking-service-properties.module';
+import { EmailSenderModule } from '../email-sender/email-sender.module';
 
 @Module({
   imports: [
+    EmailSenderModule,
     CategorySuppliersModule,
     ColorsModule,
     ImagesModule,
