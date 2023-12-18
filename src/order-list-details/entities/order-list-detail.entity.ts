@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { PurchaseOrder } from '../../purchase-order/entities/purchase-order.entity';
 import { OrderRating } from '../../order-ratings/entities/order-rating.entity';
@@ -141,6 +141,7 @@ export class OrderListDetail {
 
   //* ---- FK ---- *//
   @OneToOne(() => OrderRating, (orderRating) => orderRating.orderListDetail)
+  @JoinColumn()
   orderRating: OrderRating;
 
   @OneToOne(() => CartQuote, (cartQuote) => cartQuote.orderListDetail)
