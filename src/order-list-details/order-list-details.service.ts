@@ -162,6 +162,11 @@ export class OrderListDetailsService {
         'transportService',
       ],
     });
+
+    return {
+      count,
+      results
+    };
   }
 
   async findOne(id: string) {
