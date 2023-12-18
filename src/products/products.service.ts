@@ -820,7 +820,7 @@ export class ProductsService {
       quantity,
       productDescription
     } = requireProductDto;
-    
+
     try {
       // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
       const transporter = nodemailer.createTransport({
@@ -874,6 +874,27 @@ export class ProductsService {
 
     return {
       product
+    };
+  }
+
+  async changeMultipleIsAllowedStatus(ids: string[]) {
+    const allowedProducts: Product[] = [];
+    
+    for (const id of ids) {
+      const product: Product = await this.productRepository.findOneBy({ id });
+
+      if (!product)
+        throw new NotFoundException(`Product with id ${id} not found`);
+
+      product.isAllowed == 0 ? product.isAllowed = 1 : product.isAllowed = 0;
+
+      const productAllowed = await this.productRepository.save(product);
+
+      allowedProducts.push(productAllowed);
+    };
+
+    return {
+      allowedProducts
     };
   }
 
