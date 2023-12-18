@@ -74,6 +74,13 @@ export class ProductsController {
     return this.productsService.changeIsAllowedStatus(id);
   }
 
+  @Patch('/allow/multiple')
+  changeMultipleIsAllowedStatus(
+    @Body() ids: string[],
+  ) {
+    return this.productsService.changeMultipleIsAllowedStatus(ids);
+  }
+
   @Patch('/desactivate/:id')
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
