@@ -290,6 +290,58 @@ export class UsersService {
     return token;
   }
 
+  async refreshToken(id: string) {
+    let payloadToSend;
+
+    const user = await this.userRepository.findOne({
+      where: {
+        id,
+      },
+      relations: [
+        'admin',
+        'brands',
+        'client',
+        'client.addresses',
+        'supplier',
+        'company',
+        'roles',
+        'permissions',
+        'privileges'
+      ],
+    });
+
+    if (!user)
+      throw new UnauthorizedException('Incorrect credentials');
+
+    if (!user.isActive)
+      throw new BadRequestException(`The user is currently inactive`);
+
+    const { id: userId, name: username, dni, city, address, isCoorporative, mainSecondaryUser, companyPosition } = user;
+    const { id: companyId, billingEmail, nit, legalCapacity } = user.company;
+
+    if (user.roles.some(role => role.name.toLowerCase().trim() === 'administrador') || user.roles.some(role => role.name.toLowerCase().trim() === 'super-administrador')) {
+      payloadToSend = {
+        user: { userId, username, dni, city, address, email: user.email, isCoorporative, mainSecondaryUser, companyPosition },
+        company: { companyId, billingEmail, nit, legalCapacity },
+        roles: user.roles.map(role => ({ name: role.name })),
+        permissions: user.permissions.map(permission => (({ name: permission.name }))),
+      };
+    } else {
+      payloadToSend = {
+        user: { userId, username, dni, city, address, email: user.email, isCoorporative, mainSecondaryUser, companyPosition },
+        company: { companyId, billingEmail, nit },
+        client: user.client,
+        commercialId: user?.client?.commercialId,
+        roles: user.roles.map(role => ({ name: role.name })),
+        permissions: user.permissions.map(permission => ({ name: permission.name })),
+      };
+    }
+
+    return {
+      token: this.getJwtToken(payloadToSend),
+    }
+  };
+
   async sendPasswordRecoveryEmail(passwordRecovery: PasswordRecoveryDto) {
     if (!passwordRecovery.email)
       throw new BadRequestException(`The email is required`);
@@ -544,6 +596,8 @@ export class UsersService {
     const { limit = 10, offset = 0 } = paginationDto;
 
     const usersToShow: User[] = [];
+
+    console.log(user);
 
     if (roles.isCommercial) {
       const commercialWithClients: User = await this.userRepository
