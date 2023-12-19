@@ -36,6 +36,13 @@ export class UsersController {
     return this.usersService.login(loginUserDto);
   }
 
+  @Get('refresh/token/:id')
+  refreshToken(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.usersService.refreshToken(id);
+  };
+
   @Post('password/recovery')
   sendPasswordRecoveryEmail(
     @Body() passwordRecoveryDto: PasswordRecoveryDto
@@ -74,10 +81,12 @@ export class UsersController {
   @Post('filter-by-many/roles')
   @UseGuards(AuthGuard())
   filterUsersByManyRoles(
+    @Req() req: any,
     @GetUser() user: User,
     @Query() paginationDto: PaginationDto,
     @Body() roles: FilterManyByRolesDto,
   ) {
+    console.log(req);
     return this.usersService.filterUsersByManyRoles(roles, user, paginationDto)
   }
 

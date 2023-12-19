@@ -39,6 +39,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       }
     })
   ],
-  exports: [TypeOrmModule, UsersService, PassportModule]
+  exports: [TypeOrmModule, UsersService, PassportModule, JwtModule, JwtStrategy]
 })
 export class UsersModule { }
