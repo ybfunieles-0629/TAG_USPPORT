@@ -55,6 +55,9 @@ export class PurchaseOrderService {
     const results: PurchaseOrder[] = await this.purchaseOrderRepository.find({
       take: limit,
       skip: offset,
+      relations: [
+        'orderListDetails',
+      ],
     });
 
     return {

@@ -79,6 +79,16 @@ export class PurchaseOrder {
   })
   expirationDate: Date;
 
+  @Column('varchar', {
+
+  })
+  clientUser: string;
+
+  @Column('varchar', {
+
+  })
+  commercialUser: string;
+
   @Column('int', {
 
   })
