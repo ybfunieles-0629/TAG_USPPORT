@@ -869,7 +869,7 @@ export class CartQuotesService {
 
       for (const quoteDetail of cartQuote.quoteDetails) {
         const orderListDetailData = {
-          orderCode: response.x_id_factura,
+          orderCode: response.x_id_factura + new Date(),
           quantities: quoteDetail.quantities,
           productTotalPrice: quoteDetail.total,
           clientTagTransportService: 1,
