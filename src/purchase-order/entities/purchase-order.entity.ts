@@ -70,9 +70,19 @@ export class PurchaseOrder {
   retentionCost: number;
 
   @Column('varchar', {
-
+    default: 0,
   })
   billingNumber: string;
+
+  @Column('date', {
+
+  })
+  expirationDate: Date;
+
+  @Column('int', {
+
+  })
+  value: number;
 
   @Column('varchar', {
 
