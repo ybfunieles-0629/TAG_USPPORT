@@ -5,9 +5,11 @@ import { PurchaseOrderService } from './purchase-order.service';
 import { PurchaseOrderController } from './purchase-order.controller';
 import { PurchaseOrder } from './entities/purchase-order.entity';
 import { StatesModule } from '../states/states.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
+    UsersModule,
     StatesModule,
     TypeOrmModule.forFeature([PurchaseOrder]),
   ],
