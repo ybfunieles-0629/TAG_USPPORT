@@ -70,7 +70,7 @@ import { SupplierPurchaseOrdersModule } from './supplier-purchase-orders/supplie
       database: process.env.DB_NAME,
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
-      // synchronize: true,
+      synchronize: true,
       autoLoadEntities: true,
     }),
     ClientsModule,
@@ -123,7 +123,7 @@ import { SupplierPurchaseOrdersModule } from './supplier-purchase-orders/supplie
     CommercialQualificationModule,
     StateChangesModule,
     SupplierPurchaseOrdersModule,
-    PurchaseOrderModule,
+    PurchaseOrderModule
   ],
 })
 export class AppModule { }
