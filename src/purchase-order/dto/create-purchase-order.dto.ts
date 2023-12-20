@@ -27,6 +27,12 @@ export class CreatePurchaseOrderDto {
   invoiceIssueDate: Date;
 
   @IsDate()
+  expirationDate: Date;
+
+  @IsInt()
+  value: number;
+
+  @IsDate()
   invoiceDueDate: Date;
 
   @IsInt()

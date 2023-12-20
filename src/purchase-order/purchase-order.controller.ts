@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { PurchaseOrderService } from './purchase-order.service';
 import { CreatePurchaseOrderDto } from './dto/create-purchase-order.dto';
 import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('purchase-order')
 export class PurchaseOrderController {
@@ -30,11 +31,13 @@ export class PurchaseOrderController {
   }
 
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('billingFile'))
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updatePurchaseOrderDto: UpdatePurchaseOrderDto
+    @Body() updatePurchaseOrderDto: UpdatePurchaseOrderDto,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.purchaseOrderService.update(id, updatePurchaseOrderDto);
+    return this.purchaseOrderService.update(id, updatePurchaseOrderDto, file);
   }
 
   @Patch('desactivate/:id')
