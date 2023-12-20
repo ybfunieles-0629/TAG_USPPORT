@@ -864,7 +864,7 @@ export class CartQuotesService {
       const epaycoCode: string = updateCartQuoteDto.epaycoCode;
 
       const { data: { data: response } } = await axios.get(`https://secure.epayco.co/validation/v1/reference/8832fb2b46b346206f71a569`);
-      
+
       const orderListDetailsCreated: OrderListDetail[] = [];
 
       for (const quoteDetail of cartQuote.quoteDetails) {
@@ -897,6 +897,18 @@ export class CartQuotesService {
 
         orderListDetailsCreated.push(orderListDetailCreated);
       };
+
+      const commercialUser: User = await this.userRepository.findOne({
+        where: {
+          id: updateCartQuoteDto.commercialUser,
+        },
+      });
+
+      const clientUser: User = await this.userRepository.findOne({
+        where: {
+          id: updateCartQuoteDto.clientUser,
+        },
+      });
 
       const purchaseOrderData = {
         tagOrderNumber: 1,
