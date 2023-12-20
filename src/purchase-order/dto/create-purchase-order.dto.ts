@@ -23,6 +23,12 @@ export class CreatePurchaseOrderDto {
   @IsString()
   userApproval: string;
 
+  @IsUUID()
+  clientUser: string;
+  
+  @IsUUID()
+  commercialUser: string;
+
   @IsDate()
   invoiceIssueDate: Date;
 

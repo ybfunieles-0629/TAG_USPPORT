@@ -19,6 +19,7 @@ import { Logo } from '../logos/entities/logo.entity';
 import { Packing } from '../packings/entities/packing.entity';
 import { LocalTransportPrice } from '../local-transport-prices/entities/local-transport-price.entity';
 import { OrderListDetail } from '../order-list-details/entities/order-list-detail.entity';
+import { PurchaseOrder } from '../purchase-order/entities/purchase-order.entity';
 
 @Injectable()
 export class CartQuotesService {
@@ -40,6 +41,9 @@ export class CartQuotesService {
 
     @InjectRepository(OrderListDetail)
     private readonly orderListDetailRepository: Repository<OrderListDetail>,
+
+    @InjectRepository(PurchaseOrder)
+    private readonly purchaseOrderRepository: Repository<PurchaseOrder>,
   ) { }
 
   async create(createCartQuoteDto: CreateCartQuoteDto) {
@@ -835,6 +839,9 @@ export class CartQuotesService {
       where: {
         id,
       },
+      relations: [
+        'quoteDetails',
+      ],
     });
 
     if (!cartQuote)
@@ -851,47 +858,81 @@ export class CartQuotesService {
 
     cartQuote.state = state;
 
-    let orderListDetailCreated: OrderListDetail;
+    let purchaseOrderCreated: PurchaseOrder;
 
     if (updateCartQuoteDto.epaycoCode) {
       const epaycoCode: string = updateCartQuoteDto.epaycoCode;
 
       const { data: { data: response } } = await axios.get(`https://secure.epayco.co/validation/v1/reference/8832fb2b46b346206f71a569`);
+      
+      const orderListDetailsCreated: OrderListDetail[] = [];
 
-      const orderListDetailData = {
-        orderCode: response.x_id_factura,
-        quantities: cartQuote.productsQuantity,
-        productTotalPrice: response.x_amount,
-        clientTagTransportService: 1,
-        estimatedProfit: 10000,
-        realProfit: 50000,
-        secondaryState: 'secondary state',
-        estimatedMarkedDate: new Date(),
-        estimatedDeliveryDate: new Date(),
-        expirationDate: new Date(),
-        deliveryProofDocument: 'proof.pdf',
-        realCost: 5000,
-        estimatedQuoteCost: 10000,
-        costNote: 5000,
-        tagProductTotalCost: 1000,
-        samplePrice: 1000,
-        tagMarkingTotalCost: 1000,
-        transportCost: 3000,
-        realTransportCost: 1000,
-        realMarkingCost: 4000,
-        otherRealCosts: 1000
+      for (const quoteDetail of cartQuote.quoteDetails) {
+        const orderListDetailData = {
+          orderCode: response.x_id_factura,
+          quantities: quoteDetail.quantities,
+          productTotalPrice: quoteDetail.total,
+          clientTagTransportService: 1,
+          estimatedProfit: 10000,
+          realProfit: 50000,
+          estimatedMarkedDate: new Date(),
+          estimatedDeliveryDate: new Date(),
+          expirationDate: new Date(),
+          deliveryProofDocument: 'proof.pdf',
+          realCost: 5000,
+          estimatedQuoteCost: 10000,
+          costNote: 5000,
+          tagProductTotalCost: 1000,
+          samplePrice: 1000,
+          tagMarkingTotalCost: 1000,
+          transportCost: 3000,
+          realTransportCost: 1000,
+          realMarkingCost: 4000,
+          otherRealCosts: 1000
+        };
+
+        const orderListDetail: OrderListDetail = await plainToClass(OrderListDetail, orderListDetailData);
+
+        const orderListDetailCreated: OrderListDetail = await this.orderListDetailRepository.save(orderListDetail);
+
+        orderListDetailsCreated.push(orderListDetailCreated);
       };
 
-      const orderListDetail: OrderListDetail = await plainToClass(OrderListDetail, orderListDetailData);
+      const purchaseOrderData = {
+        tagOrderNumber: 1,
+        clientOrderNumber: 1,
+        orderDocument: 'document.pdf',
+        approvalDate: new Date(),
+        creationDate: new Date(),
+        paymentDate: new Date(),
+        userApproval: '132132-213132-123123',
+        invoiceIssueDate: new Date(),
+        invoiceDueDate: new Date(),
+        financingCost: 1,
+        feeCost: 10,
+        retentionCost: 5,
+        billingNumber: 0,
+        expirationDate: new Date(),
+        clientUser: '132123-123123-12323',
+        commercialUser: '423432-432423-432243',
+        value: 1,
+        billingFile: '',
+        createdBy: '123123-231123-123132',
+        updatedBy: '132123-132132-312123'
+      };
 
-      orderListDetailCreated = await this.orderListDetailRepository.save(orderListDetail);
+      const purchaseOrder: PurchaseOrder = plainToClass(PurchaseOrder, purchaseOrderData);
+
+      purchaseOrder.orderListDetails = orderListDetailsCreated;
+
+      purchaseOrderCreated = await this.purchaseOrderRepository.save(purchaseOrder);
     };
 
     await this.cartQuoteRepository.save(cartQuote);
 
     return {
       cartQuote,
-      orderListDetailCreated
+      purchaseOrderCreated
     };
   }
 

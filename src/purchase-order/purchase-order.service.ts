@@ -10,6 +10,7 @@ import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto';
 import { PurchaseOrder } from './entities/purchase-order.entity';
 import { State } from '../states/entities/state.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class PurchaseOrderService {
@@ -19,6 +20,9 @@ export class PurchaseOrderService {
 
     @InjectRepository(State)
     private readonly stateRepository: Repository<State>,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) { }
 
   async create(createPurchaseOrderDto: CreatePurchaseOrderDto) {
@@ -38,7 +42,43 @@ export class PurchaseOrderService {
         throw new BadRequestException(`State with id ${createPurchaseOrderDto.state} is currently inactive`);
 
       newPurchaseOrder.state = state;
-    }
+    };
+
+    if (createPurchaseOrderDto.clientUser) {
+      const userId: string = createPurchaseOrderDto.clientUser;
+
+      const clientUser: User = await this.userRepository.findOne({
+        where: {
+          id: userId,
+        },
+      });
+
+      if (!clientUser)
+        throw new NotFoundException(`User with id ${userId} not found`);
+
+      if (!clientUser.isActive)
+        throw new BadRequestException(`The user with id ${userId} is currently inactive`);
+
+      newPurchaseOrder.clientUser = clientUser.id;
+    };
+
+    if (createPurchaseOrderDto.commercialUser) {
+      const userId: string = createPurchaseOrderDto.commercialUser;
+
+      const commercialUser: User = await this.userRepository.findOne({
+        where: {
+          id: userId,
+        },
+      });
+
+      if (!commercialUser)
+        throw new NotFoundException(`User with id ${userId} not found`);
+
+      if (!commercialUser.isActive)
+        throw new BadRequestException(`The user with id ${userId} is currently inactive`);
+
+      newPurchaseOrder.commercialUser = commercialUser.id;
+    };
 
     await this.purchaseOrderRepository.save(newPurchaseOrder);
 
@@ -55,11 +95,36 @@ export class PurchaseOrderService {
     const results: PurchaseOrder[] = await this.purchaseOrderRepository.find({
       take: limit,
       skip: offset,
+      relations: [
+        'orderListDetails',
+        // 'orderListDetails.cartQuote',
+        // 'orderListDetails.cartQuote.'
+      ],
+    });
+
+    const finalResults = results.map(async (purchaseOrder: PurchaseOrder) => {
+      const commercialUser: User = await this.userRepository.findOne({
+        where: {
+          id: purchaseOrder.commercialUser,
+        },
+      });
+
+      const clientUser: User = await this.userRepository.findOne({
+        where: {
+          id: purchaseOrder.clientUser,
+        },
+      });
+
+      return {
+        commercialUser,
+        clientUser,
+        ...purchaseOrder,
+      };
     });
 
     return {
       count,
-      results
+      finalResults
     };
   }
 
@@ -73,8 +138,26 @@ export class PurchaseOrderService {
     if (!purchaseOrder)
       throw new NotFoundException(`Purchase order with id ${id} not found`);
 
+    const commercialUser: User = await this.userRepository.findOne({
+      where: {
+        id: purchaseOrder.commercialUser,
+      },
+    });
+
+    const clientUser: User = await this.userRepository.findOne({
+      where: {
+        id: purchaseOrder.clientUser,
+      },
+    });
+
+    const finalResult = {
+      ...purchaseOrder,
+      commercialUser,
+      clientUser
+    }
+
     return {
-      purchaseOrder
+      finalResult
     };
   }
 
@@ -134,11 +217,29 @@ export class PurchaseOrderService {
   }
 
   async desactivate(id: string) {
-    const { purchaseOrder } = await this.findOne(id);
+    const purchaseOrder: PurchaseOrder = await this.purchaseOrderRepository.findOne({
+      where: {
+        id,
+      }
+    });
 
     purchaseOrder.isActive = !purchaseOrder.isActive;
 
     await this.purchaseOrderRepository.save(purchaseOrder);
+
+    return {
+      purchaseOrder
+    };
+  }
+
+  async remove(id: string) {
+    const purchaseOrder: PurchaseOrder = await this.purchaseOrderRepository.findOne({
+      where: {
+        id,
+      }
+    });
+
+    await this.purchaseOrderRepository.remove(purchaseOrder);
 
     return {
       purchaseOrder
@@ -169,15 +270,5 @@ export class PurchaseOrderService {
         }
       })
     })
-  }
-
-  async remove(id: string) {
-    const { purchaseOrder } = await this.findOne(id);
-
-    await this.purchaseOrderRepository.remove(purchaseOrder);
-
-    return {
-      purchaseOrder
-    };
   }
 }

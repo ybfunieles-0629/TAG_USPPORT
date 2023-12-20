@@ -9,12 +9,14 @@ import { UsersModule } from '../users/users.module';
 import { StatesModule } from '../states/states.module';
 import { LocalTransportPricesModule } from '../local-transport-prices/local-transport-prices.module';
 import { OrderListDetailsModule } from '../order-list-details/order-list-details.module';
+import { PurchaseOrderModule } from '../purchase-order/purchase-order.module';
 
 @Module({
   imports: [
     ClientsModule,
-    OrderListDetailsModule,
+    PurchaseOrderModule,
     forwardRef(() => LocalTransportPricesModule),
+    forwardRef(() => OrderListDetailsModule),
     UsersModule,
     StatesModule,
     TypeOrmModule.forFeature([CartQuote])
