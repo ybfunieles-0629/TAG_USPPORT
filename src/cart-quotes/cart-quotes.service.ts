@@ -102,6 +102,7 @@ export class CartQuotesService {
         'quoteDetails',
         'client',
         'client.user',
+        'user',
         'client.user.company',
         'quoteDetails.transportServices',
         'quoteDetails.product',
@@ -134,6 +135,8 @@ export class CartQuotesService {
     const finalCartQuotes = cartQuotes.map((cartQuote: CartQuote) => {
       let markingTotalPrice: number = 0;
 
+      console.log(cartQuote.user)
+
       return {
         id: cartQuote.id,
         quoteName: cartQuote.quoteName,
@@ -141,8 +144,8 @@ export class CartQuotesService {
         destinationCity: cartQuote.destinationCity,
         deliveryAddress: cartQuote.deliveryAddress,
         totalPrice: cartQuote.totalPrice,
+        user: cartQuote?.user || '',
         client: cartQuote.client,
-        user: cartQuote.user,
         company: cartQuote.client.user.company,
         productsQuantity: cartQuote.productsQuantity,
         weightToOrder: cartQuote.weightToOrder,
@@ -961,9 +964,7 @@ export class CartQuotesService {
     }
     // };
 
-    const updatedCartQuote = await this.cartQuoteRepository.save(cartQuote);
-
-    console.log(updatedCartQuote);
+    await this.cartQuoteRepository.save(cartQuote);
 
     return {
       cartQuote,
