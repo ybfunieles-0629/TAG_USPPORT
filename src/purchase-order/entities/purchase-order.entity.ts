@@ -74,6 +74,21 @@ export class PurchaseOrder {
   })
   billingNumber: number;
 
+  @Column('varchar', {
+
+  })
+  transportGuideCode: string;
+
+  @Column('varchar', {
+
+  })
+  transportGuideUrl: string;
+
+  @Column('varchar', {
+
+  })
+  deliveryProofDocument: string;
+
   @Column('date', {
 
   })
