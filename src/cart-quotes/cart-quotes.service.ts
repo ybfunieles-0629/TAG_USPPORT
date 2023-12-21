@@ -841,6 +841,8 @@ export class CartQuotesService {
       },
       relations: [
         'quoteDetails',
+        'user',
+        'client',
       ],
     });
 
