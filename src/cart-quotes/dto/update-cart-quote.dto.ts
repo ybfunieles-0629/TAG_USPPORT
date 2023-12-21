@@ -7,12 +7,7 @@ export class UpdateCartQuoteDto extends PartialType(CreateCartQuoteDto) {
   @IsString()
   epaycoCode?: string;
 
-  //* ---------- PURCHASE ORDER DATA ---------- */
   @IsOptional()
   @IsUUID()
   commercialUser?: string;
-
-  @IsOptional()
-  @IsUUID()
-  clientUser?: string;
 }
