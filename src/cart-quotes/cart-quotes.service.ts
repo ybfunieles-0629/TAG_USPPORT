@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import axios from 'axios';
@@ -899,6 +899,20 @@ export class CartQuotesService {
         orderListDetailsCreated.push(orderListDetailCreated);
       };
 
+      const commercialUser: User = await this.userRepository.findOne({
+        where: {
+          id: updateCartQuoteDto.commercialUser,
+        },
+      });
+
+      if (!commercialUser)
+        throw new NotFoundException(`Commercial user with id ${updateCartQuoteDto.commercialUser} not found`);
+
+      if (!commercialUser.isActive)
+        throw new BadRequestException(`Commercial user with id ${updateCartQuoteDto.commercialUser} is currently inactive`);
+
+      cartQuote.user = commercialUser;
+
       const purchaseOrderData = {
         tagOrderNumber: 1,
         clientOrderNumber: 1,
@@ -915,7 +929,7 @@ export class CartQuotesService {
         billingNumber: 0,
         expirationDate: new Date(),
         clientUser: cartQuote.client,
-        commercialUser: cartQuote.user,
+        commercialUser,
         value: 1,
         billingFile: '',
         createdBy: '123123-231123-123132',
