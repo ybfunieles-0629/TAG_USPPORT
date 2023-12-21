@@ -914,6 +914,8 @@ export class CartQuotesService {
       cartQuote.user = undefined;
       cartQuote.user = commercialUser;
 
+      await this.cartQuoteRepository.save(cartQuote);
+
       const purchaseOrderData = {
         tagOrderNumber: 1,
         clientOrderNumber: 1,
