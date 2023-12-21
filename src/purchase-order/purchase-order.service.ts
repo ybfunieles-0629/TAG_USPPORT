@@ -11,6 +11,7 @@ import { PurchaseOrder } from './entities/purchase-order.entity';
 import { State } from '../states/entities/state.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { User } from '../users/entities/user.entity';
+import { Client } from '../clients/entities/client.entity';
 
 @Injectable()
 export class PurchaseOrderService {
@@ -23,6 +24,9 @@ export class PurchaseOrderService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(Client)
+    private readonly clientRepository: Repository<Client>,
   ) { }
 
   async create(createPurchaseOrderDto: CreatePurchaseOrderDto) {
@@ -110,7 +114,7 @@ export class PurchaseOrderService {
           },
         });
 
-        const clientUser: User = await this.userRepository.findOne({
+        const clientUser: Client = await this.clientRepository.findOne({
           where: {
             id: purchaseOrder.clientUser,
           },
@@ -146,7 +150,7 @@ export class PurchaseOrderService {
       },
     });
 
-    const clientUser: User = await this.userRepository.findOne({
+    const clientUser: Client = await this.clientRepository.findOne({
       where: {
         id: purchaseOrder.clientUser,
       },
