@@ -102,6 +102,7 @@ export class PurchaseOrderService {
       relations: [
         'orderListDetails',
         'state',
+        'commercialQualification'
         // 'orderListDetails.cartQuote',
         // 'orderListDetails.cartQuote.'
       ],
@@ -146,6 +147,11 @@ export class PurchaseOrderService {
       where: {
         id,
       },
+      relations: [
+        'orderListDetails',
+        'state',
+        'commercialQualification',
+      ],
     });
 
     if (!purchaseOrder)
@@ -155,12 +161,18 @@ export class PurchaseOrderService {
       where: {
         id: purchaseOrder.commercialUser,
       },
+      relations: [
+        'user',
+      ],
     });
 
     const clientUser: Client = await this.clientRepository.findOne({
       where: {
         id: purchaseOrder.clientUser,
       },
+      relations: [
+        'user',
+      ],
     });
 
     const finalResult = {
