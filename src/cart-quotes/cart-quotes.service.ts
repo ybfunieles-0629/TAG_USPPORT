@@ -142,7 +142,7 @@ export class CartQuotesService {
         deliveryAddress: cartQuote.deliveryAddress,
         totalPrice: cartQuote.totalPrice,
         client: cartQuote.client,
-        user: cartQuote.client.user,
+        user: cartQuote.user,
         company: cartQuote.client.user.company,
         productsQuantity: cartQuote.productsQuantity,
         weightToOrder: cartQuote.weightToOrder,
@@ -356,7 +356,7 @@ export class CartQuotesService {
           unitPrice: quoteDetail.unitPrice,
           quantity: quoteDetail.quantities,
           image: quoteDetail.product?.refProduct?.images[0]?.url || 'default.png',
-          color: quoteDetail.product.colors[0].name,
+          color: quoteDetail?.product?.colors[0]?.name,
           iva: quoteDetail.product.iva,
           samplePrice: quoteDetail.product.samplePrice,
           refundSampleTime: quoteDetail.product.refundSampleTime,
@@ -841,6 +841,8 @@ export class CartQuotesService {
       },
       relations: [
         'quoteDetails',
+        'user',
+        'client',
       ],
     });
 
@@ -860,8 +862,37 @@ export class CartQuotesService {
 
     let purchaseOrderCreated: PurchaseOrder;
 
+    if (state.name.toLowerCase() == 'aprobada' || state.name.toLowerCase() == 'rechazada') {
+      const commercialUser: User = await this.userRepository.findOne({
+        where: {
+          id: updateCartQuoteDto.commercialUser,
+        },
+      });
+
+      if (!commercialUser)
+        throw new NotFoundException(`Commercial user with id ${updateCartQuoteDto.commercialUser} not found`);
+
+      if (!commercialUser.isActive)
+        throw new BadRequestException(`Commercial user with id ${updateCartQuoteDto.commercialUser} is currently inactive`);
+
+      const currentCartQuoteUser: User = await this.userRepository.findOne({
+        where: {
+          id: cartQuote.user.id,
+        },
+      });
+
+      if (!currentCartQuoteUser)
+        throw new BadRequestException(`This cart quote does not have an user`);
+
+      currentCartQuoteUser.cartQuotes = null;
+
+      await this.userRepository.save(currentCartQuoteUser);
+      
+      cartQuote.user = commercialUser;
+    };
+
     // if (updateCartQuoteDto.epaycoCode) {
-    if (state.name.toLowerCase() == 'aprobado') {
+    if (state.name.toLowerCase() == 'convertido en orden de compra') {
       const epaycoCode: string = updateCartQuoteDto.epaycoCode;
 
       const { data: { data: response } } = await axios.get(`https://secure.epayco.co/validation/v1/reference/8832fb2b46b346206f71a569`);
@@ -899,23 +930,6 @@ export class CartQuotesService {
         orderListDetailsCreated.push(orderListDetailCreated);
       };
 
-      const commercialUser: User = await this.userRepository.findOne({
-        where: {
-          id: updateCartQuoteDto.commercialUser,
-        },
-      });
-
-      if (!commercialUser)
-        throw new NotFoundException(`Commercial user with id ${updateCartQuoteDto.commercialUser} not found`);
-
-      if (!commercialUser.isActive)
-        throw new BadRequestException(`Commercial user with id ${updateCartQuoteDto.commercialUser} is currently inactive`);
-
-      cartQuote.user = undefined;
-      cartQuote.user = commercialUser;
-
-      await this.cartQuoteRepository.save(cartQuote);
-
       const purchaseOrderData = {
         tagOrderNumber: 1,
         clientOrderNumber: 1,
@@ -932,7 +946,7 @@ export class CartQuotesService {
         billingNumber: 0,
         expirationDate: new Date(),
         clientUser: cartQuote.client,
-        commercialUser,
+        commercialUser: cartQuote.user,
         value: 1,
         billingFile: '',
         createdBy: '123123-231123-123132',
@@ -947,7 +961,9 @@ export class CartQuotesService {
     }
     // };
 
-    await this.cartQuoteRepository.save(cartQuote);
+    const updatedCartQuote = await this.cartQuoteRepository.save(cartQuote);
+
+    console.log(updatedCartQuote);
 
     return {
       cartQuote,
