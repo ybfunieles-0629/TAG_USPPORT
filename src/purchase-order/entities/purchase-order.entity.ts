@@ -69,15 +69,20 @@ export class PurchaseOrder {
   })
   retentionCost: number;
 
-  @Column('varchar', {
+  @Column('int', {
     default: 0,
   })
-  billingNumber: string;
+  billingNumber: number;
 
   @Column('date', {
 
   })
   expirationDate: Date;
+
+  @Column('varchar', {
+
+  })
+  billingFile: string;
 
   @Column('varchar', {
 
@@ -93,11 +98,6 @@ export class PurchaseOrder {
 
   })
   value: number;
-
-  @Column('varchar', {
-
-  })
-  billingFile: string;
 
   @Column('boolean', {
     default: true,

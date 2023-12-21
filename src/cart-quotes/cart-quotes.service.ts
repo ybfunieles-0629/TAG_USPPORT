@@ -20,6 +20,7 @@ import { Packing } from '../packings/entities/packing.entity';
 import { LocalTransportPrice } from '../local-transport-prices/entities/local-transport-price.entity';
 import { OrderListDetail } from '../order-list-details/entities/order-list-detail.entity';
 import { PurchaseOrder } from '../purchase-order/entities/purchase-order.entity';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CartQuotesService {
@@ -890,7 +891,7 @@ export class CartQuotesService {
       currentCartQuoteUser.cartQuotes = null;
 
       await this.userRepository.save(currentCartQuoteUser);
-      
+
       cartQuote.user = commercialUser;
     };
 
@@ -904,7 +905,7 @@ export class CartQuotesService {
 
       for (const quoteDetail of cartQuote.quoteDetails) {
         const orderListDetailData = {
-          orderCode: response.x_id_factura + new Date(),
+          orderCode: uuidv4(),
           quantities: quoteDetail.quantities,
           productTotalPrice: quoteDetail.total,
           clientTagTransportService: 1,
@@ -916,7 +917,7 @@ export class CartQuotesService {
           deliveryProofDocument: 'proof.pdf',
           realCost: 5000,
           estimatedQuoteCost: 10000,
-          costNote: 5000,
+          costNote: 'cost note',
           tagProductTotalCost: 1000,
           samplePrice: 1000,
           tagMarkingTotalCost: 1000,
@@ -934,8 +935,8 @@ export class CartQuotesService {
       };
 
       const purchaseOrderData = {
-        tagOrderNumber: 1,
-        clientOrderNumber: 1,
+        tagOrderNumber: uuidv4(),
+        clientOrderNumber: uuidv4(),
         orderDocument: 'document.pdf',
         approvalDate: new Date(),
         creationDate: new Date(),
@@ -948,12 +949,10 @@ export class CartQuotesService {
         retentionCost: 5,
         billingNumber: 0,
         expirationDate: new Date(),
-        clientUser: cartQuote.client,
-        commercialUser: cartQuote.user,
+        clientUser: cartQuote.client.id,
+        commercialUser: cartQuote.user.id,
         value: 1,
-        billingFile: '',
-        createdBy: '123123-231123-123132',
-        updatedBy: '132123-132132-312123'
+        billingFile: ''
       };
 
       const purchaseOrder: PurchaseOrder = plainToClass(PurchaseOrder, purchaseOrderData);

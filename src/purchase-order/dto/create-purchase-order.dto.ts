@@ -53,8 +53,11 @@ export class CreatePurchaseOrderDto {
   @Min(0)
   retentionCost: number;
 
+  @IsInt()
+  billingNumber: number;
+
   @IsString()
-  billingNumber: string;
+  billingFile: string;
 
   @IsString()
   @IsUUID()
