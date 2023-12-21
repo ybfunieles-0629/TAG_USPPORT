@@ -911,6 +911,7 @@ export class CartQuotesService {
       if (!commercialUser.isActive)
         throw new BadRequestException(`Commercial user with id ${updateCartQuoteDto.commercialUser} is currently inactive`);
 
+      cartQuote.user = undefined;
       cartQuote.user = commercialUser;
 
       const purchaseOrderData = {
