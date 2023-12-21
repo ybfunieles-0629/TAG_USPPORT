@@ -860,7 +860,8 @@ export class CartQuotesService {
 
     let purchaseOrderCreated: PurchaseOrder;
 
-    if (updateCartQuoteDto.epaycoCode) {
+    // if (updateCartQuoteDto.epaycoCode) {
+    if (state.name.toLowerCase() == 'aprobado') {
       const epaycoCode: string = updateCartQuoteDto.epaycoCode;
 
       const { data: { data: response } } = await axios.get(`https://secure.epayco.co/validation/v1/reference/8832fb2b46b346206f71a569`);
@@ -898,18 +899,6 @@ export class CartQuotesService {
         orderListDetailsCreated.push(orderListDetailCreated);
       };
 
-      const commercialUser: User = await this.userRepository.findOne({
-        where: {
-          id: updateCartQuoteDto.commercialUser,
-        },
-      });
-
-      const clientUser: User = await this.userRepository.findOne({
-        where: {
-          id: updateCartQuoteDto.clientUser,
-        },
-      });
-
       const purchaseOrderData = {
         tagOrderNumber: 1,
         clientOrderNumber: 1,
@@ -925,8 +914,8 @@ export class CartQuotesService {
         retentionCost: 5,
         billingNumber: 0,
         expirationDate: new Date(),
-        clientUser: '132123-123123-12323',
-        commercialUser: '423432-432423-432243',
+        clientUser: cartQuote.client,
+        commercialUser: cartQuote.user,
         value: 1,
         billingFile: '',
         createdBy: '123123-231123-123132',
@@ -938,7 +927,8 @@ export class CartQuotesService {
       purchaseOrder.orderListDetails = orderListDetailsCreated;
 
       purchaseOrderCreated = await this.purchaseOrderRepository.save(purchaseOrder);
-    };
+    }
+    // };
 
     await this.cartQuoteRepository.save(cartQuote);
 
