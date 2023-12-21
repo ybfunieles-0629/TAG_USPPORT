@@ -101,6 +101,7 @@ export class PurchaseOrderService {
       skip: offset,
       relations: [
         'orderListDetails',
+        'state',
         // 'orderListDetails.cartQuote',
         // 'orderListDetails.cartQuote.'
       ],
@@ -112,12 +113,18 @@ export class PurchaseOrderService {
           where: {
             id: purchaseOrder.commercialUser,
           },
+          relations: [
+            'user',
+          ],
         });
 
         const clientUser: Client = await this.clientRepository.findOne({
           where: {
             id: purchaseOrder.clientUser,
           },
+          relations: [
+            'user',
+          ],
         });
 
         return {
