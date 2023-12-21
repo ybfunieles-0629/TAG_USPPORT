@@ -11,6 +11,7 @@ import { PurchaseOrder } from './entities/purchase-order.entity';
 import { State } from '../states/entities/state.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { User } from '../users/entities/user.entity';
+import { Client } from '../clients/entities/client.entity';
 
 @Injectable()
 export class PurchaseOrderService {
@@ -23,6 +24,9 @@ export class PurchaseOrderService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(Client)
+    private readonly clientRepository: Repository<Client>,
   ) { }
 
   async create(createPurchaseOrderDto: CreatePurchaseOrderDto) {
@@ -102,25 +106,27 @@ export class PurchaseOrderService {
       ],
     });
 
-    const finalResults = results.map(async (purchaseOrder: PurchaseOrder) => {
-      const commercialUser: User = await this.userRepository.findOne({
-        where: {
-          id: purchaseOrder.commercialUser,
-        },
-      });
+    const finalResults = await Promise.all(
+      results.map(async (purchaseOrder: PurchaseOrder) => {
+        const commercialUser: User = await this.userRepository.findOne({
+          where: {
+            id: purchaseOrder.commercialUser,
+          },
+        });
 
-      const clientUser: User = await this.userRepository.findOne({
-        where: {
-          id: purchaseOrder.clientUser,
-        },
-      });
+        const clientUser: Client = await this.clientRepository.findOne({
+          where: {
+            id: purchaseOrder.clientUser,
+          },
+        });
 
-      return {
-        commercialUser,
-        clientUser,
-        ...purchaseOrder,
-      };
-    });
+        return {
+          ...purchaseOrder,
+          commercialUser,
+          clientUser,
+        };
+      })
+    );
 
     return {
       count,
@@ -144,7 +150,7 @@ export class PurchaseOrderService {
       },
     });
 
-    const clientUser: User = await this.userRepository.findOne({
+    const clientUser: Client = await this.clientRepository.findOne({
       where: {
         id: purchaseOrder.clientUser,
       },
@@ -203,7 +209,7 @@ export class PurchaseOrderService {
       updatedPurchaseOrder.billingFile = file.originalname;
     }
 
-    updatedPurchaseOrder.billingNumber = '0';
+    updatedPurchaseOrder.billingNumber = 0;
     updatePurchaseOrderDto.expirationDate = new Date();
     updatePurchaseOrderDto.value = 0;
 
