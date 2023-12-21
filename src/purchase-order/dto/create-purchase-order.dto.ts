@@ -11,12 +11,6 @@ export class CreatePurchaseOrderDto {
   @IsString()
   orderDocument: string;
 
-  @IsString()
-  transportGuideCode: string;
-
-  @IsString()
-  transportGuideUrl: string;
-
   @IsDate()
   approvalDate: Date;
 
