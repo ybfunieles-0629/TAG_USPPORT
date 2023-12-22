@@ -1,4 +1,4 @@
-import { IsDate, IsInt, IsOptional, IsString, IsUUID } from "class-validator";
+import { IsArray, IsDate, IsInt, IsOptional, IsString, IsUUID } from "class-validator";
 
 export class CreateOrderListDetailDto {
   @IsString()
@@ -72,9 +72,9 @@ export class CreateOrderListDetailDto {
   @IsUUID()
   purchaseOrder: string;
 
-  @IsString()
-  @IsUUID()
-  markingService: string;
+  @IsArray()
+  @IsString({ each: true })
+  markingServices: string[];
 
   @IsString()
   @IsUUID()

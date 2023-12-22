@@ -78,20 +78,26 @@ export class OrderListDetailsService {
       newOrderListDetail.purchaseOrder = purchaseOrder;
     };
 
-    if (createOrderListDetailDto.markingService) {
-      const markingService: MarkingService = await this.markingServiceRepository.findOne({
-        where: {
-          id: createOrderListDetailDto.markingService,
-        },
-      });
+    if (createOrderListDetailDto.markingServices) {
+      const markingServices: MarkingService[] = [];
 
-      if (!markingService)
-        throw new NotFoundException(`Marking service with id ${createOrderListDetailDto.markingService} not found`);
+      for (const markingServiceId of createOrderListDetailDto.markingServices) {
+        const markingService: MarkingService = await this.markingServiceRepository.findOne({
+          where: {
+            id: markingServiceId,
+          },
+        });
 
-      if (!markingService.isActive)
-        throw new BadRequestException(`Marking service with id ${createOrderListDetailDto.markingService} is currently inactive`);
+        if (!markingService)
+          throw new NotFoundException(`Marking service with id ${markingServiceId} not found`);
 
-      newOrderListDetail.markingService = markingService;
+        if (!markingService.isActive)
+          throw new BadRequestException(`Marking service with id ${markingServiceId} is currently inactive`);
+
+        markingServices.push(markingService);
+      };
+
+      newOrderListDetail.markingServices = markingServices;
     };
 
     if (createOrderListDetailDto.transportService) {
@@ -158,7 +164,7 @@ export class OrderListDetailsService {
       take: limit,
       skip: offset,
       relations: [
-        'markingService',
+        'markingServices',
         'orderRating',
         'purchaseOrder',
         'product',
@@ -179,7 +185,7 @@ export class OrderListDetailsService {
         id,
       },
       relations: [
-        'markingService',
+        'markingServices',
         'orderRating',
         'purchaseOrder',
         'product',
@@ -202,7 +208,7 @@ export class OrderListDetailsService {
         id,
       },
       relations: [
-        'markingService',
+        'markingServices',
         'orderRating',
         'purchaseOrder',
         'product',
@@ -248,20 +254,26 @@ export class OrderListDetailsService {
       updatedOrderListDetail.purchaseOrder = purchaseOrder;
     };
 
-    if (updateOrderListDetailDto.markingService) {
-      const markingService: MarkingService = await this.markingServiceRepository.findOne({
-        where: {
-          id: updateOrderListDetailDto.markingService,
-        },
-      });
+    if (updateOrderListDetailDto.markingServices) {
+      const markingServices: MarkingService[] = [];
 
-      if (!markingService)
-        throw new NotFoundException(`Marking service with id ${updateOrderListDetailDto.markingService} not found`);
+      for (const markingServiceId of updateOrderListDetailDto.markingServices) {
+        const markingService: MarkingService = await this.markingServiceRepository.findOne({
+          where: {
+            id: markingServiceId,
+          },
+        });
 
-      if (!markingService.isActive)
-        throw new BadRequestException(`Marking service with id ${updateOrderListDetailDto.markingService} is currently inactive`);
+        if (!markingService)
+          throw new NotFoundException(`Marking service with id ${markingServiceId} not found`);
 
-      updatedOrderListDetail.markingService = markingService;
+        if (!markingService.isActive)
+          throw new BadRequestException(`Marking service with id ${markingServiceId} is currently inactive`);
+
+        markingServices.push(markingService);
+      };
+
+      updatedOrderListDetail.markingServices = markingServices;
     };
 
     if (updateOrderListDetailDto.transportService) {
@@ -314,7 +326,7 @@ export class OrderListDetailsService {
 
     if (updateOrderListDetailDto.supplierPurchaseOrder) {
       const supplierPurchaseOrderId: string = updateOrderListDetailDto.supplierPurchaseOrder;
-      
+
       const supplierPurchaseOrder: SupplierPurchaseOrder = await this.supplierPurchaseOrderRepository.findOne({
         where: {
           id: supplierPurchaseOrderId,
