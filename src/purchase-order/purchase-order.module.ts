@@ -7,12 +7,14 @@ import { PurchaseOrder } from './entities/purchase-order.entity';
 import { StatesModule } from '../states/states.module';
 import { UsersModule } from '../users/users.module';
 import { ClientsModule } from '../clients/clients.module';
+import { ShippingGuidesModule } from '../shipping-guides/shipping-guides.module';
 
 @Module({
   imports: [
     ClientsModule,
     UsersModule,
     StatesModule,
+    ShippingGuidesModule,
     TypeOrmModule.forFeature([PurchaseOrder]),
   ],
   controllers: [PurchaseOrderController],

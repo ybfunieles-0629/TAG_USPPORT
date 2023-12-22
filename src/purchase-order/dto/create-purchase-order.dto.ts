@@ -60,6 +60,10 @@ export class CreatePurchaseOrderDto {
   billingFile: string;
 
   @IsString()
+  @IsOptional()
+  shippingGuide?: string;
+
+  @IsString()
   @IsUUID()
   createdBy: string;
 
