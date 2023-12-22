@@ -10,6 +10,7 @@ import { MarkingServicesModule } from '../marking-services/marking-services.modu
 import { TransportServicesModule } from '../transport-services/transport-services.module';
 import { StatesModule } from '../states/states.module';
 import { ProductsModule } from '../products/products.module';
+import { SupplierPurchaseOrdersModule } from '../supplier-purchase-orders/supplier-purchase-orders.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ProductsModule } from '../products/products.module';
     PurchaseOrderModule,
     ProductsModule,
     StatesModule,
+    SupplierPurchaseOrdersModule,
     forwardRef(() => TransportServicesModule),
     TypeOrmModule.forFeature([OrderListDetail])
   ],
