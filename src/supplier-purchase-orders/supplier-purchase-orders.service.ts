@@ -24,6 +24,8 @@ export class SupplierPurchaseOrdersService {
   async create(createSupplierPurchaseOrderDto: CreateSupplierPurchaseOrderDto, file: Express.Multer.File) {
     const newSupplierPurchaseOrder: SupplierPurchaseOrder = plainToClass(SupplierPurchaseOrder, createSupplierPurchaseOrderDto);
 
+    newSupplierPurchaseOrder.orderCode = uuidv4();
+
     if (createSupplierPurchaseOrderDto.state) {
       const state: State = await this.stateRepository.findOne({
         where: {
