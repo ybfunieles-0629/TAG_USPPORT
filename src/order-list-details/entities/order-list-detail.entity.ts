@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { PurchaseOrder } from '../../purchase-order/entities/purchase-order.entity';
 import { OrderRating } from '../../order-ratings/entities/order-rating.entity';
@@ -151,8 +151,8 @@ export class OrderListDetail {
   @ManyToOne(() => PurchaseOrder, (purchaseOrder) => purchaseOrder.orderListDetails)
   purchaseOrder: PurchaseOrder;
 
-  @ManyToOne(() => MarkingService, (markingService) => markingService.orderListDetails)
-  markingService: MarkingService;
+  @OneToMany(() => MarkingService, (markingService) => markingService.orderListDetail)
+  markingServices: MarkingService[];
 
   @ManyToOne(() => TransportService, (transportService) => transportService.orderListDetails)
   transportService: TransportService;
