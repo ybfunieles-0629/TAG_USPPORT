@@ -1,9 +1,6 @@
 import { IsInt, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateSupplierPurchaseOrderDto {
-  @IsString()
-  orderCode: string;
-
   @IsOptional()
   @IsString()
   cost: number;

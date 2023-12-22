@@ -12,7 +12,8 @@ import { MarkingService } from '../marking-services/entities/marking-service.ent
 import { TransportService } from '../transport-services/entities/transport-service.entity';
 import { State } from '../states/entities/state.entity';
 import { Product } from '../products/entities/product.entity';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { SupplierPurchaseOrder } from '../supplier-purchase-orders/entities/supplier-purchase-order.entity';
 
 @Injectable()
 export class OrderListDetailsService {
@@ -34,6 +35,9 @@ export class OrderListDetailsService {
 
     @InjectRepository(State)
     private readonly stateRepository: Repository<State>,
+
+    @InjectRepository(SupplierPurchaseOrder)
+    private readonly supplierPurchaseOrderRepository: Repository<SupplierPurchaseOrder>,
 
     @InjectRepository(TransportService)
     private readonly transportServiceRepository: Repository<TransportService>,
@@ -306,6 +310,24 @@ export class OrderListDetailsService {
         throw new BadRequestException(`Product with id ${updateOrderListDetailDto.product} is currently inactive`);
 
       updatedOrderListDetail.product = product;
+    };
+
+    if (updateOrderListDetailDto.supplierPurchaseOrder) {
+      const supplierPurchaseOrderId: string = updateOrderListDetailDto.supplierPurchaseOrder;
+      
+      const supplierPurchaseOrder: SupplierPurchaseOrder = await this.supplierPurchaseOrderRepository.findOne({
+        where: {
+          id: supplierPurchaseOrderId,
+        },
+      });
+
+      if (!supplierPurchaseOrder)
+        throw new NotFoundException(`Supplier purchase order with id ${supplierPurchaseOrderId} not found`);
+
+      if (!supplierPurchaseOrder.isActive)
+        throw new BadRequestException(`Supplier purchase order with id ${supplierPurchaseOrderId} is currently inactive`);
+
+      updatedOrderListDetail.supplierPurchaseOrder = supplierPurchaseOrder;
     };
 
     Object.assign(orderListDetail, updatedOrderListDetail);

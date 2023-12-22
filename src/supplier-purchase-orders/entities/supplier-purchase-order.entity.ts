@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGenerate
 
 import { StateChange } from '../../state-changes/entities/state-change.entity';
 import { State } from '../../states/entities/state.entity';
+import { OrderListDetail } from '../../order-list-details/entities/order-list-detail.entity';
 
 @Entity('supplier_purchase_orders')
 export class SupplierPurchaseOrder {
@@ -45,6 +46,9 @@ export class SupplierPurchaseOrder {
   updatedAt: Date;
 
   //* ---- FK ---- *//
+  @OneToMany(() => OrderListDetail, (orderListDetail) => orderListDetail.supplierPurchaseOrder)
+  orderListDetails: OrderListDetail[];
+
   @OneToMany(() => StateChange, (stateChange) => stateChange.supplierPurchaseOrder)
   stateChanges: StateChange[];
 
