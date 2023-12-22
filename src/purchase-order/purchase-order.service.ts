@@ -106,6 +106,7 @@ export class PurchaseOrderService {
       relations: [
         'orderListDetails',
         'orderListDetails.supplierPurchaseOrder',
+        'orderListDetails.supplierPurchaseOrder.state',
         'orderListDetails.product',
         'orderListDetails.product.refProduct',
         'orderListDetails.product.refProduct.supplier',
@@ -155,6 +156,7 @@ export class PurchaseOrderService {
       relations: [
         'orderListDetails',
         'orderListDetails.supplierPurchaseOrder',
+        'orderListDetails.supplierPurchaseOrder.state',
         'orderListDetails.product',
         'orderListDetails.product.refProduct',
         'orderListDetails.product.refProduct.supplier',
