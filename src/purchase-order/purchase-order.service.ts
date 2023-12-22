@@ -105,8 +105,11 @@ export class PurchaseOrderService {
       skip: offset,
       relations: [
         'orderListDetails',
+        'orderListDetails.product',
+        'orderListDetails.product.refProduct',
+        'orderListDetails.product.refProduct.supplier',
         'state',
-        'commercialQualification'
+        'commercialQualification',
         // 'orderListDetails.cartQuote',
         // 'orderListDetails.cartQuote.'
       ],
@@ -150,6 +153,9 @@ export class PurchaseOrderService {
       },
       relations: [
         'orderListDetails',
+        'orderListDetails.product',
+        'orderListDetails.product.refProduct',
+        'orderListDetails.product.refProduct.supplier',
         'state',
         'commercialQualification',
       ],
