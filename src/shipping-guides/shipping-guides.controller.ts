@@ -1,15 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { ShippingGuidesService } from './shipping-guides.service';
 import { CreateShippingGuideDto } from './dto/create-shipping-guide.dto';
 import { UpdateShippingGuideDto } from './dto/update-shipping-guide.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('shipping-guides')
 export class ShippingGuidesController {
-  constructor(private readonly shippingGuidesService: ShippingGuidesService) {}
+  constructor(private readonly shippingGuidesService: ShippingGuidesService) { }
 
   @Post()
-  create(@Body() createShippingGuideDto: CreateShippingGuideDto) {
-    return this.shippingGuidesService.create(createShippingGuideDto);
+  @UseInterceptors(FileInterceptor('deliveryProof'))
+  create(
+    @Body() createShippingGuideDto: CreateShippingGuideDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.shippingGuidesService.create(createShippingGuideDto, file);
   }
 
   @Get()
