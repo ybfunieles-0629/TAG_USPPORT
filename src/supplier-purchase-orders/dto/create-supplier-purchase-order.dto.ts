@@ -4,10 +4,8 @@ export class CreateSupplierPurchaseOrderDto {
   @IsString()
   orderCode: string;
 
+  @IsOptional()
   @IsString()
-  tagPurchaseOrderDocument: string;
-
-  @IsInt()
   cost: number;
 
   @IsString()

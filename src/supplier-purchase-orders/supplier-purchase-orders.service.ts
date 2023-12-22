@@ -2,6 +2,8 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
+import * as AWS from 'aws-sdk';
 
 import { CreateSupplierPurchaseOrderDto } from './dto/create-supplier-purchase-order.dto';
 import { UpdateSupplierPurchaseOrderDto } from './dto/update-supplier-purchase-order.dto';
@@ -19,7 +21,7 @@ export class SupplierPurchaseOrdersService {
     private readonly stateRepository: Repository<State>,
   ) { }
 
-  async create(createSupplierPurchaseOrderDto: CreateSupplierPurchaseOrderDto) {
+  async create(createSupplierPurchaseOrderDto: CreateSupplierPurchaseOrderDto, file: Express.Multer.File) {
     const newSupplierPurchaseOrder: SupplierPurchaseOrder = plainToClass(SupplierPurchaseOrder, createSupplierPurchaseOrderDto);
 
     if (createSupplierPurchaseOrderDto.state) {
@@ -36,6 +38,20 @@ export class SupplierPurchaseOrdersService {
         throw new BadRequestException(`State with id ${createSupplierPurchaseOrderDto.state} is currently inactive`);
 
       newSupplierPurchaseOrder.state = state;
+    }
+
+    let tagPurchaseOrderDocument: string = '';
+
+    if (file !== null) {
+      const uniqueFilename = `${uuidv4()}-${file.originalname}`;
+
+      file.originalname = uniqueFilename;
+
+      const pdfUrl = await this.uploadToAws(file);
+
+      tagPurchaseOrderDocument = pdfUrl;
+
+      newSupplierPurchaseOrder.tagPurchaseOrderDocument = file.originalname;
     }
 
     await this.supplierPurchaseOrderRepository.save(newSupplierPurchaseOrder);
@@ -84,7 +100,7 @@ export class SupplierPurchaseOrdersService {
     };
   }
 
-  async update(id: string, updateSupplierPurchaseOrderDto: UpdateSupplierPurchaseOrderDto) {
+  async update(id: string, updateSupplierPurchaseOrderDto: UpdateSupplierPurchaseOrderDto, file: Express.Multer.File) {
     const supplierPurchaseOrder: SupplierPurchaseOrder = await this.supplierPurchaseOrderRepository.findOne({
       where: {
         id,
@@ -116,6 +132,20 @@ export class SupplierPurchaseOrdersService {
       updatedSupplierPurchaseOrder.state = state;
     }
 
+    let tagPurchaseOrderDocument: string = '';
+
+    if (file !== null) {
+      const uniqueFilename = `${uuidv4()}-${file.originalname}`;
+
+      file.originalname = uniqueFilename;
+
+      const pdfUrl = await this.uploadToAws(file);
+
+      tagPurchaseOrderDocument = pdfUrl;
+
+      updatedSupplierPurchaseOrder.tagPurchaseOrderDocument = file.originalname;
+    }
+
     Object.assign(supplierPurchaseOrder, updatedSupplierPurchaseOrder);
 
     await this.supplierPurchaseOrderRepository.save(supplierPurchaseOrder);
@@ -141,5 +171,31 @@ export class SupplierPurchaseOrdersService {
     return {
       supplierPurchaseOrder
     };
+  }
+
+  private async uploadToAws(file: Express.Multer.File) {
+    AWS.config.update({
+      accessKeyId: 'AKIARACQVPFRECVYXGCC',
+      secretAccessKey: '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',
+      region: 'us-east-1',
+    });
+
+    const s3 = new AWS.S3();
+
+    const params = {
+      Bucket: 'tag-storage-documents',
+      Key: file.originalname,
+      Body: file.buffer,
+    }
+
+    return new Promise<string>((resolve, reject) => {
+      s3.upload(params, (err: any, data: any) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data.Location);
+        }
+      })
+    })
   }
 }
