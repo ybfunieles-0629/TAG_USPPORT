@@ -924,11 +924,13 @@ export class CartQuotesService {
           transportCost: 3000,
           realTransportCost: 1000,
           realMarkingCost: 4000,
-          otherRealCosts: 1000,
-          product: quoteDetail.product
+          otherRealCosts: 1000
         };
 
         const orderListDetail: OrderListDetail = await plainToClass(OrderListDetail, orderListDetailData);
+
+        orderListDetail.product = quoteDetail.product;
+        orderListDetail.markingServices = quoteDetail.markingServices;
 
         const orderListDetailCreated: OrderListDetail = await this.orderListDetailRepository.save(orderListDetail);
 
