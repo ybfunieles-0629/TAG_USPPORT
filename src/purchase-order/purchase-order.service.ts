@@ -12,6 +12,7 @@ import { State } from '../states/entities/state.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { User } from '../users/entities/user.entity';
 import { Client } from '../clients/entities/client.entity';
+import { ShippingGuide } from '../shipping-guides/entities/shipping-guide.entity';
 
 @Injectable()
 export class PurchaseOrderService {
@@ -27,6 +28,9 @@ export class PurchaseOrderService {
 
     @InjectRepository(Client)
     private readonly clientRepository: Repository<Client>,
+
+    @InjectRepository(ShippingGuide)
+    private readonly shippingGuideRepository: Repository<ShippingGuide>,
   ) { }
 
   async create(createPurchaseOrderDto: CreatePurchaseOrderDto) {
@@ -224,6 +228,24 @@ export class PurchaseOrderService {
 
       updatedPurchaseOrder.billingFile = file.originalname;
     }
+
+    if (updatePurchaseOrderDto.shippingGuide) {
+      const shipingGuideId: string = updatePurchaseOrderDto.shippingGuide;
+
+      const shippingGuide: ShippingGuide = await this.shippingGuideRepository.findOne({
+        where: {
+          id: shipingGuideId,
+        },
+      });
+
+      if (!shippingGuide)
+        throw new NotFoundException(`Shipping guite with id ${shipingGuideId} not found`);
+
+      if (!shippingGuide.isActive)
+        throw new BadRequestException(`Shipping guide with id ${shipingGuideId} is currently inactive`);
+
+      updatedPurchaseOrder.shippingGuide = shippingGuide;
+    };
 
     updatedPurchaseOrder.billingNumber = 0;
     updatePurchaseOrderDto.expirationDate = new Date();

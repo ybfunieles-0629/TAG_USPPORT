@@ -1,16 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { SupplierPurchaseOrdersService } from './supplier-purchase-orders.service';
 import { CreateSupplierPurchaseOrderDto } from './dto/create-supplier-purchase-order.dto';
 import { UpdateSupplierPurchaseOrderDto } from './dto/update-supplier-purchase-order.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('supplier-purchase-orders')
 export class SupplierPurchaseOrdersController {
   constructor(private readonly supplierPurchaseOrdersService: SupplierPurchaseOrdersService) { }
 
   @Post()
-  create(@Body() createSupplierPurchaseOrderDto: CreateSupplierPurchaseOrderDto) {
-    return this.supplierPurchaseOrdersService.create(createSupplierPurchaseOrderDto);
+  @UseInterceptors(FileInterceptor('tagPurchaseOrderDocument'))
+  create(
+    @Body() createSupplierPurchaseOrderDto: CreateSupplierPurchaseOrderDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.supplierPurchaseOrdersService.create(createSupplierPurchaseOrderDto, file);
   }
 
   @Get()
@@ -28,11 +33,13 @@ export class SupplierPurchaseOrdersController {
   }
 
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('tagPurchaseOrderDocument'))
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateSupplierPurchaseOrderDto: UpdateSupplierPurchaseOrderDto
+    @Body() updateSupplierPurchaseOrderDto: UpdateSupplierPurchaseOrderDto,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.supplierPurchaseOrdersService.update(id, updateSupplierPurchaseOrderDto);
+    return this.supplierPurchaseOrdersService.update(id, updateSupplierPurchaseOrderDto, file);
   }
 
   @Patch('desactivate/:id')

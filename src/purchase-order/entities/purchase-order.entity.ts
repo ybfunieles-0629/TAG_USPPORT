@@ -3,6 +3,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, One
 import { CommercialQualification } from '../../commercial-qualification/entities/commercial-qualification.entity';
 import { State } from '../../states/entities/state.entity';
 import { OrderListDetail } from '../../order-list-details/entities/order-list-detail.entity';
+import { ShippingGuide } from '../../shipping-guides/entities/shipping-guide.entity';
 
 @Entity('purchase_order')
 export class PurchaseOrder {
@@ -127,6 +128,9 @@ export class PurchaseOrder {
 
   @OneToMany(() => OrderListDetail, (orderListDetail) => orderListDetail.purchaseOrder)
   orderListDetails: OrderListDetail[];
+
+  @ManyToOne(() => ShippingGuide, (shippingGuide) => shippingGuide.purchaseOrder)
+  shippingGuide: ShippingGuide;
 
   @ManyToOne(() => State, (state) => state.purchaseOrders)
   state: State;
