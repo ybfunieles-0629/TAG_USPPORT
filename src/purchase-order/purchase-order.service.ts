@@ -170,9 +170,6 @@ export class PurchaseOrderService {
       where: {
         id: purchaseOrder.commercialUser,
       },
-      relations: [
-        'user',
-      ],
     });
 
     const clientUser: Client = await this.clientRepository.findOne({
