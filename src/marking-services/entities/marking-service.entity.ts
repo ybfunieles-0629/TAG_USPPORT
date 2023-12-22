@@ -60,8 +60,8 @@ export class MarkingService {
   @JoinColumn()
   externalSubTechnique: ExternalSubTechnique;
 
-  @OneToMany(() => OrderListDetail, (orderListDetail) => orderListDetail.markingService)
-  orderListDetails: OrderListDetail[];
+  @ManyToOne(() => OrderListDetail, (orderListDetail) => orderListDetail.markingServices)
+  orderListDetail: OrderListDetail;
 
   @OneToMany(() => Logo, (logo) => logo.markingService)
   logos?: Logo[];
