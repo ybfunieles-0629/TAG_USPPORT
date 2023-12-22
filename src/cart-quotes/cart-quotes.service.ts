@@ -845,6 +845,8 @@ export class CartQuotesService {
       },
       relations: [
         'quoteDetails',
+        'quoteDetails.product',
+        'quoteDetails.markingServices',
         'user',
         'client',
       ],
@@ -927,10 +929,14 @@ export class CartQuotesService {
           otherRealCosts: 1000
         };
 
+        console.log(quoteDetail);
+
         const orderListDetail: OrderListDetail = await plainToClass(OrderListDetail, orderListDetailData);
 
         orderListDetail.product = quoteDetail.product;
         orderListDetail.markingServices = quoteDetail.markingServices;
+
+        // console.log(orderListDetail);
 
         const orderListDetailCreated: OrderListDetail = await this.orderListDetailRepository.save(orderListDetail);
 
