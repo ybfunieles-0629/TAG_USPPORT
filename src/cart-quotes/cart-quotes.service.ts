@@ -924,7 +924,8 @@ export class CartQuotesService {
           transportCost: 3000,
           realTransportCost: 1000,
           realMarkingCost: 4000,
-          otherRealCosts: 1000
+          otherRealCosts: 1000,
+          product: quoteDetail.product
         };
 
         const orderListDetail: OrderListDetail = await plainToClass(OrderListDetail, orderListDetailData);
