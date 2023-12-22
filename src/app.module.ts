@@ -53,6 +53,7 @@ import { OrderRatingsModule } from './order-ratings/order-ratings.module';
 import { CommercialQualificationModule } from './commercial-qualification/commercial-qualification.module';
 import { StateChangesModule } from './state-changes/state-changes.module';
 import { SupplierPurchaseOrdersModule } from './supplier-purchase-orders/supplier-purchase-orders.module';
+import { ShippingGuidesModule } from './shipping-guides/shipping-guides.module';
 
 @Module({
   imports: [
@@ -123,7 +124,8 @@ import { SupplierPurchaseOrdersModule } from './supplier-purchase-orders/supplie
     CommercialQualificationModule,
     StateChangesModule,
     SupplierPurchaseOrdersModule,
-    PurchaseOrderModule
+    PurchaseOrderModule,
+    ShippingGuidesModule
   ],
 })
 export class AppModule { }
