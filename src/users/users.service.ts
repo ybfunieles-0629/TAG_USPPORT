@@ -600,8 +600,6 @@ export class UsersService {
 
     const usersToShow: User[] = [];
 
-    console.log(user);
-
     if (roles.isCommercial) {
       const commercialWithClients: User[] = await this.userRepository
         .createQueryBuilder('user')
