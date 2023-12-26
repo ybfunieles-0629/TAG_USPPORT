@@ -170,6 +170,7 @@ export class OrderListDetailsService {
         'product',
         'state',
         'transportService',
+        'supplierPurchaseOrder',
       ],
     });
 
@@ -191,6 +192,7 @@ export class OrderListDetailsService {
         'product',
         'state',
         'transportService',
+        'supplierPurchaseOrder',
       ],
     });
 
