@@ -18,17 +18,13 @@ export class RolesService {
   ) { }
 
   async create(createRoleDto: CreateRoleDto) {
-    try {
-      const role = this.roleRepository.create(createRoleDto);
+    const role = this.roleRepository.create(createRoleDto);
 
-      await this.roleRepository.save(role);
+    await this.roleRepository.save(role);
 
-      return {
-        role
-      };
-    } catch (error) {
-      this.handleDbExceptions(error);
-    }
+    return {
+      role
+    };
   }
 
   findAll(paginationDto: PaginationDto) {
