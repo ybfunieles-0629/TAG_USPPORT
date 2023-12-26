@@ -199,6 +199,7 @@ export class OrderListDetailsService {
           'state',
           'transportService',
           'supplierPurchaseOrder',
+          'supplierPurchaseOrder.state',
         ],
       });
     }
@@ -227,6 +228,7 @@ export class OrderListDetailsService {
         'state',
         'transportService',
         'supplierPurchaseOrder',
+        'supplierPurchaseOrder.state',
       ],
     });
 
