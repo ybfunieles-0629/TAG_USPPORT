@@ -80,6 +80,7 @@ export class ClientsService {
       skip: offset,
       relations: [
         'admin',
+        'admin.user',
         'addresses',
         'user',
       ]
@@ -93,6 +94,7 @@ export class ClientsService {
       },
       relations: [
         'admin',
+        'admin.user',
         'addresses',
         'user'
       ],
