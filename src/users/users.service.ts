@@ -618,31 +618,51 @@ export class UsersService {
 
       usersToShow.push(...commercialWithClients);
     } else {
-      for (const role of roles.roles) {
-        const users: User[] = await this.userRepository
+      if (user.client && user.mainSecondaryUser == 0) {
+        const commercialWithClients: User[] = await this.userRepository
           .createQueryBuilder('user')
-          .leftJoinAndSelect('user.roles', 'roles')
-          .where('roles.name =:role', { role })
-          .leftJoinAndSelect('user.brands', 'brands')
-          .leftJoinAndSelect('user.company', 'company')
-          .leftJoinAndSelect('user.privileges', 'privileges')
-          .leftJoinAndSelect('user.permissions', 'permissions')
-          .leftJoinAndSelect('user.admin', 'admin')
-          .leftJoinAndSelect('admin.clients', 'adminClients')
-          .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
           .leftJoinAndSelect('user.client', 'client')
+          .leftJoinAndSelect('client.admin', 'admin')
+          .leftJoinAndSelect('admin.user', 'adminUser')
           .leftJoinAndSelect('client.addresses', 'clientAddresses')
-          .leftJoinAndSelect('user.supplier', 'supplier')
-          .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
-          .take(limit)
-          .skip(offset)
+          .leftJoinAndSelect('client.user', 'clientUser')
+          .leftJoinAndSelect('clientUser.roles', 'roles')
+          .leftJoinAndSelect('clientUser.brands', 'brands')
+          .leftJoinAndSelect('clientUser.company', 'company')
+          .where('company.id =:userCompanyId', { userCompanyId: user.company.id })
+          .andWhere('clientUser.user.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 1 })
+          .leftJoinAndSelect('clientUser.privileges', 'privileges')
+          .leftJoinAndSelect('clientUser.permissions', 'permissions')
           .getMany();
 
-        if (!users)
-          throw new NotFoundException(`Users with role ${role} not found`);
+        usersToShow.push(...commercialWithClients);
+      } else {
+        for (const role of roles.roles) {
+          const users: User[] = await this.userRepository
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.roles', 'roles')
+            .where('roles.name =:role', { role })
+            .leftJoinAndSelect('user.brands', 'brands')
+            .leftJoinAndSelect('user.company', 'company')
+            .leftJoinAndSelect('user.privileges', 'privileges')
+            .leftJoinAndSelect('user.permissions', 'permissions')
+            .leftJoinAndSelect('user.admin', 'admin')
+            .leftJoinAndSelect('admin.clients', 'adminClients')
+            .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
+            .leftJoinAndSelect('user.client', 'client')
+            .leftJoinAndSelect('client.addresses', 'clientAddresses')
+            .leftJoinAndSelect('user.supplier', 'supplier')
+            .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
+            .take(limit)
+            .skip(offset)
+            .getMany();
 
-        usersToShow.push(...users);
-      };
+          if (!users)
+            throw new NotFoundException(`Users with role ${role} not found`);
+
+          usersToShow.push(...users);
+        };
+      }
     }
 
     const paginatedUsers: User[] = usersToShow.slice(offset, offset + limit);
