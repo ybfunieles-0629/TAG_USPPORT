@@ -603,8 +603,10 @@ export class UsersService {
     if (roles.isCommercial) {
       const commercialWithClients: User[] = await this.userRepository
         .createQueryBuilder('user')
-        .leftJoinAndSelect('user.clients', 'client')
-        .where('client.commercialId =:commercialId', { commercialId: user.id })
+        .leftJoinAndSelect('user.client', 'client')
+        .leftJoinAndSelect('client.admin', 'admin')
+        .leftJoinAndSelect('admin.user', 'adminUser')
+        .where('adminUser.id =:adminId', { adminId: user.id })
         .leftJoinAndSelect('client.addresses', 'clientAddresses')
         .leftJoinAndSelect('client.user', 'clientUser')
         .leftJoinAndSelect('clientUser.roles', 'roles')
@@ -612,7 +614,6 @@ export class UsersService {
         .leftJoinAndSelect('clientUser.company', 'company')
         .leftJoinAndSelect('clientUser.privileges', 'privileges')
         .leftJoinAndSelect('clientUser.permissions', 'permissions')
-        .leftJoinAndSelect('clientUser.admin', 'admin')
         .getMany();
 
       usersToShow.push(...commercialWithClients);
