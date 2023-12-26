@@ -168,8 +168,11 @@ export class OrderListDetailsService {
         'orderRating',
         'purchaseOrder',
         'product',
+        'product.refProduct',
+        'product.refProduct.supplier',
         'state',
         'transportService',
+        'supplierPurchaseOrder',
       ],
     });
 
@@ -189,8 +192,11 @@ export class OrderListDetailsService {
         'orderRating',
         'purchaseOrder',
         'product',
+        'product.refProduct',
+        'product.refProduct.supplier',
         'state',
         'transportService',
+        'supplierPurchaseOrder',
       ],
     });
 
