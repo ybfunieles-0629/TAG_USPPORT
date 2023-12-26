@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
@@ -9,7 +10,6 @@ import { User } from './entities/user.entity';
 import { CompaniesModule } from '../companies/companies.module';
 import { RolesModule } from '../roles/roles.module';
 import { PermissionsModule } from '../permissions/permissions.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { PrivilegesModule } from '../privileges/privileges.module';
 import { BrandsModule } from '../brands/brands.module';

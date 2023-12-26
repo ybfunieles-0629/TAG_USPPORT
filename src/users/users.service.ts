@@ -603,24 +603,21 @@ export class UsersService {
     console.log(user);
 
     if (roles.isCommercial) {
-      const commercialWithClients: User = await this.userRepository
+      const commercialWithClients: User[] = await this.userRepository
         .createQueryBuilder('user')
-        .where('user.id =:userId', { userId: user.id })
-        .leftJoinAndSelect('user.roles', 'roles')
-        .leftJoinAndSelect('user.brands', 'brands')
-        .leftJoinAndSelect('user.company', 'company')
-        .leftJoinAndSelect('user.privileges', 'privileges')
-        .leftJoinAndSelect('user.permissions', 'permissions')
-        .leftJoinAndSelect('user.admin', 'admin')
-        .leftJoinAndSelect('admin.clients', 'adminClients')
-        .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
-        .leftJoinAndSelect('user.client', 'client')
+        .leftJoinAndSelect('user.clients', 'client')
+        .where('client.commercialId =:commercialId', { commercialId: user.id })
         .leftJoinAndSelect('client.addresses', 'clientAddresses')
-        .leftJoinAndSelect('user.supplier', 'supplier')
-        .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
-        .getOne();
+        .leftJoinAndSelect('client.user', 'clientUser')
+        .leftJoinAndSelect('clientUser.roles', 'roles')
+        .leftJoinAndSelect('clientUser.brands', 'brands')
+        .leftJoinAndSelect('clientUser.company', 'company')
+        .leftJoinAndSelect('clientUser.privileges', 'privileges')
+        .leftJoinAndSelect('clientUser.permissions', 'permissions')
+        .leftJoinAndSelect('clientUser.admin', 'admin')
+        .getMany();
 
-      usersToShow.push(commercialWithClients);
+      usersToShow.push(...commercialWithClients);
     } else {
       for (const role of roles.roles) {
         const users: User[] = await this.userRepository
