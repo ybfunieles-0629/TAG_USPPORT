@@ -11,6 +11,7 @@ import { TransportServicesModule } from '../transport-services/transport-service
 import { StatesModule } from '../states/states.module';
 import { ProductsModule } from '../products/products.module';
 import { SupplierPurchaseOrdersModule } from '../supplier-purchase-orders/supplier-purchase-orders.module';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SupplierPurchaseOrdersModule } from '../supplier-purchase-orders/suppli
     ProductsModule,
     StatesModule,
     SupplierPurchaseOrdersModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     forwardRef(() => TransportServicesModule),
     TypeOrmModule.forFeature([OrderListDetail])
   ],
