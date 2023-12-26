@@ -136,8 +136,6 @@ export class CartQuotesService {
     const finalCartQuotes = cartQuotes.map((cartQuote: CartQuote) => {
       let markingTotalPrice: number = 0;
 
-      console.log(cartQuote.user)
-
       return {
         id: cartQuote.id,
         quoteName: cartQuote.quoteName,
@@ -197,7 +195,7 @@ export class CartQuotesService {
                   })[0]
                   : undefined;
 
-                const { origin, destination, price, volume } = closestLocalTransportPrice;
+                const { origin, destination, price, volume } = closestLocalTransportPrice || { origin: '', destination: '', price: 0, volume: 0 };
 
                 const transportCalculation = [{
                   packingVolume,
@@ -235,7 +233,7 @@ export class CartQuotesService {
                   })[0]
                   : undefined;
 
-                const { origin, destination, price, volume } = closestLocalTransportPrice;
+                const { origin, destination, price, volume } = closestLocalTransportPrice || { origin: '', destination: '', price: 0, volume: 0 };
 
                 const transportCalculation = [{
                   packingVolume,
@@ -431,7 +429,7 @@ export class CartQuotesService {
                 })[0]
                 : undefined;
 
-              const { origin, destination, price, volume } = closestLocalTransportPrice;
+              const { origin, destination, price, volume } = closestLocalTransportPrice || { origin: '', destination: '', price: 0, volume: 0 };
 
               const transportCalculation = [{
                 packingVolume,
@@ -650,7 +648,7 @@ export class CartQuotesService {
                   })[0]
                   : undefined;
 
-                const { origin, destination, price, volume } = closestLocalTransportPrice;
+                const { origin, destination, price, volume } = closestLocalTransportPrice || { origin: '', destination: '', price: 0, volume: 0 };
 
                 const transportCalculation = [{
                   packingVolume,
