@@ -79,8 +79,9 @@ export class ClientsService {
       take: limit,
       skip: offset,
       relations: [
+        'admin',
         'addresses',
-        'user'
+        'user',
       ]
     });
   }
