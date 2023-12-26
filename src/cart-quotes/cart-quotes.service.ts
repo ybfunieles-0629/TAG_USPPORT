@@ -937,6 +937,13 @@ export class CartQuotesService {
         orderListDetailsCreated.push(orderListDetailCreated);
       };
 
+      const stateToFind: string = cartQuote.user.isCoorporative ? 'preaprobada' : 'orden de compra realizada';
+
+      const state: State = await this.stateRepository
+        .createQueryBuilder('state')
+        .where('LOWER(name) :=stateToFind', { stateToFind })
+        .getOne();
+
       const purchaseOrderData = {
         tagOrderNumber: uuidv4(),
         clientOrderNumber: uuidv4(),
@@ -955,7 +962,8 @@ export class CartQuotesService {
         clientUser: cartQuote.client.id,
         commercialUser: cartQuote.user.id,
         value: 1,
-        billingFile: ''
+        billingFile: '',
+        state
       };
 
       const purchaseOrder: PurchaseOrder = plainToClass(PurchaseOrder, purchaseOrderData);
