@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 import { ProductsService } from './products.service';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -8,7 +9,7 @@ import { RequireProductDto } from './dto/require-product.dto';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @Post('/load')
   loadProducts(
@@ -32,10 +33,12 @@ export class ProductsController {
   }
 
   @Post('require/product')
+  @UseInterceptors(FileInterceptor('image'))
   requireProduct(
     @Body() requireProductDto: RequireProductDto,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.productsService.requireProduct(requireProductDto);
+    return this.productsService.requireProduct(requireProductDto, file);
   }
 
   @Get()
