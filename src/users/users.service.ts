@@ -21,6 +21,7 @@ import { Brand } from '../brands/entities/brand.entity';
 import { PasswordRecoveryDto } from './dto/password-recovery.dto';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { FilterManyByRolesDto } from './dto/filter-many-by-roles.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
@@ -386,27 +387,29 @@ export class UsersService {
   }
 
   async passwordRecovery(passwordRecovery: PasswordRecoveryDto) {
-    // if (!passwordRecovery.password)
-    //   throw new BadRequestException(`The password is required`);
+    let configService: ConfigService;
 
-    // if (!passwordRecovery.token)
-    //   throw new BadRequestException(`The token is required`);
+    if (!passwordRecovery.password)
+      throw new BadRequestException(`The password is required`);
 
-    // const data = this.jwtService.decode(passwordRecovery.token);
+    if (!passwordRecovery.token)
+      throw new BadRequestException(`The token is required`);
 
-    // const jwtStrategy = new JwtStrategy(this.userRepository);
+    const data = this.jwtService.decode(passwordRecovery.token);
 
-    // const user = await jwtStrategy.validate(data);
+    const jwtStrategy = new JwtStrategy(this.userRepository, configService);
 
-    // const hashedPass = bcrypt.hashSync(passwordRecovery.password, 10);
+    const user = await jwtStrategy.validate(data);
 
-    // user.password = hashedPass;
+    const hashedPass = bcrypt.hashSync(passwordRecovery.password, 10);
 
-    // await this.userRepository.save(user);
+    user.password = hashedPass;
 
-    // return {
-    //   user
-    // };
+    await this.userRepository.save(user);
+
+    return {
+      user
+    };
   }
 
   async addPermissionsByUserRole(id: string) {
