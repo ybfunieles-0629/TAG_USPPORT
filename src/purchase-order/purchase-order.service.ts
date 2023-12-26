@@ -105,7 +105,7 @@ export class PurchaseOrderService {
     if (user.client) {
       results = await this.purchaseOrderRepository
         .createQueryBuilder('purchase')
-        .where('purchase.clientUser =:clientId', { clientId: user.id })
+        .where('purchase.clientUser =:clientId', { clientId: user.client.id })
         .leftJoinAndSelect('purchase.orderListDetails', 'orderListDetails')
         .leftJoinAndSelect('orderListDetails.state', 'orderListDetailsState')
         .leftJoinAndSelect('orderListDetails.supplierPurchaseOrder', 'supplierPurchaseOrder')
