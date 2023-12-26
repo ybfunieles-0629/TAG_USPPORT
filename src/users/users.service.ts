@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { validate as isUUID } from 'uuid';
 import { classToPlain, plainToClass } from 'class-transformer';
 import { JwtService } from '@nestjs/jwt';
@@ -21,6 +21,7 @@ import { Brand } from '../brands/entities/brand.entity';
 import { PasswordRecoveryDto } from './dto/password-recovery.dto';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { FilterManyByRolesDto } from './dto/filter-many-by-roles.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
@@ -286,7 +287,7 @@ export class UsersService {
   }
 
   private getJwtToken(payload: any) {
-    const token = this.jwtService.sign(payload, { secret: process.env.JWT_SECRET });
+    const token = this.jwtService.sign(payload);
     return token;
   }
 
@@ -386,6 +387,8 @@ export class UsersService {
   }
 
   async passwordRecovery(passwordRecovery: PasswordRecoveryDto) {
+    let configService: ConfigService;
+
     if (!passwordRecovery.password)
       throw new BadRequestException(`The password is required`);
 
@@ -394,7 +397,7 @@ export class UsersService {
 
     const data = this.jwtService.decode(passwordRecovery.token);
 
-    const jwtStrategy = new JwtStrategy(this.userRepository);
+    const jwtStrategy = new JwtStrategy(this.userRepository, configService);
 
     const user = await jwtStrategy.validate(data);
 

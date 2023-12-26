@@ -1,9 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { OrderListDetailsService } from './order-list-details.service';
 import { CreateOrderListDetailDto } from './dto/create-order-list-detail.dto';
 import { UpdateOrderListDetailDto } from './dto/update-order-list-detail.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('order-list-details')
 export class OrderListDetailsController {
@@ -15,10 +18,12 @@ export class OrderListDetailsController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
+    @GetUser() user: User,
     @Query() paginationDto: PaginationDto,
   ) {
-    return this.orderListDetailsService.findAll(paginationDto);
+    return this.orderListDetailsService.findAll(paginationDto, user);
   }
 
   @Get(':id')

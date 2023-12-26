@@ -14,6 +14,7 @@ import { State } from '../states/entities/state.entity';
 import { Product } from '../products/entities/product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { SupplierPurchaseOrder } from '../supplier-purchase-orders/entities/supplier-purchase-order.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class OrderListDetailsService {
@@ -155,29 +156,52 @@ export class OrderListDetailsService {
     };
   }
 
-  async findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto, user: User) {
     const count: number = await this.orderListDetailRepository.count();
 
     const { limit = count, offset = 0 } = paginationDto;
 
-    const results: OrderListDetail[] = await this.orderListDetailRepository.find({
-      take: limit,
-      skip: offset,
-      relations: [
-        'markingServices',
-        'orderRating',
-        'purchaseOrder',
-        'product',
-        'product.colors',
-        'product.variantReferences',
-        'product.refProduct',
-        'product.refProduct.supplier',
-        'product.refProduct.supplier.user',
-        'state',
-        'transportService',
-        'supplierPurchaseOrder',
-      ],
-    });
+    let results: OrderListDetail[];
+
+    if (user.supplier) {
+      results = await this.orderListDetailRepository
+        .createQueryBuilder('order')
+        .leftJoinAndSelect('order.markingServices', 'markingService')
+        .leftJoinAndSelect('order.orderRating', 'orderRating')
+        .leftJoinAndSelect('order.purchaseOrder', 'purchaseOrder')
+        .leftJoinAndSelect('order.product', 'product')
+        .leftJoinAndSelect('product.colors', 'productColors')
+        .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+        .leftJoinAndSelect('product.refProduct', 'refProduct')
+        .leftJoinAndSelect('refProduct.supplier', 'refProductSupplier')
+        .where('refProducSupplier.id =:supplierId', { supplierId: user.supplier.id })
+        .leftJoinAndSelect('refProductSupplier.user', 'refProductSupplierUser')
+        .leftJoinAndSelect('order.state', 'orderState')
+        .leftJoinAndSelect('order.transportService', 'orderTransportService')
+        .leftJoinAndSelect('order.supplierPurchaseOrder', 'orderSupplierPurchaseOrder')
+        .take(limit)
+        .skip(offset)
+        .getMany();
+    } else {
+      results = await this.orderListDetailRepository.find({
+        take: limit,
+        skip: offset,
+        relations: [
+          'markingServices',
+          'orderRating',
+          'purchaseOrder',
+          'product',
+          'product.colors',
+          'product.variantReferences',
+          'product.refProduct',
+          'product.refProduct.supplier',
+          'product.refProduct.supplier.user',
+          'state',
+          'transportService',
+          'supplierPurchaseOrder',
+        ],
+      });
+    }
 
     return {
       count,

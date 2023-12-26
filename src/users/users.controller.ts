@@ -12,6 +12,7 @@ import { FilterManyByRolesDto } from './dto/filter-many-by-roles.dto';
 import { GetUser } from './decorators/get-user.decorator';
 import { Company } from '../companies/entities/company.entity';
 import { User } from './entities/user.entity';
+import passport from 'passport';
 
 @Controller('users')
 export class UsersController {
@@ -81,12 +82,10 @@ export class UsersController {
   @Post('filter-by-many/roles')
   @UseGuards(AuthGuard())
   filterUsersByManyRoles(
-    @Req() req: any,
     @GetUser() user: User,
     @Query() paginationDto: PaginationDto,
     @Body() roles: FilterManyByRolesDto,
   ) {
-    console.log(req);
     return this.usersService.filterUsersByManyRoles(roles, user, paginationDto)
   }
 
