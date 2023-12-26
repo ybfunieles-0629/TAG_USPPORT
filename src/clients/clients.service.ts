@@ -92,6 +92,7 @@ export class ClientsService {
         id
       },
       relations: [
+        'admin',
         'addresses',
         'user'
       ],
