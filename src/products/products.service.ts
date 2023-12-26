@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { plainToClass } from 'class-transformer';
 import * as nodemailer from 'nodemailer';
 import axios from 'axios';
+import * as AWS from 'aws-sdk';
+import { v4 as uuidv4 } from 'uuid';
 
 import { Product } from './entities/product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -811,7 +813,7 @@ export class ProductsService {
     };
   }
 
-  async requireProduct(requireProductDto: RequireProductDto) {
+  async requireProduct(requireProductDto: RequireProductDto, file: Express.Multer.File) {
     const {
       name,
       email,
@@ -820,6 +822,18 @@ export class ProductsService {
       quantity,
       productDescription
     } = requireProductDto;
+
+    let image: string;
+
+    if (file != undefined || file != null) {
+      const uniqueFilename = `request-${uuidv4()}-${file.originalname}`;
+
+      file.originalname = uniqueFilename;
+
+      const imageUrl = await this.uploadToAws(file);
+
+      image = imageUrl;
+    };
 
     try {
       // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
@@ -841,7 +855,8 @@ export class ProductsService {
         Teléfono: ${phone},
         Nombre del product. ${productName},
         Cantidad: ${quantity},
-        Descripción del producto: ${productDescription}
+        Descripción del producto: ${productDescription},
+        Imagen: <img src="${image}" />
         `,
       });
     } catch (error) {
@@ -879,7 +894,7 @@ export class ProductsService {
 
   async changeMultipleIsAllowedStatus(ids: string[]) {
     const allowedProducts: Product[] = [];
-    
+
     for (const id of ids) {
       const product: Product = await this.productRepository.findOneBy({ id });
 
@@ -906,6 +921,32 @@ export class ProductsService {
     return {
       product
     };
+  }
+
+  private async uploadToAws(file: Express.Multer.File) {
+    AWS.config.update({
+      accessKeyId: 'AKIARACQVPFRECVYXGCC',
+      secretAccessKey: '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',
+      region: 'us-east-1',
+    });
+
+    const s3 = new AWS.S3();
+
+    const params = {
+      Bucket: 'tag-storage-documents',
+      Key: file.originalname,
+      Body: file.buffer,
+    }
+
+    return new Promise<string>((resolve, reject) => {
+      s3.upload(params, (err: any, data: any) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data.Location);
+        }
+      })
+    })
   }
 
   private handleDbExceptions(error: any) {

@@ -114,7 +114,7 @@ export class PurchaseOrderService {
         .leftJoinAndSelect('product.refProduct', 'refProduct')
         .leftJoinAndSelect('refProduct.supplier', 'refProductSupplier')
         .leftJoinAndSelect('refProductSupplier.user', 'refProductSupplierUser')
-        .leftJoinAndSelect('refProductSupplier.user', 'refProductSupplierUser')
+        .leftJoinAndSelect('purchase.state', 'purchaseState')
         .leftJoinAndSelect('purchase.commercialQualification', 'commercialQualification')
         .getMany();
 
