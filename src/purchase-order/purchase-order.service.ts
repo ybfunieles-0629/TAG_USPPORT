@@ -249,7 +249,7 @@ export class PurchaseOrderService {
 
     let billingFileAwsUrl: string = '';
 
-    if (file !== null) {
+    if (file != undefined || file != null) {
       const uniqueFilename = `${uuidv4()}-${file.originalname}`;
 
       file.originalname = uniqueFilename;
