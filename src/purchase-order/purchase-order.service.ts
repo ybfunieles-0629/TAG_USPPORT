@@ -95,27 +95,50 @@ export class PurchaseOrderService {
     };
   }
 
-  async findAll(paginationDto: PaginationDto) {
-    const count: number = await this.purchaseOrderRepository.count();
+  async findAll(paginationDto: PaginationDto, user: User) {
+    let count: number = await this.purchaseOrderRepository.count();
 
     const { limit = count, offset = 0 } = paginationDto;
 
-    const results: PurchaseOrder[] = await this.purchaseOrderRepository.find({
-      take: limit,
-      skip: offset,
-      relations: [
-        'orderListDetails',
-        'orderListDetails.state',
-        'orderListDetails.supplierPurchaseOrder',
-        'orderListDetails.supplierPurchaseOrder.state',
-        'orderListDetails.product',
-        'orderListDetails.product.refProduct',
-        'orderListDetails.product.refProduct.supplier',
-        'orderListDetails.product.refProduct.supplier.user',
-        'state',
-        'commercialQualification',
-      ],
-    });
+    let results: PurchaseOrder[];
+
+    if (user.client) {
+      results = await this.purchaseOrderRepository
+        .createQueryBuilder('purchase')
+        .where('purchase.clientUser =:clientId', { clientId: user.id })
+        .leftJoinAndSelect('purchase.orderListDetails', 'orderListDetails')
+        .leftJoinAndSelect('orderListDetails.state', 'orderListDetailsState')
+        .leftJoinAndSelect('orderListDetails.supplierPurchaseOrder', 'supplierPurchaseOrder')
+        .leftJoinAndSelect('supplierPurchaseOrder.state', 'supplierPurchaseOrderState')
+        .leftJoinAndSelect('orderListDetails.product', 'product')
+        .leftJoinAndSelect('product.refProduct', 'refProduct')
+        .leftJoinAndSelect('refProduct.supplier', 'refProductSupplier')
+        .leftJoinAndSelect('refProductSupplier.user', 'refProductSupplierUser')
+        .leftJoinAndSelect('refProductSupplier.user', 'refProductSupplierUser')
+        .leftJoinAndSelect('purchase.commercialQualification', 'commercialQualification')
+        .getMany();
+
+      count = results.length;
+    } else {
+      results = await this.purchaseOrderRepository.find({
+        take: limit,
+        skip: offset,
+        relations: [
+          'orderListDetails',
+          'orderListDetails.state',
+          'orderListDetails.supplierPurchaseOrder',
+          'orderListDetails.supplierPurchaseOrder.state',
+          'orderListDetails.product',
+          'orderListDetails.product.refProduct',
+          'orderListDetails.product.refProduct.supplier',
+          'orderListDetails.product.refProduct.supplier.user',
+          'state',
+          'commercialQualification',
+        ],
+      });
+
+      count = results.length;
+    }
 
     const finalResults = await Promise.all(
       results.map(async (purchaseOrder: PurchaseOrder) => {
