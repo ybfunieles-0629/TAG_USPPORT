@@ -9,6 +9,8 @@ import { User } from './entities/user.entity';
 import { CompaniesModule } from '../companies/companies.module';
 import { RolesModule } from '../roles/roles.module';
 import { PermissionsModule } from '../permissions/permissions.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
 import { PrivilegesModule } from '../privileges/privileges.module';
 import { BrandsModule } from '../brands/brands.module';
 import { EmailSenderModule } from '../email-sender/email-sender.module';
@@ -18,27 +20,28 @@ import { JwtStrategy } from './strategies/jwt.strategy';
   controllers: [UsersController],
   providers: [UsersService, JwtStrategy],
   imports: [
-    BrandsModule,
-    CompaniesModule,
-    EmailSenderModule,
-    RolesModule,
-    PassportModule.register({ defaultStrategy: 'jwt' }),
-    PermissionsModule,
-    PrivilegesModule,
+    ConfigModule,
     TypeOrmModule.forFeature([User]),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
-      imports: [],
-      inject: [],
-      useFactory: () => {
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
         return {
-          secret: process.env.JWT_SECRET,
+          secret: configService.get('JWT_SECRET'),
           signOptions: {
             expiresIn: '2h'
           }
         }
       }
-    })
+    }),
+    BrandsModule,
+    CompaniesModule,
+    EmailSenderModule,
+    RolesModule,
+    PermissionsModule,
+    PrivilegesModule,
   ],
-  exports: [TypeOrmModule, UsersService, PassportModule, JwtModule, JwtStrategy]
+  exports: [TypeOrmModule, JwtStrategy, PassportModule, JwtModule, UsersService]
 })
 export class UsersModule { }

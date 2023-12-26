@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { validate as isUUID } from 'uuid';
 import { classToPlain, plainToClass } from 'class-transformer';
 import { JwtService } from '@nestjs/jwt';
@@ -286,7 +286,7 @@ export class UsersService {
   }
 
   private getJwtToken(payload: any) {
-    const token = this.jwtService.sign(payload, { secret: process.env.JWT_SECRET });
+    const token = this.jwtService.sign(payload);
     return token;
   }
 
@@ -386,27 +386,27 @@ export class UsersService {
   }
 
   async passwordRecovery(passwordRecovery: PasswordRecoveryDto) {
-    if (!passwordRecovery.password)
-      throw new BadRequestException(`The password is required`);
+    // if (!passwordRecovery.password)
+    //   throw new BadRequestException(`The password is required`);
 
-    if (!passwordRecovery.token)
-      throw new BadRequestException(`The token is required`);
+    // if (!passwordRecovery.token)
+    //   throw new BadRequestException(`The token is required`);
 
-    const data = this.jwtService.decode(passwordRecovery.token);
+    // const data = this.jwtService.decode(passwordRecovery.token);
 
-    const jwtStrategy = new JwtStrategy(this.userRepository);
+    // const jwtStrategy = new JwtStrategy(this.userRepository);
 
-    const user = await jwtStrategy.validate(data);
+    // const user = await jwtStrategy.validate(data);
 
-    const hashedPass = bcrypt.hashSync(passwordRecovery.password, 10);
+    // const hashedPass = bcrypt.hashSync(passwordRecovery.password, 10);
 
-    user.password = hashedPass;
+    // user.password = hashedPass;
 
-    await this.userRepository.save(user);
+    // await this.userRepository.save(user);
 
-    return {
-      user
-    };
+    // return {
+    //   user
+    // };
   }
 
   async addPermissionsByUserRole(id: string) {
