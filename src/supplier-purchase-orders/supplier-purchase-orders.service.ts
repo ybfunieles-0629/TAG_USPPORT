@@ -136,7 +136,7 @@ export class SupplierPurchaseOrdersService {
 
     let tagPurchaseOrderDocument: string = '';
 
-    if (file !== null) {
+    if (file != undefined || file != null) {
       const uniqueFilename = `${uuidv4()}-${file.originalname}`;
 
       file.originalname = uniqueFilename;

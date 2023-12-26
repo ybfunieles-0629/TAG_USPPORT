@@ -1,9 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
+
 import { PurchaseOrderService } from './purchase-order.service';
 import { CreatePurchaseOrderDto } from './dto/create-purchase-order.dto';
 import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('purchase-order')
 export class PurchaseOrderController {
@@ -17,10 +21,12 @@ export class PurchaseOrderController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
+    @GetUser() user: User,
     @Query() paginationDto: PaginationDto,
   ) {
-    return this.purchaseOrderService.findAll(paginationDto);
+    return this.purchaseOrderService.findAll(paginationDto, user);
   }
 
   @Get(':id')

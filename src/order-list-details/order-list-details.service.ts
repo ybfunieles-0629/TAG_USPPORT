@@ -157,7 +157,7 @@ export class OrderListDetailsService {
   }
 
   async findAll(paginationDto: PaginationDto, user: User) {
-    const count: number = await this.orderListDetailRepository.count();
+    let count: number = await this.orderListDetailRepository.count();
 
     const { limit = count, offset = 0 } = paginationDto;
 
@@ -174,7 +174,7 @@ export class OrderListDetailsService {
         .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
         .leftJoinAndSelect('product.refProduct', 'refProduct')
         .leftJoinAndSelect('refProduct.supplier', 'refProductSupplier')
-        .where('refProducSupplier.id =:supplierId', { supplierId: user.supplier.id })
+        .where('refProductSupplier.id =:supplierId', { supplierId: user.supplier.id })
         .leftJoinAndSelect('refProductSupplier.user', 'refProductSupplierUser')
         .leftJoinAndSelect('order.state', 'orderState')
         .leftJoinAndSelect('order.transportService', 'orderTransportService')
@@ -182,6 +182,8 @@ export class OrderListDetailsService {
         .take(limit)
         .skip(offset)
         .getMany();
+
+      count = results.length;
     } else {
       results = await this.orderListDetailRepository.find({
         take: limit,
@@ -199,8 +201,11 @@ export class OrderListDetailsService {
           'state',
           'transportService',
           'supplierPurchaseOrder',
+          'supplierPurchaseOrder.state',
         ],
       });
+
+      count = results.length;
     }
 
     return {
@@ -227,6 +232,7 @@ export class OrderListDetailsService {
         'state',
         'transportService',
         'supplierPurchaseOrder',
+        'supplierPurchaseOrder.state',
       ],
     });
 
