@@ -1,12 +1,12 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { isUUID } from 'class-validator';
 
 import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 import { Address } from './entities/address.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { isUUID } from 'class-validator';
 
 @Injectable()
 export class AddressesService {
@@ -18,17 +18,13 @@ export class AddressesService {
   ) { }
 
   async create(createAddressDto: CreateAddressDto) {
-    try {
-      const address = this.addressRepository.create(createAddressDto);
+    const address: Address = this.addressRepository.create(createAddressDto);
 
-      this.addressRepository.save(address);
+    this.addressRepository.save(address);
 
-      return {
-        address
-      };
-    } catch (error) {
-      this.handleDbExceptions(error);
-    }
+    return {
+      address
+    };
   }
 
   findAll(paginationDto: PaginationDto) {
@@ -64,7 +60,7 @@ export class AddressesService {
   }
 
   async update(id: string, updateAddressDto: UpdateAddressDto) {
-    const address = await this.addressRepository.preload({ 
+    const address: Address = await this.addressRepository.preload({
       id,
       ...updateAddressDto
     });
@@ -80,7 +76,7 @@ export class AddressesService {
   }
 
   async desactivate(id: string) {
-    const address = await this.addressRepository.findOneBy({ id });
+    const address: Address = await this.addressRepository.findOneBy({ id });
 
     if (!address)
       throw new NotFoundException(`Address with id ${id} not found`);
@@ -93,7 +89,7 @@ export class AddressesService {
   }
 
   async remove(id: string) {
-    const address = await this.addressRepository.findOneBy({ id });
+    const address: Address = await this.addressRepository.findOneBy({ id });
 
     if (!address)
       throw new NotFoundException(`Address with id ${id} not found`);
