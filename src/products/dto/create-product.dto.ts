@@ -135,4 +135,8 @@ export class CreateProductDto {
   @IsArray()
   @IsString({ each: true })
   markingServiceProperties?: string[];
+
+  @IsOptional()
+  @IsInt()
+  unforeseenFee?: number;
 }
