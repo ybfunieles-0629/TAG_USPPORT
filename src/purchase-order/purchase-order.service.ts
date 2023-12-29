@@ -43,6 +43,12 @@ export class PurchaseOrderService {
         },
       });
 
+      if (createPurchaseOrderDto.approvalDate || createPurchaseOrderDto.creationDate || createPurchaseOrderDto.paymentDate) {
+        createPurchaseOrderDto.approvalDate = new Date(createPurchaseOrderDto.approvalDate);
+        createPurchaseOrderDto.creationDate = new Date(createPurchaseOrderDto.creationDate);
+        createPurchaseOrderDto.paymentDate = new Date(createPurchaseOrderDto.paymentDate);
+      };
+
       if (!state)
         throw new NotFoundException(`State with id ${createPurchaseOrderDto.state} not found`);
 
@@ -228,6 +234,12 @@ export class PurchaseOrderService {
 
     if (!purchaseOrder)
       throw new NotFoundException(`Purchase order with id ${id} not found`);
+
+    if (updatePurchaseOrderDto.approvalDate || updatePurchaseOrderDto.creationDate || updatePurchaseOrderDto.paymentDate) {
+      updatePurchaseOrderDto.approvalDate = new Date(updatePurchaseOrderDto.approvalDate);
+      updatePurchaseOrderDto.creationDate = new Date(updatePurchaseOrderDto.creationDate);
+      updatePurchaseOrderDto.paymentDate = new Date(updatePurchaseOrderDto.paymentDate);
+    };
 
     const updatedPurchaseOrder: PurchaseOrder = plainToClass(PurchaseOrder, updatePurchaseOrderDto);
 
