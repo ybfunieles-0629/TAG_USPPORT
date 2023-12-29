@@ -1,8 +1,9 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import axios from 'axios';
 import { classToPlain, plainToClass } from 'class-transformer';
+import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios';
 
 import { CreateCartQuoteDto } from './dto/create-cart-quote.dto';
 import { UpdateCartQuoteDto } from './dto/update-cart-quote.dto';
@@ -20,7 +21,7 @@ import { Packing } from '../packings/entities/packing.entity';
 import { LocalTransportPrice } from '../local-transport-prices/entities/local-transport-price.entity';
 import { OrderListDetail } from '../order-list-details/entities/order-list-detail.entity';
 import { PurchaseOrder } from '../purchase-order/entities/purchase-order.entity';
-import { v4 as uuidv4 } from 'uuid';
+import { SupplierPurchaseOrder } from '../supplier-purchase-orders/entities/supplier-purchase-order.entity';
 
 @Injectable()
 export class CartQuotesService {
@@ -45,6 +46,9 @@ export class CartQuotesService {
 
     @InjectRepository(PurchaseOrder)
     private readonly purchaseOrderRepository: Repository<PurchaseOrder>,
+
+    @InjectRepository(SupplierPurchaseOrder)
+    private readonly supplierPurchaseOrderRepository: Repository<SupplierPurchaseOrder>,
   ) { }
 
   async create(createCartQuoteDto: CreateCartQuoteDto) {
@@ -847,6 +851,7 @@ export class CartQuotesService {
         'quoteDetails.markingServices',
         'user',
         'client',
+        'client.user',
       ],
     });
 
@@ -901,9 +906,42 @@ export class CartQuotesService {
 
       const { data: { data: response } } = await axios.get(`https://secure.epayco.co/validation/v1/reference/8832fb2b46b346206f71a569`);
 
+      const supplierPurchaseOrderState: State = await this.stateRepository
+        .createQueryBuilder('state')
+        .where('LOWER(state.name) =:name', { name: 'por solicitar' })
+        .andWhere('LOWER(state.process) =:process', { process: 'orden de compra proveedor' })
+        .getOne();
+
+      if (!supplierPurchaseOrderState)
+        throw new NotFoundException(`State for supplier purchase order not found`);
+
       const orderListDetailsCreated: OrderListDetail[] = [];
 
+      const cartClient: Client = cartQuote.client;
+
+      let orderListDetailState: State;
+
+      if (cartClient.user.isCoorporative == 1) {
+        orderListDetailState = await this.stateRepository
+          .createQueryBuilder('state')
+          .where('LOWER(state.name) =:name', { name: 'montaje aprobado' })
+          .andWhere('LOWER(state.process) =:process', { process: 'order list es corporativo' })
+          .getOne();
+      } else {
+        orderListDetailState = await this.stateRepository
+          .createQueryBuilder('state')
+          .where('LOWER(state.name) =:name', { name: 'pedido en producción' })
+          .andWhere('LOWER(state.process) =:process', { process: 'order list es no corporativo' })
+          .getOne();
+      };
+
       for (const quoteDetail of cartQuote.quoteDetails) {
+        const supplierPurchaseOrderData = {
+          state: supplierPurchaseOrderState
+        };
+
+        const supplierPurchaseOrder: SupplierPurchaseOrder = await this.supplierPurchaseOrderRepository.save(supplierPurchaseOrderData);
+
         const orderListDetailData = {
           orderCode: uuidv4(),
           quantities: quoteDetail.quantities,
@@ -924,7 +962,9 @@ export class CartQuotesService {
           transportCost: 3000,
           realTransportCost: 1000,
           realMarkingCost: 4000,
-          otherRealCosts: 1000
+          otherRealCosts: 1000,
+          supplierPurchaseOrder,
+          state: orderListDetailState,
         };
 
         const orderListDetail: OrderListDetail = await plainToClass(OrderListDetail, orderListDetailData);
@@ -941,13 +981,12 @@ export class CartQuotesService {
 
       const state: State = await this.stateRepository
         .createQueryBuilder('state')
-        .where('LOWER(name) :=stateToFind', { stateToFind })
+        .where('LOWER(name) =:stateToFind', { stateToFind })
         .getOne();
 
       const purchaseOrderData = {
         tagOrderNumber: uuidv4(),
         clientOrderNumber: uuidv4(),
-        orderDocument: 'document.pdf',
         approvalDate: new Date(),
         creationDate: new Date(),
         paymentDate: new Date(),

@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { CartQuotesService } from './cart-quotes.service';
 import { CreateCartQuoteDto } from './dto/create-cart-quote.dto';
@@ -9,6 +10,7 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 export class CartQuotesController {
   constructor(private readonly cartQuotesService: CartQuotesService) { }
 
+  @UseGuards(AuthGuard())
   @Post()
   create(@Body() createCartQuoteDto: CreateCartQuoteDto) {
     return this.cartQuotesService.create(createCartQuoteDto);
