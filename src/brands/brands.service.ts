@@ -23,45 +23,41 @@ export class BrandsService {
   ) { }
 
   async create(createBrandDto: CreateBrandDto) {
-    try {
-      const newBrand = plainToClass(Brand, createBrandDto);
+    const newBrand: Brand = plainToClass(Brand, createBrandDto);
 
-      const existCompany = await this.companyRepository.findOneBy({ id: createBrandDto.companyId });
+    const company: Company = await this.companyRepository.findOneBy({ id: createBrandDto.companyId });
 
-      if (!existCompany)
-        throw new NotFoundException(`Company with id ${createBrandDto.companyId} not found`);
+    if (!company)
+      throw new NotFoundException(`Company with id ${createBrandDto.companyId} not found`);
 
-      if (!existCompany.isActive)
-        throw new NotFoundException(`Company with id ${createBrandDto.companyId} is currently inactive`);
+    if (!company.isActive)
+      throw new NotFoundException(`Company with id ${createBrandDto.companyId} is currently inactive`);
 
-      await this.brandRepository.save(newBrand);
+    await this.brandRepository.save(newBrand);
 
-      return {
-        newBrand
-      };
-    } catch (error) {
-      this.handleDbExceptions(error);
-    }
+    return {
+      newBrand
+    };
   }
 
   async createMultipleBrands(createBrandsDto: CreateBrandDto[]) {
     const createdBrands: Brand[] = [];
 
     for (const createBrandDto of createBrandsDto) {
-      const existBrand = await this.brandRepository.findOneBy({ name: createBrandDto.name });
+      const existBrand: Brand = await this.brandRepository.findOneBy({ name: createBrandDto.name });
 
       if (existBrand)
         throw new BadRequestException(`There is a brand with the name ${createBrandDto.name} already registered`);
 
-      const existCompany = await this.companyRepository.findOneBy({ id: createBrandDto.companyId });
+      const company: Company = await this.companyRepository.findOneBy({ id: createBrandDto.companyId });
 
-      if (!existCompany)
+      if (!company)
         throw new NotFoundException(`Company with id ${createBrandDto.companyId} not found`);
 
-      if (!existCompany.isActive)
+      if (!company.isActive)
         throw new NotFoundException(`Company with id ${createBrandDto.companyId} is currently inactive`);
 
-      const brand = this.brandRepository.create(createBrandDto);
+      const brand: Brand = this.brandRepository.create(createBrandDto);
 
       await this.brandRepository.save(brand);
 
@@ -85,7 +81,7 @@ export class BrandsService {
     });
 
     const brandsWithCompanyPromises = brands.map(async (brand) => {
-      const company = await this.companyRepository.findOneBy({ id: brand.companyId });
+      const company: Company = await this.companyRepository.findOneBy({ id: brand.companyId });
 
       if (!company) {
         brand.companyId = null;
@@ -127,7 +123,7 @@ export class BrandsService {
     if (!brand)
       throw new NotFoundException(`Brand with ${term} not found`);
 
-    const company = await this.companyRepository.findOne({
+    const company: Company = await this.companyRepository.findOne({
       where: {
         id: brand.companyId,
       },
@@ -143,7 +139,7 @@ export class BrandsService {
   }
 
   async update(id: string, updateBrandDto: UpdateBrandDto) {
-    const brand = await this.brandRepository.findOneBy({ id: id });
+    const brand: Brand = await this.brandRepository.findOneBy({ id: id });
 
     if (!brand)
       throw new NotFoundException(`Brand with id ${id} not found`);
@@ -155,7 +151,7 @@ export class BrandsService {
       brand.fee = updateBrandDto.fee;
 
     if (updateBrandDto.companyId) {
-      const existCompany = await this.companyRepository.findOneBy({ id: updateBrandDto.companyId });
+      const existCompany: Company = await this.companyRepository.findOneBy({ id: updateBrandDto.companyId });
 
       if (!existCompany)
         throw new NotFoundException(`Company with id ${updateBrandDto.companyId} not found`);
@@ -179,7 +175,7 @@ export class BrandsService {
     for (const updateBrandDto of updateBrandsDto) {
       const { id, ...dataToUpdate } = updateBrandDto;
 
-      const brand = await this.brandRepository.findOneBy({ id: updateBrandDto.id });
+      const brand: Brand = await this.brandRepository.findOneBy({ id: updateBrandDto.id });
 
       if (!brand)
         throw new NotFoundException(`Brand with id ${updateBrandDto.id} not found`);
@@ -209,7 +205,7 @@ export class BrandsService {
   }
 
   async desactivate(id: string) {
-    const brand = await this.brandRepository.findOneBy({ id });
+    const brand: Brand = await this.brandRepository.findOneBy({ id });
 
     if (!brand)
       throw new NotFoundException(`Brand with id ${id} not found`);
@@ -224,7 +220,7 @@ export class BrandsService {
   }
 
   async remove(id: string) {
-    const brand = await this.brandRepository.findOneBy({ id });
+    const brand: Brand = await this.brandRepository.findOneBy({ id });
 
     if (!brand)
       throw new NotFoundException(`Brand with id ${id} not found`);

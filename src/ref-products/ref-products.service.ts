@@ -2,7 +2,6 @@ import { Injectable, Logger, InternalServerErrorException, BadRequestException, 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { plainToClass } from 'class-transformer';
-import axios from 'axios';
 
 import { CreateRefProductDto } from './dto/create-ref-product.dto';
 import { UpdateRefProductDto } from './dto/update-ref-product.dto';
@@ -15,6 +14,12 @@ import { MarkingServiceProperty } from '../marking-service-properties/entities/m
 import { DeliveryTime } from '../delivery-times/entities/delivery-time.entity';
 import { FilterRefProductsDto } from './dto/filter-ref-products.dto';
 import { CategoryTag } from '../category-tag/entities/category-tag.entity';
+import { SupplierPrice } from '../supplier-prices/entities/supplier-price.entity';
+import { ListPrice } from '../list-prices/entities/list-price.entity';
+import { Disccount } from '../disccount/entities/disccount.entity';
+import { Disccounts } from '../disccounts/entities/disccounts.entity';
+import { SystemConfig } from '../system-configs/entities/system-config.entity';
+import { Packing } from 'src/packings/entities/packing.entity';
 
 @Injectable()
 export class RefProductsService {
@@ -38,6 +43,9 @@ export class RefProductsService {
 
     @InjectRepository(MarkingServiceProperty)
     private readonly markingServicePropertyRepository: Repository<MarkingServiceProperty>,
+
+    @InjectRepository(SystemConfig)
+    private readonly systemConfigRepository: Repository<SystemConfig>,
 
     @InjectRepository(VariantReference)
     private readonly variantReferenceRepository: Repository<VariantReference>,
@@ -171,9 +179,15 @@ export class RefProductsService {
         'markingServiceProperty.externalSubTechnique.marking',
         'packings',
         'products',
+        'products.refProduct',
+        'products.refProduct.deliveryTimes',
+        'products.refProduct.supplier',
+        'products.refProduct.supplier.disccounts',
         'products.colors',
         'products.variantReferences',
         'products.packings',
+        'products.supplierPrices',
+        'products.supplierPrices.listPrices',
         'products.markingServiceProperties',
         'products.markingServiceProperties.images',
         'products.markingServiceProperties.externalSubTechnique',
@@ -209,8 +223,143 @@ export class RefProductsService {
           const percentageDiscount: number = 0.01;
           let value: number = changingValue * (1 - percentageDiscount);
           value = Math.round(value);
+<<<<<<< HEAD
           changingValue = value;
         } 
+=======
+
+          //* SI EL PRODUCTO NO TIENE UN PRECIO NETO
+          if (product.hasNetPrice == 0) {
+            product.supplierPrices.forEach((supplierPrice: SupplierPrice) => {
+              supplierPrice.listPrices.forEach((listPrice: ListPrice) => {
+                if (listPrice.minimun >= i && listPrice.nextMinValue == 1 && listPrice.maximum <= i || listPrice.minimun >= i && listPrice.nextMinValue == 0) {
+                  //* SI APLICA PARA TABLA DE PRECIOS DE PROVEEDOR
+                  value = listPrice.price;
+
+                  if (product.promoDisccount > 0 || product.promoDisccount != undefined) {
+                    const discount: number = (product.promoDisccount / 100) * value;
+
+                    value -= discount;
+                  } else {
+                    product.refProduct.supplier.disccounts.forEach((discountItem: Disccount) => {
+                      //* SI EL DESCUENTO ES DE TIPO MONTO
+                      if (discountItem.disccountType.toLowerCase() == 'descuento de monto' || discountItem.disccountType.toLowerCase() == 'descuento de cantidad') {
+                        discountItem.disccounts.forEach((listDiscount: Disccounts) => {
+                          if (listDiscount.minQuantity >= i && listDiscount.nextMinValue == 1 && listDiscount.maxQuantity <= i || listDiscount.minQuantity >= i && listDiscount.nextMinValue == 0) {
+                            const discount: number = (listDiscount.disccountValue / 100) * value;
+
+                            value = value - discount;
+
+                            return;
+                          };
+                        });
+                      };
+                    });
+                  };
+
+                  return;
+                };
+              });
+            });
+          };
+
+          if (product.iva > 0 || product.iva != undefined) {
+            const iva: number = (product.iva / 100) * value;
+
+            value += iva;
+          };
+
+          if (product.importedNational.toLowerCase() == 'importado') {
+            const systemConfig: SystemConfig[] = await this.systemConfigRepository.find();
+
+            const importationFee: number = (systemConfig[0].importationFee / 100) * value;
+
+            value += importationFee;
+          };
+
+          if (product.unforeseenFee) {
+            const unforeseenFee: number = (product.unforeseenFee / 100) * value;
+
+            value += unforeseenFee;
+          };
+
+          changingValue = value;
+
+          //* CALCULAR LA CANTIDAD DE CAJAS PARA LAS UNIDADES COTIZADAS
+          const packing: Packing = product.packings[0];
+          const packingUnities: number = product.packings ? product.packings[0].unities : product.refProduct.packings[0].unities;
+
+          let totalPackingVolume: number = 0;
+          let packingWeight: number = 0;
+
+          if (packingUnities > 0 && packingUnities != undefined) {
+            let boxesQuantity: number = (i / packingUnities);
+
+            boxesQuantity = Math.round(boxesQuantity) + 1;
+
+            //* CALCULAR EL VOLUMEN DEL PAQUETE
+            const packingVolume: number = (packing.height * packing.width * packing.height);
+            const totalVolume: number = (packingVolume * boxesQuantity);
+            totalPackingVolume = totalVolume;
+
+            //* CALCULAR EL PESO DEL PAQUETE
+            packingWeight = (packing.smallPackingWeight * boxesQuantity);
+          }
+
+          //* IDENTIFICAR PORCENTAJE DE ANTICIPIO
+          const advancePercentage: number = product.refProduct.supplier.advancePercentage;
+
+          //* IDENTIFICAR TIEMPO DE ENTREGA ACORDE AL PRODUCTO
+          const availableUnits: number = product.availableUnit;
+          let deliveryTimeToSave: number;
+
+          if (i > availableUnits) {
+            product.refProduct.deliveryTimes.forEach((deliveryTime: DeliveryTime) => {
+              if (deliveryTime.minimum >= i && deliveryTime.minimumAdvanceValue == 1 && deliveryTime.maximum <= i || deliveryTime.minimum >= i && deliveryTime.minimumAdvanceValue == 0) {
+                deliveryTimeToSave = deliveryTime.timeInDays;
+                return;
+              }
+            });
+          } else if (availableUnits > 0 && i < availableUnits) {
+            deliveryTimeToSave = product.refProduct.productInventoryLeadTime;
+            return;
+          };
+
+          //TODO: CALCULAR COSTOS FINANCIEROS DEL PERIODO DE PRODUCCIÓN
+          //* --------------------------------------------
+          //* --------------------------------------------
+          //* --------------------------------------------
+          //* --------------------------------------------
+
+          //TODO: CALCULAR EL COSTO DE TRANSPORTE Y ENTREGA DE LOS PRODUCTOS (ESTA INFORMACIÓN VIENE DEL API DE FEDEX)
+
+
+          //* CALCULAR EL IMPUESTO 4 X 1000
+          value += (value * 1.04);
+
+          //* CALCULAR EL COSTO DE LA OPERACIÓN (YA HECHO)
+
+          //* ADICIONAR EL % DE MARGEN DE GANANCIA SOBRE EL PROVEEDOR
+          value += product?.refProduct?.supplier?.profitMargin;
+
+          //* ADICIONAR EL % DE MARGEN DE GANANCIA DEL PRODUCTO
+          const mainCategory: CategorySupplier = await this.categorySupplierRepository.findOne({
+            where: {
+              id: product?.refProduct?.mainCategory,
+            },
+          });
+
+          if (mainCategory) {
+            value += +mainCategory?.categoryTag?.categoryMargin;
+          };
+          
+          //* PRECIO TOTAL ANTES DEL IVA (YA HECHO)
+          
+
+          //* CALCULAR EL PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
+          value = Math.round(value);
+        }
+>>>>>>> 54dc134e58663cf3ecacffb4350b6013a20fa945
 
         return { ...product, burnPriceTable };
       }));

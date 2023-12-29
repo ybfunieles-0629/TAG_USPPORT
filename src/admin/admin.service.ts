@@ -53,9 +53,9 @@ export class AdminService {
   }
 
   async create(createAdminDto: CreateAdminDto) {
-    const newAdminUser = plainToClass(Admin, createAdminDto);
+    const newAdminUser: Admin = plainToClass(Admin, createAdminDto);
 
-    const user = await this.userRepository.findOne({
+    const user: User = await this.userRepository.findOne({
       where: {
         id: createAdminDto.user
       },
@@ -139,13 +139,13 @@ export class AdminService {
   }
 
   async update(id: string, updateAdminDto: UpdateAdminDto) {
-    const admin = await this.adminRepository.findOneBy({ id });
+    const admin: Admin = await this.adminRepository.findOneBy({ id });
 
     if (!admin) {
       throw new NotFoundException(`Admin user with id ${id} not found`);
     }
 
-    const updatedAdmin = plainToClass(Admin, updateAdminDto);
+    const updatedAdmin: Admin = plainToClass(Admin, updateAdminDto);
 
     if (updateAdminDto.clients) {
       const clients: Client[] = [];
@@ -172,7 +172,7 @@ export class AdminService {
   }
 
   async desactivate(id: string) {
-    const admin = await this.adminRepository.findOne({
+    const admin: Admin = await this.adminRepository.findOne({
       where: {
         id,
       },
@@ -186,7 +186,9 @@ export class AdminService {
 
     admin.isActive = !admin.isActive;
 
-    const user = await this.userRepository.findOneBy({ id: admin.user.id });
+    const user: User = await this.userRepository.findOneBy({
+      id: admin.user.id
+    });
 
     user.isActive = !user.isActive;
 
@@ -199,7 +201,7 @@ export class AdminService {
   }
 
   async remove(id: string) {
-    const admin = await this.adminRepository.findOneBy({ id });
+    const admin: Admin = await this.adminRepository.findOneBy({ id });
 
     if (!admin)
       throw new NotFoundException(`Admin user with id ${id} not found`);

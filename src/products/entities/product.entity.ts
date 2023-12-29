@@ -164,6 +164,11 @@ export class Product {
   })
   markedDesignArea: string;
 
+  @Column('int', {
+
+  })
+  unforeseenFee: number;
+
   @Column('boolean', {
     default: true,
   })
