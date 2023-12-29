@@ -31,6 +31,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         id: userId,
       },
       relations: [
+        'company',
         'supplier',
         'client',
         'admin',
