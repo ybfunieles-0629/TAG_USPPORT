@@ -621,6 +621,7 @@ export class UsersService {
       if (user.client && user.mainSecondaryUser == 0) {
         const commercialWithClients: User[] = await this.userRepository
           .createQueryBuilder('user')
+          .leftJoinAndSelect('user.company', 'userCompany')
           .leftJoinAndSelect('user.client', 'client')
           .leftJoinAndSelect('client.admin', 'admin')
           .leftJoinAndSelect('admin.user', 'adminUser')
@@ -630,7 +631,7 @@ export class UsersService {
           .leftJoinAndSelect('clientUser.brands', 'brands')
           .leftJoinAndSelect('clientUser.company', 'company')
           .where('company.id =:userCompanyId', { userCompanyId: user.company.id })
-          .andWhere('clientUser.user.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 1 })
+          .andWhere('clientUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 1 })
           .leftJoinAndSelect('clientUser.privileges', 'privileges')
           .leftJoinAndSelect('clientUser.permissions', 'permissions')
           .getMany();
