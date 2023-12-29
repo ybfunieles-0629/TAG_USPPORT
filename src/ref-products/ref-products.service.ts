@@ -223,10 +223,6 @@ export class RefProductsService {
           const percentageDiscount: number = 0.01;
           let value: number = changingValue * (1 - percentageDiscount);
           value = Math.round(value);
-<<<<<<< HEAD
-          changingValue = value;
-        } 
-=======
 
           //* SI EL PRODUCTO NO TIENE UN PRECIO NETO
           if (product.hasNetPrice == 0) {
@@ -359,7 +355,6 @@ export class RefProductsService {
           //* CALCULAR EL PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
           value = Math.round(value);
         }
->>>>>>> 54dc134e58663cf3ecacffb4350b6013a20fa945
 
         return { ...product, burnPriceTable };
       }));
