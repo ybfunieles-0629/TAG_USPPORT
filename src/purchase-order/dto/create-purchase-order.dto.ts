@@ -11,13 +11,13 @@ export class CreatePurchaseOrderDto {
   @IsString()
   orderDocument: string;
 
-  @IsDate()
+  @IsString()
   approvalDate: Date;
 
-  @IsDate()
+  @IsString()
   creationDate: Date;
 
-  @IsDate()
+  @IsString()
   paymentDate: Date;
 
   @IsString()
