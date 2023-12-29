@@ -11,6 +11,7 @@ import { VariantReferenceModule } from '../variant-reference/variant-reference.m
 import { MarkingServicePropertiesModule } from '../marking-service-properties/marking-service-properties.module';
 import { DeliveryTimesModule } from '../delivery-times/delivery-times.module';
 import { CategoryTagModule } from '../category-tag/category-tag.module';
+import { SystemConfigsModule } from '../system-configs/system-configs.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CategoryTagModule } from '../category-tag/category-tag.module';
     CategorySuppliersModule,
     DeliveryTimesModule,
     SuppliersModule,
+    SystemConfigsModule,
     MarkingServicePropertiesModule,
     UsersModule,
     VariantReferenceModule,
