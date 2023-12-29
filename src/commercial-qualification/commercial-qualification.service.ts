@@ -36,6 +36,8 @@ export class CommercialQualificationService {
 
     newCommercialQualification.purchaseOrder = purchaseOrder;
 
+    await this.commercialQualificationRepository.save(newCommercialQualification);
+
     return {
       newCommercialQualification
     };
