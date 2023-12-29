@@ -37,7 +37,7 @@ export class PurchaseOrderController {
   }
 
   @Patch(':id')
-  @UseInterceptors(FileInterceptor('billingFile'))
+  @UseInterceptors(FileInterceptor('orderDocument'))
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePurchaseOrderDto: UpdatePurchaseOrderDto,
