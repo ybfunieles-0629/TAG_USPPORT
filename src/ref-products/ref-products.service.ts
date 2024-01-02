@@ -282,8 +282,8 @@ export class RefProductsService {
           changingValue = value;
 
           //* CALCULAR LA CANTIDAD DE CAJAS PARA LAS UNIDADES COTIZADAS
-          const packing: Packing = product.packings[0];
-          const packingUnities: number = product.packings ? product.packings[0].unities : product.refProduct.packings[0].unities;
+          const packing: Packing = product.packings[0] || undefined;
+          const packingUnities: number = product.packings ? product?.packings[0]?.unities : product?.refProduct?.packings[0]?.unities || 0;
 
           let totalPackingVolume: number = 0;
           let packingWeight: number = 0;
@@ -294,30 +294,30 @@ export class RefProductsService {
             boxesQuantity = Math.round(boxesQuantity) + 1;
 
             //* CALCULAR EL VOLUMEN DEL PAQUETE
-            const packingVolume: number = (packing.height * packing.width * packing.height);
-            const totalVolume: number = (packingVolume * boxesQuantity);
-            totalPackingVolume = totalVolume;
+            const packingVolume: number = (packing?.height * packing?.width * packing?.height) || 0;
+            const totalVolume: number = (packingVolume * boxesQuantity) || 0;
+            totalPackingVolume = totalVolume || 0;
 
             //* CALCULAR EL PESO DEL PAQUETE
-            packingWeight = (packing.smallPackingWeight * boxesQuantity);
+            packingWeight = (packing?.smallPackingWeight * boxesQuantity) || 0;
           }
 
           //* IDENTIFICAR PORCENTAJE DE ANTICIPIO
-          const advancePercentage: number = product.refProduct.supplier.advancePercentage;
+          const advancePercentage: number = product?.refProduct?.supplier?.advancePercentage || 0;
 
           //* IDENTIFICAR TIEMPO DE ENTREGA ACORDE AL PRODUCTO
-          const availableUnits: number = product.availableUnit;
+          const availableUnits: number = product?.availableUnit || 0;
           let deliveryTimeToSave: number;
 
           if (i > availableUnits) {
             product.refProduct.deliveryTimes.forEach((deliveryTime: DeliveryTime) => {
-              if (deliveryTime.minimum >= i && deliveryTime.minimumAdvanceValue == 1 && deliveryTime.maximum <= i || deliveryTime.minimum >= i && deliveryTime.minimumAdvanceValue == 0) {
-                deliveryTimeToSave = deliveryTime.timeInDays;
+              if (deliveryTime?.minimum >= i && deliveryTime?.minimumAdvanceValue == 1 && deliveryTime?.maximum <= i || deliveryTime?.minimum >= i && deliveryTime?.minimumAdvanceValue == 0) {
+                deliveryTimeToSave = deliveryTime?.timeInDays || 0;
                 return;
               }
             });
           } else if (availableUnits > 0 && i < availableUnits) {
-            deliveryTimeToSave = product.refProduct.productInventoryLeadTime;
+            deliveryTimeToSave = product?.refProduct?.productInventoryLeadTime || 0;
             return;
           };
 
@@ -336,7 +336,7 @@ export class RefProductsService {
           //* CALCULAR EL COSTO DE LA OPERACIÓN (YA HECHO)
 
           //* ADICIONAR EL % DE MARGEN DE GANANCIA SOBRE EL PROVEEDOR
-          value += product?.refProduct?.supplier?.profitMargin;
+          value += product?.refProduct?.supplier?.profitMargin || 0;
 
           //* ADICIONAR EL % DE MARGEN DE GANANCIA DEL PRODUCTO
           const mainCategory: CategorySupplier = await this.categorySupplierRepository.findOne({
@@ -346,7 +346,7 @@ export class RefProductsService {
           });
 
           if (mainCategory) {
-            value += +mainCategory?.categoryTag?.categoryMargin;
+            value += +mainCategory?.categoryTag?.categoryMargin || 0;
           };
           
           //* PRECIO TOTAL ANTES DEL IVA (YA HECHO)
