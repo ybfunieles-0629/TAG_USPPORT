@@ -9,6 +9,6 @@ yarn start:dev
 ```
 
 
-# Dev Jefferson García
-# Ing Yeison Barrios Funieles
-# Ing Sergio Varon
+# Ing Yeison Barrios Funieles.
+# Ing Sergio Varon.
+# Dev Jefferson García.
