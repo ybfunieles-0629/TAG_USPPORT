@@ -7,11 +7,6 @@ export class SystemConfigOffer {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('int', {
-
-  })
-  offerPercentage: number;
-
   @Column('date', {
 
   })

@@ -1,13 +1,10 @@
 import { IsDate, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreateSystemConfigOfferDto {
-  @IsInt()
-  offerPercentage: number;
-
-  @IsDate()
+  @IsString()
   initDate: Date;
 
-  @IsDate()
+  @IsString()
   finalDate: Date;  
 
   @IsString()
