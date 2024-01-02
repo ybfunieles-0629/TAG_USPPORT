@@ -55,6 +55,7 @@ import { StateChangesModule } from './state-changes/state-changes.module';
 import { SupplierPurchaseOrdersModule } from './supplier-purchase-orders/supplier-purchase-orders.module';
 import { ShippingGuidesModule } from './shipping-guides/shipping-guides.module';
 import { SystemConfigOffersModule } from './system-config-offers/system-config-offers.module';
+import { SystemConfigBrandsModule } from './system-config-brands/system-config-brands.module';
 
 @Module({
   imports: [
@@ -127,7 +128,8 @@ import { SystemConfigOffersModule } from './system-config-offers/system-config-o
     SupplierPurchaseOrdersModule,
     PurchaseOrderModule,
     ShippingGuidesModule,
-    SystemConfigOffersModule
+    SystemConfigOffersModule,
+    SystemConfigBrandsModule
   ],
 })
 export class AppModule { }
