@@ -13,6 +13,7 @@ import { QuoteDetail } from '../../quote-details/entities/quote-detail.entity';
 import { OrderListDetail } from '../../order-list-details/entities/order-list-detail.entity';
 import { MarkingServiceProperty } from '../../marking-service-properties/entities/marking-service-property.entity';
 import { Image } from '../../images/entities/image.entity';
+import { SystemConfigOffer } from '../../system-config-offers/entities/system-config-offer.entity';
 
 @Entity('products')
 export class Product {
@@ -198,6 +199,10 @@ export class Product {
 
   @OneToMany(() => QuoteDetail, (quoteDetail) => quoteDetail.product)
   quoteDetails?: QuoteDetail[];
+
+  @OneToMany(() => SystemConfigOffer, (systemConfigOffer) => systemConfigOffer.product)
+  systemConfigOffers: SystemConfigOffer[];
+  
 
   @OneToMany(() => OrderListDetail, (orderListDetail) => orderListDetail.product)
   orderListDetails: OrderListDetail[];

@@ -54,6 +54,7 @@ import { CommercialQualificationModule } from './commercial-qualification/commer
 import { StateChangesModule } from './state-changes/state-changes.module';
 import { SupplierPurchaseOrdersModule } from './supplier-purchase-orders/supplier-purchase-orders.module';
 import { ShippingGuidesModule } from './shipping-guides/shipping-guides.module';
+import { SystemConfigOffersModule } from './system-config-offers/system-config-offers.module';
 
 @Module({
   imports: [
@@ -125,7 +126,8 @@ import { ShippingGuidesModule } from './shipping-guides/shipping-guides.module';
     StateChangesModule,
     SupplierPurchaseOrdersModule,
     PurchaseOrderModule,
-    ShippingGuidesModule
+    ShippingGuidesModule,
+    SystemConfigOffersModule
   ],
 })
 export class AppModule { }
