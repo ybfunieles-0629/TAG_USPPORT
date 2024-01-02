@@ -55,6 +55,9 @@ export class SystemConfigOffersService {
     const results: SystemConfigOffer[] = await this.systemConfigOfferRepository.find({
       take: limit,
       skip: offset,
+      relations: [
+        'product',
+      ],
     });
 
     return {
@@ -68,6 +71,9 @@ export class SystemConfigOffersService {
       where: {
         id,
       },
+      relations: [
+        'product',
+      ],
     });
 
     if (!systemConfigOffer)
