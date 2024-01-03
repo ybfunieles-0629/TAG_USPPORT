@@ -14,6 +14,7 @@ export class PurchaseOrderController {
   constructor(private readonly purchaseOrderService: PurchaseOrderService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(
     @Body() createPurchaseOrderDto: CreatePurchaseOrderDto
   ) {
@@ -30,6 +31,7 @@ export class PurchaseOrderController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -37,6 +39,7 @@ export class PurchaseOrderController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   @UseInterceptors(FileInterceptor('orderDocument'))
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -47,6 +50,7 @@ export class PurchaseOrderController {
   }
 
   @Patch('desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -54,6 +58,7 @@ export class PurchaseOrderController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

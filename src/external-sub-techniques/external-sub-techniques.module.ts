@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PassportModule } from '@nestjs/passport';
 
 import { ExternalSubTechniquesService } from './external-sub-techniques.service';
 import { ExternalSubTechniquesController } from './external-sub-techniques.controller';
@@ -10,6 +11,7 @@ import { TagSubTechniquesModule } from '../tag-sub-techniques/tag-sub-techniques
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     MarkingsModule,
     TagSubTechniquesModule,
     SuppliersModule,

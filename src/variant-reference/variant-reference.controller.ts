@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { VariantReferenceService } from './variant-reference.service';
 import { CreateVariantReferenceDto } from './dto/create-variant-reference.dto';
@@ -10,11 +11,13 @@ export class VariantReferenceController {
   constructor(private readonly variantReferenceService: VariantReferenceService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createVariantReferenceDto: CreateVariantReferenceDto) {
     return this.variantReferenceService.create(createVariantReferenceDto);
   }
 
   @Post('create/multiple')
+  @UseGuards(AuthGuard())
   createMultiple(
     @Body() createMultipleVariantReferences: CreateVariantReferenceDto[]
   ) {
@@ -22,6 +25,7 @@ export class VariantReferenceController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Param() paginationDto: PaginationDto
   ) {
@@ -29,11 +33,13 @@ export class VariantReferenceController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.variantReferenceService.findOne(id);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateVariantReferenceDto: UpdateVariantReferenceDto
@@ -42,14 +48,15 @@ export class VariantReferenceController {
   }
 
   @Put('/update/multiple')
+  @UseGuards(AuthGuard())
   updateMultiple(
     @Body() updateMultipleVariantReferences: UpdateVariantReferenceDto[]
   ) {
     return this.variantReferenceService.updateMultiple(updateMultipleVariantReferences);
   }
 
-
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.variantReferenceService.remove(id);
   }

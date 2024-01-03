@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { MarkingServicePropertiesService } from './marking-service-properties.service';
 import { CreateMarkingServicePropertyDto } from './dto/create-marking-service-property.dto';
@@ -10,11 +11,13 @@ export class MarkingServicePropertiesController {
   constructor(private readonly markingServicePropertiesService: MarkingServicePropertiesService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createMarkingServicePropertyDto: CreateMarkingServicePropertyDto) {
     return this.markingServicePropertiesService.create(createMarkingServicePropertyDto);
   }
 
   @Post('create/multiple')
+  @UseGuards(AuthGuard())
   createMultiple(
     @Body() createMarkingServiceProperties: CreateMarkingServicePropertyDto[]
   ) {
@@ -22,6 +25,7 @@ export class MarkingServicePropertiesController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -29,11 +33,13 @@ export class MarkingServicePropertiesController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.markingServicePropertiesService.findOne(id);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateMarkingServicePropertyDto: UpdateMarkingServicePropertyDto
@@ -42,6 +48,7 @@ export class MarkingServicePropertiesController {
   }
 
   @Patch('update/multiple')
+  @UseGuards(AuthGuard())
   updateMultiple(
     @Body() updateMarkingServiceProperties: UpdateMarkingServicePropertyDto[]
   ) {
@@ -49,6 +56,7 @@ export class MarkingServicePropertiesController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -56,6 +64,7 @@ export class MarkingServicePropertiesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.markingServicePropertiesService.remove(id);
   }

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PassportModule } from '@nestjs/passport';
 
 import { LocalTransportPricesService } from './local-transport-prices.service';
 import { LocalTransportPricesController } from './local-transport-prices.controller';
@@ -8,6 +9,7 @@ import { TransportServicesModule } from '../transport-services/transport-service
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     TransportServicesModule,
     TypeOrmModule.forFeature([LocalTransportPrice])
   ],

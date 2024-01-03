@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { StateChangesService } from './state-changes.service';
 import { CreateStateChangeDto } from './dto/create-state-change.dto';
@@ -10,11 +11,13 @@ export class StateChangesController {
   constructor(private readonly stateChangesService: StateChangesService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createStateChangeDto: CreateStateChangeDto) {
     return this.stateChangesService.create(createStateChangeDto);
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -22,6 +25,7 @@ export class StateChangesController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -29,6 +33,7 @@ export class StateChangesController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateStateChangeDto: UpdateStateChangeDto
@@ -37,6 +42,7 @@ export class StateChangesController {
   }
 
   @Patch('desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -44,6 +50,7 @@ export class StateChangesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

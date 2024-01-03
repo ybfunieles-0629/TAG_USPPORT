@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { OrderRatingsService } from './order-ratings.service';
 import { CreateOrderRatingDto } from './dto/create-order-rating.dto';
@@ -10,11 +11,13 @@ export class OrderRatingsController {
   constructor(private readonly orderRatingsService: OrderRatingsService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createOrderRatingDto: CreateOrderRatingDto) {
     return this.orderRatingsService.create(createOrderRatingDto);
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto,
   ) {
@@ -22,6 +25,7 @@ export class OrderRatingsController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -29,6 +33,7 @@ export class OrderRatingsController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateOrderRatingDto: UpdateOrderRatingDto
@@ -37,6 +42,7 @@ export class OrderRatingsController {
   }
 
   @Patch('desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -44,6 +50,7 @@ export class OrderRatingsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

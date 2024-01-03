@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { DisccountsService } from './disccounts.service';
 import { CreateDisccountsDto } from './dto/create-disccounts.dto';
@@ -10,11 +11,13 @@ export class DisccountsController {
   constructor(private readonly disccountsService: DisccountsService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createDisccountsDto: CreateDisccountsDto) {
     return this.disccountsService.create(createDisccountsDto);
   }
 
   @Post('create/multiple')
+  @UseGuards(AuthGuard())
   createMultiple(
     @Body() createMultipleDisccountsDto: CreateDisccountsDto[]
   ) {
@@ -22,6 +25,7 @@ export class DisccountsController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto,
   ) {
@@ -29,6 +33,7 @@ export class DisccountsController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -36,6 +41,7 @@ export class DisccountsController {
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateDisccountsDto: UpdateDisccountsDto
@@ -44,6 +50,7 @@ export class DisccountsController {
   }
 
   @Put('update/multiple')
+  @UseGuards(AuthGuard())
   updateMultiple(
     @Body() udpateMultipleDisccountsDto: UpdateDisccountsDto[]
   ) {
@@ -51,6 +58,7 @@ export class DisccountsController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -58,6 +66,7 @@ export class DisccountsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

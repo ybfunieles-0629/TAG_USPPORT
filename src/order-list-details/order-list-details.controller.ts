@@ -13,6 +13,7 @@ export class OrderListDetailsController {
   constructor(private readonly orderListDetailsService: OrderListDetailsService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createOrderListDetailDto: CreateOrderListDetailDto) {
     return this.orderListDetailsService.create(createOrderListDetailDto);
   }
@@ -27,6 +28,7 @@ export class OrderListDetailsController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -34,6 +36,7 @@ export class OrderListDetailsController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateOrderListDetailDto: UpdateOrderListDetailDto
@@ -42,6 +45,7 @@ export class OrderListDetailsController {
   }
 
   @Patch('desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -49,6 +53,7 @@ export class OrderListDetailsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

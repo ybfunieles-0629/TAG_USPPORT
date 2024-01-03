@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PassportModule } from '@nestjs/passport';
 
 import { TagSubTechniquesService } from './tag-sub-techniques.service';
 import { TagSubTechniquesController } from './tag-sub-techniques.controller';
@@ -8,6 +9,7 @@ import { MarkingTagServicesModule } from '../marking-tag-services/marking-tag-se
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     MarkingTagServicesModule,
     TypeOrmModule.forFeature([TagSubTechnique]),
   ],

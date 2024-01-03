@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { TagSubTechniquesService } from './tag-sub-techniques.service';
 import { CreateTagSubTechniqueDto } from './dto/create-tag-sub-technique.dto';
@@ -10,11 +11,13 @@ export class TagSubTechniquesController {
   constructor(private readonly tagSubTechniquesService: TagSubTechniquesService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createTagSubTechniqueDto: CreateTagSubTechniqueDto) {
     return this.tagSubTechniquesService.create(createTagSubTechniqueDto);
   }
 
   @Post('create/multiple')
+  @UseGuards(AuthGuard())
   createMultiple(
     @Body() createTagSubTechniques: CreateTagSubTechniqueDto[]
     ) {
@@ -22,6 +25,7 @@ export class TagSubTechniquesController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto,
   ) {
@@ -29,6 +33,7 @@ export class TagSubTechniquesController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -36,6 +41,7 @@ export class TagSubTechniquesController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateTagSubTechniqueDto: UpdateTagSubTechniqueDto
@@ -44,6 +50,7 @@ export class TagSubTechniquesController {
   }
 
   @Patch('update/multiple')
+  @UseGuards(AuthGuard())
   updateMultiple(
     @Body() updateTagSubTechniques: UpdateTagSubTechniqueDto[]
   ) {
@@ -51,6 +58,7 @@ export class TagSubTechniquesController {
   }
 
   @Patch('desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -58,6 +66,7 @@ export class TagSubTechniquesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

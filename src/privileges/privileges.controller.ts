@@ -1,4 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
 import { PrivilegesService } from './privileges.service';
 import { CreatePrivilegeDto } from './dto/create-privilege.dto';
 import { UpdatePrivilegeDto } from './dto/update-privilege.dto';
@@ -9,16 +11,19 @@ export class PrivilegesController {
   constructor(private readonly privilegesService: PrivilegesService) { }
 
   @Post('/seed')
+  @UseGuards(AuthGuard())
   seed() {
     return this.privilegesService.seed();
   }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createPrivilegeDto: CreatePrivilegeDto) {
     return this.privilegesService.create(createPrivilegeDto);
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -26,11 +31,13 @@ export class PrivilegesController {
   }
 
   @Get(':term')
+  @UseGuards(AuthGuard())
   findOne(@Param('term') term: string) {
     return this.privilegesService.findOne(term);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePrivilegeDto: UpdatePrivilegeDto
@@ -39,6 +46,7 @@ export class PrivilegesController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -46,6 +54,7 @@ export class PrivilegesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(@Param('id') id: string) {
     return this.privilegesService.remove(id);
   }

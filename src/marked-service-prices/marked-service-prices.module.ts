@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PassportModule } from '@nestjs/passport';
 
 import { MarkedServicePricesService } from './marked-service-prices.service';
 import { MarkedServicePricesController } from './marked-service-prices.controller';
@@ -8,6 +9,7 @@ import { MarkingServicePropertiesModule } from '../marking-service-properties/ma
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     MarkingServicePropertiesModule,
     TypeOrmModule.forFeature([MarkedServicePrice])
   ],

@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, ParseUUIDPipe, Query, UploadedFiles } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, ParseUUIDPipe, Query, UploadedFiles, UseGuards } from '@nestjs/common';
 import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from '@nestjs/passport';
 
 import { LogosService } from './logos.service';
 import { CreateLogoDto } from './dto/create-logo.dto';
@@ -11,6 +12,7 @@ export class LogosController {
   constructor(private readonly logosService: LogosService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'logo', maxCount: 1 },
@@ -25,6 +27,7 @@ export class LogosController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -32,11 +35,13 @@ export class LogosController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.logosService.findOne(id);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'logo', maxCount: 1 },
@@ -52,6 +57,7 @@ export class LogosController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -59,6 +65,7 @@ export class LogosController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.logosService.remove(id);
   }

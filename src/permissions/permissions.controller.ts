@@ -1,4 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
 import { PermissionsService } from './permissions.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
@@ -9,16 +11,19 @@ export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) { }
 
   @Post('/seed')
+  @UseGuards(AuthGuard())
   seed() {
     return this.permissionsService.seed();
   }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createPermissionDto: CreatePermissionDto) {
     return this.permissionsService.create(createPermissionDto);
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto,
   ) {
@@ -26,11 +31,13 @@ export class PermissionsController {
   }
 
   @Get(':term')
+  @UseGuards(AuthGuard())
   findOne(@Param('term') term: string) {
     return this.permissionsService.findOne(term);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePermissionDto: UpdatePermissionDto
@@ -39,6 +46,7 @@ export class PermissionsController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -46,6 +54,7 @@ export class PermissionsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.permissionsService.remove(id);
   }

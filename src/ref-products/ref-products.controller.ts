@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { RefProductsService } from './ref-products.service';
 import { CreateRefProductDto } from './dto/create-ref-product.dto';
@@ -11,6 +12,7 @@ export class RefProductsController {
   constructor(private readonly refProductsService: RefProductsService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createRefProductDto: CreateRefProductDto) {
     return this.refProductsService.create(createRefProductDto);
   }
@@ -31,6 +33,7 @@ export class RefProductsController {
   }
 
   @Get('is/allowed')
+  @UseGuards(AuthGuard())
   filterReferencesByIsAllowed(
     @Query() paginationDto: PaginationDto
   ) {
@@ -43,6 +46,7 @@ export class RefProductsController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateRefProductDto: UpdateRefProductDto
@@ -51,6 +55,7 @@ export class RefProductsController {
   }
 
   @Patch('/allow/:id')
+  @UseGuards(AuthGuard())
   changeIsAllowedStatus(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -58,6 +63,7 @@ export class RefProductsController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -65,6 +71,7 @@ export class RefProductsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.refProductsService.remove(id);
   }

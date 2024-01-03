@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { TagSubTechniquePropertiesService } from './tag-sub-technique-properties.service';
 import { CreateTagSubTechniquePropertyDto } from './dto/create-tag-sub-technique-property.dto';
@@ -10,6 +11,7 @@ export class TagSubTechniquePropertiesController {
   constructor(private readonly tagSubTechniquePropertiesService: TagSubTechniquePropertiesService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(
     @Body() createTagSubTechniquePropertyDto: CreateTagSubTechniquePropertyDto
   ) {
@@ -17,6 +19,7 @@ export class TagSubTechniquePropertiesController {
   }
 
   @Post('create/multiple')
+  @UseGuards(AuthGuard())
   createMultiple(
     @Body() createTagSubTechniqueProperties: CreateTagSubTechniquePropertyDto[]
   ) {
@@ -24,6 +27,7 @@ export class TagSubTechniquePropertiesController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -31,6 +35,7 @@ export class TagSubTechniquePropertiesController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -38,6 +43,7 @@ export class TagSubTechniquePropertiesController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateTagSubTechniquePropertyDto: UpdateTagSubTechniquePropertyDto
@@ -46,6 +52,7 @@ export class TagSubTechniquePropertiesController {
   }
 
   @Patch('update/multiple')
+  @UseGuards(AuthGuard())
   updateMultiple(
     @Body() updateTagSubTechniqueProperties: UpdateTagSubTechniquePropertyDto[]
   ) {
@@ -53,6 +60,7 @@ export class TagSubTechniquePropertiesController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -60,6 +68,7 @@ export class TagSubTechniquePropertiesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {
