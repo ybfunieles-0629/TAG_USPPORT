@@ -1,18 +1,19 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, Res, UploadedFile, UploadedFiles, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, Res, UploadedFile, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
 
 import { CompaniesService } from './companies.service';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @Controller('companies')
 export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'rutCompanyDocument', maxCount: 1 },
@@ -28,6 +29,7 @@ export class CompaniesController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -35,6 +37,7 @@ export class CompaniesController {
   }
 
   @Get(':term')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('term') term: string,
   ) {
@@ -42,6 +45,7 @@ export class CompaniesController {
   }
 
   @Get('/download/:file')
+  @UseGuards(AuthGuard())
   async downloadFile(
     @Param('file') file: string,
     @Res() res: Response,
@@ -54,6 +58,7 @@ export class CompaniesController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'rutCompanyDocument', maxCount: 1 },
@@ -70,6 +75,7 @@ export class CompaniesController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -77,6 +83,7 @@ export class CompaniesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.companiesService.remove(id);
   }
