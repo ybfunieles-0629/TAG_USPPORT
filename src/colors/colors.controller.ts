@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
 import { ColorsService } from './colors.service';
 import { CreateColorDto } from './dto/create-color.dto';
 import { UpdateColorDto } from './dto/update-color.dto';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Controller('colors')
 export class ColorsController {
   constructor(private readonly colorsService: ColorsService) { }
 
   @Post('load')
+  @UseGuards(AuthGuard())
   loadColors(
 
   ) {
@@ -16,11 +19,13 @@ export class ColorsController {
   }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createColorDto: CreateColorDto) {
     return this.colorsService.create(createColorDto);
   }
 
   @Post('create/multiple')
+  @UseGuards(AuthGuard())
   createMultiple(
     @Body() createMultipleColors: CreateColorDto[]
   ) {
@@ -40,6 +45,7 @@ export class ColorsController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateColorDto: UpdateColorDto
@@ -48,6 +54,7 @@ export class ColorsController {
   }
 
   @Put('/update/multiple')
+  @UseGuards(AuthGuard())
   updateMultiple(
     @Body() updateMultipleColors: UpdateColorDto[]
   ) {
@@ -55,6 +62,7 @@ export class ColorsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.colorsService.remove(id);
   }

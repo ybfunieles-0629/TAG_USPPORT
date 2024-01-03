@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PassportModule } from '@nestjs/passport';
 
 import { CategoryTagService } from './category-tag.service';
 import { CategoryTagController } from './category-tag.controller';
@@ -8,6 +9,7 @@ import { EmailSenderModule } from '../email-sender/email-sender.module';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     EmailSenderModule,
     TypeOrmModule.forFeature([CategoryTag])
   ],

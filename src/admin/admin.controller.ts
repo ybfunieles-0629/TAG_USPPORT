@@ -10,36 +10,36 @@ import { AuthGuard } from '@nestjs/passport';
 export class AdminController {
   constructor(private readonly adminService: AdminService) { }
 
-  @UseGuards(AuthGuard())
   @Post('/seed')
+  @UseGuards(AuthGuard())
   seedAdmins(
 
   ) {
     return this.adminService.seedAdmins();
   }
 
-  @UseGuards(AuthGuard())
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
   }
 
-  @UseGuards(AuthGuard())
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
     return this.adminService.findAll(paginationDto);
   }
 
-  @UseGuards(AuthGuard())
   @Get(':term')
+  @UseGuards(AuthGuard())
   findOne(@Param('term') term: string) {
     return this.adminService.findOne(term);
   }
 
-  @UseGuards(AuthGuard())
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateAdminDto: UpdateAdminDto
@@ -47,16 +47,16 @@ export class AdminController {
     return this.adminService.update(id, updateAdminDto);
   }
 
-  @UseGuards(AuthGuard())
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.adminService.desactivate(id);
   }
 
-  @UseGuards(AuthGuard())
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.adminService.remove(id);
   }

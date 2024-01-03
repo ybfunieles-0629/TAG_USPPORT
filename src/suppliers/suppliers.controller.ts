@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from '@nestjs/passport';
 
 import { SuppliersService } from './suppliers.service';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
@@ -11,6 +12,7 @@ export class SuppliersController {
   constructor(private readonly suppliersService: SuppliersService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   @UseInterceptors(FileInterceptor('portfolio'))
   create(
     @Body() createSupplierDto: CreateSupplierDto,
@@ -20,6 +22,7 @@ export class SuppliersController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -27,11 +30,13 @@ export class SuppliersController {
   }
 
   @Get(':term')
+  @UseGuards(AuthGuard())
   findOne(@Param('term') term: string) {
     return this.suppliersService.findOne(term);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   @UseInterceptors(FileInterceptor('portfolio'))
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -42,6 +47,7 @@ export class SuppliersController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(@Param('id') id: string) {
     return this.suppliersService.remove(id);
   }

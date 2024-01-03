@@ -10,13 +10,14 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 export class CartQuotesController {
   constructor(private readonly cartQuotesService: CartQuotesService) { }
 
-  @UseGuards(AuthGuard())
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createCartQuoteDto: CreateCartQuoteDto) {
     return this.cartQuotesService.create(createCartQuoteDto);
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -24,6 +25,7 @@ export class CartQuotesController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -31,6 +33,7 @@ export class CartQuotesController {
   }
 
   @Get('/filter-by-client/:id')
+  @UseGuards(AuthGuard())
   filterByClient(
     @Param('id', ParseUUIDPipe) id: string,
     @Query() isCommercial: any
@@ -47,6 +50,7 @@ export class CartQuotesController {
   // }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateCartQuoteDto: UpdateCartQuoteDto
@@ -55,6 +59,7 @@ export class CartQuotesController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -62,6 +67,7 @@ export class CartQuotesController {
   }
 
   @Patch('change-status/:id')
+  @UseGuards(AuthGuard())
   changeStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateCartQuoteDto: UpdateCartQuoteDto,
@@ -70,6 +76,7 @@ export class CartQuotesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

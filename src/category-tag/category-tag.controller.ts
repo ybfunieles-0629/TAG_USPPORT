@@ -1,16 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseInterceptors, UploadedFile, Query, UseGuards } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from '@nestjs/passport';
 
 import { CategoryTagService } from './category-tag.service';
 import { CreateCategoryTagDto } from './dto/create-category-tag.dto';
 import { UpdateCategoryTagDto } from './dto/update-category-tag.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('category-tag')
 export class CategoryTagController {
   constructor(private readonly categoryTagService: CategoryTagService) { }
 
   @Post('request')
+  @UseGuards(AuthGuard())
   requestCategory(
     @Body() createCategoryTagDto: CreateCategoryTagDto,
   ) {
@@ -18,6 +20,7 @@ export class CategoryTagController {
   }
 
   @Post()
+  @UseGuards(AuthGuard())
   @UseInterceptors(FileInterceptor('image'))
   create(
     @Body() createCategoryTagDto: CreateCategoryTagDto,
@@ -41,6 +44,7 @@ export class CategoryTagController {
   }
 
   @Get('filter-by-parent/:id')
+  @UseGuards(AuthGuard())
   filterSubCategoryByParent(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -48,6 +52,7 @@ export class CategoryTagController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   @UseInterceptors(FileInterceptor('image'))
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -58,6 +63,7 @@ export class CategoryTagController {
   }
 
   @Patch('/featured/:id')
+  @UseGuards(AuthGuard())
   changeFeatured(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -65,6 +71,7 @@ export class CategoryTagController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -72,6 +79,7 @@ export class CategoryTagController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {
