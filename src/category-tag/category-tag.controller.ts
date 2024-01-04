@@ -6,6 +6,7 @@ import { CategoryTagService } from './category-tag.service';
 import { CreateCategoryTagDto } from './dto/create-category-tag.dto';
 import { UpdateCategoryTagDto } from './dto/update-category-tag.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { SendMessageDto } from './dto/send-message.dto';
 
 @Controller('category-tag')
 export class CategoryTagController {
@@ -18,6 +19,14 @@ export class CategoryTagController {
   ) {
     return this.categoryTagService.requestCategory(createCategoryTagDto);
   }
+
+  @Post('send-message')
+  @UseGuards(AuthGuard())
+  sendMessage(
+    @Body() sendMessageDto: SendMessageDto,
+  ) {
+    return this.categoryTagService.sendMessage(sendMessageDto);
+  };
 
   @Post()
   @UseGuards(AuthGuard())
