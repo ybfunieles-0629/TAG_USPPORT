@@ -21,10 +21,10 @@ export class SystemConfigOffersService {
 
   async create(createSystemConfigOfferDto: CreateSystemConfigOfferDto) {
     const newSystemConfigOffer: SystemConfigOffer = plainToClass(SystemConfigOffer, createSystemConfigOfferDto);
-    
+
     if (createSystemConfigOfferDto.product) {
       const productId: string = createSystemConfigOfferDto.product;
-      
+
       const product: Product = await this.productRepository.findOne({
         where: {
           id: productId,
@@ -84,6 +84,19 @@ export class SystemConfigOffersService {
     };
   };
 
+  async findProductsWithOffers(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    const products: Product[] = await this.productRepository
+      .createQueryBuilder('product')
+      .innerJoinAndSelect('product.systemConfigOffers', 'systemConfigOffers')
+      .innerJoinAndSelect('product.refProduct', 'refProduct')
+      .where('systemConfigOffers IS NOT NULL')
+      .take(limit)
+      .skip(offset)
+      .getMany();
+  };
+
   async update(id: string, updateSystemConfigOfferDto: UpdateSystemConfigOfferDto) {
     const systemConfigOffer: SystemConfigOffer = await this.systemConfigOfferRepository.findOne({
       where: {
@@ -98,7 +111,7 @@ export class SystemConfigOffersService {
 
     if (updateSystemConfigOfferDto.product) {
       const productId: string = updateSystemConfigOfferDto.product;
-      
+
       const product: Product = await this.productRepository.findOne({
         where: {
           id: productId,

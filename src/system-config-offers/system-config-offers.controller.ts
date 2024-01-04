@@ -10,30 +10,38 @@ import { AuthGuard } from '@nestjs/passport';
 export class SystemConfigOffersController {
   constructor(private readonly systemConfigOffersService: SystemConfigOffersService) { }
 
-  @UseGuards(AuthGuard())
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createSystemConfigOfferDto: CreateSystemConfigOfferDto) {
     return this.systemConfigOffersService.create(createSystemConfigOfferDto);
   }
 
-  @UseGuards(AuthGuard())
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
     return this.systemConfigOffersService.findAll(paginationDto);
   }
 
-  @UseGuards(AuthGuard())
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
     return this.systemConfigOffersService.findOne(id);
   }
 
+  @Get('products-with-offers')
   @UseGuards(AuthGuard())
+  findProductsWithOffers(
+    @Query() paginationDto: PaginationDto
+  ) {
+    return this.systemConfigOffersService.findProductsWithOffers(paginationDto);
+  }
+
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateSystemConfigOfferDto: UpdateSystemConfigOfferDto
@@ -41,16 +49,16 @@ export class SystemConfigOffersController {
     return this.systemConfigOffersService.update(id, updateSystemConfigOfferDto);
   }
 
-  @UseGuards(AuthGuard())
   @Patch(':id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.systemConfigOffersService.desactivate(id);
   }
   
-  @UseGuards(AuthGuard())
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {
