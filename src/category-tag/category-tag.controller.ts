@@ -21,7 +21,6 @@ export class CategoryTagController {
   }
 
   @Post('send-message')
-  @UseGuards(AuthGuard())
   sendMessage(
     @Body() sendMessageDto: SendMessageDto,
   ) {
