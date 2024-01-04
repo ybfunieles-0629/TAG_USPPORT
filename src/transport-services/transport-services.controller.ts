@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
 import { TransportServicesService } from './transport-services.service';
 import { CreateTransportServiceDto } from './dto/create-transport-service.dto';
 import { UpdateTransportServiceDto } from './dto/update-transport-service.dto';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Controller('transport-services')
 export class TransportServicesController {
   constructor(private readonly transportServicesService: TransportServicesService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(
     @Body() createTransportServiceDto: CreateTransportServiceDto
   ) {
@@ -16,6 +19,7 @@ export class TransportServicesController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -23,6 +27,7 @@ export class TransportServicesController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -30,6 +35,7 @@ export class TransportServicesController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateTransportServiceDto: UpdateTransportServiceDto
@@ -38,6 +44,7 @@ export class TransportServicesController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -45,6 +52,7 @@ export class TransportServicesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

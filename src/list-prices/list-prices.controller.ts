@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { ListPricesService } from './list-prices.service';
 import { CreateListPriceDto } from './dto/create-list-price.dto';
@@ -10,11 +11,13 @@ export class ListPricesController {
   constructor(private readonly listPricesService: ListPricesService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createListPriceDto: CreateListPriceDto) {
     return this.listPricesService.create(createListPriceDto);
   }
 
   @Post('/create/multiple')
+  @UseGuards(AuthGuard())
   createMultiple(
     @Body() createListPrices: CreateListPriceDto[]
   ) {
@@ -22,6 +25,7 @@ export class ListPricesController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -29,6 +33,7 @@ export class ListPricesController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -36,6 +41,7 @@ export class ListPricesController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateListPriceDto: UpdateListPriceDto
@@ -44,6 +50,7 @@ export class ListPricesController {
   }
 
   @Patch('/update/multiple')
+  @UseGuards(AuthGuard())
   updateMultiple(
     @Body() updateListPrices: UpdateListPriceDto[]
   ) {
@@ -51,6 +58,7 @@ export class ListPricesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

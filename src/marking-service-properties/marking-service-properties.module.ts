@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PassportModule } from '@nestjs/passport';
 
 import { MarkingServicePropertiesService } from './marking-service-properties.service';
 import { MarkingServicePropertiesController } from './marking-service-properties.controller';
@@ -9,6 +10,7 @@ import { TagSubTechniquePropertiesModule } from '../tag-sub-technique-properties
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     ExternalSubTechniquesModule,
     TagSubTechniquePropertiesModule,
     TypeOrmModule.forFeature([MarkingServiceProperty])

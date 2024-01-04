@@ -1,15 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
 
 import { ExternalSubTechniquesService } from './external-sub-techniques.service';
 import { CreateExternalSubTechniqueDto } from './dto/create-external-sub-technique.dto';
 import { UpdateExternalSubTechniqueDto } from './dto/update-external-sub-technique.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('external-sub-techniques')
 export class ExternalSubTechniquesController {
   constructor(private readonly externalSubTechniquesService: ExternalSubTechniquesService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(
     @Body() createExternalSubTechniqueDto: CreateExternalSubTechniqueDto
   ) {
@@ -17,6 +19,7 @@ export class ExternalSubTechniquesController {
   }
 
   @Post('create/multiple')
+  @UseGuards(AuthGuard())
   createMultiple(
     @Body() createExternalSubTechniques: CreateExternalSubTechniqueDto[]
   ) {
@@ -24,6 +27,7 @@ export class ExternalSubTechniquesController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -31,6 +35,7 @@ export class ExternalSubTechniquesController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -38,6 +43,7 @@ export class ExternalSubTechniquesController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateExternalSubTechniqueDto: UpdateExternalSubTechniqueDto
@@ -46,6 +52,7 @@ export class ExternalSubTechniquesController {
   }
 
   @Patch('update/multiple')
+  @UseGuards(AuthGuard())
   updateMultiple(
     @Body() updateExternalSubTechniques: UpdateExternalSubTechniqueDto[]
   ) {
@@ -53,6 +60,7 @@ export class ExternalSubTechniquesController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -60,6 +68,7 @@ export class ExternalSubTechniquesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

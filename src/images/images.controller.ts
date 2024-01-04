@@ -1,16 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseInterceptors, UploadedFile, Query, UseGuards } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from '@nestjs/passport';
 
 import { ImagesService } from './images.service';
 import { CreateImageDto } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('images')
 export class ImagesController {
   constructor(private readonly imagesService: ImagesService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   @UseInterceptors(FileInterceptor('url'))
   create(
     @Body() createImageDto: CreateImageDto,
@@ -20,6 +22,7 @@ export class ImagesController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -27,11 +30,13 @@ export class ImagesController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.imagesService.findOne(id);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   @UseInterceptors(FileInterceptor('url'))
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -42,6 +47,7 @@ export class ImagesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.imagesService.remove(id);
   }

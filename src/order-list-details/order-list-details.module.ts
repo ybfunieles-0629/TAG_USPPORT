@@ -15,13 +15,13 @@ import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     MarkingServicesModule,
     OrderRatingsModule,
     PurchaseOrderModule,
     ProductsModule,
     StatesModule,
     SupplierPurchaseOrdersModule,
-    PassportModule.register({ defaultStrategy: 'jwt' }),
     forwardRef(() => TransportServicesModule),
     TypeOrmModule.forFeature([OrderListDetail])
   ],

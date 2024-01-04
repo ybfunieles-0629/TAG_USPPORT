@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PassportModule } from '@nestjs/passport';
 
 import { SuppliersService } from './suppliers.service';
 import { SuppliersController } from './suppliers.controller';
@@ -10,6 +11,7 @@ import { EmailSenderModule } from '../email-sender/email-sender.module';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     EmailSenderModule,
     SubSupplierProductTypesModule,
     UsersModule,

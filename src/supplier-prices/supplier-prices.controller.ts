@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { SupplierPricesService } from './supplier-prices.service';
 import { CreateSupplierPriceDto } from './dto/create-supplier-price.dto';
@@ -10,6 +11,7 @@ export class SupplierPricesController {
   constructor(private readonly supplierPricesService: SupplierPricesService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(
     @Body() createSupplierPriceDto: CreateSupplierPriceDto
   ) {
@@ -17,6 +19,7 @@ export class SupplierPricesController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -24,6 +27,7 @@ export class SupplierPricesController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -31,6 +35,7 @@ export class SupplierPricesController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateSupplierPriceDto: UpdateSupplierPriceDto
@@ -39,6 +44,7 @@ export class SupplierPricesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

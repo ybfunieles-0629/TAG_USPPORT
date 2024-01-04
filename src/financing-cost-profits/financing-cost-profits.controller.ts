@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
 import { FinancingCostProfitsService } from './financing-cost-profits.service';
 import { CreateFinancingCostProfitDto } from './dto/create-financing-cost-profit.dto';
 import { UpdateFinancingCostProfitDto } from './dto/update-financing-cost-profit.dto';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Controller('financing-cost-profits')
 export class FinancingCostProfitsController {
   constructor(private readonly financingCostProfitsService: FinancingCostProfitsService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(
     @Body() createFinancingCostProfitDto: CreateFinancingCostProfitDto
   ) {
@@ -16,6 +19,7 @@ export class FinancingCostProfitsController {
   }
 
   @Post('create/multiple')
+  @UseGuards(AuthGuard())
   createMultiple(
     @Body() createFinancingCostProfits: CreateFinancingCostProfitDto[]
   ) {
@@ -23,6 +27,7 @@ export class FinancingCostProfitsController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Param() paginationDto: PaginationDto
   ) {
@@ -30,6 +35,7 @@ export class FinancingCostProfitsController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -37,6 +43,7 @@ export class FinancingCostProfitsController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateFinancingCostProfitDto: UpdateFinancingCostProfitDto
@@ -45,6 +52,7 @@ export class FinancingCostProfitsController {
   }
 
   @Patch('update/multiple')
+  @UseGuards(AuthGuard())
   updateMultiple(
     @Body() updateFinancingCostProfits: UpdateFinancingCostProfitDto[]
   ) {
@@ -52,6 +60,7 @@ export class FinancingCostProfitsController {
   }
 
   @Patch('desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -59,6 +68,7 @@ export class FinancingCostProfitsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

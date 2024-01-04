@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put, Query, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { ProductsService } from './products.service';
@@ -6,12 +6,14 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { RequireProductDto } from './dto/require-product.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) { }
 
   @Post('/load')
+  @UseGuards(AuthGuard())
   loadProducts(
 
   ) {
@@ -19,6 +21,7 @@ export class ProductsController {
   }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(
     @Body() createProductDto: CreateProductDto
   ) {
@@ -26,6 +29,7 @@ export class ProductsController {
   }
 
   @Post('create/multiple')
+  @UseGuards(AuthGuard())
   createMultiple(
     @Body() createMultipleProducts: CreateProductDto[]
   ) {
@@ -33,6 +37,7 @@ export class ProductsController {
   }
 
   @Post('require/product')
+  @UseGuards(AuthGuard())
   @UseInterceptors(FileInterceptor('image'))
   requireProduct(
     @Body() requireProductDto: RequireProductDto,
@@ -56,6 +61,7 @@ export class ProductsController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateProductDto: UpdateProductDto
@@ -64,6 +70,7 @@ export class ProductsController {
   }
 
   @Put('/update/multiple')
+  @UseGuards(AuthGuard())
   updateMultiple(
     @Body() updateMultipleProducts: UpdateProductDto[]
   ) {
@@ -71,6 +78,7 @@ export class ProductsController {
   }
 
   @Patch('/allow/:id')
+  @UseGuards(AuthGuard())
   changeIsAllowedStatus(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -78,6 +86,7 @@ export class ProductsController {
   }
 
   @Patch('/allow/multiple')
+  @UseGuards(AuthGuard())
   changeMultipleIsAllowedStatus(
     @Body() ids: string[],
   ) {
@@ -85,6 +94,7 @@ export class ProductsController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -92,6 +102,7 @@ export class ProductsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

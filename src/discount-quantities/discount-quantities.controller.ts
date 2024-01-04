@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { DiscountQuantitiesService } from './discount-quantities.service';
 import { CreateDiscountQuantityDto } from './dto/create-discount-quantity.dto';
@@ -10,6 +11,7 @@ export class DiscountQuantitiesController {
   constructor(private readonly discountQuantitiesService: DiscountQuantitiesService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(
     @Body() createDiscountQuantityDto: CreateDiscountQuantityDto
   ) {
@@ -17,6 +19,7 @@ export class DiscountQuantitiesController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -24,6 +27,7 @@ export class DiscountQuantitiesController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -31,6 +35,7 @@ export class DiscountQuantitiesController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string, 
     @Body() updateDiscountQuantityDto: UpdateDiscountQuantityDto
@@ -39,6 +44,7 @@ export class DiscountQuantitiesController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -46,6 +52,7 @@ export class DiscountQuantitiesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

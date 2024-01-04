@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { QuoteDetailsService } from './quote-details.service';
 import { CreateQuoteDetailDto } from './dto/create-quote-detail.dto';
@@ -10,11 +11,13 @@ export class QuoteDetailsController {
   constructor(private readonly quoteDetailsService: QuoteDetailsService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createQuoteDetailDto: CreateQuoteDetailDto) {
     return this.quoteDetailsService.create(createQuoteDetailDto);
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -22,6 +25,7 @@ export class QuoteDetailsController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -29,6 +33,7 @@ export class QuoteDetailsController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateQuoteDetailDto: UpdateQuoteDetailDto
@@ -37,6 +42,7 @@ export class QuoteDetailsController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -44,6 +50,7 @@ export class QuoteDetailsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PassportModule } from '@nestjs/passport';
 
 import { RefProductsService } from './ref-products.service';
 import { RefProductsController } from './ref-products.controller';
@@ -15,6 +16,7 @@ import { SystemConfigsModule } from '../system-configs/system-configs.module';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     CategoryTagModule,
     CategorySuppliersModule,
     DeliveryTimesModule,

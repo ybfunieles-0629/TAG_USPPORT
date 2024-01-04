@@ -18,6 +18,7 @@ import passport from 'passport';
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
+  @UseGuards(AuthGuard())
   @Post('/seed')
   seedUsers(
 
@@ -38,6 +39,7 @@ export class UsersController {
   }
 
   @Get('refresh/token/:id')
+  @UseGuards(AuthGuard())
   refreshToken(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -52,6 +54,7 @@ export class UsersController {
   }
 
   @Post('password/change')
+  @UseGuards(AuthGuard())
   passwordRecovery(
     @Body() passwordRecoveryDto: PasswordRecoveryDto
   ) {
@@ -59,6 +62,7 @@ export class UsersController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -66,6 +70,7 @@ export class UsersController {
   }
 
   @Get('role/:role')
+  @UseGuards(AuthGuard())
   findByRole(
     @Param('role') role: string,
   ) {
@@ -73,6 +78,7 @@ export class UsersController {
   }
 
   @Get(':term')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('term') term: string
   ) {
@@ -99,6 +105,7 @@ export class UsersController {
   }
 
   @Get('commercial/clients/:id')
+  @UseGuards(AuthGuard())
   getClientsByCommercial(
     @Param('id', ParseUUIDPipe) id: string,  
   ) {
@@ -106,6 +113,7 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
@@ -119,6 +127,7 @@ export class UsersController {
   // }
 
   @Patch('/allow/:id')
+  @UseGuards(AuthGuard())
   changeIsAllowedStatus(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -126,6 +135,7 @@ export class UsersController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -133,6 +143,7 @@ export class UsersController {
   }
 
   @Patch('/add/permissions/:id')
+  @UseGuards(AuthGuard())
   addPermissionsByUserRole(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -140,6 +151,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }

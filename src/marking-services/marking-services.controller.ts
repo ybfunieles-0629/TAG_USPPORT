@@ -1,14 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
 import { MarkingServicesService } from './marking-services.service';
 import { CreateMarkingServiceDto } from './dto/create-marking-service.dto';
 import { UpdateMarkingServiceDto } from './dto/update-marking-service.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('marking-services')
 export class MarkingServicesController {
   constructor(private readonly markingServicesService: MarkingServicesService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(
     @Body() createMarkingServiceDto: CreateMarkingServiceDto
   ) {
@@ -16,6 +18,7 @@ export class MarkingServicesController {
   }
 
   @Post('create/multiple')
+  @UseGuards(AuthGuard())
   createMultiple(
     @Body() createMarkingServices: CreateMarkingServiceDto[]
   ) {
@@ -23,6 +26,7 @@ export class MarkingServicesController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto,
   ) {
@@ -30,6 +34,7 @@ export class MarkingServicesController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -37,6 +42,7 @@ export class MarkingServicesController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateMarkingServiceDto: UpdateMarkingServiceDto
@@ -45,6 +51,7 @@ export class MarkingServicesController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -52,6 +59,7 @@ export class MarkingServicesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

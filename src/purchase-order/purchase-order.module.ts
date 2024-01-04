@@ -12,11 +12,11 @@ import { ShippingGuidesModule } from '../shipping-guides/shipping-guides.module'
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     ClientsModule,
     UsersModule,
     StatesModule,
     ShippingGuidesModule,
-    PassportModule.register({ defaultStrategy: 'jwt' }),
     TypeOrmModule.forFeature([PurchaseOrder]),
   ],
   controllers: [PurchaseOrderController],

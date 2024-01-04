@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
-import { PaginationDto } from '../common/dto/pagination.dto';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { TagDisccountPricesService } from './tag-disccount-prices.service';
 import { CreateTagDisccountPriceDto } from './dto/create-tag-disccount-price.dto';
 import { UpdateTagDisccountPriceDto } from './dto/update-tag-disccount-price.dto';
@@ -10,6 +11,7 @@ export class TagDisccountPricesController {
   constructor(private readonly tagDisccountPricesService: TagDisccountPricesService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(
     @Body() createTagDisccountPriceDto: CreateTagDisccountPriceDto,
   ) {
@@ -17,6 +19,7 @@ export class TagDisccountPricesController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto,
   ) {
@@ -24,6 +27,7 @@ export class TagDisccountPricesController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -31,6 +35,7 @@ export class TagDisccountPricesController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateTagDisccountPriceDto: UpdateTagDisccountPriceDto
@@ -39,6 +44,7 @@ export class TagDisccountPricesController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -46,6 +52,7 @@ export class TagDisccountPricesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string,
   ) {

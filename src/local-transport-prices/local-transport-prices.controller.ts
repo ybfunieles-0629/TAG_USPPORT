@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { LocalTransportPricesService } from './local-transport-prices.service';
 import { CreateLocalTransportPriceDto } from './dto/create-local-transport-price.dto';
@@ -10,11 +11,13 @@ export class LocalTransportPricesController {
   constructor(private readonly localTransportPricesService: LocalTransportPricesService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createLocalTransportPriceDto: CreateLocalTransportPriceDto) {
     return this.localTransportPricesService.create(createLocalTransportPriceDto);
   }
 
   @Post('create/multiple')
+  @UseGuards(AuthGuard())
   createMultiple(
     @Body() createLocalTransportPrices: CreateLocalTransportPriceDto[]
   ) {
@@ -23,6 +26,7 @@ export class LocalTransportPricesController {
 
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -30,6 +34,7 @@ export class LocalTransportPricesController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -37,6 +42,7 @@ export class LocalTransportPricesController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateLocalTransportPriceDto: UpdateLocalTransportPriceDto
@@ -45,6 +51,7 @@ export class LocalTransportPricesController {
   }
 
   @Patch('update/multiple')
+  @UseGuards(AuthGuard())
   updateMultiple(
     @Body() updateLocalTransportPrices: UpdateLocalTransportPriceDto[]
   ) {
@@ -52,6 +59,7 @@ export class LocalTransportPricesController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -59,6 +67,7 @@ export class LocalTransportPricesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

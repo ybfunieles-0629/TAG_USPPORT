@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
@@ -10,11 +11,13 @@ export class RolesController {
   constructor(private readonly rolesService: RolesService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createRoleDto: CreateRoleDto) {
     return this.rolesService.create(createRoleDto);
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -22,6 +25,7 @@ export class RolesController {
   }
 
   @Get(':term')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('term') term: string
   ) {
@@ -29,11 +33,13 @@ export class RolesController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(@Param('id', ParseUUIDPipe) id: string, @Body() updateRoleDto: UpdateRoleDto) {
     return this.rolesService.update(id, updateRoleDto);
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -41,6 +47,7 @@ export class RolesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.rolesService.remove(id);
   }

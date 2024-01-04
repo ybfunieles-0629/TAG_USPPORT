@@ -10,6 +10,7 @@ import { UpdateCategoryTagDto } from './dto/update-category-tag.dto';
 import { CategoryTag } from './entities/category-tag.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import * as nodemailer from 'nodemailer';
+import { SendMessageDto } from './dto/send-message.dto';
 
 @Injectable()
 export class CategoryTagService {
@@ -40,6 +41,37 @@ export class CategoryTagService {
           Nombre de la categoría: ${createCategoryTagDto.name} <br />
           Categoría TAG padre: ${createCategoryTagDto.parentCategory} <br />
           Descripción: ${createCategoryTagDto.description} <br />
+        `,
+      });
+
+      return {
+        msg: 'Email sended successfully'
+      };
+    } catch (error) {
+      console.log('Failed to send the password recovery email', error);
+      throw new InternalServerErrorException(`Internal server error`);
+    }
+  }
+
+  async sendMessage(sendMessageDto: SendMessageDto) {
+    try {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      });
+
+      await transporter.sendMail({
+        from: this.emailSenderConfig.transport.from,
+        to: ['puertodaniela586@gmail.com', 'locarr785@gmail.com', 'yeison.descargas@gmail.com'],
+        subject: 'Nuevo mensaje',
+        html: `
+          Nombre completo: ${sendMessageDto.name} <br />
+          Correo electrónico: ${sendMessageDto.email} <br />
+          Asunto: ${sendMessageDto.subject} <br />
+          Mensaje: ${sendMessageDto.message} <br />
         `,
       });
 

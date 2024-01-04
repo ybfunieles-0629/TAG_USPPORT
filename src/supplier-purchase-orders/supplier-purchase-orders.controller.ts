@@ -1,15 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from '@nestjs/passport';
+
 import { SupplierPurchaseOrdersService } from './supplier-purchase-orders.service';
 import { CreateSupplierPurchaseOrderDto } from './dto/create-supplier-purchase-order.dto';
 import { UpdateSupplierPurchaseOrderDto } from './dto/update-supplier-purchase-order.dto';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Controller('supplier-purchase-orders')
 export class SupplierPurchaseOrdersController {
   constructor(private readonly supplierPurchaseOrdersService: SupplierPurchaseOrdersService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   @UseInterceptors(FileInterceptor('tagPurchaseOrderDocument'))
   create(
     @Body() createSupplierPurchaseOrderDto: CreateSupplierPurchaseOrderDto,
@@ -19,6 +22,7 @@ export class SupplierPurchaseOrdersController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto,
   ) {
@@ -26,6 +30,7 @@ export class SupplierPurchaseOrdersController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -33,6 +38,7 @@ export class SupplierPurchaseOrdersController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   @UseInterceptors(FileInterceptor('tagPurchaseOrderDocument'))
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -43,6 +49,7 @@ export class SupplierPurchaseOrdersController {
   }
 
   @Patch('desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -50,6 +57,7 @@ export class SupplierPurchaseOrdersController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

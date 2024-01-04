@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { MarkedServicePricesService } from './marked-service-prices.service';
 import { CreateMarkedServicePriceDto } from './dto/create-marked-service-price.dto';
@@ -10,11 +11,13 @@ export class MarkedServicePricesController {
   constructor(private readonly markedServicePricesService: MarkedServicePricesService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(@Body() createMarkedServicePriceDto: CreateMarkedServicePriceDto) {
     return this.markedServicePricesService.create(createMarkedServicePriceDto);
   }
 
   @Post('create/multiple')
+  @UseGuards(AuthGuard())
   createMultiple(
     @Body() createMarkedServicePrices: CreateMarkedServicePriceDto[]
   ) {
@@ -22,6 +25,7 @@ export class MarkedServicePricesController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -29,11 +33,13 @@ export class MarkedServicePricesController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.markedServicePricesService.findOne(id);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateMarkedServicePriceDto: UpdateMarkedServicePriceDto
@@ -42,6 +48,7 @@ export class MarkedServicePricesController {
   }
 
   @Patch('update/multiple')
+  @UseGuards(AuthGuard())
   updateMultiple(
     @Body() updateMarkedServicePrices: UpdateMarkedServicePriceDto[]
   ) {
@@ -49,6 +56,7 @@ export class MarkedServicePricesController {
   }
 
   @Patch('/desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -56,6 +64,7 @@ export class MarkedServicePricesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.markedServicePricesService.remove(id);
   }

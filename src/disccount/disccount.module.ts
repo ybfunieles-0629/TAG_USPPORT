@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PassportModule } from '@nestjs/passport';
 
 import { DisccountService } from './disccount.service';
 import { DisccountController } from './disccount.controller';
@@ -9,6 +10,7 @@ import { DisccountsModule } from '../disccounts/disccounts.module';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     DisccountsModule,
     SuppliersModule,
     TypeOrmModule.forFeature([Disccount])

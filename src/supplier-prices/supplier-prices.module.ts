@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PassportModule } from '@nestjs/passport';
 
 import { SupplierPricesService } from './supplier-prices.service';
 import { SupplierPricesController } from './supplier-prices.controller';
@@ -10,6 +11,7 @@ import { ListPricesModule } from '../list-prices/list-prices.module';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     SuppliersModule,
     ProductsModule,
     ListPricesModule,

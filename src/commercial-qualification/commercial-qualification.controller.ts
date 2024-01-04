@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { CommercialQualificationService } from './commercial-qualification.service';
 import { CreateCommercialQualificationDto } from './dto/create-commercial-qualification.dto';
@@ -10,6 +11,7 @@ export class CommercialQualificationController {
   constructor(private readonly commercialQualificationService: CommercialQualificationService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(
     @Body() createCommercialQualificationDto: CreateCommercialQualificationDto
   ) {
@@ -17,6 +19,7 @@ export class CommercialQualificationController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto,
   ) {
@@ -24,6 +27,7 @@ export class CommercialQualificationController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -31,6 +35,7 @@ export class CommercialQualificationController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string, 
     @Body() updateCommercialQualificationDto: UpdateCommercialQualificationDto
@@ -39,6 +44,7 @@ export class CommercialQualificationController {
   }
 
   @Patch('desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string, 
     ) {
@@ -46,6 +52,7 @@ export class CommercialQualificationController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
     ) {

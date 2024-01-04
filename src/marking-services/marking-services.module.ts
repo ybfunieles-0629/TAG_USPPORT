@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PassportModule } from '@nestjs/passport';
 
 import { MarkingServicesService } from './marking-services.service';
 import { MarkingServicesController } from './marking-services.controller';
@@ -10,6 +11,7 @@ import { MarkingServicePropertiesModule } from '../marking-service-properties/ma
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     ExternalSubTechniquesModule,
     MarkingsModule,
     MarkingServicePropertiesModule,

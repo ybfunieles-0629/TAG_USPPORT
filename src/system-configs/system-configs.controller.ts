@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { SystemConfigsService } from './system-configs.service';
 import { CreateSystemConfigDto } from './dto/create-system-config.dto';
@@ -10,6 +11,7 @@ export class SystemConfigsController {
   constructor(private readonly systemConfigsService: SystemConfigsService) { }
 
   @Post()
+  @UseGuards(AuthGuard())
   create(
     @Body() createSystemConfigDto: CreateSystemConfigDto
   ) {
@@ -17,6 +19,7 @@ export class SystemConfigsController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Param() paginationDto: PaginationDto
   ) {
@@ -24,6 +27,7 @@ export class SystemConfigsController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -31,6 +35,7 @@ export class SystemConfigsController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateSystemConfigDto: UpdateSystemConfigDto
@@ -39,6 +44,7 @@ export class SystemConfigsController {
   }
 
   @Patch('desactivate/:id')
+  @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -46,6 +52,7 @@ export class SystemConfigsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PassportModule } from '@nestjs/passport';
 
 import { CategorySuppliersService } from './category-suppliers.service';
 import { CategorySuppliersController } from './category-suppliers.controller';
@@ -10,6 +11,7 @@ import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     CategoryTagModule,
     SuppliersModule,
     UsersModule,
