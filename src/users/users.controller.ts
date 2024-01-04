@@ -39,7 +39,6 @@ export class UsersController {
   }
 
   @Get('refresh/token/:id')
-  @UseGuards(AuthGuard())
   refreshToken(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -54,7 +53,6 @@ export class UsersController {
   }
 
   @Post('password/change')
-  @UseGuards(AuthGuard())
   passwordRecovery(
     @Body() passwordRecoveryDto: PasswordRecoveryDto
   ) {
