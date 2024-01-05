@@ -32,7 +32,7 @@ export class SystemConfigOffersController {
     return this.systemConfigOffersService.findOne(id);
   }
 
-  @Get('products-with-offers')
+  @Get('filter/products-with-offers')
   findProductsWithOffers(
     @Query() paginationDto: PaginationDto
   ) {
