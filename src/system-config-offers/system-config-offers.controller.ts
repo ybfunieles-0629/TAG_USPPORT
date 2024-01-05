@@ -33,7 +33,6 @@ export class SystemConfigOffersController {
   }
 
   @Get('products-with-offers')
-  @UseGuards(AuthGuard())
   findProductsWithOffers(
     @Query() paginationDto: PaginationDto
   ) {
