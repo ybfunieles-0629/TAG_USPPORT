@@ -90,11 +90,15 @@ export class SystemConfigOffersService {
     const products: Product[] = await this.productRepository
       .createQueryBuilder('product')
       .innerJoinAndSelect('product.systemConfigOffers', 'systemConfigOffers')
+      .where('systemConfigOffers.id IS NOT NULL')
       .innerJoinAndSelect('product.refProduct', 'refProduct')
-      .where('systemConfigOffers IS NOT NULL')
       .take(limit)
       .skip(offset)
       .getMany();
+
+    return {
+      products
+    };
   };
 
   async update(id: string, updateSystemConfigOfferDto: UpdateSystemConfigOfferDto) {
