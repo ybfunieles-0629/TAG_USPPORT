@@ -104,10 +104,29 @@ export class CartQuotesService {
         id,
       },
       relations: [
-        'user',
-        'client',
-        'orderListDetail',
         'quoteDetails',
+        'client',
+        'client.user',
+        'user',
+        'client.user.company',
+        'quoteDetails.transportServices',
+        'quoteDetails.product',
+        'quoteDetails.product.colors',
+        'quoteDetails.product.variantReferences',
+        'quoteDetails.product.images',
+        'quoteDetails.markingServices',
+        'quoteDetails.markingServices.logos',
+        'quoteDetails.markingServices.marking',
+        'quoteDetails.markingServices.externalSubTechnique',
+        'quoteDetails.markingServices.markingServiceProperty',
+        'quoteDetails.markingServices.markingServiceProperty.markedServicePrices',
+        'quoteDetails.product.packings',
+        'quoteDetails.product.refProduct',
+        'quoteDetails.product.refProduct.images',
+        'quoteDetails.product.refProduct.supplier',
+        'quoteDetails.product.refProduct.supplier.disccounts',
+        'quoteDetails.product.refProduct.supplier.disccounts.disccounts',
+        'quoteDetails.product.refProduct.packings',
         'state',
       ],
     });
@@ -118,62 +137,54 @@ export class CartQuotesService {
     if (!cartQuote.isActive)
       throw new BadRequestException(`The cart quote with id ${id} is currently inactive`);
 
-    const newCartQuote: CartQuote = plainToClass(CartQuote, cartQuote);
+    try {
+      const newCartQuote: CartQuote = plainToClass(CartQuote, cartQuote);
+      delete newCartQuote.id;
 
+      if (cartQuote.quoteDetails.length > 0) {
+        const quoteDetails: QuoteDetail[] = [];
 
-    if (cartQuote.quoteDetails.length > 0) {
-      const quoteDetails: QuoteDetail[] = [];
-
-      for (const quoteDetail of cartQuote.quoteDetails) {
-        try {
-
+        for (const quoteDetail of cartQuote.quoteDetails) {
           const newQuoteDetail: QuoteDetail = plainToClass(QuoteDetail, quoteDetail);
+          delete newQuoteDetail.id;
 
           const createdQuoteDetail: QuoteDetail = await this.quoteDetailRepository.save(newQuoteDetail);
 
           quoteDetails.push(createdQuoteDetail);
-        } catch (error) {
-          console.log(error);
-          throw new InternalServerErrorException('Internal server error');
         };
+
+        newCartQuote.quoteDetails = quoteDetails;
       };
 
-      newCartQuote.quoteDetails = quoteDetails;
-    };
-
-    if (cartQuote.state) {
-      try {
+      if (cartQuote.state) {
         const state: State = cartQuote.state;
 
         const newState: State = plainToClass(State, state);
+        delete newState.id;
 
         const createdState = await this.stateRepository.save(newState);
 
         newCartQuote.state = createdState;
-      } catch (error) {
-        console.log(error);
-        throw new InternalServerErrorException('Internal server error');
       };
-    };
 
-    if (cartQuote.orderListDetail) {
-      try {
+      if (cartQuote.orderListDetail) {
         const newOrderListDetail: OrderListDetail = plainToClass(OrderListDetail, cartQuote.orderListDetail);
+        delete newOrderListDetail.id;
 
         const createdOrderListDetail: OrderListDetail = await this.orderListDetailRepository.save(newOrderListDetail);
 
         newCartQuote.orderListDetail = createdOrderListDetail;
-      } catch (error) {
-        console.log(error);
-        throw new InternalServerErrorException('Internal server error');
       };
-    };
 
-    const createdCartQuote: CartQuote = await this.cartQuoteRepository.save(newCartQuote);
+      const createdCartQuote: CartQuote = await this.cartQuoteRepository.save(newCartQuote);
 
-    return {
-      createdCartQuote
-    };
+      return {
+        createdCartQuote
+      };
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException('Internal server error');
+    }
   };
 
   async findAll(paginationDto: PaginationDto) {
