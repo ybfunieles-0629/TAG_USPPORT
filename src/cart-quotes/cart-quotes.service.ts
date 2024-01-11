@@ -153,20 +153,6 @@ export class CartQuotesService {
       newCartQuote.orderListDetail = createdOrderListDetail;
     };
 
-    if (cartQuote.quoteDetails) {
-      const quoteDetails: QuoteDetail[] = [];
-
-      for (const quoteDetail of cartQuote.quoteDetails) {
-        const newQuoteDetail: QuoteDetail = plainToClass(QuoteDetail, quoteDetail);
-
-        const createdQuoteDetail: QuoteDetail = await this.quoteDetailRepository.save(newQuoteDetail);
-
-        quoteDetails.push(createdQuoteDetail);
-      };
-
-      newCartQuote.quoteDetails = quoteDetails;
-    };
-
     await this.cartQuoteRepository.save(newCartQuote);
 
     return {
