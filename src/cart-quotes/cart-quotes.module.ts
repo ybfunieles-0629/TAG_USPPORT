@@ -12,6 +12,7 @@ import { LocalTransportPricesModule } from '../local-transport-prices/local-tran
 import { OrderListDetailsModule } from '../order-list-details/order-list-details.module';
 import { PurchaseOrderModule } from '../purchase-order/purchase-order.module';
 import { SupplierPurchaseOrdersModule } from '../supplier-purchase-orders/supplier-purchase-orders.module';
+import { QuoteDetailsModule } from '../quote-details/quote-details.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SupplierPurchaseOrdersModule } from '../supplier-purchase-orders/suppli
     PurchaseOrderModule,
     forwardRef(() => LocalTransportPricesModule),
     forwardRef(() => OrderListDetailsModule),
+    forwardRef(() => QuoteDetailsModule),
     UsersModule,
     StatesModule,
     SupplierPurchaseOrdersModule,

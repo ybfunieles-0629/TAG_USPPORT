@@ -16,6 +16,14 @@ export class CartQuotesController {
     return this.cartQuotesService.create(createCartQuoteDto);
   }
 
+  @Post('dupply/:id')
+  // @UseGuards(AuthGuard())
+  dupplyCartQuote(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.cartQuotesService.dupplyCartQuote(id);
+  }
+
   @Get()
   @UseGuards(AuthGuard())
   findAll(
