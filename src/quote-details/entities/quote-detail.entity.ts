@@ -28,6 +28,11 @@ export class QuoteDetail {
   @Column('int', {
 
   })
+  transportTotalPrice: number;
+
+  @Column('int', {
+
+  })
   transportServiceTagClient: number;
 
   @Column('varchar', {

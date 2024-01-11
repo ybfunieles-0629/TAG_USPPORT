@@ -11,6 +11,13 @@ import { Product } from '../products/entities/product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { MarkingService } from '../marking-services/entities/marking-service.entity';
 import { MarkedServicePrice } from 'src/marked-service-prices/entities/marked-service-price.entity';
+import { Packing } from '../packings/entities/packing.entity';
+import { RefProduct } from '../ref-products/entities/ref-product.entity';
+import { CalculatePriceDto } from './dto/calculate-price.dto';
+import { MarkingServiceProperty } from '../marking-service-properties/entities/marking-service-property.entity';
+import { Marking } from '../markings/entities/marking.entity';
+import { SystemConfig } from '../system-configs/entities/system-config.entity';
+import { LocalTransportPrice } from '../local-transport-prices/entities/local-transport-price.entity';
 
 @Injectable()
 export class QuoteDetailsService {
@@ -21,11 +28,20 @@ export class QuoteDetailsService {
     @InjectRepository(CartQuote)
     private readonly cartQuoteRepository: Repository<CartQuote>,
 
+    @InjectRepository(LocalTransportPrice)
+    private readonly localTransportPriceRepository: Repository<LocalTransportPrice>,
+
     @InjectRepository(MarkingService)
     private readonly markingServiceRepository: Repository<MarkingService>,
 
+    @InjectRepository(MarkingServiceProperty)
+    private readonly markingServicePropertyRepository: Repository<MarkingServiceProperty>,
+
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+
+    @InjectRepository(SystemConfig)
+    private readonly systemConfigRepository: Repository<SystemConfig>,
   ) { }
 
   async create(createQuoteDetailDto: CreateQuoteDetailDto) {
@@ -35,6 +51,9 @@ export class QuoteDetailsService {
       where: {
         id: createQuoteDetailDto.cartQuote,
       },
+      relations: [
+        'client',
+      ],
     });
 
     if (!cartQuote)
@@ -69,6 +88,7 @@ export class QuoteDetailsService {
             id: markingServiceId,
           },
           relations: [
+            'marking',
             'markingServiceProperty',
             'markingServiceProperty.markedServicePrices',
           ],
@@ -122,7 +142,7 @@ export class QuoteDetailsService {
       newQuoteDetail.unitPrice * (discountProduct / 100) * newQuoteDetail.quantities |
       newQuoteDetail.unitPrice * (product.disccountPromo / 100) * newQuoteDetail.quantities | 0;
 
-    newQuoteDetail.subTotalWithDiscount = 
+    newQuoteDetail.subTotalWithDiscount =
       newQuoteDetail.subTotal - newQuoteDetail.discount |
       newQuoteDetail.subTotal - product.disccountPromo | 0;
 
@@ -131,8 +151,6 @@ export class QuoteDetailsService {
       (newQuoteDetail.subTotalWithDiscount * (product.iva / 100)) | 0;
 
     newQuoteDetail.total = newQuoteDetail.subTotalWithDiscount + newQuoteDetail.iva | 0;
-
-    console.log(newQuoteDetail);
 
     const cartQuoteDb: CartQuote = await this.cartQuoteRepository.findOne({
       where: {
@@ -146,13 +164,177 @@ export class QuoteDetailsService {
     cartQuoteDb.totalPrice += newQuoteDetail.total;
     cartQuoteDb.productsQuantity += newQuoteDetail.quantities;
 
+    //* ------------- CALCULOS ------------- *//
+    const quantity: number = newQuoteDetail.quantities;
+    let totalPrice: number = newQuoteDetail.unitPrice * quantity;
+    let totalTransportPrice: number = 0;
+
+    let productVolume: number = 0;
+    let totalVolume: number = 0;
+
+    //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL MARCADO
+    const markingTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
+      .createQueryBuilder('localTransportPrice')
+      .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
+      .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
+      .getMany();
+
+    //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL CLIENTE
+    const clientTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
+      .createQueryBuilder('localTransportPrice')
+      .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
+      .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: cartQuote.destinationCity.toLowerCase().trim() })
+      .getMany();
+
+    //* OBTENER LA CONFIGURACIÓN DEL SISTEMA
+    const systemConfigDb: SystemConfig[] = await this.systemConfigRepository.find();
+    const systemConfig: SystemConfig = systemConfigDb[0];
+
+    //* SE SOLICITA MUESTRA
+    if (product.freeSample == 1) {
+      //* CALCULAR EL PRECIO DE LA MUESTRA
+      let samplePrice: number = product.samplePrice;
+
+      //* CALCULAR EL VOLUMEN DEL PRODUCTO
+      productVolume = (product?.height * product?.weight * product?.large) || 0;
+    };
+
+    //* CALCULAR LA CANTIDAD DE EMPAQUES PARA LAS UNIDADES COTIZADAS
+
+    //* VERIFICAR SI EL PRODUCTO TIENE EMPAQUE
+    const packing: Packing = product.packings[0] || undefined;
+    const packingUnities: number = product.packings ? product?.packings[0]?.unities : product?.refProduct?.packings[0]?.unities || 0;
+
+    //* CALCULAR EL VOLUMEN DEL EMPAQUE DEL PRODUCTO
+    let boxesQuantity: number = (quantity / packingUnities);
+
+    boxesQuantity = Math.round(boxesQuantity) + 1;
+
+    //* CALCULAR EL VOLUMEN DEL PAQUETE
+    const packingVolume: number = (packing?.height * packing?.width * packing?.large) || 0;
+    totalVolume = (packingVolume * boxesQuantity) || 0;
+
+    //* CALCULA EL COSTO DE TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL MARCADO
+    const markingClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
+      ? markingTransportPrices.sort((a, b) => {
+        const diffA = Math.abs(a.volume - totalVolume);
+        const diffB = Math.abs(b.volume - totalVolume);
+        return diffA - diffB;
+      })[0]
+      : undefined;
+
+    const { origin: markingOrigin, destination: markingDestination, price: markingTransportPrice, volume: markingTransportVolume } = markingClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
+
+    //* CALCULAR EL COSTO DE TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL CLIENTE
+    const clientClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
+      ? markingTransportPrices.sort((a, b) => {
+        const diffA = Math.abs(a.volume - totalVolume);
+        const diffB = Math.abs(b.volume - totalVolume);
+        return diffA - diffB;
+      })[0]
+      : undefined;
+
+    const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
+
+    //* COTIZAR SERVICIO DE MARCACIÓN
+    const quoteDetailRefProduct: RefProduct = product.refProduct;
+
+    const markingServices: MarkingService[] = newQuoteDetail.markingServices;
+
+    if (quoteDetailRefProduct.personalizableMarking == 1) {
+      //* CALCULA EL COSTO DEL SERVICIO DE MARCADO COMPARANDO LA LISTA DE PRECIOS Y LOS PARÁMETROS
+      for (const markingService of markingServices) {
+        let markingServicePropertyPrice: number = 0;
+
+        const markingServiceProperty: MarkingServiceProperty = markingService.markingServiceProperty;
+
+        for (const markedServicePrice of markingServiceProperty.markedServicePrices) {
+          //* VERIFICAR QUE LA CANTIDAD SE ENCUENTRE ENTRE EL RANGO DEL PRECIO SERVICIO MARCADO
+          if (markedServicePrice.minRange >= quantity && markedServicePrice.maxRange <= quantity) {
+            let totalMarking: number = (quantity * markedServicePrice.unitPrice);
+
+            const marking: Marking = markingServiceProperty.externalSubTechnique.marking;
+
+            //* CALCULAR EL IVA DEL SERVICIO MARCADO
+            if (marking.iva > 0) {
+              const iva: number = (marking.iva / 100) * totalMarking;
+
+              totalMarking += iva;
+            };
+
+            //* ADICIONAR EL % DE MARGEN DE GANANCIA POR SERVICIO 
+            const marginForDialingServices: number = (systemConfig.marginForDialingServices / 100) * totalMarking;
+            totalMarking += marginForDialingServices;
+
+            //* CALCULAR EL COSTO DEL TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL PROVEEDOR
+            markingService.markingTransportPrice = markingTransportPrice;
+
+            totalMarking += markingTransportPrice;
+
+            //* ADICIONAR EL MARGEN DE GANANCIA POR SERVICIO DE TRANSPORTE
+            const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * markingTransportPrice;
+            totalMarking += supplierFinancingPercentage;
+
+            markingService.markingTransportPrice = (markingTransportPrice + supplierFinancingPercentage);
+            markingService.calculatedMarkingPrice = totalMarking;
+
+            await this.markingServicePropertyRepository.save(markingService);
+          };
+        };
+      };
+    };
+
+    //* CALCULAR Y ADICIONAR MARGEN DE GANANCIA DE TRANSPORTE
+    const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * clientTransportPrice;
+    totalTransportPrice += (clientTransportPrice + supplierFinancingPercentage);
+
+    newQuoteDetail.totalPriceWithTransport = (newQuoteDetail.unitPrice + totalTransportPrice);
+    newQuoteDetail.transportTotalPrice = totalTransportPrice;
+
+    //* ADICIONAR EL % DE MARGEN DE GANANCIA DE CLIENTE
+    totalPrice += cartQuote.client.margin;
+
+    //TODO: SE DEBE ADICIONAR UN FEE ADICIONAL AL USUARIO DENTRO DEL CLIENTE
+    //TODO: SE CALCULA Y ADICIONA UN FEE POR USUARIO DEL CLIENTE
+
+    //TODO: ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
+
+    //* SE HACE DESCUENTO ADICIONAL POR EL COMERCIAL (YA HECHO)
+    newQuoteDetail.subTotal = totalPrice;
+
+    //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
+
+    //* IVA DE LA VENTA
+    const iva: number = (product.iva / 100) * totalPrice;
+    newQuoteDetail.iva += iva;
+    newQuoteDetail.total = (totalPrice + iva);
+
+    //* CALCULAR PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
+    Math.round(newQuoteDetail.total);
+
+    //* CALCULAR EL COSTO DE LA RETENCIÓN EN LA FUENTE
+
+
+    //* CALCULAR UTILIDAD DEL NEGOCIO
+
+
+    //* CALCULAR % MARGEN DE GANANCIA DEL NEGOCIO Y MAXIMO DESCUENTO PERMITIDO AL COMERCIAL
+
+    //* CALCULAR DESCUENTO
+    const discount: number = (product.disccountPromo / 100) * newQuoteDetail.subTotal;
+    newQuoteDetail.discount = discount;
+
+    //* CALCULAR SUBTOTAL CON DESCUENTO
+    newQuoteDetail.subTotalWithDiscount = (newQuoteDetail.subTotal - discount);
+
+
     await this.cartQuoteRepository.save(cartQuoteDb);
     await this.quoteDetailRepository.save(newQuoteDetail);
 
     return {
       newQuoteDetail
     };
-  }
+  };
 
   findAll(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
