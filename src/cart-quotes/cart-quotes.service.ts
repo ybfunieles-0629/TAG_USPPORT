@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { classToPlain, plainToClass } from 'class-transformer';
@@ -120,57 +120,59 @@ export class CartQuotesService {
 
     const newCartQuote: CartQuote = plainToClass(CartQuote, cartQuote);
 
-    
+
     if (cartQuote.quoteDetails.length > 0) {
       const quoteDetails: QuoteDetail[] = [];
 
       for (const quoteDetail of cartQuote.quoteDetails) {
-        const newQuoteDetail: QuoteDetail = plainToClass(QuoteDetail, quoteDetail);
+        try {
 
-        const createdQuoteDetail: QuoteDetail = await this.quoteDetailRepository.save(newQuoteDetail);
+          const newQuoteDetail: QuoteDetail = plainToClass(QuoteDetail, quoteDetail);
 
-        quoteDetails.push(createdQuoteDetail);
+          const createdQuoteDetail: QuoteDetail = await this.quoteDetailRepository.save(newQuoteDetail);
+
+          quoteDetails.push(createdQuoteDetail);
+        } catch (error) {
+          console.log(error);
+          throw new InternalServerErrorException('Internal server error');
+        };
       };
 
       newCartQuote.quoteDetails = quoteDetails;
     };
 
     if (cartQuote.state) {
-      const state: State = cartQuote.state;
+      try {
+        const state: State = cartQuote.state;
 
-      const newState: State = plainToClass(State, state);
+        const newState: State = plainToClass(State, state);
 
-      const createdState = await this.stateRepository.save(newState);
+        const createdState = await this.stateRepository.save(newState);
 
-      newCartQuote.state = createdState;
+        newCartQuote.state = createdState;
+      } catch (error) {
+        console.log(error);
+        throw new InternalServerErrorException('Internal server error');
+      };
     };
 
     if (cartQuote.orderListDetail) {
-      const newOrderListDetail: OrderListDetail = plainToClass(OrderListDetail, cartQuote.orderListDetail);
+      try {
+        const newOrderListDetail: OrderListDetail = plainToClass(OrderListDetail, cartQuote.orderListDetail);
 
-      const createdOrderListDetail: OrderListDetail = await this.orderListDetailRepository.save(newOrderListDetail);
+        const createdOrderListDetail: OrderListDetail = await this.orderListDetailRepository.save(newOrderListDetail);
 
-      newCartQuote.orderListDetail = createdOrderListDetail;
-    };
-
-    if (cartQuote.quoteDetails) {
-      const quoteDetails: QuoteDetail[] = [];
-
-      for (const quoteDetail of cartQuote.quoteDetails) {
-        const newQuoteDetail: QuoteDetail = plainToClass(QuoteDetail, quoteDetail);
-
-        const createdQuoteDetail: QuoteDetail = await this.quoteDetailRepository.save(newQuoteDetail);
-
-        quoteDetails.push(createdQuoteDetail);
+        newCartQuote.orderListDetail = createdOrderListDetail;
+      } catch (error) {
+        console.log(error);
+        throw new InternalServerErrorException('Internal server error');
       };
-
-      newCartQuote.quoteDetails = quoteDetails;
     };
 
-    await this.cartQuoteRepository.save(newCartQuote);
+    const createdCartQuote: CartQuote = await this.cartQuoteRepository.save(newCartQuote);
 
     return {
-      newCartQuote
+      createdCartQuote
     };
   };
 
