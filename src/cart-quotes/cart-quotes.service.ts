@@ -195,6 +195,9 @@ export class CartQuotesService {
     const cartQuotes: CartQuote[] = await this.cartQuoteRepository.find({
       take: limit,
       skip: offset,
+      where: {
+        isActive: true,
+      },
       relations: [
         'quoteDetails',
         'client',
