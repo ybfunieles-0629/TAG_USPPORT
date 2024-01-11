@@ -47,6 +47,9 @@ export class CartQuotesService {
     @InjectRepository(PurchaseOrder)
     private readonly purchaseOrderRepository: Repository<PurchaseOrder>,
 
+    @InjectRepository(QuoteDetail)
+    private readonly quoteDetailRepository: Repository<QuoteDetail>,
+
     @InjectRepository(SupplierPurchaseOrder)
     private readonly supplierPurchaseOrderRepository: Repository<SupplierPurchaseOrder>,
   ) { }
@@ -94,6 +97,82 @@ export class CartQuotesService {
       newCartQuote
     };
   }
+
+  async dupplyCartQuote(id: string) {
+    const cartQuote: CartQuote = await this.cartQuoteRepository.findOne({
+      where: {
+        id,
+      },
+      relations: [
+        'user',
+        'client',
+        'orderListDetail',
+        'quoteDetails',
+        'state',
+      ],
+    });
+
+    if (!cartQuote)
+      throw new NotFoundException(`Cart quote with id ${id} not found`);
+
+    if (!cartQuote.isActive)
+      throw new BadRequestException(`The cart quote with id ${id} is currently inactive`);
+
+    const newCartQuote: CartQuote = plainToClass(CartQuote, cartQuote);
+
+    
+    if (cartQuote.quoteDetails.length > 0) {
+      const quoteDetails: QuoteDetail[] = [];
+
+      for (const quoteDetail of cartQuote.quoteDetails) {
+        const newQuoteDetail: QuoteDetail = plainToClass(QuoteDetail, quoteDetail);
+
+        const createdQuoteDetail: QuoteDetail = await this.quoteDetailRepository.save(newQuoteDetail);
+
+        quoteDetails.push(createdQuoteDetail);
+      };
+
+      newCartQuote.quoteDetails = quoteDetails;
+    };
+
+    if (cartQuote.state) {
+      const state: State = cartQuote.state;
+
+      const newState: State = plainToClass(State, state);
+
+      const createdState = await this.stateRepository.save(newState);
+
+      newCartQuote.state = createdState;
+    };
+
+    if (cartQuote.orderListDetail) {
+      const newOrderListDetail: OrderListDetail = plainToClass(OrderListDetail, cartQuote.orderListDetail);
+
+      const createdOrderListDetail: OrderListDetail = await this.orderListDetailRepository.save(newOrderListDetail);
+
+      newCartQuote.orderListDetail = createdOrderListDetail;
+    };
+
+    if (cartQuote.quoteDetails) {
+      const quoteDetails: QuoteDetail[] = [];
+
+      for (const quoteDetail of cartQuote.quoteDetails) {
+        const newQuoteDetail: QuoteDetail = plainToClass(QuoteDetail, quoteDetail);
+
+        const createdQuoteDetail: QuoteDetail = await this.quoteDetailRepository.save(newQuoteDetail);
+
+        quoteDetails.push(createdQuoteDetail);
+      };
+
+      newCartQuote.quoteDetails = quoteDetails;
+    };
+
+    await this.cartQuoteRepository.save(newCartQuote);
+
+    return {
+      newCartQuote
+    };
+  };
 
   async findAll(paginationDto: PaginationDto) {
     const count: number = await this.cartQuoteRepository.count();
