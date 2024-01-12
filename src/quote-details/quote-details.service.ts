@@ -139,18 +139,18 @@ export class QuoteDetailsService {
     newQuoteDetail.subTotal = (newQuoteDetail.unitPrice * newQuoteDetail.quantities) + markingTotalPrice;
 
     newQuoteDetail.discount =
-      newQuoteDetail.unitPrice * (discountProduct / 100) * newQuoteDetail.quantities |
-      newQuoteDetail.unitPrice * (product.disccountPromo / 100) * newQuoteDetail.quantities | 0;
+      newQuoteDetail.unitPrice * (discountProduct / 100) * newQuoteDetail.quantities ||
+      newQuoteDetail.unitPrice * (product.disccountPromo / 100) * newQuoteDetail.quantities || 0;
 
     newQuoteDetail.subTotalWithDiscount =
-      newQuoteDetail.subTotal - newQuoteDetail.discount |
-      newQuoteDetail.subTotal - product.disccountPromo | 0;
+      newQuoteDetail.subTotal - newQuoteDetail.discount ||
+      newQuoteDetail.subTotal - product.disccountPromo || 0;
 
     newQuoteDetail.iva =
       (newQuoteDetail.subTotalWithDiscount * (newQuoteDetail.iva / 100)) |
-      (newQuoteDetail.subTotalWithDiscount * (product.iva / 100)) | 0;
+      (newQuoteDetail.subTotalWithDiscount * (product.iva / 100)) || 0;
 
-    newQuoteDetail.total = newQuoteDetail.subTotalWithDiscount + newQuoteDetail.iva | 0;
+    newQuoteDetail.total = newQuoteDetail.subTotalWithDiscount + newQuoteDetail.iva || 0;
 
     const cartQuoteDb: CartQuote = await this.cartQuoteRepository.findOne({
       where: {
@@ -165,8 +165,8 @@ export class QuoteDetailsService {
     cartQuoteDb.productsQuantity += newQuoteDetail.quantities;
 
     //* ------------- CALCULOS ------------- *//
-    const quantity: number = newQuoteDetail.quantities;
-    let totalPrice: number = newQuoteDetail.unitPrice * quantity;
+    const quantity: number = newQuoteDetail.quantities || 0;
+    let totalPrice: number = newQuoteDetail.unitPrice * quantity || 0;
     let totalTransportPrice: number = 0;
 
     let productVolume: number = 0;
@@ -193,7 +193,7 @@ export class QuoteDetailsService {
     //* SE SOLICITA MUESTRA
     if (product.freeSample == 1) {
       //* CALCULAR EL PRECIO DE LA MUESTRA
-      let samplePrice: number = product.samplePrice;
+      let samplePrice: number = product.samplePrice || 0;
 
       //* CALCULAR EL VOLUMEN DEL PRODUCTO
       productVolume = (product?.height * product?.weight * product?.large) || 0;
@@ -206,9 +206,9 @@ export class QuoteDetailsService {
     const packingUnities: number = product.packings ? product?.packings[0]?.unities : product?.refProduct?.packings[0]?.unities || 0;
 
     //* CALCULAR EL VOLUMEN DEL EMPAQUE DEL PRODUCTO
-    let boxesQuantity: number = (quantity / packingUnities);
+    let boxesQuantity: number = (quantity / packingUnities) || 0;
 
-    boxesQuantity = Math.round(boxesQuantity) + 1;
+    boxesQuantity = Math.round(boxesQuantity) + 1 || 0;
 
     //* CALCULAR EL VOLUMEN DEL PAQUETE
     const packingVolume: number = (packing?.height * packing?.width * packing?.large) || 0;
@@ -257,13 +257,13 @@ export class QuoteDetailsService {
 
             //* CALCULAR EL IVA DEL SERVICIO MARCADO
             if (marking.iva > 0) {
-              const iva: number = (marking.iva / 100) * totalMarking;
+              const iva: number = (marking.iva / 100) * totalMarking || 0;
 
               totalMarking += iva;
             };
 
             //* ADICIONAR EL % DE MARGEN DE GANANCIA POR SERVICIO 
-            const marginForDialingServices: number = (systemConfig.marginForDialingServices / 100) * totalMarking;
+            const marginForDialingServices: number = (systemConfig.marginForDialingServices / 100) * totalMarking || 0;
             totalMarking += marginForDialingServices;
 
             //* CALCULAR EL COSTO DEL TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL PROVEEDOR
@@ -272,10 +272,10 @@ export class QuoteDetailsService {
             totalMarking += markingTransportPrice;
 
             //* ADICIONAR EL MARGEN DE GANANCIA POR SERVICIO DE TRANSPORTE
-            const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * markingTransportPrice;
+            const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * markingTransportPrice || 0;
             totalMarking += supplierFinancingPercentage;
 
-            markingService.markingTransportPrice = (markingTransportPrice + supplierFinancingPercentage);
+            markingService.markingTransportPrice = (markingTransportPrice + supplierFinancingPercentage) || 0;
             markingService.calculatedMarkingPrice = totalMarking;
 
             await this.markingServicePropertyRepository.save(markingService);
@@ -285,10 +285,10 @@ export class QuoteDetailsService {
     };
 
     //* CALCULAR Y ADICIONAR MARGEN DE GANANCIA DE TRANSPORTE
-    const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * clientTransportPrice;
+    const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * clientTransportPrice || 0;
     totalTransportPrice += (clientTransportPrice + supplierFinancingPercentage);
 
-    newQuoteDetail.totalPriceWithTransport = (newQuoteDetail.unitPrice + totalTransportPrice);
+    newQuoteDetail.totalPriceWithTransport = (newQuoteDetail.unitPrice + totalTransportPrice) || 0;
     newQuoteDetail.transportTotalPrice = totalTransportPrice;
 
     //* ADICIONAR EL % DE MARGEN DE GANANCIA DE CLIENTE
@@ -305,7 +305,7 @@ export class QuoteDetailsService {
     //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
 
     //* IVA DE LA VENTA
-    const iva: number = (product.iva / 100) * totalPrice;
+    const iva: number = (product.iva / 100) * totalPrice || 0;
     newQuoteDetail.iva += iva;
     newQuoteDetail.total = (totalPrice + iva);
 
@@ -321,11 +321,11 @@ export class QuoteDetailsService {
     //* CALCULAR % MARGEN DE GANANCIA DEL NEGOCIO Y MAXIMO DESCUENTO PERMITIDO AL COMERCIAL
 
     //* CALCULAR DESCUENTO
-    const discount: number = (product.disccountPromo / 100) * newQuoteDetail.subTotal;
+    const discount: number = (product.disccountPromo / 100) * newQuoteDetail.subTotal || 0;
     newQuoteDetail.discount = discount;
 
     //* CALCULAR SUBTOTAL CON DESCUENTO
-    newQuoteDetail.subTotalWithDiscount = (newQuoteDetail.subTotal - discount);
+    newQuoteDetail.subTotalWithDiscount = (newQuoteDetail.subTotal - discount) || 0;
 
 
     await this.cartQuoteRepository.save(cartQuoteDb);
