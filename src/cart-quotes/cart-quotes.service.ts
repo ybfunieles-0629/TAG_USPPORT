@@ -251,6 +251,8 @@ export class CartQuotesService {
         state: cartQuote.state?.name || '',
         products: cartQuote.quoteDetails.map((quoteDetail: QuoteDetail) => {
           return {
+            id: quoteDetail.product.id,
+            refProuctId: quoteDetail.product.refProduct.id,
             name: quoteDetail.product.refProduct.name,
             discount: quoteDetail.discount,
             iva: quoteDetail.iva,

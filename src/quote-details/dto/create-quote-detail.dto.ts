@@ -1,4 +1,4 @@
-import { IsArray, IsInt, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateQuoteDetailDto {
   @IsInt()
@@ -26,6 +26,9 @@ export class CreateQuoteDetailDto {
 
   @IsString()
   cartQuote: string;
+
+  @IsBoolean()
+  hasSample: boolean;
 
   @IsString()
   product: string;
