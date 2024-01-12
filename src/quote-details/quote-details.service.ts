@@ -64,7 +64,9 @@ export class QuoteDetailsService {
         id: createQuoteDetailDto.product,
       },
       relations: [
+        'packings',
         'refProduct',
+        'refProduct.packings',
         'refProduct.supplier',
         'refProduct.supplier.disccounts',
         'refProduct.supplier.disccounts.disccounts',
@@ -202,8 +204,8 @@ export class QuoteDetailsService {
     //* CALCULAR LA CANTIDAD DE EMPAQUES PARA LAS UNIDADES COTIZADAS
 
     //* VERIFICAR SI EL PRODUCTO TIENE EMPAQUE
-    const packing: Packing = product.packings[0] || undefined;
-    const packingUnities: number = product.packings ? product?.packings[0]?.unities : product?.refProduct?.packings[0]?.unities || 0;
+    const packing: Packing = product.packings.length > 0 ? product.packings[0] : product?.refProduct?.packings[0] || undefined;
+    const packingUnities: number = product.packings.length > 0 ? product?.packings[0]?.unities : product?.refProduct?.packings[0]?.unities || 0;
 
     //* CALCULAR EL VOLUMEN DEL EMPAQUE DEL PRODUCTO
     let boxesQuantity: number = (quantity / packingUnities) || 0;
