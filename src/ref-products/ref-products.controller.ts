@@ -24,6 +24,13 @@ export class RefProductsController {
     return this.refProductsService.findAll(paginationDto);
   }
 
+  @Get('with/offers')
+  filterProductsWithDiscount(
+    @Query() paginationDto: PaginationDto
+  ) {
+    return this.refProductsService.filterProductsWithDiscount(paginationDto);
+  }
+
   @Post('filter')
   filterRefProducts(
     @Query() paginationDto: PaginationDto,
