@@ -11,13 +11,11 @@ export class CartQuotesController {
   constructor(private readonly cartQuotesService: CartQuotesService) { }
 
   @Post()
-  @UseGuards(AuthGuard())
   create(@Body() createCartQuoteDto: CreateCartQuoteDto) {
     return this.cartQuotesService.create(createCartQuoteDto);
   }
 
   @Post('dupply/:id')
-  // @UseGuards(AuthGuard())
   dupplyCartQuote(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
