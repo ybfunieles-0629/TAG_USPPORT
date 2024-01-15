@@ -162,46 +162,7 @@ export class RefProductsService {
     };
   }
 
-<<<<<<< HEAD
-  async findAll(paginationDto: PaginationDto) {
-    const totalCount = await this.refProductRepository.count();
-
-    const { limit = totalCount, offset = 0 } = paginationDto;
-
-    const results: RefProduct[] = await this.refProductRepository.find({
-      take: limit,
-      skip: offset,
-      relations: [
-        'images',
-        'categorySuppliers',
-        'deliveryTimes',
-        'markingServiceProperty',
-        'markingServiceProperty.externalSubTechnique',
-        'markingServiceProperty.externalSubTechnique.marking',
-        'packings',
-        'products',
-        'products.refProduct',
-        'products.refProduct.deliveryTimes',
-        'products.refProduct.supplier',
-        'products.refProduct.supplier.disccounts',
-        'products.colors',
-        'products.variantReferences',
-        'products.packings',
-        'products.supplierPrices',
-        'products.supplierPrices.listPrices',
-        'products.markingServiceProperties',
-        'products.markingServiceProperties.images',
-        'products.markingServiceProperties.externalSubTechnique',
-        'products.markingServiceProperties.externalSubTechnique.marking',
-        'supplier',
-        'supplier.user',
-        'variantReferences',
-      ],
-    }); 
-
-=======
   private async calculations(results: RefProduct[]) {
->>>>>>> c3386dfde5db6be1caac809ae356c708d271369b
     const staticQuantities: number[] = [
       1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
       150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
