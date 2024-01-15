@@ -614,6 +614,8 @@ export class UsersService {
         .leftJoinAndSelect('clientUser.company', 'company')
         .leftJoinAndSelect('clientUser.privileges', 'privileges')
         .leftJoinAndSelect('clientUser.permissions', 'permissions')
+        .take(limit)
+        .skip(offset)
         .getMany();
 
       usersToShow.push(...commercialWithClients);
@@ -634,6 +636,8 @@ export class UsersService {
           .andWhere('clientUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 1 })
           .leftJoinAndSelect('clientUser.privileges', 'privileges')
           .leftJoinAndSelect('clientUser.permissions', 'permissions')
+          .take(limit)
+          .skip(offset)
           .getMany();
 
         usersToShow.push(...commercialWithClients);
@@ -666,11 +670,9 @@ export class UsersService {
       }
     }
 
-    const paginatedUsers: User[] = usersToShow.slice(offset, offset + limit);
-
     return {
-      count: paginatedUsers.length,
-      users: paginatedUsers
+      count: usersToShow.length,
+      users: usersToShow
     };
   };
 
