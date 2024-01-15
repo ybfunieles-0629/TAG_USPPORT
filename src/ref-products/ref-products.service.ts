@@ -19,7 +19,7 @@ import { ListPrice } from '../list-prices/entities/list-price.entity';
 import { Disccount } from '../disccount/entities/disccount.entity';
 import { Disccounts } from '../disccounts/entities/disccounts.entity';
 import { SystemConfig } from '../system-configs/entities/system-config.entity';
-import { Packing } from 'src/packings/entities/packing.entity';
+import { Packing } from '../packings/entities/packing.entity';
 
 @Injectable()
 export class RefProductsService {
@@ -162,6 +162,7 @@ export class RefProductsService {
     };
   }
 
+<<<<<<< HEAD
   async findAll(paginationDto: PaginationDto) {
     const totalCount = await this.refProductRepository.count();
 
@@ -198,6 +199,9 @@ export class RefProductsService {
       ],
     }); 
 
+=======
+  private async calculations(results: RefProduct[]) {
+>>>>>>> c3386dfde5db6be1caac809ae356c708d271369b
     const staticQuantities: number[] = [
       1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
       150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
@@ -217,6 +221,7 @@ export class RefProductsService {
           let prices = {
             quantity: staticQuantities[i],
             value: changingValue,
+            valueWithDestiny: 0,
           };
 
           burnPriceTable.push(prices);
@@ -294,7 +299,7 @@ export class RefProductsService {
             boxesQuantity = Math.round(boxesQuantity) + 1;
 
             //* CALCULAR EL VOLUMEN DEL PAQUETE
-            const packingVolume: number = (packing?.height * packing?.width * packing?.height) || 0;
+            const packingVolume: number = (packing?.height * packing?.width * packing?.large) || 0;
             const totalVolume: number = (packingVolume * boxesQuantity) || 0;
             totalPackingVolume = totalVolume || 0;
 
@@ -348,9 +353,9 @@ export class RefProductsService {
           if (mainCategory) {
             value += +mainCategory?.categoryTag?.categoryMargin || 0;
           };
-          
+
           //* PRECIO TOTAL ANTES DEL IVA (YA HECHO)
-          
+
 
           //* CALCULAR EL PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
           value = Math.round(value);
@@ -371,11 +376,94 @@ export class RefProductsService {
       return { ...result, isPending: 1, products: modifiedProducts, mainCategory: categorySupplier };
     }));
 
+    return finalResults;
+  };
+
+  async findAll(paginationDto: PaginationDto) {
+    const totalCount = await this.refProductRepository.count();
+
+    const { limit = totalCount, offset = 0 } = paginationDto;
+
+    const results: RefProduct[] = await this.refProductRepository.find({
+      take: limit,
+      skip: offset,
+      relations: [
+        'images',
+        'categorySuppliers',
+        'deliveryTimes',
+        'markingServiceProperty',
+        'markingServiceProperty.externalSubTechnique',
+        'markingServiceProperty.externalSubTechnique.marking',
+        'packings',
+        'products',
+        'products.refProduct',
+        'products.refProduct.deliveryTimes',
+        'products.refProduct.supplier',
+        'products.refProduct.supplier.disccounts',
+        'products.colors',
+        'products.variantReferences',
+        'products.packings',
+        'products.supplierPrices',
+        'products.supplierPrices.listPrices',
+        'products.markingServiceProperties',
+        'products.markingServiceProperties.images',
+        'products.markingServiceProperties.externalSubTechnique',
+        'products.markingServiceProperties.externalSubTechnique.marking',
+        'supplier',
+        'supplier.user',
+        'variantReferences',
+      ],
+    });
+
+    const finalResults = results.length > 0 ? await this.calculations(results) : [];
+
     return {
       totalCount,
       results: finalResults,
     };
   }
+
+  async filterProductsWithDiscount(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    const results: RefProduct[] = await this.refProductRepository
+      .createQueryBuilder('refProduct')
+      .leftJoinAndSelect('refProduct.images', 'refProductImages')
+      .leftJoinAndSelect('refProduct.categorySuppliers', 'refProductCategorySuppliers')
+      .leftJoinAndSelect('refProduct.deliveryTimes', 'refProductDeliveryTimes')
+      .leftJoinAndSelect('refProduct.markingServiceProperty', 'refProductMarkingServiceProperty')
+      .leftJoinAndSelect('refProductMarkingServiceProperty.externalSubTechnique', 'refProductExternalSubTechnique')
+      .leftJoinAndSelect('refProductExternalSubTechnique.marking', 'refProductExternalSubTechniqueMarking')
+      .leftJoinAndSelect('refProduct.packings', 'refProductPackings')
+      .leftJoinAndSelect('refProduct.products', 'refProductProducts')
+      .where('refProductProducts.promoDisccount > 0')
+      .leftJoinAndSelect('refProductProducts.refProduct', 'refProductProductRefProduct')
+      .leftJoinAndSelect('refProductProductRefProduct.deliveryTimes', 'refProductProductRefProductDeliveryTimes')
+      .leftJoinAndSelect('refProductProductRefProduct.supplier', 'refProductProductRefProductSupplier')
+      .leftJoinAndSelect('refProductProductRefProductSupplier.disccounts', 'refProductProductRefProductSupplierDisccounts')
+      .leftJoinAndSelect('refProduct.products.colors', 'refProductProductColors')
+      .leftJoinAndSelect('refProduct.products.variantReferences', 'refProductProductVariantReferences')
+      .leftJoinAndSelect('refProduct.products.packings', 'refProductProductPackings')
+      .leftJoinAndSelect('refProduct.products.supplierPrices', 'refProductProductSupplierPrices')
+      .leftJoinAndSelect('refProductProductSupplierPrices.listPrices', 'refProductProductSupplierPricesListPrices')
+      .leftJoinAndSelect('refProduct.products.markingServiceProperties', 'refProductProductMarkingServiceProperties')
+      .leftJoinAndSelect('refProductProductMarkingServiceProperties.images', 'refProductProductMarkingServicePropertiesImages')
+      .leftJoinAndSelect('refProductProductMarkingServiceProperties.externalSubTechnique', 'refProductProductMarkingServicePropertiesExternalSubTechnique')
+      .leftJoinAndSelect('refProductProductMarkingServicePropertiesExternalSubTechnique.marking', 'refProductProductMarkingServicePropertiesExternalSubTechniqueMarking')
+      .leftJoinAndSelect('refProduct.supplier', 'refProductSupplier')
+      .leftJoinAndSelect('refProductSupplier.user', 'refProductSupplierUser')
+      .leftJoinAndSelect('refProduct.variantReferences', 'refProductVariantReferences')
+      .take(limit)
+      .skip(offset)
+      .getMany();
+
+    const finalResults = results.length > 0 ? await this.calculations(results) : [];
+
+    return {
+      totalCount: finalResults.length,
+      results: finalResults
+    };
+  };
 
   async findOne(id: string) {
     const refProduct = await this.refProductRepository.findOne({
