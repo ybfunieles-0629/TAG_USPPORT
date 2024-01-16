@@ -599,6 +599,7 @@ export class UsersService {
     const { limit = 10, offset = 0 } = paginationDto;
 
     const usersToShow: User[] = [];
+    let count: number = 0;
 
     if (roles.isCommercial) {
       const commercialWithClients: User[] = await this.userRepository
@@ -621,7 +622,7 @@ export class UsersService {
       usersToShow.push(...commercialWithClients);
     } else {
       if (user.client && user.mainSecondaryUser == 0) {
-        const commercialWithClients: User[] = await this.userRepository
+        const [commercialWithClients, totalCount] = await this.userRepository
           .createQueryBuilder('user')
           .leftJoinAndSelect('user.company', 'userCompany')
           .leftJoinAndSelect('user.client', 'client')
@@ -638,12 +639,13 @@ export class UsersService {
           .leftJoinAndSelect('clientUser.permissions', 'permissions')
           .take(limit)
           .skip(offset)
-          .getMany();
+          .getManyAndCount();
 
         usersToShow.push(...commercialWithClients);
+        count = totalCount;
       } else {
         for (const role of roles.roles) {
-          const users: User[] = await this.userRepository
+          const [users, totalCount] = await this.userRepository
             .createQueryBuilder('user')
             .leftJoinAndSelect('user.roles', 'roles')
             .where('roles.name =:role', { role })
@@ -660,18 +662,19 @@ export class UsersService {
             .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
             .take(limit)
             .skip(offset)
-            .getMany();
+            .getManyAndCount();
 
           if (!users)
             throw new NotFoundException(`Users with role ${role} not found`);
 
           usersToShow.push(...users);
+          count = totalCount;
         };
       }
     }
 
     return {
-      count: usersToShow.length,
+      count,
       users: usersToShow
     };
   };
