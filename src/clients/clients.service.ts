@@ -83,6 +83,7 @@ export class ClientsService {
         'admin.user',
         'addresses',
         'user',
+        'user.brands',
       ]
     });
   }
@@ -96,7 +97,8 @@ export class ClientsService {
         'admin',
         'admin.user',
         'addresses',
-        'user'
+        'user',
+        'user.brands',
       ],
     });
 
