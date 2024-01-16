@@ -13,6 +13,7 @@ import { GetUser } from './decorators/get-user.decorator';
 import { Company } from '../companies/entities/company.entity';
 import { User } from './entities/user.entity';
 import passport from 'passport';
+import { ConfirmRegistryDto } from './dto/confirm-registry.dto';
 
 @Controller('users')
 export class UsersController {
@@ -30,6 +31,13 @@ export class UsersController {
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createUser(createUserDto);
   }
+
+  @Post('confirm/account')
+  confirmAccount(
+    @Body() confirmRegistryDto: ConfirmRegistryDto,
+  ) {
+    return this.usersService.confirmAccount(confirmRegistryDto);
+  };
 
   @Post('login')
   login(
