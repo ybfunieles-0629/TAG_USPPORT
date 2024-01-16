@@ -19,6 +19,11 @@ export class CartQuote {
   @Column('varchar', {
 
   })
+  brandId: string;
+
+  @Column('varchar', {
+
+  })
   description: string;
 
   @Column('varchar', {

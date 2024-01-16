@@ -4,6 +4,10 @@ export class CreateCartQuoteDto {
   @IsString()
   quoteName: string;
 
+  @IsOptional()
+  @IsString()
+  brandId?: string;
+
   @IsString()
   description: string;
 

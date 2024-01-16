@@ -13,10 +13,12 @@ import { OrderListDetailsModule } from '../order-list-details/order-list-details
 import { PurchaseOrderModule } from '../purchase-order/purchase-order.module';
 import { SupplierPurchaseOrdersModule } from '../supplier-purchase-orders/supplier-purchase-orders.module';
 import { QuoteDetailsModule } from '../quote-details/quote-details.module';
+import { BrandsModule } from '../brands/brands.module';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
+    BrandsModule,
     ClientsModule,
     PurchaseOrderModule,
     forwardRef(() => LocalTransportPricesModule),
