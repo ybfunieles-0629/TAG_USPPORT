@@ -688,9 +688,10 @@ export class CartQuotesService {
     } else {
       cartQuotes = await this.cartQuoteRepository
         .createQueryBuilder('quote')
+        .where('quote.isActive =:isActive', { isActive: true })
         .leftJoinAndSelect('quote.state', 'state')
         .leftJoinAndSelect('quote.client', 'client')
-        .where('client.id =:id', { id })
+        .andWhere('client.id =:id', { id })
         .leftJoinAndSelect('client.user', 'user')
         .leftJoinAndSelect('user.company', 'company')
         .leftJoinAndSelect('quote.quoteDetails', 'quoteDetails')
