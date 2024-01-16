@@ -254,7 +254,7 @@ export class CartQuotesService {
       },
     });
 
-    const finalCartQuotes = Promise.all(cartQuotes.map(async (cartQuote: CartQuote) => {
+    const finalCartQuotes = await Promise.all(cartQuotes.map(async (cartQuote: CartQuote) => {
       let markingTotalPrice: number = 0;
 
       const brand: Brand = await this.brandRepository.findOne({
@@ -724,7 +724,7 @@ export class CartQuotesService {
       },
     });
 
-    const result = Promise.all(cartQuotes.map(async (cartQuote: CartQuote) => {
+    const result = await Promise.all(cartQuotes.map(async (cartQuote: CartQuote) => {
       let markingTotalPrice: number = 0;
 
       const brand: Brand = await this.brandRepository.findOne({
