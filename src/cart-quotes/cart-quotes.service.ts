@@ -22,12 +22,16 @@ import { LocalTransportPrice } from '../local-transport-prices/entities/local-tr
 import { OrderListDetail } from '../order-list-details/entities/order-list-detail.entity';
 import { PurchaseOrder } from '../purchase-order/entities/purchase-order.entity';
 import { SupplierPurchaseOrder } from '../supplier-purchase-orders/entities/supplier-purchase-order.entity';
+import { Brand } from '../brands/entities/brand.entity';
 
 @Injectable()
 export class CartQuotesService {
   constructor(
     @InjectRepository(CartQuote)
     private readonly cartQuoteRepository: Repository<CartQuote>,
+
+    @InjectRepository(Brand)
+    private readonly brandRepository: Repository<Brand>,
 
     @InjectRepository(Client)
     private readonly clientRepository: Repository<Client>,
@@ -86,6 +90,24 @@ export class CartQuotesService {
         throw new NotFoundException(`State with id ${createCartQuoteDto.state} not found`);
 
       newCartQuote.state = state;
+    }
+
+    if (createCartQuoteDto.brandId) {
+      const brandId: string = createCartQuoteDto.brandId;
+
+      const brand: Brand = await this.brandRepository.findOne({
+        where: {
+          id: brandId,
+        },
+      });
+
+      if (!brand)
+        throw new NotFoundException(`Brand with id ${brandId} not found`);
+
+      if (!brand.isActive)
+        throw new BadRequestException(`Brand with id ${brandId} is currently inactive`);
+
+      newCartQuote.brandId = brand.id;
     }
 
     newCartQuote.client = client;
@@ -232,11 +254,18 @@ export class CartQuotesService {
       },
     });
 
-    const finalCartQuotes = cartQuotes.map((cartQuote: CartQuote) => {
+    const finalCartQuotes = cartQuotes.map(async (cartQuote: CartQuote) => {
       let markingTotalPrice: number = 0;
+
+      const brand: Brand = await this.brandRepository.findOne({
+        where: {
+          id: cartQuote.brandId,
+        },
+      });
 
       return {
         id: cartQuote.id,
+        brand,
         quoteName: cartQuote.quoteName,
         description: cartQuote.description,
         destinationCity: cartQuote.destinationCity,
@@ -441,8 +470,15 @@ export class CartQuotesService {
 
     let markingTotalPrice: number = 0;
 
+    const brand: Brand = await this.brandRepository.findOne({
+      where: {
+        id: cartQuote.brandId,
+      },
+    });
+
     const finalCartQuote = {
       id: cartQuote.id,
+      brand,
       quoteName: cartQuote.quoteName,
       description: cartQuote.description,
       destinationCity: cartQuote.destinationCity,
@@ -688,11 +724,18 @@ export class CartQuotesService {
       },
     });
 
-    const result = cartQuotes.map((cartQuote: CartQuote) => {
+    const result = cartQuotes.map(async (cartQuote: CartQuote) => {
       let markingTotalPrice: number = 0;
+
+      const brand: Brand = await this.brandRepository.findOne({
+        where: {
+          id: cartQuote.brandId,
+        },
+      });
 
       return {
         id: cartQuote.id,
+        brand,
         quoteName: cartQuote.quoteName,
         description: cartQuote.description,
         clientCompany: cartQuote?.client?.user?.company?.name,
@@ -893,7 +936,25 @@ export class CartQuotesService {
         throw new NotFoundException(`User with id ${updateCartQuoteDto.user} not found`);
 
       updatedCartQuote.user = user;
-    }
+    };
+
+    if (updateCartQuoteDto.brandId) {
+      const brandId: string = updateCartQuoteDto.brandId;
+      
+      const brand: Brand = await this.brandRepository.findOne({
+        where: {
+          id: brandId,
+        },
+      });
+
+      if (!brand)
+        throw new NotFoundException(`Brand with id ${brandId} not found`);
+
+      if (!brand.isActive)
+        throw new BadRequestException(`Brand with id ${brandId} is currently inactive`);
+
+      updatedCartQuote.brandId = brand.id;
+    };
 
     if (updateCartQuoteDto.state) {
       const state = await this.stateRepository.findOne({
