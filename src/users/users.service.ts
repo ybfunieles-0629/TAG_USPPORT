@@ -4,6 +4,7 @@ import { Brackets, Repository } from 'typeorm';
 import { validate as isUUID } from 'uuid';
 import { classToPlain, plainToClass } from 'class-transformer';
 import { JwtService } from '@nestjs/jwt';
+import otpGenerator from 'otp-generator';
 import * as nodemailer from 'nodemailer';
 import * as bcrypt from 'bcrypt';
 
@@ -22,6 +23,7 @@ import { PasswordRecoveryDto } from './dto/password-recovery.dto';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { FilterManyByRolesDto } from './dto/filter-many-by-roles.dto';
 import { ConfigService } from '@nestjs/config';
+import { ConfirmRegistryDto } from './dto/confirm-registry.dto';
 
 @Injectable()
 export class UsersService {
@@ -142,6 +144,15 @@ export class UsersService {
 
     newUser.roles = roles;
 
+    if (newUser.roles.some((role: Role) => role.name.toLowerCase() === 'cliente' || role.name.toLowerCase() === 'proveedor')) {
+      newUser.isActive = false;
+
+      const registrationCode: string = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
+
+      if (registrationCode.length > 0)
+        newUser.registrationCode = registrationCode;
+    };
+
     if (createUserDto.permissions) {
       const permissions: Permission[] = [];
 
@@ -214,12 +225,21 @@ export class UsersService {
         },
       });
 
-      await transporter.sendMail({
-        from: this.emailSenderConfig.transport.from,
-        to: newUser.email,
-        subject: 'Registro exitoso',
-        text: 'Su registro ha sido exitoso, para ingresar en la aplicación debe irse al apartado de Iniciar sesión y luego debe dar click en recuperar contraseña.',
-      });
+      if (newUser.roles.some((role: Role) => role.name.toLowerCase() === 'cliente' || role.name.toLowerCase() === 'proveedor')) {
+        await transporter.sendMail({
+          from: this.emailSenderConfig.transport.from,
+          to: newUser.email,
+          subject: 'Confirmación de cuenta',
+          text: `Código de verificación: ${newUser.registrationCode}`,
+        });
+      } else {
+        await transporter.sendMail({
+          from: this.emailSenderConfig.transport.from,
+          to: newUser.email,
+          subject: 'Registro exitoso',
+          text: 'Su registro ha sido exitoso, para ingresar en la aplicación debe irse al apartado de Iniciar sesión y luego debe dar click en recuperar contraseña.',
+        });
+      };
     } catch (error) {
       console.log('Failed to send the password recovery email', error);
       throw new InternalServerErrorException(`Internal server error`);
@@ -229,6 +249,28 @@ export class UsersService {
       newUser
     };
   }
+
+  async confirmAccount(confirmRegistryDto: ConfirmRegistryDto) {
+    const email: string = confirmRegistryDto.email;
+
+    const user: User = await this.userRepository.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (!user)
+      throw new NotFoundException(`User with email ${email} not found`);
+
+    if (user.registrationCode == confirmRegistryDto.code)
+      user.isActive = true;
+
+    await this.userRepository.save(user);
+
+    return {
+      user
+    };
+  };
 
   async login(loginUserDto: LoginUserDto) {
     const { email, password } = loginUserDto;

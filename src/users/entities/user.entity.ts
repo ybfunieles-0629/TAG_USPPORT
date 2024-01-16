@@ -16,6 +16,11 @@ export class User {
   id: string;
 
   @Column('varchar', {
+
+  })
+  registrationCode: string;
+
+  @Column('varchar', {
     unique: true,
   })
   email: string;
