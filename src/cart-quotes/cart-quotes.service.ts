@@ -638,7 +638,10 @@ export class CartQuotesService {
 
     if (isCommercialUser == 1) {
       const commercialUser = await this.userRepository.findOne({
-        where: { id },
+        where: {
+          id,
+          isActive: true,
+        },
         relations: [
           'admin',
           'admin.clients',
@@ -733,9 +736,11 @@ export class CartQuotesService {
 
       return {
         id: cartQuote.id,
+        isActive: cartQuote.isActive,
         brand,
         quoteName: cartQuote.quoteName,
         description: cartQuote.description,
+        client: cartQuote?.client || '', 
         clientCompany: cartQuote?.client?.user?.company?.name,
         destinationCity: cartQuote.destinationCity,
         deliveryAddress: cartQuote.deliveryAddress,
@@ -938,7 +943,7 @@ export class CartQuotesService {
 
     if (updateCartQuoteDto.brandId) {
       const brandId: string = updateCartQuoteDto.brandId;
-      
+
       const brand: Brand = await this.brandRepository.findOne({
         where: {
           id: brandId,
