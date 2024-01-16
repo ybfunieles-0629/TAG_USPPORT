@@ -715,9 +715,6 @@ export class CartQuotesService {
         .getMany();
     }
 
-    if (!cartQuotes || cartQuotes.length === 0)
-      throw new NotFoundException(`Cart quotes for client ${id} not found`);
-
     const localTransportPricesDb: LocalTransportPrice[] = await this.localTransportPriceRepository.find({
       where: {
         origin: 'Bogota',
