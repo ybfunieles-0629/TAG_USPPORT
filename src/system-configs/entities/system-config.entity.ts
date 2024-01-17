@@ -10,6 +10,16 @@ export class SystemConfig {
 
   })
   generalDeliveryTime: number;
+  
+  @Column('int', {
+
+  })
+  unforeseenFee: number;
+
+  @Column('int', {
+
+  })
+  salesGoal: number;
 
   @Column('int', {
 
