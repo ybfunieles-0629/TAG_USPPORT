@@ -4,9 +4,9 @@ import { Brackets, Repository } from 'typeorm';
 import { validate as isUUID } from 'uuid';
 import { classToPlain, plainToClass } from 'class-transformer';
 import { JwtService } from '@nestjs/jwt';
-import { otpGenerator } from 'otp-generator';
 import * as nodemailer from 'nodemailer';
 import * as bcrypt from 'bcrypt';
+import * as speakeasy from 'speakeasy';
 
 import { UsersList } from './data/usersList';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -28,6 +28,7 @@ import { ConfirmRegistryDto } from './dto/confirm-registry.dto';
 @Injectable()
 export class UsersService {
   private readonly logger: Logger = new Logger('UsersService');
+  private secret: string = speakeasy.generateSecret().base32;
 
   constructor(
     @InjectRepository(User)
@@ -51,6 +52,7 @@ export class UsersService {
     @Inject('EMAIL_CONFIG') private emailSenderConfig,
 
     private readonly jwtService: JwtService,
+
   ) { }
 
   async seedUsers() {
@@ -147,7 +149,10 @@ export class UsersService {
     if (newUser.roles.some((role: Role) => role.name.toLowerCase() === 'cliente' || role.name.toLowerCase() === 'proveedor')) {
       newUser.isActive = false;
 
-      const registrationCode: string = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
+      const registrationCode: string = speakeasy.totp({
+        secret: this.secret,
+        encoding: 'base32',
+      });
 
       if (registrationCode.length > 0)
         newUser.registrationCode = registrationCode;
