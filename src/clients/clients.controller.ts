@@ -11,7 +11,6 @@ export class ClientsController {
   constructor(private readonly clientsService: ClientsService) { }
 
   @Post()
-  @UseGuards(AuthGuard())
   create(@Body() createClientDto: CreateClientDto) {
     return this.clientsService.create(createClientDto);
   }
