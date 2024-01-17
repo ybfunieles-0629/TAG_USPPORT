@@ -76,14 +76,14 @@ export class CategorySuppliersService {
       throw new NotFoundException(`User supplier for origin ${origin} not found`);
 
     if (userSupplier.supplier == null || userSupplier.supplier == undefined)
-      throw new BadRequestException(`The user is not a supplier`); 
+      throw new BadRequestException(`The user is not a supplier`);
 
     //* CLEAN DATA
     for (const parentCategory of data) {
       if (origin === 'Marpico') {
         if (!referenceIdApiSet.has(parentCategory.jerarquia)) {
           const newParentCategory = {
-            offspringType: 'Padre',
+            offspringType: 'Principal',
             name: parentCategory.nombre,
             description: '',
             categoryMargin: '',
@@ -102,7 +102,7 @@ export class CategorySuppliersService {
         }
       } else {
         const newParentCategory = {
-          offspringType: 'Padre',
+          offspringType: 'Principal',
           name: parentCategory.nombre,
           description: '',
           categoryMargin: '',
@@ -198,7 +198,7 @@ export class CategorySuppliersService {
 
         if (!referenceIdApiSet.has(subCategory.jerarquia)) {
           const newCategory = {
-            offspringType: 'Subcategoria',
+            offspringType: 'Padre',
             name: subCategory.nombre,
             description: '',
             categoryMargin: '',
@@ -218,7 +218,7 @@ export class CategorySuppliersService {
         firstPart = subCategory.idParent;
 
         const newCategory = {
-          offspringType: 'Subcategoria',
+          offspringType: 'Padre',
           name: subCategory.nombre,
           description: '',
           categoryMargin: '',
@@ -430,6 +430,44 @@ export class CategorySuppliersService {
 
   async remove(id: string) {
     const { categorySupplier } = await this.findOne(id);
+
+    const offspringType: string = categorySupplier.offspringType;
+    const mainCategory: string = categorySupplier.mainCategory;
+    const parentCategory: string = categorySupplier.parentCategory;
+
+    if (categorySupplier.refProducts.length > 0)
+      throw new BadRequestException(`You can't delete a category associated to a ref product`);
+
+    if (categorySupplier.categoryTag)
+      throw new BadRequestException(`You can't delete a category associated to a tag category`);
+
+    if (mainCategory.trim() == '' || mainCategory == undefined || mainCategory == null && parentCategory.trim() == '' || parentCategory == undefined || parentCategory == null) {
+      const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+        where: {
+          mainCategory: id,
+        }
+      });
+
+      if (categorySupplier) {
+        throw new BadRequestException(`You can't delete a category with main and parent category`);
+      }
+
+      return;
+    };
+
+    if (mainCategory.trim().length > 1 || mainCategory != undefined || mainCategory != null && parentCategory.trim() == '' || parentCategory == undefined || parentCategory == null) {
+      const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+        where: {
+          parentCategory: id,
+        },
+      });
+
+      if (categorySupplier) {
+        throw new BadRequestException(`You can't delete a category with main and parent category`);
+      }
+
+      return;
+    };
 
     await this.categorySupplierRepository.remove(categorySupplier);
 
