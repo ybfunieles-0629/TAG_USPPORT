@@ -12,7 +12,6 @@ export class SuppliersController {
   constructor(private readonly suppliersService: SuppliersService) { }
 
   @Post()
-  @UseGuards(AuthGuard())
   @UseInterceptors(FileInterceptor('portfolio'))
   create(
     @Body() createSupplierDto: CreateSupplierDto,
