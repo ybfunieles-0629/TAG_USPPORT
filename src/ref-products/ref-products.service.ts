@@ -1152,21 +1152,28 @@ export class RefProductsService {
 
     const updatedRefProduct = plainToClass(RefProduct, updateRefProductDto);
 
-    const joinedKeywords: string = updateRefProductDto.keywords.join(';') + ';';
+    if (updateRefProductDto.keywords) {
+      const joinedKeywords: string = updateRefProductDto.keywords.join(';') + ';';
 
-    updatedRefProduct.keywords = joinedKeywords;
+      updatedRefProduct.keywords = joinedKeywords;
+    }
 
-    const supplier: Supplier = await this.supplierRepository.findOne({
-      where: {
-        id: updateRefProductDto.supplier,
-      },
-    });
+    if (updateRefProductDto.supplier) {
+      const supplier: Supplier = await this.supplierRepository.findOne({
+        where: {
+          id: updateRefProductDto.supplier,
+        },
+      });
 
-    if (!supplier)
-      throw new NotFoundException(`Suppplier with id ${updateRefProductDto.supplier} not found`);
+      if (!supplier)
+        throw new NotFoundException(`Suppplier with id ${updateRefProductDto.supplier} not found`);
 
-    if (!supplier.isActive)
-      throw new BadRequestException(`Supplier with id ${updateRefProductDto.supplier} is currently inactive`);
+      if (!supplier.isActive)
+        throw new BadRequestException(`Supplier with id ${updateRefProductDto.supplier} is currently inactive`);
+
+
+      updatedRefProduct.supplier = supplier;
+    }
 
     if (updateRefProductDto.categorySuppliers) {
       const categorySuppliers: CategorySupplier[] = [];
@@ -1240,8 +1247,6 @@ export class RefProductsService {
 
       updatedRefProduct.deliveryTimes = deliveryTimes;
     }
-
-    updatedRefProduct.supplier = supplier;
 
     Object.assign(refProduct, updatedRefProduct);
 
