@@ -4,7 +4,7 @@ import { Brackets, Repository } from 'typeorm';
 import { validate as isUUID } from 'uuid';
 import { classToPlain, plainToClass } from 'class-transformer';
 import { JwtService } from '@nestjs/jwt';
-import otpGenerator from 'otp-generator';
+import { otpGenerator } from 'otp-generator';
 import * as nodemailer from 'nodemailer';
 import * as bcrypt from 'bcrypt';
 
