@@ -232,6 +232,41 @@ export class CategoryTagService {
   async remove(id: string) {
     const { categoryTag } = await this.findOne(id);
 
+    const offspringType: string = categoryTag.offspringType;
+    const mainCategory: string = categoryTag.mainCategory;
+    const parentCategory: string = categoryTag.parentCategory;
+
+    if (categoryTag.categorySuppliers.length > 0)
+      throw new BadRequestException(`You can't delete a category associated to a tag category`);
+
+    if (mainCategory.trim() == '' || mainCategory == undefined || mainCategory == null && parentCategory.trim() == '' || parentCategory == undefined || parentCategory == null) {
+      const categorySupplier: CategoryTag = await this.categoryTagRepository.findOne({
+        where: {
+          mainCategory: id,
+        }
+      });
+
+      if (categorySupplier) {
+        throw new BadRequestException(`You can't delete a category with main and parent category`);
+      }
+
+      return;
+    };
+
+    if (mainCategory.trim().length > 1 || mainCategory != undefined || mainCategory != null && parentCategory.trim() == '' || parentCategory == undefined || parentCategory == null) {
+      const categorySupplier: CategoryTag = await this.categoryTagRepository.findOne({
+        where: {
+          parentCategory: id,
+        },
+      });
+
+      if (categorySupplier) {
+        throw new BadRequestException(`You can't delete a category with main and parent category`);
+      }
+
+      return;
+    };
+
     await this.categoryTagRepository.remove(categoryTag);
 
     return {
