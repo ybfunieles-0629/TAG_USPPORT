@@ -6,7 +6,6 @@ import { classToPlain, plainToClass } from 'class-transformer';
 import { JwtService } from '@nestjs/jwt';
 import * as nodemailer from 'nodemailer';
 import * as bcrypt from 'bcrypt';
-import * as speakeasy from 'speakeasy';
 
 import { UsersList } from './data/usersList';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -28,7 +27,6 @@ import { ConfirmRegistryDto } from './dto/confirm-registry.dto';
 @Injectable()
 export class UsersService {
   private readonly logger: Logger = new Logger('UsersService');
-  private secret: string = speakeasy.generateSecret().base32;
 
   constructor(
     @InjectRepository(User)
@@ -52,6 +50,7 @@ export class UsersService {
     @Inject('EMAIL_CONFIG') private emailSenderConfig,
 
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
 
   ) { }
 
@@ -149,10 +148,7 @@ export class UsersService {
     if (newUser.roles.some((role: Role) => role.name.toLowerCase() === 'cliente' || role.name.toLowerCase() === 'proveedor')) {
       newUser.isActive = false;
 
-      const registrationCode: string = speakeasy.totp({
-        secret: this.secret,
-        encoding: 'base32',
-      });
+      const registrationCode: string = this.getJwtToken(newUser.email);
 
       if (registrationCode.length > 0)
         newUser.registrationCode = registrationCode;
@@ -256,16 +252,11 @@ export class UsersService {
   }
 
   async confirmAccount(confirmRegistryDto: ConfirmRegistryDto) {
-    const email: string = confirmRegistryDto.email;
+    const data = this.jwtService.decode(confirmRegistryDto.code);
 
-    const user: User = await this.userRepository.findOne({
-      where: {
-        email,
-      },
-    });
+    const jwtStrategy = new JwtStrategy(this.userRepository, this.configService);
 
-    if (!user)
-      throw new NotFoundException(`User with email ${email} not found`);
+    const user = await jwtStrategy.validate(data);
 
     if (user.registrationCode == confirmRegistryDto.code)
       user.isActive = true;
