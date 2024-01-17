@@ -57,7 +57,7 @@ export class CreateProductDto {
   transitUnit?: number;
 
   @IsOptional()
-  @IsDate()
+  @IsString()
   productArrivalDate?: Date;
 
   @IsOptional()
