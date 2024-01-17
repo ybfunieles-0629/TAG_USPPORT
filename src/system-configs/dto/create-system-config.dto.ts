@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsInt, IsOptional, IsPort, IsString, IsUUID } from 'class-validator';
 
 export class CreateSystemConfigDto {
   @IsInt()
@@ -21,6 +21,14 @@ export class CreateSystemConfigDto {
 
   @IsInt()
   marginForTransportServices: number;
+
+  @IsOptional()
+  @IsInt()
+  unforeseenFee: number;
+
+  @IsOptional()
+  @IsInt()
+  salesGoal: number;
 
   @IsInt()
   maxDiscount: number;
