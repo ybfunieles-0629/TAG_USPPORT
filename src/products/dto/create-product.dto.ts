@@ -14,6 +14,10 @@ export class CreateProductDto {
   disccountPromo?: number;
 
   @IsOptional()
+  @IsInt()
+  entryDiscount?: number;
+
+  @IsOptional()
   @IsString()
   tagSku?: string;
 
@@ -139,4 +143,8 @@ export class CreateProductDto {
   @IsOptional()
   @IsInt()
   unforeseenFee?: number;
+
+  @IsArray()
+  @IsString({ each: true })
+  disccounts?: string[];
 }
