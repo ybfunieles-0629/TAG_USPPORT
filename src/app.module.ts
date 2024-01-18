@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -76,6 +76,9 @@ import { SystemConfigBrandsModule } from './system-config-brands/system-config-b
       synchronize: true,
       autoLoadEntities: true,
     }),
+    LocalTransportPricesModule,
+    ProductsModule,
+    OrderListDetailsModule,
     ClientsModule,
     UsersModule,
     RolesModule,
@@ -83,7 +86,6 @@ import { SystemConfigBrandsModule } from './system-config-brands/system-config-b
     PrivilegesModule,
     CommonModule,
     CompaniesModule,
-    ProductsModule,
     ImagesModule,
     CategoriesModule,
     PricesModule,
@@ -112,7 +114,6 @@ import { SystemConfigBrandsModule } from './system-config-brands/system-config-b
     TagSubTechniquesModule,
     TagSubTechniquePropertiesModule,
     ExternalSubTechniquesModule,
-    LocalTransportPricesModule,
     TransportServicesModule,
     QuoteDetailsModule,
     CartQuotesModule,
@@ -120,7 +121,6 @@ import { SystemConfigBrandsModule } from './system-config-brands/system-config-b
     LogosModule,
     SystemConfigsModule,
     FinancingCostProfitsModule,
-    OrderListDetailsModule,
     OrderRatingsModule,
     SwiperHomeModule,
     CommercialQualificationModule,

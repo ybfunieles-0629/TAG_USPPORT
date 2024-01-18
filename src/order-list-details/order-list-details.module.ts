@@ -18,10 +18,10 @@ import { PassportModule } from '@nestjs/passport';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     MarkingServicesModule,
     OrderRatingsModule,
-    PurchaseOrderModule,
-    ProductsModule,
     StatesModule,
     SupplierPurchaseOrdersModule,
+    PurchaseOrderModule,
+    forwardRef(() => ProductsModule),
     forwardRef(() => TransportServicesModule),
     TypeOrmModule.forFeature([OrderListDetail])
   ],

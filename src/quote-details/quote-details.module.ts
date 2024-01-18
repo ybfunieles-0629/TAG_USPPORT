@@ -11,15 +11,19 @@ import { MarkingServicesModule } from '../marking-services/marking-services.modu
 import { MarkingServicePropertiesModule } from '../marking-service-properties/marking-service-properties.module';
 import { SystemConfigsModule } from '../system-configs/system-configs.module';
 import { LocalTransportPricesModule } from '../local-transport-prices/local-transport-prices.module';
+import { BrandsModule } from '../brands/brands.module';
+import { ClientsModule } from '../clients/clients.module';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    CartQuotesModule,
+    forwardRef(() => BrandsModule),
+    forwardRef(() => CartQuotesModule),
+    ClientsModule,
     forwardRef(() => LocalTransportPricesModule),
     MarkingServicesModule,
     MarkingServicePropertiesModule,
-    ProductsModule,
+    forwardRef(() => ProductsModule),
     SystemConfigsModule,
     TypeOrmModule.forFeature([QuoteDetail]),
   ],

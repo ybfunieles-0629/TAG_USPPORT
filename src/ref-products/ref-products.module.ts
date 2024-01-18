@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from '@nestjs/passport';
 
@@ -21,12 +21,12 @@ import { LocalTransportPricesModule } from '../local-transport-prices/local-tran
     CategoryTagModule,
     CategorySuppliersModule,
     DeliveryTimesModule,
-    LocalTransportPricesModule,
     SuppliersModule,
     SystemConfigsModule,
     MarkingServicePropertiesModule,
     UsersModule,
     VariantReferenceModule,
+    forwardRef(() => LocalTransportPricesModule),
     TypeOrmModule.forFeature([RefProduct]),
   ],
   controllers: [RefProductsController],

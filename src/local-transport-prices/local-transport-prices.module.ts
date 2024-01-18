@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from '@nestjs/passport';
 
@@ -10,7 +10,7 @@ import { TransportServicesModule } from '../transport-services/transport-service
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    TransportServicesModule,
+    forwardRef(() => TransportServicesModule),
     TypeOrmModule.forFeature([LocalTransportPrice])
   ],
   controllers: [LocalTransportPricesController],

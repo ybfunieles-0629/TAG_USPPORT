@@ -20,7 +20,7 @@ import { Disccount } from '../disccount/entities/disccount.entity';
 import { Disccounts } from '../disccounts/entities/disccounts.entity';
 import { SystemConfig } from '../system-configs/entities/system-config.entity';
 import { Packing } from '../packings/entities/packing.entity';
-import { LocalTransportPrice } from 'src/local-transport-prices/entities/local-transport-price.entity';
+import { LocalTransportPrice } from '../local-transport-prices/entities/local-transport-price.entity';
 
 @Injectable()
 export class RefProductsService {
