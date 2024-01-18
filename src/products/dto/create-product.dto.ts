@@ -143,4 +143,8 @@ export class CreateProductDto {
   @IsOptional()
   @IsInt()
   unforeseenFee?: number;
+
+  @IsArray()
+  @IsString({ each: true })
+  disccounts?: string[];
 }
