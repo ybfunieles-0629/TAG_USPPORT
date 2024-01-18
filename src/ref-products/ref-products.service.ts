@@ -231,7 +231,14 @@ export class RefProductsService {
               });
             };
 
-            // product.
+            //* SI LO ENCUENTRA LO AÑADE, SINO LE PONE UN 0 Y NO AÑADE NADA
+            const entryDiscount: number = product.entryDiscount || 0;
+            const entryDiscountValue: number = (entryDiscount / 100) * value || 0;
+
+            value += entryDiscountValue;
+
+            //* BUSCO DESCUENTO PROMO
+            const promoDiscount: number = product.promoDisccount || 0;
           };
 
           if (product.iva > 0 || product.iva != undefined) {
@@ -1086,7 +1093,7 @@ export class RefProductsService {
 
     return {
       count: finalResults.length,
-      refProducts: paginatedRefProducts
+      refProducts: paginatedRefProducts.filter((refProduct) => refProduct.images.length > 0),
     };
   }
 
