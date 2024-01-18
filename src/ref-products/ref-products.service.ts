@@ -175,6 +175,15 @@ export class RefProductsService {
       100000, 200000,
     ];
 
+    const systemConfigs: SystemConfig[] = await this.systemConfigRepository.find();
+    const systemConfig: SystemConfig = systemConfigs[0];
+
+    const localTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
+    .createQueryBuilder('localTransportPrice')
+    .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
+    .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
+    .getMany();
+
     const finalResults = await Promise.all(results.map(async (result) => {
       const modifiedProducts = await Promise.all(result.products.map(async (product) => {
         const burnPriceTable = [];
@@ -186,7 +195,7 @@ export class RefProductsService {
           let prices = {
             quantity: staticQuantities[i],
             value: changingValue,
-            valueWithDestiny: 0,
+            transportPrice: 0,
           };
 
           burnPriceTable.push(prices);
@@ -254,9 +263,6 @@ export class RefProductsService {
             value += iva;
           };
 
-          const systemConfigs: SystemConfig[] = await this.systemConfigRepository.find();
-          const systemConfig: SystemConfig = systemConfigs[0];
-
           //* VERIFICAR SI ES IMPORTADO NACIONAL
           if (product.importedNational.toLowerCase() == 'importado') {
             const importationFee: number = (systemConfig.importationFee / 100) * value;
@@ -323,12 +329,6 @@ export class RefProductsService {
           value += financingCost;
 
           //* CALCULAR EL COSTO DE TRANSPORTE Y ENTREGA DE LOS PRODUCTOS (ESTA INFORMACIÓN VIENE DEL API DE FEDEX)
-          const localTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
-            .createQueryBuilder('localTransportPrice')
-            .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
-            .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
-            .getMany();
-
           const localTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
             ? localTransportPrices.sort((a, b) => {
               const diffA = Math.abs(a.volume - totalPackingVolume);
@@ -340,6 +340,8 @@ export class RefProductsService {
           const { origin: transportOrigin, destination: transportDestination, price: transportPrice, volume: transportVolume } = localTransportPrice || { origin: '', destination: '', price: 0, volume: 0 };
 
           value += transportPrice;
+
+          prices.transportPrice = transportPrice;
 
           //* CALCULAR EL IMPUESTO 4 X 1000
           value += (value * 1.04);
@@ -365,8 +367,6 @@ export class RefProductsService {
 
           //* CALCULAR EL PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
           value = Math.round(value);
-
-          changingValue = value;
         }
 
         return { ...product, burnPriceTable };
