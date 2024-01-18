@@ -13,6 +13,7 @@ import { MarkingServicePropertiesModule } from '../marking-service-properties/ma
 import { DeliveryTimesModule } from '../delivery-times/delivery-times.module';
 import { CategoryTagModule } from '../category-tag/category-tag.module';
 import { SystemConfigsModule } from '../system-configs/system-configs.module';
+import { LocalTransportPricesModule } from '../local-transport-prices/local-transport-prices.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SystemConfigsModule } from '../system-configs/system-configs.module';
     CategoryTagModule,
     CategorySuppliersModule,
     DeliveryTimesModule,
+    LocalTransportPricesModule,
     SuppliersModule,
     SystemConfigsModule,
     MarkingServicePropertiesModule,

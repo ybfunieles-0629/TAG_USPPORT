@@ -1,4 +1,4 @@
-import { IsArray, IsInt, IsString } from 'class-validator';
+import { IsArray, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreateDisccountDto {
   @IsString()
@@ -7,6 +7,7 @@ export class CreateDisccountDto {
   @IsString()
   disccountType: string;
 
+  @IsOptional()
   @IsInt()
   entryDisccount: number;
   
