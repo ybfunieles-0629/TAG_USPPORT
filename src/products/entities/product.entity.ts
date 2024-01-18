@@ -120,6 +120,11 @@ export class Product {
   })
   hasNetPrice: number;
 
+  @Column('int', {
+
+  })
+  entryDiscount: number;
+
   @Column('float', {
 
   })

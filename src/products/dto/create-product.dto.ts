@@ -14,6 +14,10 @@ export class CreateProductDto {
   disccountPromo?: number;
 
   @IsOptional()
+  @IsInt()
+  entryDiscount?: number;
+
+  @IsOptional()
   @IsString()
   tagSku?: string;
 
