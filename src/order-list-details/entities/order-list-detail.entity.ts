@@ -7,7 +7,7 @@ import { TransportService } from '../../transport-services/entities/transport-se
 import { State } from '../../states/entities/state.entity';
 import { Product } from '../../products/entities/product.entity';
 import { CartQuote } from '../../cart-quotes/entities/cart-quote.entity';
-import { SupplierPurchaseOrder } from 'src/supplier-purchase-orders/entities/supplier-purchase-order.entity';
+import { SupplierPurchaseOrder } from '../../supplier-purchase-orders/entities/supplier-purchase-order.entity';
 
 @Entity('order_list_details')
 export class OrderListDetail {
