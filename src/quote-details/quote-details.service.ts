@@ -10,7 +10,7 @@ import { CartQuote } from '../cart-quotes/entities/cart-quote.entity';
 import { Product } from '../products/entities/product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { MarkingService } from '../marking-services/entities/marking-service.entity';
-import { MarkedServicePrice } from 'src/marked-service-prices/entities/marked-service-price.entity';
+import { MarkedServicePrice } from '../marked-service-prices/entities/marked-service-price.entity';
 import { Packing } from '../packings/entities/packing.entity';
 import { RefProduct } from '../ref-products/entities/ref-product.entity';
 import { CalculatePriceDto } from './dto/calculate-price.dto';
@@ -18,12 +18,21 @@ import { MarkingServiceProperty } from '../marking-service-properties/entities/m
 import { Marking } from '../markings/entities/marking.entity';
 import { SystemConfig } from '../system-configs/entities/system-config.entity';
 import { LocalTransportPrice } from '../local-transport-prices/entities/local-transport-price.entity';
+import { Brand } from '../brands/entities/brand.entity';
+import { Client } from '../clients/entities/client.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class QuoteDetailsService {
   constructor(
     @InjectRepository(QuoteDetail)
     private readonly quoteDetailRepository: Repository<QuoteDetail>,
+
+    @InjectRepository(Brand)
+    private readonly brandRepository: Repository<Brand>,
+
+    @InjectRepository(Client)
+    private readonly clientRepository: Repository<Client>,
 
     @InjectRepository(CartQuote)
     private readonly cartQuoteRepository: Repository<CartQuote>,
@@ -53,6 +62,8 @@ export class QuoteDetailsService {
       },
       relations: [
         'client',
+        'client.user',
+        'client.user.brands',
       ],
     });
 
@@ -188,6 +199,18 @@ export class QuoteDetailsService {
       .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: cartQuote.destinationCity.toLowerCase().trim() })
       .getMany();
 
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+
     //* OBTENER LA CONFIGURACIÓN DEL SISTEMA
     const systemConfigDb: SystemConfig[] = await this.systemConfigRepository.find();
     const systemConfig: SystemConfig = systemConfigDb[0];
@@ -201,7 +224,8 @@ export class QuoteDetailsService {
       productVolume = (product?.height * product?.weight * product?.large) || 0;
     };
 
-    //* CALCULAR LA CANTIDAD DE EMPAQUES PARA LAS UNIDADES COTIZADAS
+    //TODO: CALCULAR LA CANTIDAD DE EMPAQUES PARA LAS UNIDADES COTIZADAS
+    
 
     //* VERIFICAR SI EL PRODUCTO TIENE EMPAQUE
     const packing: Packing = product.packings.length > 0 ? product.packings[0] : product?.refProduct?.packings[0] || undefined;
@@ -296,10 +320,113 @@ export class QuoteDetailsService {
     //* ADICIONAR EL % DE MARGEN DE GANANCIA DE CLIENTE
     totalPrice += cartQuote.client.margin;
 
-    //TODO: SE DEBE ADICIONAR UN FEE ADICIONAL AL USUARIO DENTRO DEL CLIENTE
-    //TODO: SE CALCULA Y ADICIONA UN FEE POR USUARIO DEL CLIENTE
+    //* SE DEBE ADICIONAR UN FEE ADICIONAL AL USUARIO DENTRO DEL CLIENTE
+    const cartQuoteClient: Client = cartQuote?.client;
+    const clientUser: User = cartQuote?.client?.user;
+    let clientType: string = '';
 
-    //TODO: ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
+    if (clientUser) {
+      if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 1)
+        clientType = 'cliente corporativo secundario';
+      else if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 0)
+        clientType = 'cliente corporativo principal';
+    };
+
+    if (clientType.toLowerCase() == 'cliente corporativo secundario' || clientType.toLowerCase() == 'cliente corporativo principal') {
+      const brandId: string = cartQuote.brandId;
+
+      if (brandId != null || brandId.trim() != '' || brandId != undefined) {
+        const cartQuoteBrand: Brand = await this.brandRepository.findOne({
+          where: {
+            id: brandId,
+          },
+        });
+
+        if (!cartQuoteBrand)
+          throw new NotFoundException(`Brand with id ${brandId} not found`);
+
+        if (cartQuote.client.user.brands.some(brand => brand.id == cartQuoteBrand.id)) {
+          const fee: number = (+cartQuoteBrand.fee / 100) * totalPrice || 0;
+
+          totalPrice += fee;
+        };
+      };
+    };
+
+    //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
+    const profitMargin: number = 0;
+
+    const paymentDays = [
+      {
+        day: 1,
+        percentage: 3,
+      },
+      {
+        day: 15,
+        percentage: 3,
+      },
+      {
+        day: 30,
+        percentage: 3,
+      },
+      {
+        day: 45,
+        percentage: 4,
+      },
+      {
+        day: 60,
+        percentage: 6,
+      },
+      {
+        day: 90,
+        percentage: 9,
+      },
+    ];
+
+    //* SI EL CLIENTE ES SECUNDARIO
+    if (clientType == 'cliente corporativo secundario') {
+      //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
+      const mainClient: Client = await this.clientRepository
+        .createQueryBuilder('client')
+        .leftJoinAndSelect('client.user', 'clientUser')
+        .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
+        .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
+        .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
+        .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
+        .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
+        .getOne();
+
+      const marginProfit: number = mainClient.margin || 0;
+      const paymentTerms: number = mainClient.paymentTerms || 0;
+
+      let percentageDiscount: number = 0;
+
+      paymentDays.forEach(paymentDay => {
+        if (paymentDay.day == paymentTerms) {
+          percentageDiscount = paymentDay.percentage;
+        };
+      });
+
+      let value: number = totalPrice * (1 - percentageDiscount);
+      totalPrice = Math.round(value);
+    };
+
+    //* SI EL CLIENTE ES PRINCIPAL
+    if (clientType == 'cliente corporativo principal') {
+      const margin: number = cartQuoteClient.margin || 0;
+      const paymentTerms: number = cartQuoteClient.paymentTerms || 0;
+
+      let percentageDiscount: number = 0;
+
+      paymentDays.forEach(paymentDay => {
+        if (paymentDay.day == paymentTerms) {
+          percentageDiscount = paymentDay.percentage;
+        };
+      });
+
+      let value: number = totalPrice * (1 - percentageDiscount);
+      totalPrice = Math.round(value);
+    };
 
     //* SE HACE DESCUENTO ADICIONAL POR EL COMERCIAL (YA HECHO)
     newQuoteDetail.subTotal = totalPrice;
@@ -315,12 +442,16 @@ export class QuoteDetailsService {
     Math.round(newQuoteDetail.total);
 
     //* CALCULAR EL COSTO DE LA RETENCIÓN EN LA FUENTE
+    const withholdingAtSource: number = systemConfig.withholdingAtSource || 0;
+    const withholdingAtSourceValue: number = (withholdingAtSource / 100) * totalPrice || 0;
 
+    totalPrice += withholdingAtSourceValue;
 
     //* CALCULAR UTILIDAD DEL NEGOCIO
-
+    
 
     //* CALCULAR % MARGEN DE GANANCIA DEL NEGOCIO Y MAXIMO DESCUENTO PERMITIDO AL COMERCIAL
+
 
     //* CALCULAR DESCUENTO
     const discount: number = (product.disccountPromo / 100) * newQuoteDetail.subTotal || 0;
