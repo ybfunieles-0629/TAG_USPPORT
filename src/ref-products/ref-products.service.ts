@@ -1121,10 +1121,11 @@ export class RefProductsService {
     }));
 
     const paginatedRefProducts = finalResults.slice(offset, offset + limit);
+    const finalRefProducts = await paginatedRefProducts.filter((refProduct) => refProduct.images.length > 0);
 
     return {
       count: finalResults.length,
-      refProducts: paginatedRefProducts.filter((refProduct) => refProduct.images.length > 0),
+      refProducts: finalRefProducts,
     };
   }
 
