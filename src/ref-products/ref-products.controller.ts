@@ -24,6 +24,13 @@ export class RefProductsController {
     return this.refProductsService.findAll(paginationDto);
   }
 
+  @Get('with/supplier/:id')
+  filterProductsBySupplier(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.refProductsService.filterProductsBySupplier(id);
+  }
+
   @Get('with/offers')
   filterProductsWithDiscount(
     @Query() paginationDto: PaginationDto

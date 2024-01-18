@@ -195,11 +195,15 @@ export class RefProductsService {
 
           //* SI EL PRODUCTO NO TIENE UN PRECIO NETO
           if (product.hasNetPrice == 0) {
-            product.supplierPrices.forEach((supplierPrice: SupplierPrice) => {
+            //* SI EL PRODUCTO TIENE UN PRECIO PROVEEDOR ASOCIADO
+            if (product.supplierPrices.length > 0) {
+              const supplierPrice: SupplierPrice = product.supplierPrices[0];
+
+              //* RECORRO LA LISTA DE PRECIOS DEL PRECIO DEL PROVEEDOR
               supplierPrice.listPrices.forEach((listPrice: ListPrice) => {
                 if (listPrice.minimun >= i && listPrice.nextMinValue == 1 && listPrice.maximum <= i || listPrice.minimun >= i && listPrice.nextMinValue == 0) {
                   //* SI APLICA PARA TABLA DE PRECIOS DE PROVEEDOR
-                  value = listPrice.price;
+                  value += listPrice.price;
 
                   if (product.promoDisccount > 0 || product.promoDisccount != undefined) {
                     const discount: number = (product.promoDisccount / 100) * value;
@@ -225,7 +229,9 @@ export class RefProductsService {
                   return;
                 };
               });
-            });
+            };
+
+            // product.
           };
 
           if (product.iva > 0 || product.iva != undefined) {
@@ -368,6 +374,7 @@ export class RefProductsService {
         'products.variantReferences',
         'products.packings',
         'products.supplierPrices',
+        'products.supplierPrices.product',
         'products.supplierPrices.listPrices',
         'products.markingServiceProperties',
         'products.markingServiceProperties.images',
@@ -463,6 +470,19 @@ export class RefProductsService {
       refProduct
     };
   }
+
+  async filterProductsBySupplier(id: string){
+    const refProducts: RefProduct[] = await this.refProductRepository
+      .createQueryBuilder('refProduct')
+      .leftJoinAndSelect('refProduct.supplier', 'supplier')
+      .where('supplier.id =:supplierId', { supplierId: id })
+      .leftJoinAndSelect('refProduct.product', 'product')
+      .getMany();
+
+    return {
+      refProducts
+    };
+  };
 
   async filterProducts(filterRefProductsDto: FilterRefProductsDto, paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
