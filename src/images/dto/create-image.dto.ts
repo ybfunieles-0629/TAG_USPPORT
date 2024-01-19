@@ -10,6 +10,10 @@ export class CreateImageDto {
 
   @IsOptional()
   @IsString()
+  product?: string;
+
+  @IsOptional()
+  @IsString()
   tagSubTechniqueProperty?: string;
 
   @IsOptional()
