@@ -16,7 +16,7 @@ import { ProductsModule } from '../products/products.module';
     MarkingServicePropertiesModule,
     TagSubTechniquePropertiesModule,
     RefProductsModule,
-    ProductsModule,
+    forwardRef(() =>ProductsModule),
     TypeOrmModule.forFeature([Image])
   ],
   controllers: [ImagesController],

@@ -19,7 +19,7 @@ import { EmailSenderModule } from '../email-sender/email-sender.module';
     PassportModule.register({ defaultStrategy: 'jwt' }),    EmailSenderModule,
     CategorySuppliersModule,
     ColorsModule,
-    ImagesModule,
+    forwardRef(() => ImagesModule),
     MarkingServicePropertiesModule,
     RefProductsModule,
     UsersModule,
