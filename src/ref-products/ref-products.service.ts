@@ -203,18 +203,12 @@ export class RefProductsService {
           };
 
           burnPriceTable.push(prices);
-<<<<<<< HEAD
-          const percentageDiscount: number = 0.01;
-          let value: number = changingValue * (1 - percentageDiscount);
-          value = Math.round(value);
-=======
 
           // const percentageDiscount: number = 0.01;
 
           // let value: number = changingValue * (1 - percentageDiscount);
 
           let value: number = prices.value;
->>>>>>> 0008a5b934385d975f7ff8c14b5abf7cbf01b1e8
 
           //* SI EL PRODUCTO NO TIENE UN PRECIO NETO
           if (product.hasNetPrice == 0) {
