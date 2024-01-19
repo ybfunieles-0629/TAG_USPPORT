@@ -56,6 +56,7 @@ import { SupplierPurchaseOrdersModule } from './supplier-purchase-orders/supplie
 import { ShippingGuidesModule } from './shipping-guides/shipping-guides.module';
 import { SystemConfigOffersModule } from './system-config-offers/system-config-offers.module';
 import { SystemConfigBrandsModule } from './system-config-brands/system-config-brands.module';
+import { SuscriptionsModule } from './suscriptions/suscriptions.module';
 
 @Module({
   imports: [
@@ -129,7 +130,8 @@ import { SystemConfigBrandsModule } from './system-config-brands/system-config-b
     PurchaseOrderModule,
     ShippingGuidesModule,
     SystemConfigOffersModule,
-    SystemConfigBrandsModule
+    SystemConfigBrandsModule,
+    SuscriptionsModule
   ],
 })
 export class AppModule { }
