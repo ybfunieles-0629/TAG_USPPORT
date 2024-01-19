@@ -175,14 +175,18 @@ export class RefProductsService {
       100000, 200000,
     ];
 
+    // const staticQuantities: number[] = [
+    //   1, 2
+    // ];
+
     const systemConfigs: SystemConfig[] = await this.systemConfigRepository.find();
     const systemConfig: SystemConfig = systemConfigs[0];
 
     const localTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
-    .createQueryBuilder('localTransportPrice')
-    .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
-    .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
-    .getMany();
+      .createQueryBuilder('localTransportPrice')
+      .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
+      .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
+      .getMany();
 
     const finalResults = await Promise.all(results.map(async (result) => {
       const modifiedProducts = await Promise.all(result.products.map(async (product) => {
@@ -199,9 +203,18 @@ export class RefProductsService {
           };
 
           burnPriceTable.push(prices);
+<<<<<<< HEAD
           const percentageDiscount: number = 0.01;
           let value: number = changingValue * (1 - percentageDiscount);
           value = Math.round(value);
+=======
+
+          // const percentageDiscount: number = 0.01;
+
+          // let value: number = changingValue * (1 - percentageDiscount);
+
+          let value: number = prices.value;
+>>>>>>> 0008a5b934385d975f7ff8c14b5abf7cbf01b1e8
 
           //* SI EL PRODUCTO NO TIENE UN PRECIO NETO
           if (product.hasNetPrice == 0) {
@@ -277,11 +290,11 @@ export class RefProductsService {
           const unforeseenFee: number = systemConfig.unforeseenFee;
           value += unforeseenFee;
 
+          //TODO: Validar calculos de ganacias por periodos y politicas de tienpos de entrega
+          //TODO: Después del margen del periodo validar del comercial
           //* IDENTIFICAR PORCENTAJE DE ANTICIPIO DE PROVEEDOR
           const advancePercentage: number = product?.refProduct?.supplier?.advancePercentage || 0;
           value += advancePercentage;
-
-          changingValue = value;
 
           //* CALCULAR LA CANTIDAD DE CAJAS PARA LAS UNIDADES COTIZADAS
           const packing: Packing = product.packings[0] || undefined;
@@ -306,23 +319,21 @@ export class RefProductsService {
 
           //* IDENTIFICAR TIEMPO DE ENTREGA ACORDE AL PRODUCTO
           const availableUnits: number = product?.availableUnit || 0;
-          let deliveryTimeToSave: number;
+          let deliveryTimeToSave: number = 0;
 
           if (i > availableUnits) {
             product.refProduct.deliveryTimes.forEach((deliveryTime: DeliveryTime) => {
               if (deliveryTime?.minimum >= i && deliveryTime?.minimumAdvanceValue == 1 && deliveryTime?.maximum <= i || deliveryTime?.minimum >= i && deliveryTime?.minimumAdvanceValue == 0) {
                 deliveryTimeToSave = deliveryTime?.timeInDays || 0;
-                return;
               }
             });
           } else if (availableUnits > 0 && i < availableUnits) {
             deliveryTimeToSave = product?.refProduct?.productInventoryLeadTime || 0;
-            return;
           };
 
           //* CALCULAR COSTOS FINANCIEROS DEL PERIODO DE PRODUCCIÓN
-          const supplierFinancingPercentage: number = systemConfig.supplierFinancingPercentage;
-          const financingCost: number = (((value - advancePercentage) * supplierFinancingPercentage) * deliveryTimeToSave);
+          const supplierFinancingPercentage: number = systemConfig.supplierFinancingPercentage || 0;
+          const financingCost: number = ((value - advancePercentage) * supplierFinancingPercentage) * deliveryTimeToSave;
           value += financingCost;
 
           //* CALCULAR EL COSTO DE TRANSPORTE Y ENTREGA DE LOS PRODUCTOS (ESTA INFORMACIÓN VIENE DEL API DE FEDEX)
@@ -364,6 +375,8 @@ export class RefProductsService {
 
           //* CALCULAR EL PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
           value = Math.round(value);
+
+          changingValue = value;
         }
 
         return { ...product, burnPriceTable };
@@ -401,6 +414,7 @@ export class RefProductsService {
         'markingServiceProperty.externalSubTechnique.marking',
         'packings',
         'products',
+        'products.disccounts',
         'products.refProduct',
         'products.refProduct.deliveryTimes',
         'products.refProduct.supplier',
@@ -434,6 +448,7 @@ export class RefProductsService {
 
     const results: RefProduct[] = await this.refProductRepository
       .createQueryBuilder('refProduct')
+      .leftJoinAndSelect('refProduct.products', 'product')
       .leftJoinAndSelect('refProduct.images', 'refProductImages')
       .leftJoinAndSelect('refProduct.categorySuppliers', 'refProductCategorySuppliers')
       .leftJoinAndSelect('refProduct.deliveryTimes', 'refProductDeliveryTimes')
@@ -441,27 +456,28 @@ export class RefProductsService {
       .leftJoinAndSelect('refProductMarkingServiceProperty.externalSubTechnique', 'refProductExternalSubTechnique')
       .leftJoinAndSelect('refProductExternalSubTechnique.marking', 'refProductExternalSubTechniqueMarking')
       .leftJoinAndSelect('refProduct.packings', 'refProductPackings')
-      .leftJoinAndSelect('refProduct.products', 'refProductProducts')
-      .where('refProductProducts.promoDisccount > 0')
-      .leftJoinAndSelect('refProductProducts.refProduct', 'refProductProductRefProduct')
-      .leftJoinAndSelect('refProductProductRefProduct.deliveryTimes', 'refProductProductRefProductDeliveryTimes')
-      .leftJoinAndSelect('refProductProductRefProduct.supplier', 'refProductProductRefProductSupplier')
-      .leftJoinAndSelect('refProductProductRefProductSupplier.disccounts', 'refProductProductRefProductSupplierDisccounts')
-      .leftJoinAndSelect('refProductProducts.colors', 'refProductProductColors')
-      .leftJoinAndSelect('refProductProducts.variantReferences', 'refProductProductVariantReferences')
-      .leftJoinAndSelect('refProductProducts.packings', 'refProductProductPackings')
-      .leftJoinAndSelect('refProductProducts.supplierPrices', 'refProductProductSupplierPrices')
-      .leftJoinAndSelect('refProductProductSupplierPrices.listPrices', 'refProductProductSupplierPricesListPrices')
-      .leftJoinAndSelect('refProductProducts.markingServiceProperties', 'refProductProductMarkingServiceProperties')
-      .leftJoinAndSelect('refProductProductMarkingServiceProperties.images', 'refProductProductMarkingServicePropertiesImages')
-      .leftJoinAndSelect('refProductProductMarkingServiceProperties.externalSubTechnique', 'refProductProductMarkingServicePropertiesExternalSubTechnique')
-      .leftJoinAndSelect('refProductProductMarkingServicePropertiesExternalSubTechnique.marking', 'refProductProductMarkingServicePropertiesExternalSubTechniqueMarking')
+      .leftJoinAndSelect('product.refProduct', 'productRefProduct')
+      .leftJoinAndSelect('productRefProduct.deliveryTimes', 'productRefProductDeliveryTimes')
+      .leftJoinAndSelect('productRefProduct.supplier', 'productRefProductSupplier')
+      .leftJoinAndSelect('productRefProductSupplier.disccounts', 'productRefProductSupplierDisccounts')
+      .leftJoinAndSelect('product.colors', 'productColors')
+      .leftJoinAndSelect('product.disccounts', 'productsDisccounts')
+      .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+      .leftJoinAndSelect('product.packings', 'productPackings')
+      .leftJoinAndSelect('product.supplierPrices', 'productSupplierPrices')
+      .leftJoinAndSelect('productSupplierPrices.listPrices', 'productSupplierPricesListPrices')
+      .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
+      .leftJoinAndSelect('productMarkingServiceProperties.images', 'productMarkingServicePropertiesImages')
+      .leftJoinAndSelect('productMarkingServiceProperties.externalSubTechnique', 'productMarkingServicePropertiesExternalSubTechnique')
+      .leftJoinAndSelect('productMarkingServicePropertiesExternalSubTechnique.marking', 'productMarkingServicePropertiesExternalSubTechniqueMarking')
       .leftJoinAndSelect('refProduct.supplier', 'refProductSupplier')
       .leftJoinAndSelect('refProductSupplier.user', 'refProductSupplierUser')
       .leftJoinAndSelect('refProduct.variantReferences', 'refProductVariantReferences')
       .take(limit)
       .skip(offset)
       .getMany();
+
+    //TODO: HACER EL FILTRO DE QUE SOLAMENTE TRAIGA REFPRODUCTS CON DESCUENTO
 
     const finalResults = results.length > 0 ? await this.calculations(results) : [];
 

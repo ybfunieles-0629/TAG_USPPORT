@@ -8,6 +8,7 @@ import { Image } from './entities/image.entity';
 import { RefProductsModule } from '../ref-products/ref-products.module';
 import { TagSubTechniquePropertiesModule } from '../tag-sub-technique-properties/tag-sub-technique-properties.module';
 import { MarkingServicePropertiesModule } from '../marking-service-properties/marking-service-properties.module';
+import { ProductsModule } from '../products/products.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { MarkingServicePropertiesModule } from '../marking-service-properties/ma
     MarkingServicePropertiesModule,
     TagSubTechniquePropertiesModule,
     RefProductsModule,
+    ProductsModule,
     TypeOrmModule.forFeature([Image])
   ],
   controllers: [ImagesController],

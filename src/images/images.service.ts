@@ -12,6 +12,7 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { RefProduct } from '../ref-products/entities/ref-product.entity';
 import { TagSubTechniqueProperty } from '../tag-sub-technique-properties/entities/tag-sub-technique-property.entity';
 import { MarkingServiceProperty } from '../marking-service-properties/entities/marking-service-property.entity';
+import { Product } from '../products/entities/product.entity';
 
 @Injectable()
 export class ImagesService {
@@ -26,6 +27,9 @@ export class ImagesService {
 
     @InjectRepository(RefProduct)
     private readonly refProductRepository: Repository<RefProduct>,
+    
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
 
     @InjectRepository(TagSubTechniqueProperty)
     private readonly tagSubTechniquePropertyRepository: Repository<TagSubTechniqueProperty>,
@@ -49,6 +53,24 @@ export class ImagesService {
 
       newImage.refProduct = refProduct;
     }
+
+    if (createImageDto.product) {
+      const productId: string = createImageDto.product;
+
+      const product: Product = await this.productRepository.findOne({
+        where: {
+          id: productId,
+        },
+      });
+
+      if (!product)
+        throw new NotFoundException(`Product with id ${productId} not found`);
+
+      // if (!refProduct.isActive)
+      //   throw new BadRequestException(`Ref product with id ${createImageDto.refProduct} is currently inactive`);
+
+      newImage.product = product;
+    };
 
     if (createImageDto.tagSubTechniqueProperty) {
       const tagSubTechniqueProperty = await this.tagSubTechniquePropertyRepository.findOne({
@@ -170,6 +192,24 @@ export class ImagesService {
 
       updatedImage.refProduct = refProduct;
     }
+
+    if (updateImageDto.product) {
+      const productId: string = updateImageDto.product;
+
+      const product: Product = await this.productRepository.findOne({
+        where: {
+          id: productId,
+        },
+      });
+
+      if (!product)
+        throw new NotFoundException(`Product with id ${productId} not found`);
+
+      // if (!refProduct.isActive)
+      //   throw new BadRequestException(`Ref product with id ${updateImageDto.refProduct} is currently inactive`);
+
+      updatedImage.product = product;
+    };
 
     if (updateImageDto.tagSubTechniqueProperty) {
       const tagSubTechniqueProperty = await this.tagSubTechniquePropertyRepository.findOne({
