@@ -5,6 +5,7 @@ import { Response } from 'express';
 import { isUUID } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 import { v4 as uuidv4 } from 'uuid';
+import * as path from 'path';
 import * as AWS from 'aws-sdk';
 
 import { Company } from './entities/company.entity';
@@ -22,36 +23,36 @@ export class CompaniesService {
   ) { }
 
   async create(createCompanyDto: CreateCompanyDto, files: Record<string, Express.Multer.File>) {
-    try {
-      const newCompany = plainToClass(Company, createCompanyDto);
+    const newCompany = plainToClass(Company, createCompanyDto);
 
-      newCompany.ivaResponsable = +newCompany.ivaResponsable;
-      newCompany.taxPayer = +newCompany.taxPayer;
-      newCompany.selfRetaining = +newCompany.selfRetaining;
+    newCompany.ivaResponsable = +newCompany.ivaResponsable;
+    newCompany.taxPayer = +newCompany.taxPayer;
+    newCompany.selfRetaining = +newCompany.selfRetaining;
 
-      for (const [fieldName, fileInfo] of Object.entries(files)) {
-        const uniqueFilename = `${uuidv4()}-${fileInfo[0].originalname}`;
-        fileInfo[0].originalname = uniqueFilename;
-
-        await this.uploadToAws(fileInfo[0]);
-
-        if (fileInfo[0].fieldname === 'rutCompanyDocument') {
-          newCompany.rutCompanyDocument = uniqueFilename;
-        } else if (fileInfo[0].fieldname === 'dniRepresentativeDocument') {
-          newCompany.dniRepresentativeDocument = uniqueFilename;
-        } else if (fileInfo[0].fieldname === 'commerceChamberDocument') {
-          newCompany.commerceChamberDocument = uniqueFilename;
-        }
+    for (const [fieldName, fileInfo] of Object.entries(files)) {
+      if (path.extname(fileInfo[0].originalname).toLowerCase() !== '.pdf') {
+        throw new BadRequestException(`The file ${fileInfo[0].originalname} is not a valid pdf file`);
       }
 
-      await this.companyRepository.save(newCompany);
+      const uniqueFilename = `${uuidv4()}-${fileInfo[0].originalname}`;
+      fileInfo[0].originalname = uniqueFilename;
 
-      return {
-        newCompany,
-      };
-    } catch (error) {
-      this.handleDbExceptions(error);
+      await this.uploadToAws(fileInfo[0]);
+
+      if (fileInfo[0].fieldname === 'rutCompanyDocument') {
+        newCompany.rutCompanyDocument = uniqueFilename;
+      } else if (fileInfo[0].fieldname === 'dniRepresentativeDocument') {
+        newCompany.dniRepresentativeDocument = uniqueFilename;
+      } else if (fileInfo[0].fieldname === 'commerceChamberDocument') {
+        newCompany.commerceChamberDocument = uniqueFilename;
+      }
     }
+
+    // await this.companyRepository.save(newCompany);
+
+    // return {
+    //   newCompany,
+    // };
   }
 
   async findAll(paginationDto: PaginationDto) {
