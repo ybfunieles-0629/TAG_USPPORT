@@ -50,8 +50,6 @@ export class UsersService {
     @Inject('EMAIL_CONFIG') private emailSenderConfig,
 
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
-
   ) { }
 
   async seedUsers() {
@@ -252,9 +250,11 @@ export class UsersService {
   }
 
   async confirmAccount(confirmRegistryDto: ConfirmRegistryDto) {
+    let configService: ConfigService;
+
     const data = this.jwtService.decode(confirmRegistryDto.code);
 
-    const jwtStrategy = new JwtStrategy(this.userRepository, this.configService);
+    const jwtStrategy = new JwtStrategy(this.userRepository, configService);
 
     const user = await jwtStrategy.validate(data);
 
@@ -634,7 +634,7 @@ export class UsersService {
   }
 
   async filterUsersByManyRoles(roles: FilterManyByRolesDto, user: User, paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    let { limit = 10, offset = 0 } = paginationDto;
 
     const usersToShow: User[] = [];
     let count: number = 0;
@@ -653,9 +653,9 @@ export class UsersService {
         .leftJoinAndSelect('clientUser.company', 'company')
         .leftJoinAndSelect('clientUser.privileges', 'privileges')
         .leftJoinAndSelect('clientUser.permissions', 'permissions')
-        .take(limit)
-        .skip(offset)
         .getMany();
+
+      count += commercialWithClients.length;
 
       usersToShow.push(...commercialWithClients);
     } else {
@@ -675,12 +675,10 @@ export class UsersService {
           .andWhere('clientUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 1 })
           .leftJoinAndSelect('clientUser.privileges', 'privileges')
           .leftJoinAndSelect('clientUser.permissions', 'permissions')
-          .take(limit)
-          .skip(offset)
           .getManyAndCount();
 
         usersToShow.push(...commercialWithClients);
-        count = totalCount;
+        count += totalCount;
       } else {
         for (const role of roles.roles) {
           const [users, totalCount] = await this.userRepository
@@ -698,22 +696,24 @@ export class UsersService {
             .leftJoinAndSelect('client.addresses', 'clientAddresses')
             .leftJoinAndSelect('user.supplier', 'supplier')
             .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
-            .take(limit)
-            .skip(offset)
             .getManyAndCount();
 
           if (!users)
             throw new NotFoundException(`Users with role ${role} not found`);
 
           usersToShow.push(...users);
-          count = totalCount;
+          count += totalCount;
         };
       }
     }
 
+    limit = count;
+
+    const paginatedResults = usersToShow.slice(offset, offset + limit);
+
     return {
       count,
-      users: usersToShow
+      users: paginatedResults
     };
   };
 
