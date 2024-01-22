@@ -22,7 +22,6 @@ export class SystemConfigBrandsController {
   }
 
   @Get()
-  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto,
   ) {
