@@ -17,7 +17,6 @@ export class RolesController {
   }
 
   @Get()
-  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
