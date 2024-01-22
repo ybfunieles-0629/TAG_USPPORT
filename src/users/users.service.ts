@@ -146,7 +146,7 @@ export class UsersService {
     if (newUser.roles.some((role: Role) => role.name.toLowerCase() === 'cliente' || role.name.toLowerCase() === 'proveedor')) {
       newUser.isActive = false;
 
-      const registrationCode: string = this.getJwtToken(newUser.email);
+      const registrationCode: string = this.getJwtToken({ email: newUser.email });
 
       if (registrationCode.length > 0)
         newUser.registrationCode = registrationCode;
