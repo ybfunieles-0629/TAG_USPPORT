@@ -521,7 +521,7 @@ export class RefProductsService {
       .createQueryBuilder('refProduct')
       .leftJoinAndSelect('refProduct.supplier', 'supplier')
       .where('supplier.id =:supplierId', { supplierId: id })
-      .leftJoinAndSelect('refProduct.product', 'product')
+      .leftJoinAndSelect('refProduct.products', 'products')
       .getMany();
 
     return {
