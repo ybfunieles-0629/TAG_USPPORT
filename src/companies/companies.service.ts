@@ -30,10 +30,6 @@ export class CompaniesService {
     newCompany.selfRetaining = +newCompany.selfRetaining;
 
     for (const [fieldName, fileInfo] of Object.entries(files)) {
-      if (path.extname(fileInfo[0].originalname).toLowerCase() !== '.pdf') {
-        throw new BadRequestException(`The file ${fileInfo[0].originalname} is not a valid pdf file`);
-      }
-
       const uniqueFilename = `${uuidv4()}-${fileInfo[0].originalname}`;
       fileInfo[0].originalname = uniqueFilename;
 
@@ -48,11 +44,11 @@ export class CompaniesService {
       }
     }
 
-    // await this.companyRepository.save(newCompany);
+    await this.companyRepository.save(newCompany);
 
-    // return {
-    //   newCompany,
-    // };
+    return {
+      newCompany,
+    };
   }
 
   async findAll(paginationDto: PaginationDto) {
