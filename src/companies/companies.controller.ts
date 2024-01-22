@@ -13,7 +13,6 @@ export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) { }
 
   @Post()
-  @UseGuards(AuthGuard())
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'rutCompanyDocument', maxCount: 1 },
