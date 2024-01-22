@@ -17,7 +17,6 @@ export class SubSupplierProductTypesController {
   }
 
   @Get()
-  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
