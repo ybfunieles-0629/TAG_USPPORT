@@ -65,6 +65,14 @@ export class CreateRefProductDto {
   minQuantity: number;
 
   @IsOptional()
+  @IsString()
+  categoryTag: string;
+  
+  @IsOptional()
+  @IsString()
+  tagCategory: string;
+
+  @IsOptional()
   @IsInt()
   productInventoryLeadTime: number;
 

@@ -616,6 +616,20 @@ export class ProductsService {
     };
   }
 
+  async filterProductsBySupplier(id: string) {
+    const products: Product[] = await this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+      .leftJoinAndSelect('product.colors', 'productColors')
+      .leftJoin('product.refProduct', 'refProduct')
+      .where('refProduct.supplierId = :supplierId', { supplierId: id })
+      .getMany();
+
+    return {
+      products
+    };
+  }
+
   async update(id: string, updateProductDto: UpdateProductDto) {
     const product = await this.productRepository.findOne({
       where: {
