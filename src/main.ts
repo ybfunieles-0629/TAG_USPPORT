@@ -28,7 +28,7 @@ async function bootstrap() {
   const port = process.env.PORT || 3000;
 
   app.enableCors({
-    origin: 'ec2-34-232-91-246.compute-1.amazonaws.com:8080/api',
+    origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
