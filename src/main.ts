@@ -28,7 +28,10 @@ async function bootstrap() {
   const port = process.env.PORT || 3000;
 
   app.enableCors({
-    origin: 'localhost:4200',
+    origin: 'http://localhost:4200',
+    allowedHeaders: ['Content-Type', 'Origin', 'X-Requested-With', 'Accept', 'Authorization'],
+    exposedHeaders: ['Authorization'],
+    credentials: true,
   });
   
   app.select(EmailSenderModule);
