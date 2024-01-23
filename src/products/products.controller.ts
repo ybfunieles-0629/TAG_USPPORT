@@ -28,6 +28,13 @@ export class ProductsController {
     return this.productsService.create(createProductDto);
   }
 
+  @Get('with/supplier/:id')
+  filterProductsBySupplier(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.productsService.filterProductsBySupplier(id);
+  }
+
   @Post('create/multiple')
   @UseGuards(AuthGuard())
   createMultiple(
