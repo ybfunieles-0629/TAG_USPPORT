@@ -14,4 +14,7 @@ export class PaginationDto {
 
   @IsOptional()
   calculations?: number;
+
+  @IsOptional()
+  supplier?: number;
 }
