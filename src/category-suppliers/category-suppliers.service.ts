@@ -29,6 +29,9 @@ export class CategorySuppliersService {
 
     @InjectRepository(Supplier)
     private readonly supplierRepository: Repository<Supplier>,
+    
+    @InjectRepository(RefProduct)
+    private readonly refProductRepository: Repository<RefProduct>,
   ) { }
 
   //* ---- LOAD PARENT CATEGORIES FROM EXT API METHOD ---- *//
@@ -305,7 +308,7 @@ export class CategorySuppliersService {
 
     const { limit = totalCount, offset = 0 } = paginationDto;
 
-    const results = await this.categorySupplierRepository.find({
+    const categorySuppliers = await this.categorySupplierRepository.find({
       take: limit,
       skip: offset,
       relations: [
@@ -316,10 +319,37 @@ export class CategorySuppliersService {
       ],
     });
 
+    const categoryCounts = await this.calculateCategoryCounts();
+
     return {
       totalCount,
-      results
+      results: categorySuppliers,
+      categoryCounts,
     };
+  }
+
+  private async calculateCategoryCounts(): Promise<Record<string, number>> {
+    const refProducts = await this.refProductRepository.find({
+      relations: ['categorySuppliers'],
+    });
+
+    const categoryCounts: Record<string, number> = {};
+
+    // Contar ocurrencias en la relación categorySuppliers
+    refProducts.forEach((refProduct) => {
+      refProduct.categorySuppliers.forEach((categorySupplier) => {
+        const categoryName = categorySupplier.categoryTag.name;
+        categoryCounts[categoryName] = (categoryCounts[categoryName] || 0) + 1;
+      });
+    });
+
+    // Contar ocurrencias en el campo mainCategory
+    refProducts.forEach((refProduct) => {
+      const mainCategoryName = refProduct.mainCategory;
+      categoryCounts[mainCategoryName] = (categoryCounts[mainCategoryName] || 0) + 1;
+    });
+
+    return categoryCounts;
   }
 
   async findByType(type: string) {
