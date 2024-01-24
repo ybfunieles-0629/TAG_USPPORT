@@ -13,13 +13,17 @@ import { ImagesModule } from '../images/images.module';
 import { UsersModule } from '../users/users.module';
 import { MarkingServicePropertiesModule } from '../marking-service-properties/marking-service-properties.module';
 import { EmailSenderModule } from '../email-sender/email-sender.module';
+import { SystemConfigsModule } from '../system-configs/system-configs.module';
+import { LocalTransportPricesModule } from '../local-transport-prices/local-transport-prices.module';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),    EmailSenderModule,
     CategorySuppliersModule,
     ColorsModule,
-    forwardRef(() => ImagesModule),
+    ImagesModule,
+    SystemConfigsModule,
+    LocalTransportPricesModule,
     MarkingServicePropertiesModule,
     RefProductsModule,
     UsersModule,

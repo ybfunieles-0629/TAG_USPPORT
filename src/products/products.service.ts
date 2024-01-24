@@ -19,6 +19,15 @@ import { Image } from '../images/entities/image.entity';
 import { User } from '../users/entities/user.entity';
 import { MarkingServiceProperty } from '../marking-service-properties/entities/marking-service-property.entity';
 import { RequireProductDto } from './dto/require-product.dto';
+import { RefProductsService } from '../ref-products/ref-products.service';
+import { LocalTransportPrice } from '../local-transport-prices/entities/local-transport-price.entity';
+import { DeliveryTime } from '../delivery-times/entities/delivery-time.entity';
+import { Packing } from '../packings/entities/packing.entity';
+import { Disccounts } from '../disccounts/entities/disccounts.entity';
+import { Disccount } from '../disccount/entities/disccount.entity';
+import { ListPrice } from '../list-prices/entities/list-price.entity';
+import { SupplierPrice } from '../supplier-prices/entities/supplier-price.entity';
+import { SystemConfig } from '../system-configs/entities/system-config.entity';
 
 
 @Injectable()
@@ -37,6 +46,12 @@ export class ProductsService {
 
     @InjectRepository(Color)
     private readonly colorRepository: Repository<Color>,
+
+    @InjectRepository(SystemConfig)
+    private readonly systemConfigRepository: Repository<SystemConfig>,
+
+    @InjectRepository(LocalTransportPrice)
+    private readonly localTransportPriceRepository: Repository<LocalTransportPrice>,
 
     @InjectRepository(Image)
     private readonly imageRepository: Repository<Image>,
@@ -590,6 +605,214 @@ export class ProductsService {
     };
   }
 
+  async calculations(product: Product, quantity: number) {
+    let staticQuantities: number[] = [];
+    staticQuantities.push(quantity);
+
+    const systemConfigs: SystemConfig[] = await this.systemConfigRepository.find();
+    const systemConfig: SystemConfig = systemConfigs[0];
+
+    const localTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
+      .createQueryBuilder('localTransportPrice')
+      .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
+      .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
+      .getMany();
+
+    const burnPriceTable = [];
+
+    const initialValue: number = product.referencePrice;
+    let changingValue: number = initialValue;
+
+    for (let i = 0; i < staticQuantities.length; i++) {
+      let prices = {
+        quantity: staticQuantities[i],
+        value: changingValue,
+        totalValue: 0,
+        transportPrice: 0,
+      };
+
+      burnPriceTable.push(prices);
+
+      const percentageDiscount: number = 0.01;
+
+      let value: number = changingValue * (1 - percentageDiscount);
+
+      value = Math.round(value);
+
+      changingValue = value;
+
+      //* SI EL PRODUCTO NO TIENE UN PRECIO NETO
+      if (product.hasNetPrice == 0) {
+        //* SI EL PRODUCTO TIENE UN PRECIO PROVEEDOR ASOCIADO
+        if (product.supplierPrices.length > 0) {
+          const supplierPrice: SupplierPrice = product.supplierPrices[0];
+
+          //* RECORRO LA LISTA DE PRECIOS DEL PRECIO DEL PROVEEDOR
+          supplierPrice.listPrices.forEach((listPrice: ListPrice) => {
+            if (listPrice.minimun >= i && listPrice.nextMinValue == 1 && listPrice.maximum <= i || listPrice.minimun >= i && listPrice.nextMinValue == 0) {
+              //* SI APLICA PARA TABLA DE PRECIOS DE PROVEEDOR
+              value += listPrice.price;
+              return;
+            };
+          });
+        };
+
+        //* SI LO ENCUENTRA LO AÑADE, SINO LE PONE UN 0 Y NO AÑADE NADA
+        const entryDiscount: number = product.entryDiscount || 0;
+        const entryDiscountValue: number = (entryDiscount / 100) * value || 0;
+        value -= entryDiscountValue;
+
+        //* BUSCO DESCUENTO PROMO
+        const promoDiscount: number = product.promoDisccount || 0;
+        const promoDiscountPercentage: number = (promoDiscount / 100) * value || 0;
+        value -= promoDiscountPercentage;
+
+        // //* APLICAR DESCUENTO POR MONTO
+        if (product?.refProduct?.supplier?.disccounts?.length > 0) {
+          product?.refProduct?.supplier?.disccounts?.forEach((discountItem: Disccount) => {
+            //* SI EL DESCUENTO ES DE TIPO MONTO
+            if (discountItem.disccountType.toLowerCase() == 'descuento de monto') {
+              //* SI EL DESCUENTO TIENE DESCUENTO DE ENTRADA
+              if (discountItem.entryDisccount != undefined || discountItem.entryDisccount != null || discountItem.entryDisccount > 0) {
+                const discount: number = (discountItem.entryDisccount / 100) * value;
+                value -= discount;
+
+                return;
+              };
+
+              discountItem?.disccounts?.forEach((listDiscount: Disccounts) => {
+                if (listDiscount.minQuantity >= i && listDiscount.nextMinValue == 1 && listDiscount.maxQuantity <= i || listDiscount.minQuantity >= i && listDiscount.nextMinValue == 0) {
+                  const discount: number = (listDiscount.disccountValue / 100) * value;
+                  value -= discount;
+
+                  return;
+                };
+              });
+            };
+          });
+        };
+      };
+
+      // //* APLICAR IVA
+      if (product.iva > 0 || product.iva != undefined) {
+        const iva: number = (product.iva / 100) * value;
+
+        value += iva;
+      };
+
+      // //* VERIFICAR SI ES IMPORTADO NACIONAL
+      if (product.importedNational.toLowerCase() == 'importado') {
+        const importationFee: number = (systemConfig.importationFee / 100) * value;
+
+        value += importationFee;
+      };
+
+      // //* VERIFICAR SI TIENE FEE DE IMPREVISTOS
+      if (product.unforeseenFee > 0) {
+        const unforeseenFee: number = (product.unforeseenFee / 100) * value;
+
+        value += unforeseenFee;
+      };
+
+      const unforeseenFee: number = systemConfig.unforeseenFee;
+      const unforeseenFeePercentage: number = (unforeseenFee / 100) * value;
+      value += unforeseenFeePercentage;
+
+      // //TODO: Validar calculos de ganacias por periodos y politicas de tienpos de entrega
+      // //TODO: Después del margen del periodo validar del comercial
+      // //* IDENTIFICAR PORCENTAJE DE ANTICIPIO DE PROVEEDOR
+      const advancePercentage: number = product?.refProduct?.supplier?.advancePercentage || 0;
+      const advancePercentageValue: number = (advancePercentage / 100) * value;
+      value += advancePercentageValue;
+
+      // //* CALCULAR LA CANTIDAD DE CAJAS PARA LAS UNIDADES COTIZADAS
+      const packing: Packing = product.packings[0] || undefined;
+      const packingUnities: number = product.packings ? product?.packings[0]?.unities : product?.refProduct?.packings[0]?.unities || 0;
+
+      let totalPackingVolume: number = 0;
+      let packingWeight: number = 0;
+
+      if (packingUnities > 0 && packingUnities != undefined) {
+        let boxesQuantity: number = (i / packingUnities);
+
+        boxesQuantity = Math.round(boxesQuantity) + 1;
+
+        //   //* CALCULAR EL VOLUMEN DEL PAQUETE
+        const packingVolume: number = (packing?.height * packing?.width * packing?.large) || 0;
+        const totalVolume: number = (packingVolume * boxesQuantity) || 0;
+        totalPackingVolume = totalVolume || 0;
+
+        //   //* CALCULAR EL PESO DEL PAQUETE
+        packingWeight = (packing?.smallPackingWeight * boxesQuantity) || 0;
+      }
+
+      // //* IDENTIFICAR TIEMPO DE ENTREGA ACORDE AL PRODUCTO
+      const availableUnits: number = product?.availableUnit || 0;
+      let deliveryTimeToSave: number = 0;
+
+      if (i > availableUnits) {
+        product.refProduct.deliveryTimes.forEach((deliveryTime: DeliveryTime) => {
+          if (deliveryTime?.minimum >= i && deliveryTime?.minimumAdvanceValue == 1 && deliveryTime?.maximum <= i || deliveryTime?.minimum >= i && deliveryTime?.minimumAdvanceValue == 0) {
+            deliveryTimeToSave = deliveryTime?.timeInDays || 0;
+          }
+        });
+      } else if (availableUnits > 0 && i < availableUnits) {
+        deliveryTimeToSave = product?.refProduct?.productInventoryLeadTime || 0;
+      };
+
+      //* CALCULAR COSTOS FINANCIEROS DEL PERIODO DE PRODUCCIÓN
+      const supplierFinancingPercentage: number = systemConfig.supplierFinancingPercentage || 0;
+      const financingCost: number = ((value - advancePercentage) * supplierFinancingPercentage) * deliveryTimeToSave;
+      value += financingCost;
+
+      //* CALCULAR EL COSTO DE TRANSPORTE Y ENTREGA DE LOS PRODUCTOS (ESTA INFORMACIÓN VIENE DEL API DE FEDEX)
+      const localTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
+        ? localTransportPrices.sort((a, b) => {
+          const diffA = Math.abs(a.volume - totalPackingVolume);
+          const diffB = Math.abs(b.volume - totalPackingVolume);
+          return diffA - diffB;
+        })[0]
+        : undefined;
+
+      const { origin: transportOrigin, destination: transportDestination, price: transportPrice, volume: transportVolume } = localTransportPrice || { origin: '', destination: '', price: 0, volume: 0 };
+
+      value += transportPrice;
+
+      prices.transportPrice = transportPrice;
+
+      //* CALCULAR EL IMPUESTO 4 X 1000
+      value += (value * 1.04);
+
+      //* CALCULAR EL COSTO DE LA OPERACIÓN (YA HECHO)
+
+      //* ADICIONAR EL % DE MARGEN DE GANANCIA SOBRE EL PROVEEDOR
+      const profitMargin: number = product?.refProduct?.supplier?.profitMargin || 0;
+      const profitMarginPercentage: number = (profitMargin / 100) * value;
+      value += profitMarginPercentage;
+
+      //* ADICIONAR EL % DE MARGEN DE GANANCIA DEL PRODUCTO
+      const mainCategory: CategorySupplier = await this.categorySupplierRepository.findOne({
+        where: {
+          id: product?.refProduct?.mainCategory,
+        },
+      });
+
+      if (mainCategory) {
+        value += (parseInt(mainCategory?.categoryTag?.categoryMargin)) || 0;
+      };
+
+      //* PRECIO TOTAL ANTES DEL IVA (YA HECHO)
+      value += product.iva;
+
+      //* CALCULAR EL PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
+      value = Math.round(value);
+
+      prices.totalValue = value;
+    }
+
+    return { ...product, burnPriceTable };
+  };
+
   async findOne(id: string) {
     const product = await this.productRepository.findOne({
       where: {
@@ -615,6 +838,33 @@ export class ProductsService {
       product
     };
   }
+
+  async findOneWithCalculations(id: string, quantity: number) {
+    const finalQuantity: number = quantity != null || quantity != undefined ? quantity : 1;
+
+    const product = await this.productRepository.findOne({
+      where: {
+        id
+      },
+      relations: [
+        'colors',
+        'variantReferences',
+        'packings',
+        'refProduct',
+        'refProduct.images',
+        'refProduct.packings',
+        'markingServiceProperties',
+        'markingServiceProperties.externalSubTechnique',
+        'markingServiceProperties.externalSubTechnique.marking',
+      ],
+    });
+
+    const result = await this.calculations(product, finalQuantity);
+
+    return {
+      result
+    };
+  };
 
   async filterProductsBySupplier(id: string) {
     const products: Product[] = await this.productRepository

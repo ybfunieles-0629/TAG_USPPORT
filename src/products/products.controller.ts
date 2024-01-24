@@ -67,6 +67,14 @@ export class ProductsController {
     return this.productsService.findOne(id);
   }
 
+  @Get('with/calculations/:id')
+  findOneWithCalculations(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('quantity') quantity: number,
+  ) {
+    return this.productsService.findOneWithCalculations(id, quantity);
+  }
+
   @Patch(':id')
   @UseGuards(AuthGuard())
   update(
