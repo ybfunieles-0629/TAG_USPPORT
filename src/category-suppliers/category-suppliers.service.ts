@@ -319,36 +319,32 @@ export class CategorySuppliersService {
       ],
     });
 
-    const categoryCounts = await this.calculateCategoryCounts();
+    const categoryCountsPromises = categorySuppliers.map(async (categorySupplier) => {
+      const count = await this.calculateCategoryCount(categorySupplier);
+      return {
+        category: categorySupplier.categoryTag.name,
+        count,
+      };
+    });
+
+    const categoryCounts = await Promise.all(categoryCountsPromises);
 
     return {
       totalCount,
-      categoryCounts,
-      results: categorySuppliers,
+      results: categoryCounts,
     };
   }
 
-  private async calculateCategoryCounts(): Promise<Record<string, number>> {
-    const refProducts = await this.refProductRepository.find({
-      relations: ['categorySuppliers'],
+  private async calculateCategoryCount(categorySupplier: CategorySupplier): Promise<number> {
+    const count = await this.refProductRepository.count({
+      where: {
+        categorySuppliers: categorySupplier,
+        tagCategory: categorySupplier.categoryTag.name,
+      },
     });
 
-    const categoryCounts: Record<string, number> = {};
-
-    refProducts.forEach((refProduct) => {
-      refProduct.categorySuppliers.forEach((categorySupplier) => {
-        const categoryName = categorySupplier.categoryTag.name;
-        categoryCounts[categoryName] = (categoryCounts[categoryName] || 0) + 1;
-      });
-    });
-
-    refProducts.forEach((refProduct) => {
-      const mainCategoryName = refProduct.mainCategory;
-      categoryCounts[mainCategoryName] = (categoryCounts[mainCategoryName] || 0) + 1;
-    });
-
-    return categoryCounts;
-  };
+    return count;
+  }
 
   async findByType(type: string) {
     const categorySuppliers: CategorySupplier[] = await this.categorySupplierRepository.find({

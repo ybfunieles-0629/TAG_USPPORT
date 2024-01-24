@@ -125,36 +125,32 @@ export class CategoryTagService {
       skip: offset,
     });
 
-    const categoryCounts = await this.calculateCategoryCounts();
+    const categoryCountsPromises = categoryTags.map(async (categoryTag) => {
+      const count = await this.calculateCategoryCount(categoryTag);
+      return {
+        category: categoryTag.name,
+        count,
+      };
+    });
+
+    const categoryCounts = await Promise.all(categoryCountsPromises);
 
     return {
       totalCount,
-      categoryCounts,
-      results: categoryTags,
+      results: categoryCounts,
     };
-  };
+  }
 
-  private async calculateCategoryCounts(): Promise<Record<string, number>> {
-    const refProducts = await this.refProductRepository.find({
-      relations: ['categoryTags'],
+  private async calculateCategoryCount(categoryTag: CategoryTag): Promise<number> {
+    const count = await this.refProductRepository.count({
+      where: {
+        tagCategory: categoryTag.name,
+        categoryTags: categoryTag,
+      },
     });
 
-    const categoryCounts: Record<string, number> = {};
-
-    refProducts.forEach((refProduct) => {
-      const tagCategoryName = refProduct.tagCategory;
-      categoryCounts[tagCategoryName] = (categoryCounts[tagCategoryName] || 0) + 1;
-    });
-
-    refProducts.forEach((refProduct) => {
-      refProduct.categoryTags.forEach((categoryTag) => {
-        const categoryName = categoryTag.name;
-        categoryCounts[categoryName] = (categoryCounts[categoryName] || 0) + 1;
-      });
-    });
-
-    return categoryCounts;
-  };
+    return count;
+  }
 
   async findOne(id: string) {
     const categoryTag = await this.categoryTagRepository.findOne({
