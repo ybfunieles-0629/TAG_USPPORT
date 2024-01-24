@@ -3,14 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import * as nodemailer from 'nodemailer';
 import * as AWS from 'aws-sdk';
 
 import { CreateCategoryTagDto } from './dto/create-category-tag.dto';
 import { UpdateCategoryTagDto } from './dto/update-category-tag.dto';
 import { CategoryTag } from './entities/category-tag.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import * as nodemailer from 'nodemailer';
 import { SendMessageDto } from './dto/send-message.dto';
+import { RefProduct } from '../ref-products/entities/ref-product.entity';
 
 @Injectable()
 export class CategoryTagService {
@@ -19,6 +20,9 @@ export class CategoryTagService {
   constructor(
     @InjectRepository(CategoryTag)
     private readonly categoryTagRepository: Repository<CategoryTag>,
+
+    @InjectRepository(RefProduct)
+    private readonly refProductRepository: Repository<RefProduct>,
 
     @Inject('EMAIL_CONFIG') private emailSenderConfig,
   ) { }
@@ -112,20 +116,45 @@ export class CategoryTagService {
   }
 
   async findAll(paginationDto: PaginationDto) {
-    const count: number = await this.categoryTagRepository.count();
+    const totalCount = await this.categoryTagRepository.count();
 
-    const { limit = count, offset = 0 } = paginationDto;
+    const { limit = totalCount, offset = 0 } = paginationDto;
 
-    const results: CategoryTag[] = await this.categoryTagRepository.find({
+    const categoryTags = await this.categoryTagRepository.find({
       take: limit,
       skip: offset,
     });
 
+    const categoryCounts = await this.calculateCategoryCounts();
+
     return {
-      count,
-      results
+      totalCount,
+      results: categoryTags,
+      categoryCounts,
     };
-  }
+  };
+
+  private async calculateCategoryCounts(): Promise<Record<string, number>> {
+    const refProducts = await this.refProductRepository.find({
+      relations: ['categoryTags'],
+    });
+
+    const categoryCounts: Record<string, number> = {};
+
+    refProducts.forEach((refProduct) => {
+      const tagCategoryName = refProduct.tagCategory;
+      categoryCounts[tagCategoryName] = (categoryCounts[tagCategoryName] || 0) + 1;
+    });
+
+    refProducts.forEach((refProduct) => {
+      refProduct.categoryTags.forEach((categoryTag) => {
+        const categoryName = categoryTag.name;
+        categoryCounts[categoryName] = (categoryCounts[categoryName] || 0) + 1;
+      });
+    });
+
+    return categoryCounts;
+  };
 
   async findOne(id: string) {
     const categoryTag = await this.categoryTagRepository.findOne({
