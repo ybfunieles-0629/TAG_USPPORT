@@ -19,9 +19,10 @@ export class RefProductsController {
 
   @Get()
   findAll(
-    @Query() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto,
+    @Query('calculations') calculations: number,
   ) {
-    return this.refProductsService.findAll(paginationDto);
+    return this.refProductsService.findAll(paginationDto, calculations);
   }
 
   @Get('with/supplier/:id')

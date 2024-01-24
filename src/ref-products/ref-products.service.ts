@@ -397,7 +397,7 @@ export class RefProductsService {
     return finalResults;
   };
 
-  async findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto, calculations: number) {
     const totalCount = await this.refProductRepository.count();
 
     const { limit = totalCount, offset = 0 } = paginationDto;
@@ -436,11 +436,17 @@ export class RefProductsService {
       ],
     });
 
-    const finalResults = results.length > 0 ? await this.calculations(results) : [];
+    const finalResults: RefProduct[] = results;
+    let finalCalculatedResults = [];
+
+    if (calculations == 1) {
+      const calculatedResults = results.length > 0 ? await this.calculations(results) : [];
+      finalCalculatedResults = calculatedResults;
+    }
 
     return {
       totalCount,
-      results: finalResults,
+      results: calculations == 1 ? finalCalculatedResults : finalResults,
     };
   }
 
