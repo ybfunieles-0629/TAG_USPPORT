@@ -24,11 +24,6 @@ export class RefProduct {
   @Column('varchar', {
 
   })
-  categoryTag: string;
-
-  @Column('varchar', {
-
-  })
   tagCategory: string;
 
   @Column('varchar', {
