@@ -335,7 +335,6 @@ export class CategorySuppliersService {
 
     const categoryCounts: Record<string, number> = {};
 
-    // Contar ocurrencias en la relación categorySuppliers
     refProducts.forEach((refProduct) => {
       refProduct.categorySuppliers.forEach((categorySupplier) => {
         const categoryName = categorySupplier.categoryTag.name;
@@ -343,14 +342,13 @@ export class CategorySuppliersService {
       });
     });
 
-    // Contar ocurrencias en el campo mainCategory
     refProducts.forEach((refProduct) => {
       const mainCategoryName = refProduct.mainCategory;
       categoryCounts[mainCategoryName] = (categoryCounts[mainCategoryName] || 0) + 1;
     });
 
     return categoryCounts;
-  }
+  };
 
   async findByType(type: string) {
     const categorySuppliers: CategorySupplier[] = await this.categorySupplierRepository.find({
