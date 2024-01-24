@@ -175,7 +175,7 @@ export class RefProductsService {
     }
 
     newRefProduct.categorySuppliers = categorySuppliers;
-    newRefProduct.categoryTags = categoryTags;
+    // newRefProduct.categoryTags = categoryTags;
     newRefProduct.deliveryTimes = deliveryTimes;
     newRefProduct.variantReferences = variantReferences;
     newRefProduct.supplier = supplier;

@@ -174,9 +174,9 @@ export class RefProduct {
   })
   categorySuppliers?: CategorySupplier[];
 
-  @ManyToMany(() => CategorySupplier, (categorySupplier) => categorySupplier.refProducts)
+  @ManyToMany(() => CategoryTag, (categoryTag) => categoryTag.refProducts)
   @JoinTable({
-    name: 'ref_products_has_category_suppliers',
+    name: 'ref_products_has_category_tag',
     joinColumn: {
       name: 'refProductId',
       referencedColumnName: 'id',
