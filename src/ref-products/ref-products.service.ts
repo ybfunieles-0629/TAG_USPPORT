@@ -418,6 +418,7 @@ export class RefProductsService {
         'markingServiceProperty.externalSubTechnique.marking',
         'packings',
         'products',
+        'products.images',
         'products.disccounts',
         'products.refProduct',
         'products.refProduct.deliveryTimes',
