@@ -6,6 +6,8 @@ import { CreateRefProductDto } from './dto/create-ref-product.dto';
 import { UpdateRefProductDto } from './dto/update-ref-product.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { FilterRefProductsDto } from './dto/filter-ref-products.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('ref-products')
 export class RefProductsController {
@@ -18,10 +20,12 @@ export class RefProductsController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
+    @GetUser() user: User,
     @Query() paginationDto: PaginationDto,
   ) {
-    return this.refProductsService.findAll(paginationDto);
+    return this.refProductsService.findAll(paginationDto, user);
   }
 
   @Get('with/supplier/:id')

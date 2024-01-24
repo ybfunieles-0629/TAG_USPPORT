@@ -21,6 +21,7 @@ import { Disccounts } from '../disccounts/entities/disccounts.entity';
 import { SystemConfig } from '../system-configs/entities/system-config.entity';
 import { Packing } from '../packings/entities/packing.entity';
 import { LocalTransportPrice } from '../local-transport-prices/entities/local-transport-price.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class RefProductsService {
@@ -397,12 +398,14 @@ export class RefProductsService {
     return finalResults;
   };
 
-  async findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto, user: User) {
     const totalCount = await this.refProductRepository.count();
 
-    const { limit = totalCount, offset = 0, calculations = 0 } = paginationDto;
+    const { limit = totalCount, offset = 0, calculations = 0, supplier = 0 } = paginationDto;
 
-    const results: RefProduct[] = await this.refProductRepository.find({
+    let results: RefProduct[] = [];
+
+    results = await this.refProductRepository.find({
       take: limit,
       skip: offset,
       relations: [
@@ -532,11 +535,31 @@ export class RefProductsService {
   async filterProductsBySupplier(id: string) {
     const refProducts: RefProduct[] = await this.refProductRepository
       .createQueryBuilder('refProduct')
-      .leftJoinAndSelect('refProduct.supplier', 'supplier')
-      .where('supplier.id =:supplierId', { supplierId: id })
       .leftJoinAndSelect('refProduct.products', 'product')
-      .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+      .leftJoinAndSelect('refProduct.images', 'refProductImages')
+      .leftJoinAndSelect('refProduct.categorySuppliers', 'refProductCategorySuppliers')
+      .leftJoinAndSelect('refProduct.deliveryTimes', 'refProductDeliveryTimes')
+      .leftJoinAndSelect('refProduct.markingServiceProperty', 'refProductMarkingServiceProperty')
+      .leftJoinAndSelect('refProductMarkingServiceProperty.externalSubTechnique', 'refProductExternalSubTechnique')
+      .leftJoinAndSelect('refProductExternalSubTechnique.marking', 'refProductExternalSubTechniqueMarking')
+      .leftJoinAndSelect('refProduct.packings', 'refProductPackings')
+      .leftJoinAndSelect('product.refProduct', 'productRefProduct')
+      .leftJoinAndSelect('productRefProduct.deliveryTimes', 'productRefProductDeliveryTimes')
+      .leftJoinAndSelect('productRefProduct.supplier', 'productRefProductSupplier')
+      .leftJoinAndSelect('productRefProductSupplier.disccounts', 'productRefProductSupplierDisccounts')
       .leftJoinAndSelect('product.colors', 'productColors')
+      .leftJoinAndSelect('product.disccounts', 'productsDisccounts')
+      .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+      .leftJoinAndSelect('product.packings', 'productPackings')
+      .leftJoinAndSelect('product.supplierPrices', 'productSupplierPrices')
+      .leftJoinAndSelect('productSupplierPrices.listPrices', 'productSupplierPricesListPrices')
+      .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
+      .leftJoinAndSelect('productMarkingServiceProperties.images', 'productMarkingServicePropertiesImages')
+      .leftJoinAndSelect('productMarkingServiceProperties.externalSubTechnique', 'productMarkingServicePropertiesExternalSubTechnique')
+      .leftJoinAndSelect('productMarkingServicePropertiesExternalSubTechnique.marking', 'productMarkingServicePropertiesExternalSubTechniqueMarking')
+      .leftJoinAndSelect('refProduct.supplier', 'refProductSupplier')
+      .where('refProductSupplier.id =:supplierId', { supplierId: id })
+      .leftJoinAndSelect('refProductSupplier.user', 'refProductSupplierUser')
       .getMany();
 
     return {
