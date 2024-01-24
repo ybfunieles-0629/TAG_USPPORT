@@ -13,30 +13,37 @@ export class CreateOrderListDetailDto {
   @IsString()
   clientTagTransportService: string;
 
+  @IsOptional()
   @IsInt()
   estimatedProfit: number;
 
+  @IsOptional()
   @IsInt()
   realProfit: number;
 
   @IsString()
   secondaryState: string;
 
+  @IsOptional()
   @IsDate()
   estimatedMarketDate: Date;
 
+  @IsOptional()
   @IsDate()
   estimatedDeliveryDate: Date;
 
+  @IsOptional()
   @IsDate()
   expirationDate: Date;
 
+  @IsOptional()
   @IsString()
   deliveryProofDocument: string;
 
   @IsInt()
   realCost: number;
 
+  @IsOptional()
   @IsInt()
   estimatedQuoteCost: number;
 
