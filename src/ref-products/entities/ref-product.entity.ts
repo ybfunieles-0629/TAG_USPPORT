@@ -9,6 +9,7 @@ import { Marking } from '../../markings/entities/marking.entity';
 import { DeliveryTime } from '../../delivery-times/entities/delivery-time.entity';
 import { Packing } from '../../packings/entities/packing.entity';
 import { MarkingServiceProperty } from '../../marking-service-properties/entities/marking-service-property.entity';
+import { CategoryTag } from 'src/category-tag/entities/category-tag.entity';
 
 @Entity('ref_products')
 export class RefProduct {
@@ -172,6 +173,20 @@ export class RefProduct {
     },
   })
   categorySuppliers?: CategorySupplier[];
+
+  @ManyToMany(() => CategoryTag, (categoryTag) => categoryTag.refProducts)
+  @JoinTable({
+    name: 'ref_products_has_category_tag',
+    joinColumn: {
+      name: 'refProductId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'categoryTagId',
+      referencedColumnName: 'id',
+    },
+  })
+  categoryTags?: CategoryTag[];
 
   @ManyToMany(() => DeliveryTime, (deliveryTime) => deliveryTime.refProducts)
   @JoinTable({
