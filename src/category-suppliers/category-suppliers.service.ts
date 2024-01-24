@@ -339,7 +339,7 @@ export class CategorySuppliersService {
     const count = await this.refProductRepository.count({
       where: {
         categorySuppliers: categorySupplier,
-        tagCategory: categorySupplier.categoryTag.name,
+        tagCategory: categorySupplier.mainCategory,
       },
     });
 
