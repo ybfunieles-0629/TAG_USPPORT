@@ -82,6 +82,7 @@ export class RefProductsService {
       throw new BadRequestException(`Supplier with id ${createRefProductDto.supplier} is currently inactive`);
 
     const categorySuppliers: CategorySupplier[] = [];
+    const categoryTags: CategoryTag[] = [];
     const deliveryTimes: DeliveryTime[] = [];
     const variantReferences: VariantReference[] = [];
 
@@ -100,6 +101,24 @@ export class RefProductsService {
           throw new BadRequestException(`Marking with id ${categorySupplierId} is currently inactive`);
 
         categorySuppliers.push(categorySupplier);
+      }
+    }
+
+    if (createRefProductDto.categoryTags) {
+      for (const categoryTagId of createRefProductDto.categoryTags) {
+        const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+          where: {
+            id: categoryTagId,
+          },
+        });
+
+        if (!categoryTag)
+          throw new NotFoundException(`Marking with id ${categoryTagId} not found`);
+
+        if (!categoryTag.isActive)
+          throw new BadRequestException(`Marking with id ${categoryTagId} is currently inactive`);
+
+        categoryTags.push(categoryTag);
       }
     }
 
@@ -156,6 +175,7 @@ export class RefProductsService {
     }
 
     newRefProduct.categorySuppliers = categorySuppliers;
+    newRefProduct.categoryTags = categoryTags;
     newRefProduct.deliveryTimes = deliveryTimes;
     newRefProduct.variantReferences = variantReferences;
     newRefProduct.supplier = supplier;

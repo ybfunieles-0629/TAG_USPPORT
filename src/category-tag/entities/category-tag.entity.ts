@@ -1,6 +1,7 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { CategorySupplier } from '../../category-suppliers/entities/category-supplier.entity';
+import { RefProduct } from '../../ref-products/entities/ref-product.entity';
 
 @Entity('category_tag')
 export class CategoryTag {
@@ -61,4 +62,7 @@ export class CategoryTag {
   //* --- FK --- *//
   @OneToMany(() => CategorySupplier, (categorySupplier) => categorySupplier.categoryTag)
   categorySuppliers: CategorySupplier[];
+
+  @ManyToMany(() => RefProduct, (refProduct) => refProduct.categoryTags)
+  refProducts?: RefProduct[];
 }
