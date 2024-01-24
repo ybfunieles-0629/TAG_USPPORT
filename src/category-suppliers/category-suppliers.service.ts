@@ -322,7 +322,7 @@ export class CategorySuppliersService {
     const categoryCountsPromises = categorySuppliers.map(async (categorySupplier) => {
       const count = await this.calculateCategoryCount(categorySupplier);
       return {
-        category: categorySupplier.categoryTag.name,
+        ...categorySupplier,
         count,
       };
     });
