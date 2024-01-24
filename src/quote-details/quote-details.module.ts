@@ -13,13 +13,15 @@ import { SystemConfigsModule } from '../system-configs/system-configs.module';
 import { LocalTransportPricesModule } from '../local-transport-prices/local-transport-prices.module';
 import { BrandsModule } from '../brands/brands.module';
 import { ClientsModule } from '../clients/clients.module';
+import { CategorySupplier } from '../category-suppliers/entities/category-supplier.entity';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     forwardRef(() => BrandsModule),
     forwardRef(() => CartQuotesModule),
-    ClientsModule,
+    // CategorySupplier,
+    forwardRef(() => ClientsModule),
     forwardRef(() => LocalTransportPricesModule),
     MarkingServicesModule,
     MarkingServicePropertiesModule,

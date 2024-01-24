@@ -58,6 +58,41 @@ export class QuoteDetail {
   @Column('int', {
 
   })
+  markingPriceWithIva: number;
+
+  @Column('int', {
+
+  })
+  markingPriceWith4x1000: number;
+
+  @Column('int', {
+
+  })
+  markingWithProductSupplierTransport: number;
+
+  @Column('int', {
+
+  })
+  transportServices4x1000: number;
+
+  @Column('int', {
+
+  })
+  aditionalClientFee: number;
+  
+  @Column('int', {
+
+  })
+  withholdingAtSourceValue: number;
+
+  @Column('int', {
+
+  })
+  businessUtility: number;
+
+  @Column('int', {
+
+  })
   sampleValue: number;
 
   @Column('int', {
