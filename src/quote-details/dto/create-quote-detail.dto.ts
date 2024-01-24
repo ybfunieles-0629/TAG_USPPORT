@@ -38,6 +38,10 @@ export class CreateQuoteDetailDto {
   @IsString({ each: true })
   markingServices?: string[];
 
+  @IsArray()
+  @IsString({ each: true })
+  markingServiceProperties: string[];
+
   @IsString()
   @IsUUID()
   createdBy: string;

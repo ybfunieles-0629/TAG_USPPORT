@@ -20,7 +20,9 @@ import { SystemConfig } from '../system-configs/entities/system-config.entity';
 import { LocalTransportPrice } from '../local-transport-prices/entities/local-transport-price.entity';
 import { Brand } from '../brands/entities/brand.entity';
 import { Client } from '../clients/entities/client.entity';
-import { User } from 'src/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
+import { DeliveryTime } from '../delivery-times/entities/delivery-time.entity';
+import { CategorySupplier } from '../category-suppliers/entities/category-supplier.entity';
 
 @Injectable()
 export class QuoteDetailsService {
@@ -33,6 +35,9 @@ export class QuoteDetailsService {
 
     @InjectRepository(Client)
     private readonly clientRepository: Repository<Client>,
+
+    // @InjectRepository(CategorySupplier)
+    // private readonly categorySupplierRepository: Repository<CategorySupplier>,
 
     @InjectRepository(CartQuote)
     private readonly cartQuoteRepository: Repository<CartQuote>,
@@ -63,6 +68,7 @@ export class QuoteDetailsService {
       relations: [
         'client',
         'client.user',
+        'client.user.company',
         'client.user.brands',
       ],
     });
@@ -181,7 +187,7 @@ export class QuoteDetailsService {
     const quantity: number = newQuoteDetail.quantities || 0;
     let totalPrice: number = newQuoteDetail.unitPrice * quantity || 0;
     let totalTransportPrice: number = 0;
-
+    let totalCost: number = 0;
     let productVolume: number = 0;
     let totalVolume: number = 0;
 
@@ -215,17 +221,25 @@ export class QuoteDetailsService {
     const systemConfigDb: SystemConfig[] = await this.systemConfigRepository.find();
     const systemConfig: SystemConfig = systemConfigDb[0];
 
+    //* -------------------------- INICIO DE CALCULOS -------------------------- *//
+    //* DATOS DEL CLIENTE
+    const cartQuoteClient: Client = cartQuote?.client;
+    const clientUser: User = cartQuote?.client?.user;
+    let clientType: string = '';
+
+    //* CANTIDAD QUEMADA EN QUOTE DETAIL
+    const burnQuantity: number = newQuoteDetail?.unitPrice || 0;
+    totalCost += burnQuantity;
+
     //* SE SOLICITA MUESTRA
-    if (product.freeSample == 1) {
+    if (createQuoteDetailDto.hasSample) {
       //* CALCULAR EL PRECIO DE LA MUESTRA
       let samplePrice: number = product.samplePrice || 0;
+      samplePrice = await this.calculateSamplePrice(newQuoteDetail, systemConfig, quantity);
+      newQuoteDetail.sampleValue = samplePrice;
 
-      //* CALCULAR EL VOLUMEN DEL PRODUCTO
-      productVolume = (product?.height * product?.weight * product?.large) || 0;
+      totalCost += samplePrice;
     };
-
-    //TODO: CALCULAR LA CANTIDAD DE EMPAQUES PARA LAS UNIDADES COTIZADAS
-    
 
     //* VERIFICAR SI EL PRODUCTO TIENE EMPAQUE
     const packing: Packing = product.packings.length > 0 ? product.packings[0] : product?.refProduct?.packings[0] || undefined;
@@ -267,44 +281,57 @@ export class QuoteDetailsService {
 
     const markingServices: MarkingService[] = newQuoteDetail.markingServices;
 
+    //* SI ES PERSONALIZABLE EL PRODUCTO
+
     if (quoteDetailRefProduct.personalizableMarking == 1) {
-      //* CALCULA EL COSTO DEL SERVICIO DE MARCADO COMPARANDO LA LISTA DE PRECIOS Y LOS PARÁMETROS
-      for (const markingService of markingServices) {
-        let markingServicePropertyPrice: number = 0;
+      if (markingServices.length > 0) {
+        for (const markingService of markingServices) {
+          let markingServicePropertyPrice: number = 0;
 
-        const markingServiceProperty: MarkingServiceProperty = markingService.markingServiceProperty;
+          const markingServiceProperty: MarkingServiceProperty = markingService.markingServiceProperty;
 
-        for (const markedServicePrice of markingServiceProperty.markedServicePrices) {
-          //* VERIFICAR QUE LA CANTIDAD SE ENCUENTRE ENTRE EL RANGO DEL PRECIO SERVICIO MARCADO
-          if (markedServicePrice.minRange >= quantity && markedServicePrice.maxRange <= quantity) {
-            let totalMarking: number = (quantity * markedServicePrice.unitPrice);
+          for (const markedServicePrice of markingServiceProperty.markedServicePrices) {
+            //* VERIFICAR QUE LA CANTIDAD SE ENCUENTRE ENTRE EL RANGO DEL PRECIO SERVICIO MARCADO
+            if (markedServicePrice.minRange >= quantity && markedServicePrice.maxRange <= quantity) {
+              let totalMarking: number = (quantity * markedServicePrice.unitPrice);
+              newQuoteDetail.markingTotalPrice = totalMarking;
 
-            const marking: Marking = markingServiceProperty.externalSubTechnique.marking;
+              const marking: Marking = markingServiceProperty.externalSubTechnique.marking;
 
-            //* CALCULAR EL IVA DEL SERVICIO MARCADO
-            if (marking.iva > 0) {
-              const iva: number = (marking.iva / 100) * totalMarking || 0;
+              //* SI EL SERVICIO DE MARCADO TIENE IVA
+              if (marking.iva > 0) {
+                //* CALCULAR EL IVA
+                const iva: number = (marking.iva / 100) * totalMarking || 0;
+                totalMarking += iva;
+                totalCost += iva;
+                newQuoteDetail.markingPriceWithIva = iva;
 
-              totalMarking += iva;
+                //* CALCULAR EL 4X1000
+                let value4x1000: number = totalMarking * 0.004 || 0;
+                totalMarking += value4x1000;
+                totalCost += value4x1000;
+                newQuoteDetail.markingPriceWith4x1000 = value4x1000;
+              };
+
+              //* ADICIONAR EL % DE MARGEN DE GANANCIA POR SERVICIO 
+              const marginForDialingServices: number = (systemConfig.marginForDialingServices / 100) * totalMarking || 0;
+              totalMarking += marginForDialingServices;
+
+              //* CALCULAR EL COSTO DEL TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL PROVEEDOR
+              markingService.markingTransportPrice = markingTransportPrice;
+              totalMarking += markingTransportPrice;
+              totalCost += markingTransportPrice;
+              newQuoteDetail.markingWithProductSupplierTransport += markingTransportPrice;
+
+              //* ADICIONAR EL MARGEN DE GANANCIA POR SERVICIO DE TRANSPORTE
+              const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * markingTransportPrice || 0;
+              totalMarking += supplierFinancingPercentage;
+
+              markingService.markingTransportPrice = (markingTransportPrice + supplierFinancingPercentage) || 0;
+              markingService.calculatedMarkingPrice = totalMarking;
+
+              await this.markingServicePropertyRepository.save(markingService);
             };
-
-            //* ADICIONAR EL % DE MARGEN DE GANANCIA POR SERVICIO 
-            const marginForDialingServices: number = (systemConfig.marginForDialingServices / 100) * totalMarking || 0;
-            totalMarking += marginForDialingServices;
-
-            //* CALCULAR EL COSTO DEL TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL PROVEEDOR
-            markingService.markingTransportPrice = markingTransportPrice;
-
-            totalMarking += markingTransportPrice;
-
-            //* ADICIONAR EL MARGEN DE GANANCIA POR SERVICIO DE TRANSPORTE
-            const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * markingTransportPrice || 0;
-            totalMarking += supplierFinancingPercentage;
-
-            markingService.markingTransportPrice = (markingTransportPrice + supplierFinancingPercentage) || 0;
-            markingService.calculatedMarkingPrice = totalMarking;
-
-            await this.markingServicePropertyRepository.save(markingService);
           };
         };
       };
@@ -317,14 +344,31 @@ export class QuoteDetailsService {
     newQuoteDetail.totalPriceWithTransport = (newQuoteDetail.unitPrice + totalTransportPrice) || 0;
     newQuoteDetail.transportTotalPrice = totalTransportPrice;
 
+    //* CALCULAR EL 4X1000 PARA PAGAR SERVICIOS DE ENTREGA
+    let value4x1000: number = totalPrice * 0.004 || 0;
+    totalPrice += value4x1000;
+    totalCost += value4x1000;
+    newQuoteDetail.transportServices4x1000 = value4x1000;
+
     //* ADICIONAR EL % DE MARGEN DE GANANCIA DE CLIENTE
-    totalPrice += cartQuote.client.margin;
+    if (clientType == 'cliente corporativo secundario') {
+      //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
+      const mainClient: Client = await this.clientRepository
+        .createQueryBuilder('client')
+        .leftJoinAndSelect('client.user', 'clientUser')
+        .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
+        .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
+        .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
+        .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
+        .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
+        .getOne();
+
+      totalPrice += mainClient?.margin;
+    };
+
+    totalPrice += cartQuote?.client?.margin || 0;
 
     //* SE DEBE ADICIONAR UN FEE ADICIONAL AL USUARIO DENTRO DEL CLIENTE
-    const cartQuoteClient: Client = cartQuote?.client;
-    const clientUser: User = cartQuote?.client?.user;
-    let clientType: string = '';
-
     if (clientUser) {
       if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 1)
         clientType = 'cliente corporativo secundario';
@@ -349,6 +393,8 @@ export class QuoteDetailsService {
           const fee: number = (+cartQuoteBrand.fee / 100) * totalPrice || 0;
 
           totalPrice += fee;
+          totalCost += fee;
+          newQuoteDetail.aditionalClientFee = fee;
         };
       };
     };
@@ -435,8 +481,10 @@ export class QuoteDetailsService {
 
     //* IVA DE LA VENTA
     const iva: number = (product.iva / 100) * totalPrice || 0;
-    newQuoteDetail.iva += iva;
+    newQuoteDetail.iva = iva;
     newQuoteDetail.total = (totalPrice + iva);
+    totalCost += iva;
+
 
     //* CALCULAR PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
     Math.round(newQuoteDetail.total);
@@ -446,12 +494,15 @@ export class QuoteDetailsService {
     const withholdingAtSourceValue: number = (withholdingAtSource / 100) * totalPrice || 0;
 
     totalPrice += withholdingAtSourceValue;
+    newQuoteDetail.withholdingAtSourceValue = withholdingAtSourceValue;
+    totalCost += withholdingAtSourceValue;
 
     //* CALCULAR UTILIDAD DEL NEGOCIO
-    
+    const businessUtility = (totalPrice - totalCost - withholdingAtSourceValue);
+    newQuoteDetail.businessUtility = businessUtility;
 
     //* CALCULAR % MARGEN DE GANANCIA DEL NEGOCIO Y MAXIMO DESCUENTO PERMITIDO AL COMERCIAL
-
+    
 
     //* CALCULAR DESCUENTO
     const discount: number = (product.disccountPromo / 100) * newQuoteDetail.subTotal || 0;
@@ -459,7 +510,7 @@ export class QuoteDetailsService {
 
     //* CALCULAR SUBTOTAL CON DESCUENTO
     newQuoteDetail.subTotalWithDiscount = (newQuoteDetail.subTotal - discount) || 0;
-
+    newQuoteDetail.totalCost = totalCost;
 
     await this.cartQuoteRepository.save(cartQuoteDb);
     await this.quoteDetailRepository.save(newQuoteDetail);
@@ -584,5 +635,138 @@ export class QuoteDetailsService {
     return {
       quoteDetail
     };
+  }
+
+  async calculateSamplePrice(data: QuoteDetail, systemConfig: SystemConfig, quantity: number) {
+    const newQuoteDetail: QuoteDetail = data;
+    const product: Product = newQuoteDetail.product;
+    let samplePrice: number = product.samplePrice || 0;
+
+    //* CALCULAR LA CANTIDAD DE CAJAS PARA LAS UNIDADES COTIZADAS
+    const packing: Packing = product.packings[0] || undefined;
+    const packingUnities: number = product.packings ? product?.packings[0]?.unities : product?.refProduct?.packings[0]?.unities || 0;
+
+    let totalPackingVolume: number = 0;
+    let packingWeight: number = 0;
+
+    if (packingUnities > 0 && packingUnities != undefined) {
+      let boxesQuantity: number = (quantity / packingUnities);
+
+      boxesQuantity = Math.round(boxesQuantity) + 1;
+
+      //* CALCULAR EL VOLUMEN DEL PAQUETE
+      const packingVolume: number = (packing?.height * packing?.width * packing?.large) || 0;
+      const totalVolume: number = (packingVolume * boxesQuantity) || 0;
+      totalPackingVolume = totalVolume || 0;
+
+      //* CALCULAR EL PESO DEL PAQUETE
+      packingWeight = (packing?.smallPackingWeight * boxesQuantity) || 0;
+    }
+
+    //* APLICAR IVA
+    if (product.iva > 0 || product.iva != undefined) {
+      const iva: number = (product.iva / 100) * samplePrice;
+
+      samplePrice += iva;
+    };
+
+    //* VERIFICAR SI ES IMPORTADO NACIONAL
+    if (product.importedNational.toLowerCase() == 'importado') {
+      const importationFee: number = (systemConfig.importationFee / 100) * samplePrice;
+
+      samplePrice += importationFee;
+    };
+
+    //* VERIFICAR SI TIENE FEE DE IMPREVISTOS
+    if (product.unforeseenFee > 0) {
+      const unforeseenFee: number = (product.unforeseenFee / 100) * samplePrice;
+
+      samplePrice += unforeseenFee;
+    };
+
+    const unforeseenFee: number = systemConfig.unforeseenFee || 0;
+    const unforeseenFeePercentage: number = (unforeseenFee / 100) * samplePrice || 0;
+    samplePrice += unforeseenFeePercentage;
+
+    //TODO: Validar calculos de ganacias por periodos y politicas de tienpos de entrega
+    //TODO: Después del margen del periodo validar del comercial
+
+
+    //* IDENTIFICAR TIEMPO DE ENTREGA ACORDE AL PRODUCTO
+    const availableUnits: number = product?.availableUnit || 0;
+    let deliveryTimeToSave: number = 0;
+
+    if (quantity > availableUnits) {
+      product.refProduct.deliveryTimes.forEach((deliveryTime: DeliveryTime) => {
+        if (deliveryTime?.minimum >= quantity && deliveryTime?.minimumAdvanceValue == 1 && deliveryTime?.maximum <= quantity || deliveryTime?.minimum >= quantity && deliveryTime?.minimumAdvanceValue == 0) {
+          deliveryTimeToSave = deliveryTime?.timeInDays || 0;
+          return;
+        }
+      });
+    } else if (availableUnits > 0 && quantity < availableUnits) {
+      deliveryTimeToSave = product?.refProduct?.productInventoryLeadTime || 0;
+    };
+
+    //* IDENTIFICAR PORCENTAJE DE ANTICIPIO DE PROVEEDOR
+    const advancePercentage: number = product?.refProduct?.supplier?.advancePercentage || 0;
+    samplePrice += advancePercentage;
+
+    //* CALCULAR COSTOS FINANCIEROS DEL PERIODO DE PRODUCCIÓN
+    const supplierFinancingPercentage: number = systemConfig.supplierFinancingPercentage || 0;
+    const financingCost: number = ((samplePrice - advancePercentage) * supplierFinancingPercentage) * deliveryTimeToSave;
+    samplePrice += financingCost;
+
+    //* OBTENER LOS PRECIOS LOCALES DE TRANSPORTE
+    let localTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
+      .createQueryBuilder('localTransportPrice')
+      .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
+      .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
+      .getMany();
+
+    //* CALCULAR EL COSTO DE TRANSPORTE Y ENTREGA DE LOS PRODUCTOS (ESTA INFORMACIÓN VIENE DEL API DE FEDEX)
+    const localTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
+      ? localTransportPrices.sort((a, b) => {
+        const diffA = Math.abs(a.volume - totalPackingVolume);
+        const diffB = Math.abs(b.volume - totalPackingVolume);
+        return diffA - diffB;
+      })[0]
+      : undefined;
+
+    const { origin: transportOrigin, destination: transportDestination, price: transportPrice, volume: transportVolume } = localTransportPrice || { origin: '', destination: '', price: 0, volume: 0 };
+
+    samplePrice += transportPrice;
+
+    //TODO: ASIGNAR EL VALOR DEL PRECIO DEL TRANSPORTE A ALGO
+
+    //* CALCULAR EL IMPUESTO 4 X 1000
+    samplePrice += (samplePrice * 1.04);
+
+    //* CALCULAR EL COSTO DE LA OPERACIÓN (YA HECHO)
+
+    //* ADICIONAR EL % DE MARGEN DE GANANCIA SOBRE EL PROVEEDOR
+    samplePrice += product?.refProduct?.supplier?.profitMargin || 0;
+
+    //* ADICIONAR EL % DE MARGEN DE GANANCIA DEL PRODUCTO
+    // const mainCategory: CategorySupplier = await this.categorySupplierRepository.findOne({
+    //   where: {
+    //     id: product?.refProduct?.mainCategory,
+    //   },
+    // });
+
+    // if (mainCategory) {
+    //   samplePrice += +mainCategory?.categoryTag?.categoryMargin || 0;
+    // };
+
+    const clientCompanyDestination: string = newQuoteDetail?.cartQuote?.client?.user?.company?.city;
+
+    //* SI EL DESTINO ES BOGOTÁ
+    if (clientCompanyDestination.toLowerCase().trim() != 'bogota') {
+      //TODO: HACER CALCULO DE FEDEX
+
+    } else {
+      samplePrice += transportPrice;
+    };
+
+    return samplePrice;
   }
 }
