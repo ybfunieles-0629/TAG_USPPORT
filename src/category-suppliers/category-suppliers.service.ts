@@ -323,8 +323,8 @@ export class CategorySuppliersService {
 
     return {
       totalCount,
-      results: categorySuppliers,
       categoryCounts,
+      results: categorySuppliers,
     };
   }
 

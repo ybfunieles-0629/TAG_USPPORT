@@ -129,8 +129,8 @@ export class CategoryTagService {
 
     return {
       totalCount,
-      results: categoryTags,
       categoryCounts,
+      results: categoryTags,
     };
   };
 
