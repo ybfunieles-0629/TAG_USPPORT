@@ -397,10 +397,10 @@ export class RefProductsService {
     return finalResults;
   };
 
-  async findAll(paginationDto: PaginationDto, calculations: number) {
+  async findAll(paginationDto: PaginationDto) {
     const totalCount = await this.refProductRepository.count();
 
-    const { limit = totalCount, offset = 0 } = paginationDto;
+    const { limit = totalCount, offset = 0, calculations = 0 } = paginationDto;
 
     const results: RefProduct[] = await this.refProductRepository.find({
       take: limit,
