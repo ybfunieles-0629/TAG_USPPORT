@@ -840,7 +840,7 @@ export class ProductsService {
   }
 
   async findOneWithCalculations(id: string, quantity: number) {
-    const finalQuantity: number = quantity != null || quantity != undefined ? quantity : 1;
+    const finalQuantity: number = quantity ?? 1;
 
     const product = await this.productRepository.findOne({
       where: {
