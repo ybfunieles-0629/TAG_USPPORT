@@ -431,6 +431,7 @@ export class RefProductsService {
       relations: [
         'images',
         'categorySuppliers',
+        'categoryTags',
         'deliveryTimes',
         'markingServiceProperty',
         'markingServiceProperty.externalSubTechnique',
@@ -481,6 +482,7 @@ export class RefProductsService {
       .leftJoinAndSelect('refProduct.products', 'product')
       .leftJoinAndSelect('refProduct.images', 'refProductImages')
       .leftJoinAndSelect('refProduct.categorySuppliers', 'refProductCategorySuppliers')
+      .leftJoinAndSelect('refProduct.categoryTags', 'refProductCategoryTags')
       .leftJoinAndSelect('refProduct.deliveryTimes', 'refProductDeliveryTimes')
       .leftJoinAndSelect('refProduct.markingServiceProperty', 'refProductMarkingServiceProperty')
       .leftJoinAndSelect('refProductMarkingServiceProperty.externalSubTechnique', 'refProductExternalSubTechnique')
@@ -525,6 +527,7 @@ export class RefProductsService {
       relations: [
         'images',
         'categorySuppliers',
+        'categoryTags',
         'deliveryTimes',
         'markingServiceProperty',
         'markingServiceProperty.externalSubTechnique',
@@ -558,6 +561,7 @@ export class RefProductsService {
       .leftJoinAndSelect('refProduct.products', 'product')
       .leftJoinAndSelect('refProduct.images', 'refProductImages')
       .leftJoinAndSelect('refProduct.categorySuppliers', 'refProductCategorySuppliers')
+      .leftJoinAndSelect('refProduct.categoryTags', 'refProductCategoryTags')
       .leftJoinAndSelect('refProduct.deliveryTimes', 'refProductDeliveryTimes')
       .leftJoinAndSelect('refProduct.markingServiceProperty', 'refProductMarkingServiceProperty')
       .leftJoinAndSelect('refProductMarkingServiceProperty.externalSubTechnique', 'refProductExternalSubTechnique')
