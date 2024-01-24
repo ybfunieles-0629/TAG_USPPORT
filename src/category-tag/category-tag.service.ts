@@ -128,7 +128,7 @@ export class CategoryTagService {
     const categoryCountsPromises = categoryTags.map(async (categoryTag) => {
       const count = await this.calculateCategoryCount(categoryTag);
       return {
-        category: categoryTag.name,
+        ...categoryTag,
         count,
       };
     });
