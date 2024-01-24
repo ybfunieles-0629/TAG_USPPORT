@@ -120,6 +120,11 @@ export class QuoteDetail {
   })
   total: number;
 
+  @Column('int', {
+
+  })
+  totalCost: number;
+
   @Column('varchar', {
 
   })

@@ -501,16 +501,8 @@ export class QuoteDetailsService {
     const businessUtility = (totalPrice - totalCost - withholdingAtSourceValue);
     newQuoteDetail.businessUtility = businessUtility;
 
-    //TODO
-    //TODO
-    //TODO
-    //TODO
-    //TODO
-    //TODO
-    //TODO
-    //TODO
     //* CALCULAR % MARGEN DE GANANCIA DEL NEGOCIO Y MAXIMO DESCUENTO PERMITIDO AL COMERCIAL
-
+    
 
     //* CALCULAR DESCUENTO
     const discount: number = (product.disccountPromo / 100) * newQuoteDetail.subTotal || 0;
@@ -518,7 +510,7 @@ export class QuoteDetailsService {
 
     //* CALCULAR SUBTOTAL CON DESCUENTO
     newQuoteDetail.subTotalWithDiscount = (newQuoteDetail.subTotal - discount) || 0;
-
+    newQuoteDetail.totalCost = totalCost;
 
     await this.cartQuoteRepository.save(cartQuoteDb);
     await this.quoteDetailRepository.save(newQuoteDetail);
