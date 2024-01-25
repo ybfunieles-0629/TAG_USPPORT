@@ -279,11 +279,11 @@ export class QuoteDetailsService {
     //* COTIZAR SERVICIO DE MARCACIÓN
     const quoteDetailRefProduct: RefProduct = product.refProduct;
 
-    const markingServices: MarkingService[] = newQuoteDetail.markingServices;
+    const markingServices: MarkingService[] = newQuoteDetail?.markingServices || [];
 
     //* SI ES PERSONALIZABLE EL PRODUCTO
 
-    if (quoteDetailRefProduct.personalizableMarking == 1) {
+    if (quoteDetailRefProduct?.personalizableMarking == 1) {
       if (markingServices.length > 0) {
         for (const markingService of markingServices) {
           let markingServicePropertyPrice: number = 0;
