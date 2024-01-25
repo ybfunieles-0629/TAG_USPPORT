@@ -487,7 +487,7 @@ export class QuoteDetailsService {
     //* IVA DE LA VENTA
     const iva: number = (product.iva / 100) * totalPrice || 0;
     newQuoteDetail.iva = iva;
-    newQuoteDetail.totalValue = (totalPrice + iva);
+    totalPrice += iva;
     totalCost += iva;
 
 
