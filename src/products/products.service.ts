@@ -148,6 +148,7 @@ export class ProductsService {
 
       const newProduct = {
         tagSku,
+        supplierSku: tagSku,
         refProduct: savedRefProduct,
         referencePrice: product.precio1,
       };
@@ -332,6 +333,7 @@ export class ProductsService {
 
       const newProduct = {
         tagSku,
+        supplierSku: tagSku,
         variantReferences: [],
         colors,
         referencePrice: +product.material.precio,
