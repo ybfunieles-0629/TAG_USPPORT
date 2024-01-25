@@ -483,12 +483,12 @@ export class QuoteDetailsService {
     //* IVA DE LA VENTA
     const iva: number = (product.iva / 100) * totalPrice || 0;
     newQuoteDetail.iva = iva;
-    newQuoteDetail.total = (totalPrice + iva);
+    newQuoteDetail.totalValue = (totalPrice + iva);
     totalCost += iva;
 
 
     //* CALCULAR PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
-    Math.round(newQuoteDetail.total);
+    Math.round(newQuoteDetail.totalValue);
 
     //* CALCULAR EL COSTO DE LA RETENCIÓN EN LA FUENTE
     const withholdingAtSource: number = systemConfig.withholdingAtSource || 0;
@@ -513,6 +513,7 @@ export class QuoteDetailsService {
     //* CALCULAR SUBTOTAL CON DESCUENTO
     newQuoteDetail.subTotalWithDiscount = (newQuoteDetail.subTotal - discount) || 0;
     newQuoteDetail.totalCost = totalCost;
+    newQuoteDetail.totalValue = totalPrice;
 
     await this.cartQuoteRepository.save(cartQuoteDb);
     await this.quoteDetailRepository.save(newQuoteDetail);
