@@ -36,8 +36,8 @@ export class QuoteDetailsService {
     @InjectRepository(Client)
     private readonly clientRepository: Repository<Client>,
 
-    // @InjectRepository(CategorySupplier)
-    // private readonly categorySupplierRepository: Repository<CategorySupplier>,
+    @InjectRepository(CategorySupplier)
+    private readonly categorySupplierRepository: Repository<CategorySupplier>,
 
     @InjectRepository(CartQuote)
     private readonly cartQuoteRepository: Repository<CartQuote>,
@@ -395,6 +395,7 @@ export class QuoteDetailsService {
           totalPrice += fee;
           totalCost += fee;
           newQuoteDetail.aditionalClientFee = fee;
+          cartQuote.fee = fee;
         };
       };
     };
@@ -496,6 +497,7 @@ export class QuoteDetailsService {
     totalPrice += withholdingAtSourceValue;
     newQuoteDetail.withholdingAtSourceValue = withholdingAtSourceValue;
     totalCost += withholdingAtSourceValue;
+    cartQuoteDb.withholdingAtSourceValue = withholdingAtSourceValue;
 
     //* CALCULAR UTILIDAD DEL NEGOCIO
     const businessUtility = (totalPrice - totalCost - withholdingAtSourceValue);
@@ -747,15 +749,15 @@ export class QuoteDetailsService {
     samplePrice += product?.refProduct?.supplier?.profitMargin || 0;
 
     //* ADICIONAR EL % DE MARGEN DE GANANCIA DEL PRODUCTO
-    // const mainCategory: CategorySupplier = await this.categorySupplierRepository.findOne({
-    //   where: {
-    //     id: product?.refProduct?.mainCategory,
-    //   },
-    // });
+    const mainCategory: CategorySupplier = await this.categorySupplierRepository.findOne({
+      where: {
+        id: product?.refProduct?.mainCategory,
+      },
+    });
 
-    // if (mainCategory) {
-    //   samplePrice += +mainCategory?.categoryTag?.categoryMargin || 0;
-    // };
+    if (mainCategory) {
+      samplePrice += +mainCategory?.categoryTag?.categoryMargin || 0;
+    };
 
     const clientCompanyDestination: string = newQuoteDetail?.cartQuote?.client?.user?.company?.city;
 
