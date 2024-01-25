@@ -332,6 +332,7 @@ export class ProductsService {
 
       const newProduct = {
         tagSku,
+        supplierSku: tagSku,
         variantReferences: [],
         colors,
         referencePrice: +product.material.precio,
