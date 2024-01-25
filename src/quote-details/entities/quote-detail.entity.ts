@@ -125,6 +125,11 @@ export class QuoteDetail {
   })
   totalCost: number;
 
+  @Column('int', {
+
+  })
+  financingCost: number;
+
   @Column('varchar', {
 
   })

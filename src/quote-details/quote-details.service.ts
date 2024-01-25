@@ -122,21 +122,21 @@ export class QuoteDetailsService {
         markingServices.push(markingService);
       }
 
-      markingServices.forEach((markingService: MarkingService) => {
-        (markingService?.markingServiceProperty?.markedServicePrices || [])
-          .slice()
-          .sort((a: MarkedServicePrice, b: MarkedServicePrice) => (a?.unitPrice || 0) - (b?.unitPrice || 0))
-          .map((markedServicePrice: MarkedServicePrice) => {
-            markingTotalPrice += markedServicePrice.unitPrice;
+      // markingServices.forEach((markingService: MarkingService) => {
+      //   (markingService?.markingServiceProperty?.markedServicePrices || [])
+      //     .slice()
+      //     .sort((a: MarkedServicePrice, b: MarkedServicePrice) => (a?.unitPrice || 0) - (b?.unitPrice || 0))
+      //     .map((markedServicePrice: MarkedServicePrice) => {
+      //       markingTotalPrice += markedServicePrice.unitPrice;
 
-            return {
-              markedServicePrice: markedServicePrice?.unitPrice || 0
-            };
-          });
-      });
+      //       return {
+      //         markedServicePrice: markedServicePrice?.unitPrice || 0
+      //       };
+      //     });
+      // });
 
       newQuoteDetail.markingServices = markingServices;
-      newQuoteDetail.markingTotalPrice = markingTotalPrice;
+      // newQuoteDetail.markingTotalPrice = markingTotalPrice;
     };
 
     const discountProduct: number = newQuoteDetail.product.refProduct.supplier.disccounts[0].disccounts.reduce((maxDiscount, disccount) => {
@@ -152,24 +152,24 @@ export class QuoteDetailsService {
       return maxDiscount;
     }, 0);
 
-    newQuoteDetail.sampleValue = product.samplePrice;
-    newQuoteDetail.totalValue = newQuoteDetail.unitPrice * newQuoteDetail.quantities;
-    newQuoteDetail.unitDiscount = newQuoteDetail.unitPrice * (discountProduct);
-    newQuoteDetail.subTotal = (newQuoteDetail.unitPrice * newQuoteDetail.quantities) + markingTotalPrice;
+    // newQuoteDetail.sampleValue = product.samplePrice;
+    // newQuoteDetail.totalValue = newQuoteDetail.unitPrice * newQuoteDetail.quantities;
+    // newQuoteDetail.unitDiscount = newQuoteDetail.unitPrice * (discountProduct);
+    // newQuoteDetail.subTotal = (newQuoteDetail.unitPrice * newQuoteDetail.quantities) + markingTotalPrice;
 
-    newQuoteDetail.discount =
-      newQuoteDetail.unitPrice * (discountProduct / 100) * newQuoteDetail.quantities ||
-      newQuoteDetail.unitPrice * (product.disccountPromo / 100) * newQuoteDetail.quantities || 0;
+    // newQuoteDetail.discount =
+    //   newQuoteDetail.unitPrice * (discountProduct / 100) * newQuoteDetail.quantities ||
+    //   newQuoteDetail.unitPrice * (product.disccountPromo / 100) * newQuoteDetail.quantities || 0;
 
-    newQuoteDetail.subTotalWithDiscount =
-      newQuoteDetail.subTotal - newQuoteDetail.discount ||
-      newQuoteDetail.subTotal - product.disccountPromo || 0;
+    // newQuoteDetail.subTotalWithDiscount =
+    //   newQuoteDetail.subTotal - newQuoteDetail.discount ||
+    //   newQuoteDetail.subTotal - product.disccountPromo || 0;
 
-    newQuoteDetail.iva =
-      (newQuoteDetail.subTotalWithDiscount * (newQuoteDetail.iva / 100)) |
-      (newQuoteDetail.subTotalWithDiscount * (product.iva / 100)) || 0;
+    // newQuoteDetail.iva =
+    //   (newQuoteDetail.subTotalWithDiscount * (newQuoteDetail.iva / 100)) |
+    //   (newQuoteDetail.subTotalWithDiscount * (product.iva / 100)) || 0;
 
-    newQuoteDetail.total = newQuoteDetail.subTotalWithDiscount + newQuoteDetail.iva || 0;
+    // newQuoteDetail.total = newQuoteDetail.subTotalWithDiscount + newQuoteDetail.iva || 0;
 
     const cartQuoteDb: CartQuote = await this.cartQuoteRepository.findOne({
       where: {
