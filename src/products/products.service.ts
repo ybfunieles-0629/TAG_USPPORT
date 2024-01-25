@@ -47,6 +47,9 @@ export class ProductsService {
     @InjectRepository(Color)
     private readonly colorRepository: Repository<Color>,
 
+    @InjectRepository(Disccount)
+    private readonly disccountRepository: Repository<Disccount>,
+
     @InjectRepository(SystemConfig)
     private readonly systemConfigRepository: Repository<SystemConfig>,
 
@@ -437,6 +440,25 @@ export class ProductsService {
       newProduct.markingServiceProperties = markingServiceProperties;
     }
 
+    if (createProductDto.disccounts) {
+      const disccounts: Disccount[] = [];
+
+      for (const disccount of createProductDto.disccounts) {
+        const disccountInDb: Disccount = await this.disccountRepository.findOne({
+          where: {
+            id: disccount,
+          },
+        });
+
+        if (!disccountInDb)
+          throw new NotFoundException(`disccount with id ${disccount} not found`);
+
+        disccounts.push(disccountInDb);
+      }
+
+      newProduct.disccounts = disccounts;
+    }
+
     const refProduct = await this.refProductRepository.findOne({
       where: {
         id: createProductDto.refProduct,
@@ -511,6 +533,25 @@ export class ProductsService {
 
           variantReferences.push(variantReference);
         }
+      }
+
+      if (createProductDto.disccounts) {
+        const disccounts: Disccount[] = [];
+
+        for (const disccount of createProductDto.disccounts) {
+          const disccountInDb: Disccount = await this.disccountRepository.findOne({
+            where: {
+              id: disccount,
+            },
+          });
+
+          if (!disccountInDb)
+            throw new NotFoundException(`disccount with id ${disccount} not found`);
+
+          disccounts.push(disccountInDb);
+        }
+
+        newProduct.disccounts = disccounts;
       }
 
       if (createProductDto.colors) {
@@ -950,6 +991,25 @@ export class ProductsService {
       }
     }
 
+    if (updateProductDto.disccounts) {
+      const disccounts: Disccount[] = [];
+
+      for (const disccount of updateProductDto.disccounts) {
+        const disccountInDb: Disccount = await this.disccountRepository.findOne({
+          where: {
+            id: disccount,
+          },
+        });
+
+        if (!disccountInDb)
+          throw new NotFoundException(`disccount with id ${disccount} not found`);
+
+        disccounts.push(disccountInDb);
+      }
+
+      updatedProduct.disccounts = disccounts;
+    }
+
     if (updateProductDto.markingServiceProperties) {
       const markingServiceProperties: MarkingServiceProperty[] = [];
 
@@ -1045,6 +1105,25 @@ export class ProductsService {
 
           colors.push(colorInDb);
         }
+      }
+
+      if (updateProductDto.disccounts) {
+        const disccounts: Disccount[] = [];
+
+        for (const disccount of updateProductDto.disccounts) {
+          const disccountInDb: Disccount = await this.disccountRepository.findOne({
+            where: {
+              id: disccount,
+            },
+          });
+
+          if (!disccountInDb)
+            throw new NotFoundException(`disccount with id ${disccount} not found`);
+
+          disccounts.push(disccountInDb);
+        }
+
+        updatedProduct.disccounts = disccounts;
       }
 
       if (updateProductDto.markingServiceProperties) {

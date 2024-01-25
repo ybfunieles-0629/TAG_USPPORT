@@ -15,12 +15,14 @@ import { MarkingServicePropertiesModule } from '../marking-service-properties/ma
 import { EmailSenderModule } from '../email-sender/email-sender.module';
 import { SystemConfigsModule } from '../system-configs/system-configs.module';
 import { LocalTransportPricesModule } from '../local-transport-prices/local-transport-prices.module';
+import { DisccountModule } from '../disccount/disccount.module';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),    EmailSenderModule,
     CategorySuppliersModule,
     ColorsModule,
+    DisccountModule,
     ImagesModule,
     SystemConfigsModule,
     LocalTransportPricesModule,
