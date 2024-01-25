@@ -7,10 +7,6 @@ export class CreateImageDto {
   @IsOptional()
   @IsString()
   refProduct?: string;
-  
-  @IsOptional()
-  @IsString()
-  colorId?: string;
 
   @IsOptional()
   @IsString()
