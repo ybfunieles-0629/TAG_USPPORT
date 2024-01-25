@@ -1012,7 +1012,6 @@ export class CartQuotesService {
         'quoteDetails',
         'quoteDetails.product',
         'quoteDetails.markingServices',
-        '',
         'user',
         'client',
         'client.user',
