@@ -519,6 +519,7 @@ export class QuoteDetailsService {
     //* CALCULAR % MARGEN DE GANANCIA DEL NEGOCIO Y MAXIMO DESCUENTO PERMITIDO AL COMERCIAL
     const businessMarginProfit: number = (totalPrice - newQuoteDetail.totalValueWithoutIva);
     newQuoteDetail.businessMarginProfit = businessMarginProfit;
+    cartQuoteDb.totalPrice += totalPrice;
 
     //TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
 
