@@ -740,7 +740,7 @@ export class CartQuotesService {
         brand,
         quoteName: cartQuote.quoteName,
         description: cartQuote.description,
-        client: cartQuote?.client || '', 
+        client: cartQuote?.client || '',
         clientCompany: cartQuote?.client?.user?.company?.name,
         destinationCity: cartQuote.destinationCity,
         deliveryAddress: cartQuote.deliveryAddress,
@@ -1102,27 +1102,24 @@ export class CartQuotesService {
 
         const supplierPurchaseOrder: SupplierPurchaseOrder = await this.supplierPurchaseOrderRepository.save(supplierPurchaseOrderData);
 
+        let expirationDate: Date = new Date();
+        expirationDate.setDate(expirationDate.getDate() + 30);
+
         const orderListDetailData = {
           orderCode: uuidv4(),
           quantities: quoteDetail.quantities,
           productTotalPrice: quoteDetail.total,
-          clientTagTransportService: 1,
-          estimatedProfit: 10000,
-          realProfit: 50000,
-          estimatedMarkedDate: new Date(),
-          estimatedDeliveryDate: new Date(),
-          expirationDate: new Date(),
-          deliveryProofDocument: 'proof.pdf',
-          realCost: 5000,
-          estimatedQuoteCost: 10000,
-          costNote: 'cost note',
-          tagProductTotalCost: 1000,
-          samplePrice: 1000,
-          tagMarkingTotalCost: 1000,
-          transportCost: 3000,
-          realTransportCost: 1000,
-          realMarkingCost: 4000,
-          otherRealCosts: 1000,
+          clientTagTransportService: quoteDetail.transportServiceTagClient,
+          // estimatedDeliveryDate: cartQuote.,
+          expirationDate,
+          realCost: quoteDetail.total,
+          estimatedQuoteCost: quoteDetail.unitPrice,
+          tagProductTotalCost: quoteDetail.total,
+          samplePrice: quoteDetail.sampleValue,
+          tagMarkingTotalCost: quoteDetail.markingTotalPrice,
+          transportCost: quoteDetail.transportTotalPrice,
+          realTransportCost: quoteDetail.totalPriceWithTransport,
+          realMarkingCost: quoteDetail.markingTotalPrice,
           supplierPurchaseOrder,
           state: orderListDetailState,
         };
@@ -1144,6 +1141,9 @@ export class CartQuotesService {
         .where('LOWER(name) =:stateToFind', { stateToFind })
         .getOne();
 
+      let expirationDate: Date = new Date();
+      expirationDate.setDate(expirationDate.getDate() + 30);
+
       const purchaseOrderData = {
         tagOrderNumber: uuidv4(),
         clientOrderNumber: uuidv4(),
@@ -1154,14 +1154,12 @@ export class CartQuotesService {
         invoiceIssueDate: new Date(),
         invoiceDueDate: new Date(),
         financingCost: 1,
-        feeCost: 10,
-        retentionCost: 5,
-        billingNumber: 0,
-        expirationDate: new Date(),
+        feeCost: cartQuote.fee,
+        retentionCost: cartQuote.withholdingAtSourceValue,
+        expirationDate,
         clientUser: cartQuote.client.id,
         commercialUser: cartQuote.user.id,
-        value: 1,
-        billingFile: '',
+        value: cartQuote.totalPrice,
         state
       };
 

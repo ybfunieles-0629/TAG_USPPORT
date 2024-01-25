@@ -21,6 +21,16 @@ export class CartQuote {
   })
   brandId: string;
 
+  @Column('int', {
+
+  })
+  withholdingAtSourceValue: number;
+ 
+  @Column('int', {
+
+  })
+  fee: number;
+
   @Column('varchar', {
 
   })
