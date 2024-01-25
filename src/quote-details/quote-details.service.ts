@@ -98,7 +98,7 @@ export class QuoteDetailsService {
 
     let markingTotalPrice: number = 0;
 
-    if (createQuoteDetailDto.markingServices) {
+    if (createQuoteDetailDto.markingServices || createQuoteDetailDto.markingServices.length > 0) {
       const markingServices: MarkingService[] = [];
 
       for (const markingServiceId of createQuoteDetailDto.markingServices) {
@@ -512,7 +512,7 @@ export class QuoteDetailsService {
     newQuoteDetail.subTotalWithDiscount = (newQuoteDetail.subTotal - discount) || 0;
     newQuoteDetail.totalCost = totalCost;
     newQuoteDetail.totalValue = totalPrice;
-    
+
     //* CALCULAR % MARGEN DE GANANCIA DEL NEGOCIO Y MAXIMO DESCUENTO PERMITIDO AL COMERCIAL
     const businessMarginProfit: number = (totalPrice - newQuoteDetail.totalValueWithoutIva);
     newQuoteDetail.businessMarginProfit = businessMarginProfit;
