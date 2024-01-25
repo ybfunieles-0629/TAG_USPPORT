@@ -184,8 +184,8 @@ export class QuoteDetailsService {
     if (!cartQuoteDb)
       throw new NotFoundException(`Cart quote with id ${newQuoteDetail.cartQuote.id} not found`);
 
-    cartQuoteDb.totalPrice += newQuoteDetail.total;
-    cartQuoteDb.productsQuantity += newQuoteDetail.quantities;
+    cartQuoteDb.totalPrice += newQuoteDetail.total || 0;
+    cartQuoteDb.productsQuantity += newQuoteDetail.quantities || 0;
 
     //* ------------- CALCULOS ------------- *//
     const quantity: number = newQuoteDetail.quantities || 0;
@@ -238,8 +238,7 @@ export class QuoteDetailsService {
     //* SE SOLICITA MUESTRA
     if (hasSample) {
       //* CALCULAR EL PRECIO DE LA MUESTRA
-      let samplePrice: number = product.samplePrice || 0;
-      samplePrice = await this.calculateSamplePrice(newQuoteDetail, systemConfig, quantity);
+      let samplePrice: number = await this.calculateSamplePrice(newQuoteDetail, systemConfig, quantity) || 0;
       newQuoteDetail.sampleValue = samplePrice;
 
       totalCost += samplePrice;
@@ -288,238 +287,238 @@ export class QuoteDetailsService {
     //* SI ES PERSONALIZABLE EL PRODUCTO
 
     if (quoteDetailRefProduct?.personalizableMarking == 1) {
-      // if (markingServices || markingServices.length > 0) {
-      //   for (const markingService of markingServices) {
-      //     let markingServicePropertyPrice: number = 0;
+      if (markingServices || markingServices.length > 0) {
+        for (const markingService of markingServices) {
+          let markingServicePropertyPrice: number = 0;
 
-      //     const markingServiceProperty: MarkingServiceProperty = markingService?.markingServiceProperty;
+          const markingServiceProperty: MarkingServiceProperty = markingService?.markingServiceProperty;
 
-      //     for (const markedServicePrice of markingServiceProperty.markedServicePrices) {
-      //       //* VERIFICAR QUE LA CANTIDAD SE ENCUENTRE ENTRE EL RANGO DEL PRECIO SERVICIO MARCADO
-      //       if (markedServicePrice.minRange >= quantity && markedServicePrice.maxRange <= quantity) {
-      //         let totalMarking: number = (quantity * markedServicePrice.unitPrice);
-      //         newQuoteDetail.markingTotalPrice = totalMarking;
+          for (const markedServicePrice of markingServiceProperty.markedServicePrices) {
+            //* VERIFICAR QUE LA CANTIDAD SE ENCUENTRE ENTRE EL RANGO DEL PRECIO SERVICIO MARCADO
+            if (markedServicePrice.minRange >= quantity && markedServicePrice.maxRange <= quantity) {
+              let totalMarking: number = (quantity * markedServicePrice.unitPrice);
+              newQuoteDetail.markingTotalPrice = totalMarking;
 
-      //         const marking: Marking = markingServiceProperty.externalSubTechnique.marking;
+              const marking: Marking = markingServiceProperty.externalSubTechnique.marking;
 
-      //         //* SI EL SERVICIO DE MARCADO TIENE IVA
-      //         if (marking.iva > 0) {
-      //           //* CALCULAR EL IVA
-      //           const iva: number = (marking.iva / 100) * totalMarking || 0;
-      //           totalMarking += iva;
-      //           totalCost += iva;
-      //           newQuoteDetail.markingPriceWithIva = iva;
+              //* SI EL SERVICIO DE MARCADO TIENE IVA
+              if (marking.iva > 0) {
+                //* CALCULAR EL IVA
+                const iva: number = (marking.iva / 100) * totalMarking || 0;
+                totalMarking += iva;
+                totalCost += iva;
+                newQuoteDetail.markingPriceWithIva = iva;
 
-      //           //* CALCULAR EL 4X1000
-      //           let value4x1000: number = totalMarking * 0.004 || 0;
-      //           totalMarking += value4x1000;
-      //           totalCost += value4x1000;
-      //           newQuoteDetail.markingPriceWith4x1000 = value4x1000;
-      //         };
+                //* CALCULAR EL 4X1000
+                let value4x1000: number = totalMarking * 0.004 || 0;
+                totalMarking += value4x1000;
+                totalCost += value4x1000;
+                newQuoteDetail.markingPriceWith4x1000 = value4x1000;
+              };
 
-      //         //* ADICIONAR EL % DE MARGEN DE GANANCIA POR SERVICIO 
-      //         const marginForDialingServices: number = (systemConfig.marginForDialingServices / 100) * totalMarking || 0;
-      //         totalMarking += marginForDialingServices;
+              //* ADICIONAR EL % DE MARGEN DE GANANCIA POR SERVICIO 
+              const marginForDialingServices: number = (systemConfig.marginForDialingServices / 100) * totalMarking || 0;
+              totalMarking += marginForDialingServices;
 
-      //         //* CALCULAR EL COSTO DEL TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL PROVEEDOR
-      //         markingService.markingTransportPrice = markingTransportPrice;
-      //         totalMarking += markingTransportPrice;
-      //         totalCost += markingTransportPrice;
-      //         newQuoteDetail.markingWithProductSupplierTransport += markingTransportPrice;
+              //* CALCULAR EL COSTO DEL TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL PROVEEDOR
+              markingService.markingTransportPrice = markingTransportPrice;
+              totalMarking += markingTransportPrice;
+              totalCost += markingTransportPrice;
+              newQuoteDetail.markingWithProductSupplierTransport += markingTransportPrice;
 
-      //         //* ADICIONAR EL MARGEN DE GANANCIA POR SERVICIO DE TRANSPORTE
-      //         const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * markingTransportPrice || 0;
-      //         totalMarking += supplierFinancingPercentage;
+              //* ADICIONAR EL MARGEN DE GANANCIA POR SERVICIO DE TRANSPORTE
+              const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * markingTransportPrice || 0;
+              totalMarking += supplierFinancingPercentage;
 
-      //         markingService.markingTransportPrice = (markingTransportPrice + supplierFinancingPercentage) || 0;
-      //         markingService.calculatedMarkingPrice = totalMarking;
+              markingService.markingTransportPrice = (markingTransportPrice + supplierFinancingPercentage) || 0;
+              markingService.calculatedMarkingPrice = totalMarking;
 
-      //         await this.markingServicePropertyRepository.save(markingService);
-      //       };
-      //     };
-      //   };
-      // };
+              await this.markingServicePropertyRepository.save(markingService);
+            };
+          };
+        };
+      };
     };
 
     //* CALCULAR Y ADICIONAR MARGEN DE GANANCIA DE TRANSPORTE
-    // const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * clientTransportPrice || 0;
-    // totalTransportPrice += (clientTransportPrice + supplierFinancingPercentage);
+    const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * clientTransportPrice || 0;
+    totalTransportPrice += (clientTransportPrice + supplierFinancingPercentage);
 
-    // newQuoteDetail.totalPriceWithTransport = (newQuoteDetail.unitPrice + totalTransportPrice) || 0;
-    // newQuoteDetail.transportTotalPrice = totalTransportPrice;
+    newQuoteDetail.totalPriceWithTransport = (newQuoteDetail.unitPrice + totalTransportPrice) || 0;
+    newQuoteDetail.transportTotalPrice = totalTransportPrice;
 
-    // //* CALCULAR EL 4X1000 PARA PAGAR SERVICIOS DE ENTREGA
-    // let value4x1000: number = totalPrice * 0.004 || 0;
-    // totalPrice += value4x1000;
-    // totalCost += value4x1000;
-    // newQuoteDetail.transportServices4x1000 = value4x1000;
+    //* CALCULAR EL 4X1000 PARA PAGAR SERVICIOS DE ENTREGA
+    let value4x1000: number = totalPrice * 0.004 || 0;
+    totalPrice += value4x1000;
+    totalCost += value4x1000;
+    newQuoteDetail.transportServices4x1000 = value4x1000;
 
-    // //* ADICIONAR EL % DE MARGEN DE GANANCIA DE CLIENTE
-    // if (clientType == 'cliente corporativo secundario') {
-    //   //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
-    //   const mainClient: Client = await this.clientRepository
-    //     .createQueryBuilder('client')
-    //     .leftJoinAndSelect('client.user', 'clientUser')
-    //     .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
-    //     .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
-    //     .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
-    //     .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
-    //     .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
-    //     .getOne();
+    //* ADICIONAR EL % DE MARGEN DE GANANCIA DE CLIENTE
+    if (clientType == 'cliente corporativo secundario') {
+      //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
+      const mainClient: Client = await this.clientRepository
+        .createQueryBuilder('client')
+        .leftJoinAndSelect('client.user', 'clientUser')
+        .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
+        .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
+        .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
+        .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
+        .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
+        .getOne();
 
-    //   totalPrice += mainClient?.margin;
-    // };
+      totalPrice += mainClient?.margin;
+    };
 
-    // totalPrice += cartQuote?.client?.margin || 0;
+    totalPrice += cartQuote?.client?.margin || 0;
 
-    // //* SE DEBE ADICIONAR UN FEE ADICIONAL AL USUARIO DENTRO DEL CLIENTE
-    // if (clientUser) {
-    //   if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 1)
-    //     clientType = 'cliente corporativo secundario';
-    //   else if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 0)
-    //     clientType = 'cliente corporativo principal';
-    // };
+    //* SE DEBE ADICIONAR UN FEE ADICIONAL AL USUARIO DENTRO DEL CLIENTE
+    if (clientUser) {
+      if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 1)
+        clientType = 'cliente corporativo secundario';
+      else if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 0)
+        clientType = 'cliente corporativo principal';
+    };
 
-    // if (clientType.toLowerCase() == 'cliente corporativo secundario' || clientType.toLowerCase() == 'cliente corporativo principal') {
-    //   const brandId: string = cartQuote.brandId;
+    if (clientType.toLowerCase() == 'cliente corporativo secundario' || clientType.toLowerCase() == 'cliente corporativo principal') {
+      const brandId: string = cartQuote.brandId;
 
-    //   if (brandId != null || brandId.trim() != '' || brandId != undefined) {
-    //     const cartQuoteBrand: Brand = await this.brandRepository.findOne({
-    //       where: {
-    //         id: brandId,
-    //       },
-    //     });
+      if (brandId != null || brandId.trim() != '' || brandId != undefined) {
+        const cartQuoteBrand: Brand = await this.brandRepository.findOne({
+          where: {
+            id: brandId,
+          },
+        });
 
-    //     if (!cartQuoteBrand)
-    //       throw new NotFoundException(`Brand with id ${brandId} not found`);
+        if (!cartQuoteBrand)
+          throw new NotFoundException(`Brand with id ${brandId} not found`);
 
-    //     if (cartQuote.client.user.brands.some(brand => brand.id == cartQuoteBrand.id)) {
-    //       const fee: number = (+cartQuoteBrand.fee / 100) * totalPrice || 0;
+        if (cartQuote.client.user.brands.some(brand => brand.id == cartQuoteBrand.id)) {
+          const fee: number = (+cartQuoteBrand.fee / 100) * totalPrice || 0;
 
-    //       totalPrice += fee;
-    //       totalCost += fee;
-    //       newQuoteDetail.aditionalClientFee = fee;
-    //       cartQuote.fee = fee;
-    //     };
-    //   };
-    // };
+          totalPrice += fee;
+          totalCost += fee;
+          newQuoteDetail.aditionalClientFee = fee;
+          cartQuote.fee = fee;
+        };
+      };
+    };
 
-    // //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
-    // const profitMargin: number = 0;
+    //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
+    const profitMargin: number = 0;
 
-    // const paymentDays = [
-    //   {
-    //     day: 1,
-    //     percentage: 3,
-    //   },
-    //   {
-    //     day: 15,
-    //     percentage: 3,
-    //   },
-    //   {
-    //     day: 30,
-    //     percentage: 3,
-    //   },
-    //   {
-    //     day: 45,
-    //     percentage: 4,
-    //   },
-    //   {
-    //     day: 60,
-    //     percentage: 6,
-    //   },
-    //   {
-    //     day: 90,
-    //     percentage: 9,
-    //   },
-    // ];
+    const paymentDays = [
+      {
+        day: 1,
+        percentage: 3,
+      },
+      {
+        day: 15,
+        percentage: 3,
+      },
+      {
+        day: 30,
+        percentage: 3,
+      },
+      {
+        day: 45,
+        percentage: 4,
+      },
+      {
+        day: 60,
+        percentage: 6,
+      },
+      {
+        day: 90,
+        percentage: 9,
+      },
+    ];
 
-    // //* SI EL CLIENTE ES SECUNDARIO
-    // if (clientType == 'cliente corporativo secundario') {
-    //   //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
-    //   const mainClient: Client = await this.clientRepository
-    //     .createQueryBuilder('client')
-    //     .leftJoinAndSelect('client.user', 'clientUser')
-    //     .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
-    //     .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
-    //     .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
-    //     .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
-    //     .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
-    //     .getOne();
+    //* SI EL CLIENTE ES SECUNDARIO
+    if (clientType == 'cliente corporativo secundario') {
+      //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
+      const mainClient: Client = await this.clientRepository
+        .createQueryBuilder('client')
+        .leftJoinAndSelect('client.user', 'clientUser')
+        .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
+        .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
+        .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
+        .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
+        .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
+        .getOne();
 
-    //   const marginProfit: number = mainClient.margin || 0;
-    //   const paymentTerms: number = mainClient.paymentTerms || 0;
+      const marginProfit: number = mainClient.margin || 0;
+      const paymentTerms: number = mainClient.paymentTerms || 0;
 
-    //   let percentageDiscount: number = 0;
+      let percentageDiscount: number = 0;
 
-    //   paymentDays.forEach(paymentDay => {
-    //     if (paymentDay.day == paymentTerms) {
-    //       percentageDiscount = paymentDay.percentage;
-    //     };
-    //   });
+      paymentDays.forEach(paymentDay => {
+        if (paymentDay.day == paymentTerms) {
+          percentageDiscount = paymentDay.percentage;
+        };
+      });
 
-    //   let value: number = totalPrice * (1 - percentageDiscount);
-    //   totalPrice = Math.round(value);
-    // };
+      let value: number = totalPrice * (1 - percentageDiscount);
+      totalPrice = Math.round(value);
+    };
 
-    // //* SI EL CLIENTE ES PRINCIPAL
-    // if (clientType == 'cliente corporativo principal') {
-    //   const margin: number = cartQuoteClient.margin || 0;
-    //   const paymentTerms: number = cartQuoteClient.paymentTerms || 0;
+    //* SI EL CLIENTE ES PRINCIPAL
+    if (clientType == 'cliente corporativo principal') {
+      const margin: number = cartQuoteClient.margin || 0;
+      const paymentTerms: number = cartQuoteClient.paymentTerms || 0;
 
-    //   let percentageDiscount: number = 0;
+      let percentageDiscount: number = 0;
 
-    //   paymentDays.forEach(paymentDay => {
-    //     if (paymentDay.day == paymentTerms) {
-    //       percentageDiscount = paymentDay.percentage;
-    //     };
-    //   });
+      paymentDays.forEach(paymentDay => {
+        if (paymentDay.day == paymentTerms) {
+          percentageDiscount = paymentDay.percentage;
+        };
+      });
 
-    //   let value: number = totalPrice * (1 - percentageDiscount);
-    //   totalPrice = Math.round(value);
-    // };
+      let value: number = totalPrice * (1 - percentageDiscount);
+      totalPrice = Math.round(value);
+    };
 
-    // //* SE HACE DESCUENTO ADICIONAL POR EL COMERCIAL (YA HECHO)
-    // newQuoteDetail.subTotal = totalPrice;
+    //* SE HACE DESCUENTO ADICIONAL POR EL COMERCIAL (YA HECHO)
+    newQuoteDetail.subTotal = totalPrice;
 
-    // //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
-    // newQuoteDetail.totalValueWithoutIva = totalPrice;
+    //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
+    newQuoteDetail.totalValueWithoutIva = totalPrice;
 
-    // //* IVA DE LA VENTA
-    // const iva: number = (product.iva / 100) * totalPrice || 0;
-    // newQuoteDetail.iva = iva;
-    // newQuoteDetail.totalValue = (totalPrice + iva);
-    // totalCost += iva;
+    //* IVA DE LA VENTA
+    const iva: number = (product.iva / 100) * totalPrice || 0;
+    newQuoteDetail.iva = iva;
+    newQuoteDetail.totalValue = (totalPrice + iva);
+    totalCost += iva;
 
 
-    // //* CALCULAR PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
-    // Math.round(newQuoteDetail.totalValue);
+    //* CALCULAR PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
+    Math.round(newQuoteDetail.totalValue);
 
-    // //* CALCULAR EL COSTO DE LA RETENCIÓN EN LA FUENTE
-    // const withholdingAtSource: number = systemConfig.withholdingAtSource || 0;
-    // const withholdingAtSourceValue: number = (withholdingAtSource / 100) * totalPrice || 0;
+    //* CALCULAR EL COSTO DE LA RETENCIÓN EN LA FUENTE
+    const withholdingAtSource: number = systemConfig.withholdingAtSource || 0;
+    const withholdingAtSourceValue: number = (withholdingAtSource / 100) * totalPrice || 0;
 
-    // totalPrice += withholdingAtSourceValue;
-    // newQuoteDetail.withholdingAtSourceValue = withholdingAtSourceValue;
-    // totalCost += withholdingAtSourceValue;
-    // cartQuoteDb.withholdingAtSourceValue = withholdingAtSourceValue;
+    totalPrice += withholdingAtSourceValue;
+    newQuoteDetail.withholdingAtSourceValue = withholdingAtSourceValue;
+    totalCost += withholdingAtSourceValue;
+    cartQuoteDb.withholdingAtSourceValue = withholdingAtSourceValue;
 
-    // //* CALCULAR UTILIDAD DEL NEGOCIO
-    // const businessUtility = (totalPrice - totalCost - withholdingAtSourceValue);
-    // newQuoteDetail.businessUtility = businessUtility;
+    //* CALCULAR UTILIDAD DEL NEGOCIO
+    const businessUtility = (totalPrice - totalCost - withholdingAtSourceValue);
+    newQuoteDetail.businessUtility = businessUtility;
 
-    // //* CALCULAR DESCUENTO
-    // const discount: number = (product.disccountPromo / 100) * newQuoteDetail.subTotal || 0;
-    // newQuoteDetail.discount = discount;
+    //* CALCULAR DESCUENTO
+    const discount: number = (product.disccountPromo / 100) * newQuoteDetail.subTotal || 0;
+    newQuoteDetail.discount = discount;
 
-    // //* CALCULAR SUBTOTAL CON DESCUENTO
-    // newQuoteDetail.subTotalWithDiscount = (newQuoteDetail.subTotal - discount) || 0;
-    // newQuoteDetail.totalCost = totalCost;
-    // newQuoteDetail.totalValue = totalPrice;
+    //* CALCULAR SUBTOTAL CON DESCUENTO
+    newQuoteDetail.subTotalWithDiscount = (newQuoteDetail.subTotal - discount) || 0;
+    newQuoteDetail.totalCost = totalCost;
+    newQuoteDetail.totalValue = totalPrice;
 
-    // //* CALCULAR % MARGEN DE GANANCIA DEL NEGOCIO Y MAXIMO DESCUENTO PERMITIDO AL COMERCIAL
-    // const businessMarginProfit: number = (totalPrice - newQuoteDetail.totalValueWithoutIva);
-    // newQuoteDetail.businessMarginProfit = businessMarginProfit;
+    //* CALCULAR % MARGEN DE GANANCIA DEL NEGOCIO Y MAXIMO DESCUENTO PERMITIDO AL COMERCIAL
+    const businessMarginProfit: number = (totalPrice - newQuoteDetail.totalValueWithoutIva);
+    newQuoteDetail.businessMarginProfit = businessMarginProfit;
 
     //TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
 
