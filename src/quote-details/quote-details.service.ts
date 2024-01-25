@@ -139,18 +139,18 @@ export class QuoteDetailsService {
       // newQuoteDetail.markingTotalPrice = markingTotalPrice;
     };
 
-    const discountProduct: number = newQuoteDetail.product.refProduct.supplier.disccounts[0].disccounts.reduce((maxDiscount, disccount) => {
-      if (disccount.maxQuantity !== 0) {
-        if (newQuoteDetail.quantities >= disccount.minQuantity && newQuoteDetail.quantities <= disccount.maxQuantity) {
-          return Math.max(maxDiscount, disccount.disccountValue);
-        }
-      } else {
-        if (newQuoteDetail.quantities >= disccount.minQuantity) {
-          return Math.max(maxDiscount, disccount.disccountValue);
-        }
-      }
-      return maxDiscount;
-    }, 0);
+    // const discountProduct: number = newQuoteDetail.product.refProduct.supplier.disccounts[0].disccounts.reduce((maxDiscount, disccount) => {
+    //   if (disccount.maxQuantity !== 0) {
+    //     if (newQuoteDetail.quantities >= disccount.minQuantity && newQuoteDetail.quantities <= disccount.maxQuantity) {
+    //       return Math.max(maxDiscount, disccount.disccountValue);
+    //     }
+    //   } else {
+    //     if (newQuoteDetail.quantities >= disccount.minQuantity) {
+    //       return Math.max(maxDiscount, disccount.disccountValue);
+    //     }
+    //   }
+    //   return maxDiscount;
+    // }, 0);
 
     // newQuoteDetail.sampleValue = product.samplePrice;
     // newQuoteDetail.totalValue = newQuoteDetail.unitPrice * newQuoteDetail.quantities;
