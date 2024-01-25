@@ -122,21 +122,21 @@ export class QuoteDetailsService {
         markingServices.push(markingService);
       }
 
-      markingServices.forEach((markingService: MarkingService) => {
-        (markingService?.markingServiceProperty?.markedServicePrices || [])
-          .slice()
-          .sort((a: MarkedServicePrice, b: MarkedServicePrice) => (a?.unitPrice || 0) - (b?.unitPrice || 0))
-          .map((markedServicePrice: MarkedServicePrice) => {
-            markingTotalPrice += markedServicePrice.unitPrice;
+      // markingServices.forEach((markingService: MarkingService) => {
+      //   (markingService?.markingServiceProperty?.markedServicePrices || [])
+      //     .slice()
+      //     .sort((a: MarkedServicePrice, b: MarkedServicePrice) => (a?.unitPrice || 0) - (b?.unitPrice || 0))
+      //     .map((markedServicePrice: MarkedServicePrice) => {
+      //       markingTotalPrice += markedServicePrice.unitPrice;
 
-            return {
-              markedServicePrice: markedServicePrice?.unitPrice || 0
-            };
-          });
-      });
+      //       return {
+      //         markedServicePrice: markedServicePrice?.unitPrice || 0
+      //       };
+      //     });
+      // });
 
       newQuoteDetail.markingServices = markingServices;
-      newQuoteDetail.markingTotalPrice = markingTotalPrice;
+      // newQuoteDetail.markingTotalPrice = markingTotalPrice;
     };
 
     const discountProduct: number = newQuoteDetail.product.refProduct.supplier.disccounts[0].disccounts.reduce((maxDiscount, disccount) => {
@@ -152,24 +152,24 @@ export class QuoteDetailsService {
       return maxDiscount;
     }, 0);
 
-    newQuoteDetail.sampleValue = product.samplePrice;
-    newQuoteDetail.totalValue = newQuoteDetail.unitPrice * newQuoteDetail.quantities;
-    newQuoteDetail.unitDiscount = newQuoteDetail.unitPrice * (discountProduct);
-    newQuoteDetail.subTotal = (newQuoteDetail.unitPrice * newQuoteDetail.quantities) + markingTotalPrice;
+    // newQuoteDetail.sampleValue = product.samplePrice;
+    // newQuoteDetail.totalValue = newQuoteDetail.unitPrice * newQuoteDetail.quantities;
+    // newQuoteDetail.unitDiscount = newQuoteDetail.unitPrice * (discountProduct);
+    // newQuoteDetail.subTotal = (newQuoteDetail.unitPrice * newQuoteDetail.quantities) + markingTotalPrice;
 
-    newQuoteDetail.discount =
-      newQuoteDetail.unitPrice * (discountProduct / 100) * newQuoteDetail.quantities ||
-      newQuoteDetail.unitPrice * (product.disccountPromo / 100) * newQuoteDetail.quantities || 0;
+    // newQuoteDetail.discount =
+    //   newQuoteDetail.unitPrice * (discountProduct / 100) * newQuoteDetail.quantities ||
+    //   newQuoteDetail.unitPrice * (product.disccountPromo / 100) * newQuoteDetail.quantities || 0;
 
-    newQuoteDetail.subTotalWithDiscount =
-      newQuoteDetail.subTotal - newQuoteDetail.discount ||
-      newQuoteDetail.subTotal - product.disccountPromo || 0;
+    // newQuoteDetail.subTotalWithDiscount =
+    //   newQuoteDetail.subTotal - newQuoteDetail.discount ||
+    //   newQuoteDetail.subTotal - product.disccountPromo || 0;
 
-    newQuoteDetail.iva =
-      (newQuoteDetail.subTotalWithDiscount * (newQuoteDetail.iva / 100)) |
-      (newQuoteDetail.subTotalWithDiscount * (product.iva / 100)) || 0;
+    // newQuoteDetail.iva =
+    //   (newQuoteDetail.subTotalWithDiscount * (newQuoteDetail.iva / 100)) |
+    //   (newQuoteDetail.subTotalWithDiscount * (product.iva / 100)) || 0;
 
-    newQuoteDetail.total = newQuoteDetail.subTotalWithDiscount + newQuoteDetail.iva || 0;
+    // newQuoteDetail.total = newQuoteDetail.subTotalWithDiscount + newQuoteDetail.iva || 0;
 
     const cartQuoteDb: CartQuote = await this.cartQuoteRepository.findOne({
       where: {
@@ -479,16 +479,17 @@ export class QuoteDetailsService {
     newQuoteDetail.subTotal = totalPrice;
 
     //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
+    newQuoteDetail.totalValueWithoutIva = totalPrice;
 
     //* IVA DE LA VENTA
     const iva: number = (product.iva / 100) * totalPrice || 0;
     newQuoteDetail.iva = iva;
-    newQuoteDetail.total = (totalPrice + iva);
+    newQuoteDetail.totalValue = (totalPrice + iva);
     totalCost += iva;
 
 
     //* CALCULAR PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
-    Math.round(newQuoteDetail.total);
+    Math.round(newQuoteDetail.totalValue);
 
     //* CALCULAR EL COSTO DE LA RETENCIÓN EN LA FUENTE
     const withholdingAtSource: number = systemConfig.withholdingAtSource || 0;
@@ -503,9 +504,6 @@ export class QuoteDetailsService {
     const businessUtility = (totalPrice - totalCost - withholdingAtSourceValue);
     newQuoteDetail.businessUtility = businessUtility;
 
-    //* CALCULAR % MARGEN DE GANANCIA DEL NEGOCIO Y MAXIMO DESCUENTO PERMITIDO AL COMERCIAL
-    
-
     //* CALCULAR DESCUENTO
     const discount: number = (product.disccountPromo / 100) * newQuoteDetail.subTotal || 0;
     newQuoteDetail.discount = discount;
@@ -513,6 +511,13 @@ export class QuoteDetailsService {
     //* CALCULAR SUBTOTAL CON DESCUENTO
     newQuoteDetail.subTotalWithDiscount = (newQuoteDetail.subTotal - discount) || 0;
     newQuoteDetail.totalCost = totalCost;
+    newQuoteDetail.totalValue = totalPrice;
+    
+    //* CALCULAR % MARGEN DE GANANCIA DEL NEGOCIO Y MAXIMO DESCUENTO PERMITIDO AL COMERCIAL
+    const businessMarginProfit: number = (totalPrice - newQuoteDetail.totalValueWithoutIva);
+    newQuoteDetail.businessMarginProfit = businessMarginProfit;
+
+    //TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
 
     await this.cartQuoteRepository.save(cartQuoteDb);
     await this.quoteDetailRepository.save(newQuoteDetail);

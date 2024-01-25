@@ -44,6 +44,16 @@ export class QuoteDetail {
 
   })
   totalValue: number;
+  
+  @Column('int', {
+
+  })
+  businessMarginProfit: number;
+
+  @Column('int', {
+
+  })
+  totalValueWithoutIva: number;
 
   @Column('int', {
 
@@ -124,6 +134,11 @@ export class QuoteDetail {
 
   })
   totalCost: number;
+
+  @Column('int', {
+
+  })
+  financingCost: number;
 
   @Column('varchar', {
 
