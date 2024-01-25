@@ -102,7 +102,7 @@ export class QuoteDetailsService {
 
     let markingTotalPrice: number = 0;
 
-    if (createQuoteDetailDto.markingServices || createQuoteDetailDto.markingServices.length > 0) {
+    if (createQuoteDetailDto?.markingServices || createQuoteDetailDto?.markingServices?.length > 0) {
       const markingServices: MarkingService[] = [];
 
       for (const markingServiceId of createQuoteDetailDto.markingServices) {
