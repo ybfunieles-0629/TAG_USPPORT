@@ -60,8 +60,8 @@ export class QuoteDetailsService {
 
   async create(createQuoteDetailDto: CreateQuoteDetailDto) {
     const hasSample: boolean = createQuoteDetailDto.hasSample;
-    
-    delete(createQuoteDetailDto.hasSample);
+
+    delete (createQuoteDetailDto.hasSample);
 
     const newQuoteDetail: QuoteDetail = plainToClass(QuoteDetail, createQuoteDetailDto);
 
@@ -226,6 +226,9 @@ export class QuoteDetailsService {
     const systemConfig: SystemConfig = systemConfigDb[0];
 
     //* -------------------------- INICIO DE CALCULOS -------------------------- *//
+    //* CALCULAR EL VOLUMEN DEL PRODUCTO
+    productVolume = (product?.height * product?.weight * product?.large) || 0;
+
     //* DATOS DEL CLIENTE
     const cartQuoteClient: Client = cartQuote?.client;
     const clientUser: User = cartQuote?.client?.user;
