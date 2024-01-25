@@ -288,57 +288,57 @@ export class QuoteDetailsService {
     //* SI ES PERSONALIZABLE EL PRODUCTO
 
     if (quoteDetailRefProduct?.personalizableMarking == 1) {
-      if (markingServices || markingServices.length > 0) {
-        for (const markingService of markingServices) {
-          let markingServicePropertyPrice: number = 0;
+      // if (markingServices || markingServices.length > 0) {
+      //   for (const markingService of markingServices) {
+      //     let markingServicePropertyPrice: number = 0;
 
-          const markingServiceProperty: MarkingServiceProperty = markingService.markingServiceProperty;
+      //     const markingServiceProperty: MarkingServiceProperty = markingService?.markingServiceProperty;
 
-          for (const markedServicePrice of markingServiceProperty.markedServicePrices) {
-            //* VERIFICAR QUE LA CANTIDAD SE ENCUENTRE ENTRE EL RANGO DEL PRECIO SERVICIO MARCADO
-            if (markedServicePrice.minRange >= quantity && markedServicePrice.maxRange <= quantity) {
-              let totalMarking: number = (quantity * markedServicePrice.unitPrice);
-              newQuoteDetail.markingTotalPrice = totalMarking;
+      //     for (const markedServicePrice of markingServiceProperty.markedServicePrices) {
+      //       //* VERIFICAR QUE LA CANTIDAD SE ENCUENTRE ENTRE EL RANGO DEL PRECIO SERVICIO MARCADO
+      //       if (markedServicePrice.minRange >= quantity && markedServicePrice.maxRange <= quantity) {
+      //         let totalMarking: number = (quantity * markedServicePrice.unitPrice);
+      //         newQuoteDetail.markingTotalPrice = totalMarking;
 
-              const marking: Marking = markingServiceProperty.externalSubTechnique.marking;
+      //         const marking: Marking = markingServiceProperty.externalSubTechnique.marking;
 
-              //* SI EL SERVICIO DE MARCADO TIENE IVA
-              if (marking.iva > 0) {
-                //* CALCULAR EL IVA
-                const iva: number = (marking.iva / 100) * totalMarking || 0;
-                totalMarking += iva;
-                totalCost += iva;
-                newQuoteDetail.markingPriceWithIva = iva;
+      //         //* SI EL SERVICIO DE MARCADO TIENE IVA
+      //         if (marking.iva > 0) {
+      //           //* CALCULAR EL IVA
+      //           const iva: number = (marking.iva / 100) * totalMarking || 0;
+      //           totalMarking += iva;
+      //           totalCost += iva;
+      //           newQuoteDetail.markingPriceWithIva = iva;
 
-                //* CALCULAR EL 4X1000
-                let value4x1000: number = totalMarking * 0.004 || 0;
-                totalMarking += value4x1000;
-                totalCost += value4x1000;
-                newQuoteDetail.markingPriceWith4x1000 = value4x1000;
-              };
+      //           //* CALCULAR EL 4X1000
+      //           let value4x1000: number = totalMarking * 0.004 || 0;
+      //           totalMarking += value4x1000;
+      //           totalCost += value4x1000;
+      //           newQuoteDetail.markingPriceWith4x1000 = value4x1000;
+      //         };
 
-              //* ADICIONAR EL % DE MARGEN DE GANANCIA POR SERVICIO 
-              const marginForDialingServices: number = (systemConfig.marginForDialingServices / 100) * totalMarking || 0;
-              totalMarking += marginForDialingServices;
+      //         //* ADICIONAR EL % DE MARGEN DE GANANCIA POR SERVICIO 
+      //         const marginForDialingServices: number = (systemConfig.marginForDialingServices / 100) * totalMarking || 0;
+      //         totalMarking += marginForDialingServices;
 
-              //* CALCULAR EL COSTO DEL TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL PROVEEDOR
-              markingService.markingTransportPrice = markingTransportPrice;
-              totalMarking += markingTransportPrice;
-              totalCost += markingTransportPrice;
-              newQuoteDetail.markingWithProductSupplierTransport += markingTransportPrice;
+      //         //* CALCULAR EL COSTO DEL TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL PROVEEDOR
+      //         markingService.markingTransportPrice = markingTransportPrice;
+      //         totalMarking += markingTransportPrice;
+      //         totalCost += markingTransportPrice;
+      //         newQuoteDetail.markingWithProductSupplierTransport += markingTransportPrice;
 
-              //* ADICIONAR EL MARGEN DE GANANCIA POR SERVICIO DE TRANSPORTE
-              const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * markingTransportPrice || 0;
-              totalMarking += supplierFinancingPercentage;
+      //         //* ADICIONAR EL MARGEN DE GANANCIA POR SERVICIO DE TRANSPORTE
+      //         const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * markingTransportPrice || 0;
+      //         totalMarking += supplierFinancingPercentage;
 
-              markingService.markingTransportPrice = (markingTransportPrice + supplierFinancingPercentage) || 0;
-              markingService.calculatedMarkingPrice = totalMarking;
+      //         markingService.markingTransportPrice = (markingTransportPrice + supplierFinancingPercentage) || 0;
+      //         markingService.calculatedMarkingPrice = totalMarking;
 
-              await this.markingServicePropertyRepository.save(markingService);
-            };
-          };
-        };
-      };
+      //         await this.markingServicePropertyRepository.save(markingService);
+      //       };
+      //     };
+      //   };
+      // };
     };
 
     //* CALCULAR Y ADICIONAR MARGEN DE GANANCIA DE TRANSPORTE
