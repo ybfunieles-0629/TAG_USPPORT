@@ -15,6 +15,11 @@ export class Image {
   })
   url: string;
 
+  @Column('varchar', {
+
+  })
+  colorId: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
