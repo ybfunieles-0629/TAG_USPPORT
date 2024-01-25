@@ -479,6 +479,7 @@ export class QuoteDetailsService {
     newQuoteDetail.subTotal = totalPrice;
 
     //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
+    newQuoteDetail.totalValueWithoutIva = totalPrice;
 
     //* IVA DE LA VENTA
     const iva: number = (product.iva / 100) * totalPrice || 0;
@@ -503,9 +504,6 @@ export class QuoteDetailsService {
     const businessUtility = (totalPrice - totalCost - withholdingAtSourceValue);
     newQuoteDetail.businessUtility = businessUtility;
 
-    //* CALCULAR % MARGEN DE GANANCIA DEL NEGOCIO Y MAXIMO DESCUENTO PERMITIDO AL COMERCIAL
-    
-
     //* CALCULAR DESCUENTO
     const discount: number = (product.disccountPromo / 100) * newQuoteDetail.subTotal || 0;
     newQuoteDetail.discount = discount;
@@ -514,6 +512,12 @@ export class QuoteDetailsService {
     newQuoteDetail.subTotalWithDiscount = (newQuoteDetail.subTotal - discount) || 0;
     newQuoteDetail.totalCost = totalCost;
     newQuoteDetail.totalValue = totalPrice;
+    
+    //* CALCULAR % MARGEN DE GANANCIA DEL NEGOCIO Y MAXIMO DESCUENTO PERMITIDO AL COMERCIAL
+    const businessMarginProfit: number = (totalPrice - newQuoteDetail.totalValueWithoutIva);
+    newQuoteDetail.businessMarginProfit = businessMarginProfit;
+
+    //TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
 
     await this.cartQuoteRepository.save(cartQuoteDb);
     await this.quoteDetailRepository.save(newQuoteDetail);

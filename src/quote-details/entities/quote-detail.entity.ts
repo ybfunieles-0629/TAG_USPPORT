@@ -44,6 +44,16 @@ export class QuoteDetail {
 
   })
   totalValue: number;
+  
+  @Column('int', {
+
+  })
+  businessMarginProfit: number;
+
+  @Column('int', {
+
+  })
+  totalValueWithoutIva: number;
 
   @Column('int', {
 
