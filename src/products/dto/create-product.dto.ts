@@ -11,10 +11,6 @@ export class CreateProductDto {
 
   @IsOptional()
   @IsInt()
-  disccountPromo?: number;
-
-  @IsOptional()
-  @IsInt()
   entryDiscount?: number;
 
   @IsOptional()

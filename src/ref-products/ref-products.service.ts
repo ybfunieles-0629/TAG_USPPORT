@@ -1022,7 +1022,7 @@ export class RefProductsService {
         if (refProductsToShow.length > 0) {
           refProductsToShow.forEach((refProduct: RefProduct) => {
             if (refProduct.products && refProduct.products.length > 0) {
-              refProduct.products.sort((a, b) => b.disccountPromo - a.disccountPromo);
+              refProduct.products.sort((a, b) => b.promoDisccount - a.promoDisccount);
             }
           });
         } else {
@@ -1046,7 +1046,7 @@ export class RefProductsService {
             .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
             .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'markingExternalSubTechnique')
             .leftJoinAndSelect('markingExternalSubTechnique.marking', 'markingExternalSubTechniqueMarking')
-            .orderBy('product.disccountPromo', 'DESC')
+            .orderBy('product.promoDisccount', 'DESC')
             .getMany();
 
           refProductsToShow.push(...refProducts);
