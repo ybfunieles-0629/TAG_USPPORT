@@ -749,6 +749,7 @@ export class CartQuotesService {
         weightToOrder: cartQuote.weightToOrder,
         createdAt: cartQuote.createdAt,
         state: cartQuote.state?.name || '',
+        quoteDetails: cartQuote?.quoteDetails,
         products: cartQuote.quoteDetails.map((quoteDetail: QuoteDetail) => {
           return {
             name: quoteDetail.product.refProduct.name,
