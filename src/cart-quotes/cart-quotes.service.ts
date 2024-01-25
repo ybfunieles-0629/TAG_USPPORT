@@ -907,6 +907,8 @@ export class CartQuotesService {
         'client',
         'user',
         'state',
+        'product',
+        'product.disccounts',
       ],
     });
 
@@ -1009,6 +1011,7 @@ export class CartQuotesService {
         'quoteDetails',
         'quoteDetails.product',
         'quoteDetails.markingServices',
+        '',
         'user',
         'client',
         'client.user',
