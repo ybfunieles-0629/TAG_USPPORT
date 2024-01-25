@@ -284,7 +284,7 @@ export class QuoteDetailsService {
     //* SI ES PERSONALIZABLE EL PRODUCTO
 
     if (quoteDetailRefProduct?.personalizableMarking == 1) {
-      if (markingServices.length > 0) {
+      if (markingServices || markingServices.length > 0) {
         for (const markingService of markingServices) {
           let markingServicePropertyPrice: number = 0;
 
