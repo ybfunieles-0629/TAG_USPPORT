@@ -72,6 +72,16 @@ export class OrderListDetail {
   @Column('int', {
 
   })
+  iva: number;
+
+  @Column('int', {
+
+  })
+  financingCost: number;
+
+  @Column('int', {
+
+  })
   estimatedQuoteCost: number;
 
   @Column('varchar', {
