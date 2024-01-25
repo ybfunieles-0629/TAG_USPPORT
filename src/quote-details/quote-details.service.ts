@@ -590,28 +590,28 @@ export class QuoteDetailsService {
     updatedQuoteDetail.cartQuote = cartQuote;
     updatedQuoteDetail.product = product;
 
-    const discountProduct: number = updatedQuoteDetail.product.refProduct.supplier.disccounts[0].disccounts.reduce((maxDiscount, disccount) => {
-      if (disccount.maxQuantity !== 0) {
-        if (updatedQuoteDetail.quantities >= disccount.minQuantity && updatedQuoteDetail.quantities <= disccount.maxQuantity) {
-          return Math.max(maxDiscount, disccount.disccountValue);
-        }
-      } else {
-        if (updatedQuoteDetail.quantities >= disccount.minQuantity) {
-          return Math.max(maxDiscount, disccount.disccountValue);
-        }
-      }
-      return maxDiscount;
-    }, 0);
+    // const discountProduct: number = updatedQuoteDetail.product.refProduct.supplier.disccounts[0].disccounts.reduce((maxDiscount, disccount) => {
+    //   if (disccount.maxQuantity !== 0) {
+    //     if (updatedQuoteDetail.quantities >= disccount.minQuantity && updatedQuoteDetail.quantities <= disccount.maxQuantity) {
+    //       return Math.max(maxDiscount, disccount.disccountValue);
+    //     }
+    //   } else {
+    //     if (updatedQuoteDetail.quantities >= disccount.minQuantity) {
+    //       return Math.max(maxDiscount, disccount.disccountValue);
+    //     }
+    //   }
+    //   return maxDiscount;
+    // }, 0);
 
-    updatedQuoteDetail.sampleValue = product.samplePrice;
-    updatedQuoteDetail.totalValue = updatedQuoteDetail.unitPrice * updatedQuoteDetail.quantities;
-    updatedQuoteDetail.unitDiscount = updatedQuoteDetail.unitPrice * (discountProduct);
-    updatedQuoteDetail.subTotal = updatedQuoteDetail.unitPrice * updatedQuoteDetail.quantities + updatedQuoteDetail.markingTotalPrice;
-    updatedQuoteDetail.discount = updatedQuoteDetail.unitPrice * (discountProduct / 100) * updatedQuoteDetail.quantities | 0;
+    // updatedQuoteDetail.sampleValue = product.samplePrice;
+    // updatedQuoteDetail.totalValue = updatedQuoteDetail.unitPrice * updatedQuoteDetail.quantities;
+    // updatedQuoteDetail.unitDiscount = updatedQuoteDetail.unitPrice * (discountProduct);
+    // updatedQuoteDetail.subTotal = updatedQuoteDetail.unitPrice * updatedQuoteDetail.quantities + updatedQuoteDetail.markingTotalPrice;
+    // updatedQuoteDetail.discount = updatedQuoteDetail.unitPrice * (discountProduct / 100) * updatedQuoteDetail.quantities | 0;
 
-    updatedQuoteDetail.subTotalWithDiscount = updatedQuoteDetail.subTotal - updatedQuoteDetail.discount;
-    updatedQuoteDetail.iva = (updatedQuoteDetail.subTotalWithDiscount * (updatedQuoteDetail.iva / 100));
-    updatedQuoteDetail.total = updatedQuoteDetail.subTotalWithDiscount + updatedQuoteDetail.iva;
+    // updatedQuoteDetail.subTotalWithDiscount = updatedQuoteDetail.subTotal - updatedQuoteDetail.discount;
+    // updatedQuoteDetail.iva = (updatedQuoteDetail.subTotalWithDiscount * (updatedQuoteDetail.iva / 100));
+    // updatedQuoteDetail.total = updatedQuoteDetail.subTotalWithDiscount + updatedQuoteDetail.iva;
 
     Object.assign(quoteDetail, updatedQuoteDetail);
 
