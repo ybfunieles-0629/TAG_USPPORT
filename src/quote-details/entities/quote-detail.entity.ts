@@ -35,7 +35,7 @@ export class QuoteDetail {
   })
   transportServiceTagClient: number;
 
-  @Column('varchar', {
+  @Column('int', {
 
   })
   negotiationDiscount: number;
