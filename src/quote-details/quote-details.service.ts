@@ -59,6 +59,10 @@ export class QuoteDetailsService {
   ) { }
 
   async create(createQuoteDetailDto: CreateQuoteDetailDto) {
+    const hasSample: boolean = createQuoteDetailDto.hasSample;
+    
+    delete(createQuoteDetailDto.hasSample);
+
     const newQuoteDetail: QuoteDetail = plainToClass(QuoteDetail, createQuoteDetailDto);
 
     const cartQuote: CartQuote = await this.cartQuoteRepository.findOne({
@@ -232,7 +236,7 @@ export class QuoteDetailsService {
     totalCost += burnQuantity;
 
     //* SE SOLICITA MUESTRA
-    if (createQuoteDetailDto.hasSample) {
+    if (hasSample) {
       //* CALCULAR EL PRECIO DE LA MUESTRA
       let samplePrice: number = product.samplePrice || 0;
       samplePrice = await this.calculateSamplePrice(newQuoteDetail, systemConfig, quantity);
