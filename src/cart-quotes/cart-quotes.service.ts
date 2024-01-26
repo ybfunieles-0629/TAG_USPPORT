@@ -693,6 +693,8 @@ export class CartQuotesService {
         .createQueryBuilder('quote')
         .where('quote.isActive =:isActive', { isActive: true })
         .leftJoinAndSelect('quote.state', 'state')
+        .leftJoinAndSelect('quote.orderListDetails', 'quoteOrderListDetails')
+        .leftJoinAndSelect('orderListDetails.orderRating', 'quoteOrderListDetailsOrderRating')
         .leftJoinAndSelect('quote.client', 'client')
         .andWhere('client.id =:id', { id })
         .leftJoinAndSelect('client.user', 'user')
@@ -1128,6 +1130,7 @@ export class CartQuotesService {
           transportCost: quoteDetail.transportTotalPrice,
           realTransportCost: quoteDetail.totalPriceWithTransport,
           realMarkingCost: quoteDetail.markingTotalPrice,
+          product: quoteDetail.product,
           supplierPurchaseOrder,
           state: orderListDetailState,
         };
@@ -1163,6 +1166,7 @@ export class CartQuotesService {
         invoiceDueDate: new Date(),
         financingCost: cartQuote.quoteDetails.reduce((sum, quoteDetail) => sum + quoteDetail.totalValue, 0),
         feeCost: cartQuote.quoteDetails.reduce((sum, quoteDetail) => sum + quoteDetail.aditionalClientFee, 0),
+        businessUtility: cartQuote.quoteDetails.reduce((sum, quoteDetail) => sum + quoteDetail.businessUtility, 0),
         retentionCost: cartQuote.quoteDetails.reduce((sum, quoteDetail) => sum + quoteDetail.withholdingAtSourceValue, 0),
         expirationDate,
         clientUser: cartQuote.client.id,
