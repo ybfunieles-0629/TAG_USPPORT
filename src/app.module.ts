@@ -57,6 +57,7 @@ import { ShippingGuidesModule } from './shipping-guides/shipping-guides.module';
 import { SystemConfigOffersModule } from './system-config-offers/system-config-offers.module';
 import { SystemConfigBrandsModule } from './system-config-brands/system-config-brands.module';
 import { SuscriptionsModule } from './suscriptions/suscriptions.module';
+import { StatisticsModule } from './statistics/statistics.module';
 
 @Module({
   imports: [
@@ -131,7 +132,8 @@ import { SuscriptionsModule } from './suscriptions/suscriptions.module';
     ShippingGuidesModule,
     SystemConfigOffersModule,
     SystemConfigBrandsModule,
-    SuscriptionsModule
+    SuscriptionsModule,
+    StatisticsModule
   ],
 })
 export class AppModule { }
