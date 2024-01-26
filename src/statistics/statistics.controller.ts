@@ -13,7 +13,7 @@ export class StatisticsController {
     return this.statisticsService.getStatistics();
   }
 
-  @Get('top/clients')
+  @Get('top/clients/:yearParam')
   getTop10ClientsWithMostPurchases(
     @Query('yearParam') yearParam: number,
   ) {
