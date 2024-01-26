@@ -262,9 +262,9 @@ export class PurchaseOrderService {
 
       updatedPurchaseOrder.state = state;
 
-      if (state.name.toLowerCase() == 'aprobada') {
-        updatedPurchaseOrder.commercialUser = user.id;
-      };
+      // if (state.name.toLowerCase() == 'aprobada') {
+      //   updatedPurchaseOrder.commercialUser = user.id;
+      // };
     }
 
     let billingFileAwsUrl: string = '';
