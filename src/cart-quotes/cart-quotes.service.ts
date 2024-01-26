@@ -911,8 +911,6 @@ export class CartQuotesService {
         'client',
         'user',
         'state',
-        'product',
-        'product.disccounts',
       ],
     });
 
