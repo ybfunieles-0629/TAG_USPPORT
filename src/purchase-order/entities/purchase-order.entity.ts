@@ -71,6 +71,11 @@ export class PurchaseOrder {
   retentionCost: number;
 
   @Column('int', {
+
+  })
+  businessUtility: number;
+
+  @Column('int', {
     default: 0,
   })
   billingNumber: number;
