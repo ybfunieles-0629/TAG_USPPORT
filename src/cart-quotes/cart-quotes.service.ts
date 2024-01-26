@@ -1144,7 +1144,7 @@ export class CartQuotesService {
         expirationDate,
         cartQuote: cartQuote,
         clientUser: cartQuote.client.id,
-        commercialUser: cartQuote.updatedBy,
+        commercialUser: cartQuote.user.id,
         value: cartQuote.totalPrice,
         state
       };
