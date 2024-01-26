@@ -113,6 +113,7 @@ export class PurchaseOrderService {
         .createQueryBuilder('purchase')
         .where('purchase.clientUser =:clientId', { clientId: user.client.id })
         .leftJoinAndSelect('purchase.orderListDetails', 'orderListDetails')
+        .leftJoinAndSelect('orderListDetails.cartQuote', 'cartQuote')
         .leftJoinAndSelect('orderListDetails.state', 'orderListDetailsState')
         .leftJoinAndSelect('orderListDetails.orderRating', 'orderListDetailsOrderRating')
         .leftJoinAndSelect('orderListDetails.supplierPurchaseOrder', 'supplierPurchaseOrder')
