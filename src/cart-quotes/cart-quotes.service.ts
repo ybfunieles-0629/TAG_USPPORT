@@ -1040,6 +1040,10 @@ export class CartQuotesService {
     };
 
     // if (updateCartQuoteDto.epaycoCode) {
+    if (state.name.toLowerCase() == 'rechazada') {
+      cartQuote.isAllowed = false;
+    };
+
     if (state.name.toLowerCase() == 'convertido en orden de compra') {
       const epaycoCode: string = updateCartQuoteDto.epaycoCode;
 
@@ -1057,6 +1061,8 @@ export class CartQuotesService {
       const orderListDetailsCreated: OrderListDetail[] = [];
 
       const cartClient: Client = cartQuote.client;
+
+      cartQuote.isAllowed = false;
 
       let orderListDetailState: State;
 
