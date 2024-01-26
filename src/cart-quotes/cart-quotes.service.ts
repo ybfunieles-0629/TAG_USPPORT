@@ -1169,6 +1169,7 @@ export class CartQuotesService {
         businessUtility: cartQuote.quoteDetails.reduce((sum, quoteDetail) => sum + quoteDetail.businessUtility, 0),
         retentionCost: cartQuote.quoteDetails.reduce((sum, quoteDetail) => sum + quoteDetail.withholdingAtSourceValue, 0),
         expirationDate,
+        cartQuote: cartQuote,
         clientUser: cartQuote.client.id,
         commercialUser: cartQuote.updatedBy,
         value: cartQuote.totalPrice,
