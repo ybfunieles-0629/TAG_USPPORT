@@ -132,6 +132,7 @@ export class PurchaseOrderService {
         skip: offset,
         relations: [
           'orderListDetails',
+          'orderListDetails.cartQuote',
           'orderListDetails.orderRating',
           'orderListDetails.state',
           'orderListDetails.supplierPurchaseOrder',
