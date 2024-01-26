@@ -28,8 +28,11 @@ export class UsersController {
   }
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.createUser(createUserDto);
+  create(
+    @Body() createUserDto: CreateUserDto,
+    @Query('externalUser') externalUser: boolean,
+  ) {
+    return this.usersService.createUser(createUserDto, externalUser);
   }
 
   @Post('confirm/account')
@@ -113,7 +116,7 @@ export class UsersController {
   @Get('commercial/clients/:id')
   @UseGuards(AuthGuard())
   getClientsByCommercial(
-    @Param('id', ParseUUIDPipe) id: string,  
+    @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.usersService.getClientsByCommercial(id);
   }

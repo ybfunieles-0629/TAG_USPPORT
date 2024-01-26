@@ -219,6 +219,7 @@ export class CartQuotesService {
       skip: offset,
       where: {
         isActive: true,
+        isAllowed: true,
       },
       relations: [
         'quoteDetails',
@@ -692,6 +693,7 @@ export class CartQuotesService {
       cartQuotes = await this.cartQuoteRepository
         .createQueryBuilder('quote')
         .where('quote.isActive =:isActive', { isActive: true })
+        .andWhere('quote.isAllowed =:isAllowed', { isAllowed: true })
         .leftJoinAndSelect('quote.state', 'state')
         .leftJoinAndSelect('quote.client', 'client')
         .andWhere('client.id =:id', { id })
@@ -1040,6 +1042,10 @@ export class CartQuotesService {
     };
 
     // if (updateCartQuoteDto.epaycoCode) {
+    if (state.name.toLowerCase() == 'rechazada') {
+      cartQuote.isAllowed = false;
+    };
+
     if (state.name.toLowerCase() == 'convertido en orden de compra') {
       const epaycoCode: string = updateCartQuoteDto.epaycoCode;
 
@@ -1057,6 +1063,8 @@ export class CartQuotesService {
       const orderListDetailsCreated: OrderListDetail[] = [];
 
       const cartClient: Client = cartQuote.client;
+
+      cartQuote.isAllowed = false;
 
       let orderListDetailState: State;
 

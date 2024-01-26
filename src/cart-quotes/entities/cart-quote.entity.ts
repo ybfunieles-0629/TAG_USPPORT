@@ -86,6 +86,11 @@ export class CartQuote {
   })
   isActive: boolean;
 
+  @Column('boolean', {
+    default: true,
+  })
+  isAllowed: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 

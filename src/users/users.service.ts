@@ -98,7 +98,7 @@ export class UsersService {
     };
   }
 
-  async createUser(createUserDto: CreateUserDto) {
+  async createUser(createUserDto: CreateUserDto, externalUser: boolean) {
     const emailInUse: User = await this.userRepository.findOne({
       where: {
         email: createUserDto.email
@@ -143,13 +143,16 @@ export class UsersService {
 
     newUser.roles = roles;
 
-    if (newUser.roles.some((role: Role) => role.name.toLowerCase() === 'cliente' || role.name.toLowerCase() === 'proveedor')) {
-      newUser.isActive = false;
+    if (externalUser) {
 
-      const registrationCode: string = this.getJwtToken({ email: newUser.email });
+      if (newUser.roles.some((role: Role) => role.name.toLowerCase() === 'cliente' || role.name.toLowerCase() === 'proveedor')) {
+        newUser.isActive = false;
 
-      if (registrationCode.length > 0)
-        newUser.registrationCode = registrationCode;
+        const registrationCode: string = this.getJwtToken({ email: newUser.email });
+
+        if (registrationCode.length > 0)
+          newUser.registrationCode = registrationCode;
+      };
     };
 
     if (createUserDto.permissions) {
@@ -224,21 +227,23 @@ export class UsersService {
         },
       });
 
-      if (newUser.roles.some((role: Role) => role.name.toLowerCase() === 'cliente' || role.name.toLowerCase() === 'proveedor')) {
-        await transporter.sendMail({
-          from: this.emailSenderConfig.transport.from,
-          to: newUser.email,
-          subject: 'Confirmación de cuenta',
-          text: `Código de verificación: ${newUser.registrationCode}`,
-        });
-      } else {
-        await transporter.sendMail({
-          from: this.emailSenderConfig.transport.from,
-          to: newUser.email,
-          subject: 'Registro exitoso',
-          text: 'Su registro ha sido exitoso, para ingresar en la aplicación debe irse al apartado de Iniciar sesión y luego debe dar click en recuperar contraseña.',
-        });
+      if (externalUser) {
+        if (newUser.roles.some((role: Role) => role.name.toLowerCase() === 'cliente' || role.name.toLowerCase() === 'proveedor')) {
+          await transporter.sendMail({
+            from: this.emailSenderConfig.transport.from,
+            to: newUser.email,
+            subject: 'Confirmación de cuenta',
+            text: `Código de verificación: ${newUser.registrationCode}`,
+          });
+        }
       };
+
+      await transporter.sendMail({
+        from: this.emailSenderConfig.transport.from,
+        to: newUser.email,
+        subject: 'Registro exitoso',
+        text: 'Su registro ha sido exitoso, para ingresar en la aplicación debe irse al apartado de Iniciar sesión y luego debe dar click en recuperar contraseña.',
+      });
     } catch (error) {
       console.log('Failed to send the password recovery email', error);
       throw new InternalServerErrorException(`Internal server error`);
