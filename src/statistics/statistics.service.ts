@@ -34,7 +34,7 @@ export class StatisticsService {
     return {
       salesGoal,
       missingForTheGoal,
-      percentage,
+      percentage: percentage.toFixed(2),
     };
   };
 
