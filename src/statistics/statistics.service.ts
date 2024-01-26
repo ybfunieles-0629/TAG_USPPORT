@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { PurchaseOrder } from '../purchase-order/entities/purchase-order.entity';
 import { SystemConfig } from '../system-configs/entities/system-config.entity';
 import { Client } from '../clients/entities/client.entity';
+import { OrderListDetail } from '../order-list-details/entities/order-list-detail.entity';
 
 @Injectable()
 export class StatisticsService {
@@ -62,8 +63,8 @@ export class StatisticsService {
     const clientMetricsMap: Map<string, any> = new Map();
 
     // Calcular las métricas por cliente
-    purchaseOrders.forEach(order => {
-      const clientId = order.clientUser;
+    purchaseOrders?.forEach((order: PurchaseOrder) => {
+      const clientId = order?.clientUser;
       if (!clientMetricsMap.has(clientId)) {
         clientMetricsMap.set(clientId, {
           ventas: 0,
@@ -81,7 +82,7 @@ export class StatisticsService {
 
       // Incrementar carritos realizados y calcular items cotizados, ocRecibidas y pedidos
       clientMetricsMap.get(clientId).carritosRealizados++;
-      order.orderListDetails.forEach(orderListDetail => {
+      order?.orderListDetails?.forEach((orderListDetail: OrderListDetail) => {
         clientMetricsMap.get(clientId).itemsCotizados += orderListDetail.product;
         clientMetricsMap.get(clientId).ocRecibidas++;
         clientMetricsMap.get(clientId).pedidos += orderListDetail.product;
