@@ -45,8 +45,9 @@ export class PurchaseOrderController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePurchaseOrderDto: UpdatePurchaseOrderDto,
     @UploadedFile() file: Express.Multer.File,
+    @GetUser() user: User,
   ) {
-    return this.purchaseOrderService.update(id, updatePurchaseOrderDto, file);
+    return this.purchaseOrderService.update(id, updatePurchaseOrderDto, file, user);
   }
 
   @Patch('desactivate/:id')

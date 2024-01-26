@@ -227,7 +227,7 @@ export class PurchaseOrderService {
     };
   }
 
-  async update(id: string, updatePurchaseOrderDto: UpdatePurchaseOrderDto, file: Express.Multer.File) {
+  async update(id: string, updatePurchaseOrderDto: UpdatePurchaseOrderDto, file: Express.Multer.File, user: User) {
     const purchaseOrder: PurchaseOrder = await this.purchaseOrderRepository.findOne({
       where: {
         id,
@@ -259,6 +259,10 @@ export class PurchaseOrderService {
         throw new BadRequestException(`State with id ${updatePurchaseOrderDto.state} is currently inactive`);
 
       updatedPurchaseOrder.state = state;
+
+      if (state.name.toLowerCase() == 'aprobada') {
+        updatedPurchaseOrder.commercialUser = user.id;
+      };
     }
 
     let billingFileAwsUrl: string = '';
