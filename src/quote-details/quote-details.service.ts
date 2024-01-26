@@ -243,6 +243,7 @@ export class QuoteDetailsService {
       //* CALCULAR EL PRECIO DE LA MUESTRA
       let samplePrice: number = await this.calculateSamplePrice(newQuoteDetail, systemConfig, quantity) || 0;
       newQuoteDetail.sampleValue = samplePrice;
+      totalPrice += samplePrice;
 
       totalCost += samplePrice;
     };
