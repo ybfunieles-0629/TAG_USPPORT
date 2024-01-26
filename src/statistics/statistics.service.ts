@@ -49,6 +49,8 @@ export class StatisticsService {
     // Obtener todas las órdenes de compra dentro del año especificado
     const purchaseOrders: PurchaseOrder[] = await this.purchaseOrderRepository
       .createQueryBuilder('purchaseOrder')
+      .leftJoinAndSelect('purchaseOrder.orderListDetails', 'orderListDetails')
+      .leftJoinAndSelect('orderListDetails.product', 'product')
       .where('purchaseOrder.createdAt >= :startDate', { startDate })
       .andWhere('purchaseOrder.createdAt < :endDate', { endDate })
       .getMany();
