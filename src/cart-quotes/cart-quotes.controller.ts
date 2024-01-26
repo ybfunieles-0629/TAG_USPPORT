@@ -5,6 +5,8 @@ import { CartQuotesService } from './cart-quotes.service';
 import { CreateCartQuoteDto } from './dto/create-cart-quote.dto';
 import { UpdateCartQuoteDto } from './dto/update-cart-quote.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('cart-quotes')
 export class CartQuotesController {
@@ -75,10 +77,11 @@ export class CartQuotesController {
   @Patch('change-status/:id')
   @UseGuards(AuthGuard())
   changeStatus(
+    @GetUser() user: User,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateCartQuoteDto: UpdateCartQuoteDto,
   ) {
-    return this.cartQuotesService.changeStatus(id, updateCartQuoteDto);
+    return this.cartQuotesService.changeStatus(user, id, updateCartQuoteDto);
   }
 
   @Delete(':id')

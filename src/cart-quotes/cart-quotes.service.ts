@@ -1004,7 +1004,7 @@ export class CartQuotesService {
     };
   }
 
-  async changeStatus(id: string, updateCartQuoteDto: UpdateCartQuoteDto) {
+  async changeStatus(user: User, id: string, updateCartQuoteDto: UpdateCartQuoteDto) {
     const cartQuote = await this.cartQuoteRepository.findOne({
       where: {
         id,
@@ -1036,32 +1036,7 @@ export class CartQuotesService {
     let purchaseOrderCreated: PurchaseOrder;
 
     if (state.name.toLowerCase() == 'aprobada' || state.name.toLowerCase() == 'rechazada') {
-      const commercialUser: User = await this.userRepository.findOne({
-        where: {
-          id: updateCartQuoteDto.commercialUser,
-        },
-      });
-
-      if (!commercialUser)
-        throw new NotFoundException(`Commercial user with id ${updateCartQuoteDto.commercialUser} not found`);
-
-      if (!commercialUser.isActive)
-        throw new BadRequestException(`Commercial user with id ${updateCartQuoteDto.commercialUser} is currently inactive`);
-
-      const currentCartQuoteUser: User = await this.userRepository.findOne({
-        where: {
-          id: cartQuote.user.id,
-        },
-      });
-
-      if (!currentCartQuoteUser)
-        throw new BadRequestException(`This cart quote does not have an user`);
-
-      currentCartQuoteUser.cartQuotes = null;
-
-      await this.userRepository.save(currentCartQuoteUser);
-
-      cartQuote.user = commercialUser;
+      cartQuote.user = user;
     };
 
     // if (updateCartQuoteDto.epaycoCode) {
