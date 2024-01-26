@@ -114,6 +114,7 @@ export class PurchaseOrderService {
         .where('purchase.clientUser =:clientId', { clientId: user.client.id })
         .leftJoinAndSelect('purchase.orderListDetails', 'orderListDetails')
         .leftJoinAndSelect('orderListDetails.state', 'orderListDetailsState')
+        .leftJoinAndSelect('orderListDetails.orderRating', 'orderListDetailsOrderRating')
         .leftJoinAndSelect('orderListDetails.supplierPurchaseOrder', 'supplierPurchaseOrder')
         .leftJoinAndSelect('supplierPurchaseOrder.state', 'supplierPurchaseOrderState')
         .leftJoinAndSelect('orderListDetails.product', 'product')
@@ -131,6 +132,7 @@ export class PurchaseOrderService {
         skip: offset,
         relations: [
           'orderListDetails',
+          'orderListDetails.orderRating',
           'orderListDetails.state',
           'orderListDetails.supplierPurchaseOrder',
           'orderListDetails.supplierPurchaseOrder.state',
