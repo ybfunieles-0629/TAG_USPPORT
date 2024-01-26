@@ -11,7 +11,6 @@ export class VariantReferenceController {
   constructor(private readonly variantReferenceService: VariantReferenceService) { }
 
   @Post()
-  @UseGuards(AuthGuard())
   create(@Body() createVariantReferenceDto: CreateVariantReferenceDto) {
     return this.variantReferenceService.create(createVariantReferenceDto);
   }
