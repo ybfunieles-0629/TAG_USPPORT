@@ -219,6 +219,7 @@ export class CartQuotesService {
       skip: offset,
       where: {
         isActive: true,
+        isAllowed: true,
       },
       relations: [
         'quoteDetails',
@@ -692,6 +693,7 @@ export class CartQuotesService {
       cartQuotes = await this.cartQuoteRepository
         .createQueryBuilder('quote')
         .where('quote.isActive =:isActive', { isActive: true })
+        .andWhere('quote.isAllowed =:isAllowed', { isAllowed: true })
         .leftJoinAndSelect('quote.state', 'state')
         .leftJoinAndSelect('quote.client', 'client')
         .andWhere('client.id =:id', { id })
