@@ -241,11 +241,48 @@ export class QuoteDetailsService {
     //* SE SOLICITA MUESTRA
     if (hasSample) {
       //* CALCULAR EL PRECIO DE LA MUESTRA
-      let samplePrice: number = await this.calculateSamplePrice(newQuoteDetail, systemConfig, quantity) || 0;
-      newQuoteDetail.sampleValue = samplePrice;
-      totalPrice += samplePrice;
+      // let samplePrice: number = await this.calculateSamplePrice(newQuoteDetail, systemConfig, quantity) || 0;
+      // newQuoteDetail.sampleValue = samplePrice;
+      // totalPrice += samplePrice;
 
-      totalCost += samplePrice;
+      // totalCost += samplePrice;
+
+      const productHasFreeSample: boolean = product?.freeSample == 1 ? true : false;
+
+      newQuoteDetail.sampleValue = 0;
+
+      if (!productHasFreeSample) {
+        const samplePrice: number = product?.samplePrice || 0;
+
+        if (samplePrice <= 0) {
+          const referencePrice: number = product?.referencePrice || 0;
+          totalPrice += referencePrice;
+          newQuoteDetail.sampleValue = referencePrice;
+        };
+
+        totalPrice += samplePrice;
+        newQuoteDetail.sampleValue = samplePrice;
+
+        if (newQuoteDetail?.cartQuote?.destinationCity?.toLowerCase() == 'bogota') {
+          const clientClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
+            ? markingTransportPrices.sort((a, b) => {
+              const diffA = Math.abs(a.volume - totalVolume);
+              const diffB = Math.abs(b.volume - totalVolume);
+              return diffA - diffB;
+            })[0]
+            : undefined;
+
+          const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
+
+          totalPrice += clientTransportPrice;
+          newQuoteDetail.transportTotalPrice = 0;
+          newQuoteDetail.transportTotalPrice += clientTransportPrice;
+          newQuoteDetail.sampleValue += clientTransportPrice;
+        } else {
+          //TODO: FEDEX
+          newQuoteDetail.transportTotalPrice += 20000;
+        }
+      };
     };
 
     //* VERIFICAR SI EL PRODUCTO TIENE EMPAQUE
@@ -349,7 +386,7 @@ export class QuoteDetailsService {
     totalTransportPrice += (clientTransportPrice + supplierFinancingPercentage);
 
     newQuoteDetail.totalPriceWithTransport = (newQuoteDetail.unitPrice + totalTransportPrice) || 0;
-    newQuoteDetail.transportTotalPrice = totalTransportPrice;
+    newQuoteDetail.transportTotalPrice += totalTransportPrice;
 
     //* CALCULAR EL 4X1000 PARA PAGAR SERVICIOS DE ENTREGA
     let value4x1000: number = totalPrice * 0.004 || 0;
@@ -526,6 +563,7 @@ export class QuoteDetailsService {
     cartQuoteDb.totalPrice += totalPrice;
 
     //TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
+    newQuoteDetail.maximumDiscount = 20;
 
     await this.cartQuoteRepository.save(cartQuoteDb);
     await this.quoteDetailRepository.save(newQuoteDetail);
