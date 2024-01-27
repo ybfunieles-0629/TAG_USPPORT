@@ -148,7 +148,13 @@ export class UsersService {
       if (newUser.roles.some((role: Role) => role.name.toLowerCase() === 'cliente' || role.name.toLowerCase() === 'proveedor')) {
         newUser.isActive = false;
 
-        const registrationCode: string = this.getJwtToken({ email: newUser.email });
+        const characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        
+        let registrationCode: string = '';
+        
+        for (let i = 0; i < 6; i++) {
+          registrationCode += characters.charAt(Math.floor(Math.random() * characters.length));
+        };
 
         if (registrationCode.length > 0)
           newUser.registrationCode = registrationCode;
@@ -255,13 +261,16 @@ export class UsersService {
   }
 
   async confirmAccount(confirmRegistryDto: ConfirmRegistryDto) {
-    let configService: ConfigService;
+    const email: string = confirmRegistryDto.email;
 
-    const data = this.jwtService.decode(confirmRegistryDto.code);
+    const user: User = await this.userRepository.findOne({
+      where: {
+        email,
+      },
+    });
 
-    const jwtStrategy = new JwtStrategy(this.userRepository, configService);
-
-    const user = await jwtStrategy.validate(data);
+    if (!user)
+      throw new NotFoundException(`User with email ${email} not found`);
 
     if (user.registrationCode == confirmRegistryDto.code)
       user.isActive = true;
