@@ -51,20 +51,17 @@ export class StatisticsService {
     const purchaseOrders: PurchaseOrder[] = await this.purchaseOrderRepository
       .createQueryBuilder('purchaseOrder')
       .leftJoinAndSelect('purchaseOrder.orderListDetails', 'orderListDetails')
-      .leftJoinAndSelect('orderListDetails.product', 'product')
+      .leftJoin('orderListDetails.product', 'product')
       .where('purchaseOrder.createdAt >= :startDate', { startDate })
       .andWhere('purchaseOrder.createdAt < :endDate', { endDate })
       .getMany();
-
-    // Calcular la suma total del valor de las órdenes de compra durante el año
-    const valorTotalAñoPorVentas: number = purchaseOrders.reduce((total, order) => total + order.value, 0);
 
     // Crear un mapa para almacenar las métricas por cliente
     const clientMetricsMap: Map<string, any> = new Map();
 
     // Calcular las métricas por cliente
-    purchaseOrders?.forEach((order: PurchaseOrder) => {
-      const clientId = order?.clientUser;
+    purchaseOrders.forEach((order: PurchaseOrder) => {
+      const clientId = order.clientUser;
       if (!clientMetricsMap.has(clientId)) {
         clientMetricsMap.set(clientId, {
           ventas: 0,
@@ -78,28 +75,22 @@ export class StatisticsService {
 
       // Incrementar ventas y utilidad del cliente
       clientMetricsMap.get(clientId).ventas += order.value;
-      clientMetricsMap.get(clientId).utilidad += order.businessUtility; // Suponiendo que 'utility' es el campo de utilidad en la orden
+      clientMetricsMap.get(clientId).utilidad += order.businessUtility; // Suponiendo que 'businessUtility' es el campo de utilidad en la orden
 
       // Incrementar carritos realizados y calcular items cotizados, ocRecibidas y pedidos
       clientMetricsMap.get(clientId).carritosRealizados++;
-      order?.orderListDetails?.forEach((orderListDetail: OrderListDetail) => {
-        clientMetricsMap.get(clientId).itemsCotizados += orderListDetail.product;
+      order.orderListDetails?.forEach((orderListDetail: OrderListDetail) => {
+        clientMetricsMap.get(clientId).itemsCotizados += orderListDetail.productTotalPrice; // Cambiar al campo correcto que representa el precio total del producto
         clientMetricsMap.get(clientId).ocRecibidas++;
-        clientMetricsMap.get(clientId).pedidos += orderListDetail.product;
+        clientMetricsMap.get(clientId).pedidos++;
       });
     });
-
-    // Calcular utilidad total por año
-    const utilidadTotalPorAño: number = Array.from(clientMetricsMap.values()).reduce((total, metrics) => total + metrics.utilidad, 0);
-
-    // Calcular % sobre las ventas
-    const porcentajeSobreVentas: number = ((utilidadTotalPorAño - valorTotalAñoPorVentas) / utilidadTotalPorAño) * 100;
 
     // Obtener los 10 principales clientes con más compras
     const top10ClientsInfo: Client[] = await this.clientRepository
       .createQueryBuilder('client')
-      .leftJoinAndSelect('client.cartQuotes', 'cartQuotes')
-      .orderBy('cartQuotes', 'DESC')
+      .leftJoin('client.cartQuotes', 'cartQuotes')
+      // .orderBy('cartQuotes.', 'DESC') // Ordenar por la cantidad de cotizaciones
       .take(10)
       .getMany();
 
@@ -110,21 +101,16 @@ export class StatisticsService {
       return {
         rank: index + 1,
         clientId: clientId,
-        ventas: metrics.ventas,
-        porcentajeSobreVentas: porcentajeSobreVentas,
-        utilidad: metrics.utilidad,
-        porcentajeSobreUtilidadTotal: ((metrics.utilidad - utilidadTotalPorAño) / utilidadTotalPorAño) * 100,
-        roi: metrics.utilidad / metrics.ventas,
-        carritosRealizados: metrics.carritosRealizados,
-        itemsCotizados: metrics.itemsCotizados,
-        ocRecibidas: metrics.ocRecibidas,
-        pedidos: metrics.pedidos
+        ventas: metrics?.ventas || 0,
+        utilidad: metrics?.utilidad || 0,
+        carritosRealizados: metrics?.carritosRealizados || 0,
+        itemsCotizados: metrics?.itemsCotizados || 0,
+        ocRecibidas: metrics?.ocRecibidas || 0,
+        pedidos: metrics?.pedidos || 0
       };
     });
 
     return {
-      valorTotalAñoPorVentas: valorTotalAñoPorVentas,
-      utilidadTotalPorAño: utilidadTotalPorAño,
       top10Clientes: top10ClientsFormatted
     };
   }
