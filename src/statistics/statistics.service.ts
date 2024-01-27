@@ -96,10 +96,10 @@ export class StatisticsService {
     const porcentajeSobreVentas: number = ((utilidadTotalPorAño - valorTotalAñoPorVentas) / utilidadTotalPorAño) * 100;
 
     // Obtener los 10 principales clientes con más compras
-    const top10ClientsInfo = await this.clientRepository
+    const top10ClientsInfo: Client[] = await this.clientRepository
       .createQueryBuilder('client')
       .leftJoinAndSelect('client.cartQuotes', 'cartQuotes')
-      .orderBy('client.cartQuotes', 'DESC')
+      .orderBy('cartQuotes', 'DESC')
       .take(10)
       .getMany();
 

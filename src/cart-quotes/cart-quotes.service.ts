@@ -1084,7 +1084,8 @@ export class CartQuotesService {
 
       for (const quoteDetail of cartQuote.quoteDetails) {
         const supplierPurchaseOrderData = {
-          state: supplierPurchaseOrderState
+          state: supplierPurchaseOrderState,
+          orderCode: uuidv4(),
         };
 
         const supplierPurchaseOrder: SupplierPurchaseOrder = await this.supplierPurchaseOrderRepository.save(supplierPurchaseOrderData);
