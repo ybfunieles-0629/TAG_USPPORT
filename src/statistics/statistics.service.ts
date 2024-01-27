@@ -82,29 +82,40 @@ export class StatisticsService {
 
     // Calcular métricas por cliente
     const clientsMetrics = await Promise.all(sortedClients.map(async ([clientId, totalSales], index) => {
+      const client = await this.clientRepository.findOne({
+        where: {
+          id: clientId,
+        },
+        relations: [
+          'user',
+        ],
+      });
+      
+      // Obtener el cliente por su ID
       const orders = await this.purchaseOrderRepository.count({ where: { clientUser: clientId } });
       const orderDetails = await this.purchaseOrderRepository.find({
         where: { clientUser: clientId },
         relations: ['orderListDetails']
       });
 
-      const itemsCotizados = orderDetails.reduce((acc, order) => {
-        order.orderListDetails.forEach(detail => acc += detail.quantities);
+      const itemsCotizados = orderDetails.reduce((acc, orderDetail) => {
+        orderDetail.orderListDetails.forEach(detail => acc += detail.quantities);
         return acc;
       }, 0);
 
-      const totalProducts = orderDetails.reduce((acc, order) => {
-        order.orderListDetails.forEach(detail => acc += detail.quantities);
+      const totalProducts = orderDetails.reduce((acc, orderDetail) => {
+        orderDetail.orderListDetails.forEach(detail => acc += detail.quantities);
         return acc;
       }, 0);
 
       return {
         rank: index + 1,
         clientId,
+        clientName: client?.user?.name || 'Unknown', // Obtener el nombre del cliente
         ventas: totalSales,
         porcentajeSobreVentas: ((totalSales - ventas) / ventas) * 100,
         utilidad: utilidadTotal,
-        porcentajeSobreUtilidadTotal: ((utilidadTotal - utilidadTotal) / utilidadTotal) * 100 || 0,
+        // porcentajeSobreUtilidadTotal: ((utilidadTotal - orderDetail.businessUtility) / utilidadTotal) * 100,
         roi: 0, // No se proporcionó una fórmula clara para calcular ROI
         carritosRealizados: orders,
         itemsCotizados,
