@@ -108,6 +108,11 @@ export class QuoteDetail {
   @Column('int', {
 
   })
+  maximumDiscount: number;
+
+  @Column('int', {
+
+  })
   subTotal: number;
 
   @Column('int', {
