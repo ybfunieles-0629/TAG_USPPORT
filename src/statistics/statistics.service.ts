@@ -51,7 +51,7 @@ export class StatisticsService {
     const purchaseOrders: PurchaseOrder[] = await this.purchaseOrderRepository
       .createQueryBuilder('purchaseOrder')
       .leftJoinAndSelect('purchaseOrder.orderListDetails', 'orderListDetails')
-      .leftJoin('orderListDetails.product', 'product')
+      .leftJoinAndSelect('orderListDetails.product', 'product')
       .where('purchaseOrder.createdAt >= :startDate', { startDate })
       .andWhere('purchaseOrder.createdAt < :endDate', { endDate })
       .getMany();
@@ -63,6 +63,9 @@ export class StatisticsService {
       ventas += order.value;
       utilidadTotal += order.businessUtility;
     });
+
+    // Asegurarse de que la utilidad no sea negativa
+    utilidadTotal = Math.max(0, utilidadTotal);
 
     // Obtener las ventas por cliente
     const clientSales: Map<string, number> = new Map();
@@ -101,7 +104,7 @@ export class StatisticsService {
         ventas: totalSales,
         porcentajeSobreVentas: ((totalSales - ventas) / ventas) * 100,
         utilidad: utilidadTotal,
-        porcentajeSobreUtilidadTotal: ((utilidadTotal - utilidadTotal) / utilidadTotal) * 100,
+        porcentajeSobreUtilidadTotal: ((utilidadTotal - utilidadTotal) / utilidadTotal) * 100 || 0,
         roi: 0, // No se proporcionó una fórmula clara para calcular ROI
         carritosRealizados: orders,
         itemsCotizados,
