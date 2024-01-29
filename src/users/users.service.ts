@@ -661,12 +661,12 @@ export class UsersService {
     if (roles.isCommercial) {
       const commercialWithClients: User[] = await query
         .leftJoinAndSelect('user.client', 'client')
-        .leftJoinAndSelect('client.admin', 'admin')
-        .leftJoinAndSelect('admin.user', 'adminUser')
-        .where('adminUser.id =:adminId', { adminId: user.id })
+        .leftJoinAndSelect('client.admin', 'clientAdmin')
+        .leftJoinAndSelect('clientAdmin.user', 'clientAdminUser')
+        .where('clientAdminUser.id = :adminId', { adminId: user.id })
         .leftJoinAndSelect('client.addresses', 'clientAddresses')
         .leftJoinAndSelect('client.user', 'clientUser')
-        .leftJoinAndSelect('clientUser.roles', 'roles')
+        .leftJoinAndSelect('clientUser.roles', 'clientUserRoles')
         .leftJoinAndSelect('clientUser.brands', 'brands')
         .leftJoinAndSelect('clientUser.company', 'company')
         .leftJoinAndSelect('clientUser.privileges', 'privileges')
@@ -680,16 +680,16 @@ export class UsersService {
       if (user.client && user.mainSecondaryUser == 0) {
         const [commercialWithClients, totalCount] = await query
           .leftJoinAndSelect('user.company', 'userCompany')
-          .leftJoinAndSelect('user.client', 'client')
-          .leftJoinAndSelect('client.admin', 'admin')
-          .leftJoinAndSelect('admin.user', 'adminUser')
+          .leftJoinAndSelect('user.client', 'userClient')
+          .leftJoinAndSelect('userClient.admin', 'clientAdmin')
+          .leftJoinAndSelect('clientAdmin.user', 'clientAdminUser')
           .leftJoinAndSelect('client.addresses', 'clientAddresses')
           .leftJoinAndSelect('client.user', 'clientUser')
-          .leftJoinAndSelect('clientUser.roles', 'roles')
+          .leftJoinAndSelect('clientUser.roles', 'clientUserRoles')
           .leftJoinAndSelect('clientUser.brands', 'brands')
           .leftJoinAndSelect('clientUser.company', 'company')
-          .andWhere('company.id =:userCompanyId', { userCompanyId: user.company.id })
-          .andWhere('clientUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 1 })
+          .andWhere('company.id = :userCompanyId', { userCompanyId: user.company.id })
+          .andWhere('clientUser.mainSecondaryUser = :mainSecondaryUser', { mainSecondaryUser: 1 })
           .leftJoinAndSelect('clientUser.privileges', 'privileges')
           .leftJoinAndSelect('clientUser.permissions', 'permissions')
           .getManyAndCount();
@@ -699,9 +699,9 @@ export class UsersService {
       } else {
         for (const role of roles.roles) {
           const [users, totalCount] = await query
-            .leftJoinAndSelect('user.roles', 'roles')
-            .where('user.isAllowed =:isAllowed', { isAllowed })
-            .andWhere('roles.name =:role', { role })
+            .leftJoinAndSelect('user.roles', 'userRoles')
+            .where('user.isAllowed = :isAllowed', { isAllowed })
+            .andWhere('userRoles.name = :role', { role })
             .leftJoinAndSelect('user.brands', 'brands')
             .leftJoinAndSelect('user.company', 'company')
             .leftJoinAndSelect('user.privileges', 'privileges')
