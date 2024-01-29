@@ -16,6 +16,16 @@ export class SwiperHome {
   subtitle: string;
 
   @Column('varchar', {
+    
+  })
+  location: string;
+
+  @Column('varchar', {
+
+  })
+  url: string;
+
+  @Column('varchar', {
 
   })
   imageUrl: string;
