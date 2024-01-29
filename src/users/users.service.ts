@@ -647,14 +647,19 @@ export class UsersService {
   }
 
   async filterUsersByManyRoles(roles: FilterManyByRolesDto, user: User, paginationDto: PaginationDto) {
-    let { limit = 10, offset = 0 } = paginationDto;
+    let { limit = 10, offset = 0, isAllowed } = paginationDto;
 
     const usersToShow: User[] = [];
     let count: number = 0;
 
+    const query = this.userRepository.createQueryBuilder('user');
+
+    if (typeof isAllowed !== 'undefined') {
+      query.andWhere('user.isAllowed = :isAllowed', { isAllowed });
+    }
+
     if (roles.isCommercial) {
-      const commercialWithClients: User[] = await this.userRepository
-        .createQueryBuilder('user')
+      const commercialWithClients: User[] = await query
         .leftJoinAndSelect('user.client', 'client')
         .leftJoinAndSelect('client.admin', 'admin')
         .leftJoinAndSelect('admin.user', 'adminUser')
@@ -673,8 +678,7 @@ export class UsersService {
       usersToShow.push(...commercialWithClients);
     } else {
       if (user.client && user.mainSecondaryUser == 0) {
-        const [commercialWithClients, totalCount] = await this.userRepository
-          .createQueryBuilder('user')
+        const [commercialWithClients, totalCount] = await query
           .leftJoinAndSelect('user.company', 'userCompany')
           .leftJoinAndSelect('user.client', 'client')
           .leftJoinAndSelect('client.admin', 'admin')
@@ -684,7 +688,7 @@ export class UsersService {
           .leftJoinAndSelect('clientUser.roles', 'roles')
           .leftJoinAndSelect('clientUser.brands', 'brands')
           .leftJoinAndSelect('clientUser.company', 'company')
-          .where('company.id =:userCompanyId', { userCompanyId: user.company.id })
+          .andWhere('company.id =:userCompanyId', { userCompanyId: user.company.id })
           .andWhere('clientUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 1 })
           .leftJoinAndSelect('clientUser.privileges', 'privileges')
           .leftJoinAndSelect('clientUser.permissions', 'permissions')
@@ -694,10 +698,10 @@ export class UsersService {
         count += totalCount;
       } else {
         for (const role of roles.roles) {
-          const [users, totalCount] = await this.userRepository
-            .createQueryBuilder('user')
+          const [users, totalCount] = await query
             .leftJoinAndSelect('user.roles', 'roles')
-            .where('roles.name =:role', { role })
+            .where('user.isAllowed =:isAllowed', { isAllowed })
+            .andWhere('roles.name =:role', { role })
             .leftJoinAndSelect('user.brands', 'brands')
             .leftJoinAndSelect('user.company', 'company')
             .leftJoinAndSelect('user.privileges', 'privileges')
@@ -708,7 +712,6 @@ export class UsersService {
             .leftJoinAndSelect('user.client', 'client')
             .leftJoinAndSelect('client.addresses', 'clientAddresses')
             .leftJoinAndSelect('user.supplier', 'supplier')
-            .andWhere('user.isAllowed =:isAllowed', { isAllowed: 1 })
             .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
             .getManyAndCount();
 
