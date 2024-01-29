@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConsoleLogger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { plainToClass } from 'class-transformer';
@@ -237,6 +237,7 @@ export class QuoteDetailsService {
     //* CANTIDAD QUEMADA EN QUOTE DETAIL
     const burnQuantity: number = newQuoteDetail?.unitPrice || 0;
     totalCost += burnQuantity;
+    newQuoteDetail.transportTotalPrice = 0;
 
     //* SE SOLICITA MUESTRA
     if (hasSample) {
@@ -276,8 +277,8 @@ export class QuoteDetailsService {
 
           totalPrice += clientTransportPrice;
           newQuoteDetail.transportTotalPrice = 0;
-          newQuoteDetail.transportTotalPrice += clientTransportPrice;
-          newQuoteDetail.sampleValue += clientTransportPrice;
+          newQuoteDetail.transportTotalPrice += clientTransportPrice || 0;
+          newQuoteDetail.sampleValue += clientTransportPrice || 0;
         } else {
           //TODO: FEDEX
           newQuoteDetail.transportTotalPrice += 20000;
@@ -383,10 +384,10 @@ export class QuoteDetailsService {
 
     //* CALCULAR Y ADICIONAR MARGEN DE GANANCIA DE TRANSPORTE
     const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * clientTransportPrice || 0;
-    totalTransportPrice += (clientTransportPrice + supplierFinancingPercentage);
+    totalTransportPrice += (clientTransportPrice + supplierFinancingPercentage) || 0;
 
     newQuoteDetail.totalPriceWithTransport = (newQuoteDetail.unitPrice + totalTransportPrice) || 0;
-    newQuoteDetail.transportTotalPrice += totalTransportPrice;
+    newQuoteDetail.transportTotalPrice += totalTransportPrice || 0;
 
     //* CALCULAR EL 4X1000 PARA PAGAR SERVICIOS DE ENTREGA
     let value4x1000: number = totalPrice * 0.004 || 0;
@@ -531,7 +532,6 @@ export class QuoteDetailsService {
     totalPrice += iva;
     totalCost += iva;
 
-
     //* CALCULAR PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
     Math.round(newQuoteDetail.totalValue);
 
@@ -545,7 +545,7 @@ export class QuoteDetailsService {
     cartQuoteDb.withholdingAtSourceValue = withholdingAtSourceValue;
 
     //* CALCULAR UTILIDAD DEL NEGOCIO
-    const businessUtility = (totalPrice - totalCost - withholdingAtSourceValue);
+    const businessUtility = (totalPrice - totalCost - withholdingAtSourceValue) || 0;
     newQuoteDetail.businessUtility = businessUtility;
 
     //* CALCULAR DESCUENTO
