@@ -527,8 +527,7 @@ export class CartQuotesService {
         .leftJoinAndSelect('user.company', 'company')
         .leftJoinAndSelect('quote.quoteDetails', 'quoteDetails')
         .leftJoinAndSelect('quoteDetails.product', 'product')
-        .leftJoinAndSelect('product.images', 'images') // Unir la tabla de imágenes del producto
-        .addSelect(['quote', 'images']) // Seleccionar las columnas de quote y images
+        .leftJoinAndSelect('product.images', 'images')
         .leftJoinAndSelect('quote.orderListDetail', 'orderListDetail')
         .leftJoinAndSelect('orderListDetail.orderRating', 'orderRating')
         .leftJoinAndSelect('quoteDetails.transportServices', 'transportServices')
@@ -551,14 +550,16 @@ export class CartQuotesService {
     }
 
     const cartQuotesWithOneImage = cartQuotes.map((cartQuote) => {
-      const { id, quoteDetails } = cartQuote;
-      const modifiedQuoteDetails = quoteDetails.map((quoteDetail) => {
-        const { product } = quoteDetail;
-        const { images, ...restProduct } = product;
-        const modifiedImages = images.slice(0, 1);
-        return { ...quoteDetail, product: { ...restProduct, images: modifiedImages } };
-      });
-      return { id, quoteDetails: modifiedQuoteDetails, ...cartQuote };
+      return {
+        ...cartQuote,
+        quoteDetails: cartQuote.quoteDetails.map((quoteDetail: QuoteDetail) => ({
+          ...quoteDetail,
+          product: {
+            ...quoteDetail.product,
+            image: quoteDetail.product.images[0] || '',
+          }
+        }))
+      };
     });
 
     return { cartQuotes: cartQuotesWithOneImage };
