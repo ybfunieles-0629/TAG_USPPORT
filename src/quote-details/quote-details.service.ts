@@ -604,10 +604,15 @@ export class QuoteDetailsService {
   }
 
   async update(id: string, updateQuoteDetailDto: UpdateQuoteDetailDto) {
+    const hasSample: boolean = updateQuoteDetailDto.hasSample;
+
     const quoteDetail = await this.quoteDetailRepository.findOne({
       where: {
         id,
       },
+      relations: [
+        'cartQuote',
+      ],
     });
 
     if (!quoteDetail)
@@ -615,49 +620,401 @@ export class QuoteDetailsService {
 
     const updatedQuoteDetail = plainToClass(QuoteDetail, updateQuoteDetailDto);
 
-    const cartQuote = await this.cartQuoteRepository.findOne({
+    const cartQuoteDb: CartQuote = await this.cartQuoteRepository.findOne({
       where: {
-        id: updateQuoteDetailDto.cartQuote,
-      },
+        id: quoteDetail.cartQuote.id,
+      }
     });
 
-    if (!cartQuote)
-      throw new NotFoundException(`Cart quote with id ${updateQuoteDetailDto} not found`);
+    const product: Product = quoteDetail.product;
+    const cartQuote: CartQuote = quoteDetail.cartQuote;
 
-    const product = await this.productRepository.findOne({
-      where: {
-        id: updateQuoteDetailDto.product,
+    if (!cartQuoteDb)
+      throw new NotFoundException(`Cart quote with id ${quoteDetail.cartQuote.id} not found`);
+
+    cartQuoteDb.totalPrice += quoteDetail.total || 0;
+    cartQuoteDb.productsQuantity += quoteDetail.quantities || 0;
+
+    //* ------------- CALCULOS ------------- *//
+    const quantity: number = updatedQuoteDetail.quantities || 0;
+    let totalPrice: number = updatedQuoteDetail.unitPrice * quantity || 0;
+    let totalTransportPrice: number = 0;
+    let totalCost: number = 0;
+    let productVolume: number = 0;
+    let totalVolume: number = 0;
+
+    //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL MARCADO
+    const markingTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
+      .createQueryBuilder('localTransportPrice')
+      .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
+      .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
+      .getMany();
+
+    //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL CLIENTE
+    const clientTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
+      .createQueryBuilder('localTransportPrice')
+      .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
+      .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: cartQuote.destinationCity.toLowerCase().trim() })
+      .getMany();
+
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+
+    //* OBTENER LA CONFIGURACIÓN DEL SISTEMA
+    const systemConfigDb: SystemConfig[] = await this.systemConfigRepository.find();
+    const systemConfig: SystemConfig = systemConfigDb[0];
+
+    //* -------------------------- INICIO DE CALCULOS -------------------------- *//
+    //* CALCULAR EL VOLUMEN DEL PRODUCTO
+    productVolume = (product?.height * product?.weight * product?.large) || 0;
+
+    //* DATOS DEL CLIENTE
+    const cartQuoteClient: Client = cartQuote?.client;
+    const clientUser: User = cartQuote?.client?.user;
+    let clientType: string = '';
+
+    //* CANTIDAD QUEMADA EN QUOTE DETAIL
+    const burnQuantity: number = updatedQuoteDetail?.unitPrice || 0;
+    totalCost += burnQuantity;
+    updatedQuoteDetail.transportTotalPrice = 0;
+
+    //* SE SOLICITA MUESTRA
+    if (hasSample) {
+      //* CALCULAR EL PRECIO DE LA MUESTRA
+      // let samplePrice: number = await this.calculateSamplePrice(updatedQuoteDetail, systemConfig, quantity) || 0;
+      // updatedQuoteDetail.sampleValue = samplePrice;
+      // totalPrice += samplePrice;
+
+      // totalCost += samplePrice;
+
+      const productHasFreeSample: boolean = product?.freeSample == 1 ? true : false;
+
+      updatedQuoteDetail.sampleValue = 0;
+
+      if (!productHasFreeSample) {
+        const samplePrice: number = product?.samplePrice || 0;
+
+        if (samplePrice <= 0) {
+          const referencePrice: number = product?.referencePrice || 0;
+          totalPrice += referencePrice;
+          updatedQuoteDetail.sampleValue = referencePrice;
+        };
+
+        totalPrice += samplePrice;
+        updatedQuoteDetail.sampleValue = samplePrice;
+
+        if (updatedQuoteDetail?.cartQuote?.destinationCity?.toLowerCase() == 'bogota') {
+          const clientClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
+            ? markingTransportPrices.sort((a, b) => {
+              const diffA = Math.abs(a.volume - totalVolume);
+              const diffB = Math.abs(b.volume - totalVolume);
+              return diffA - diffB;
+            })[0]
+            : undefined;
+
+          const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
+
+          totalPrice += clientTransportPrice;
+          updatedQuoteDetail.transportTotalPrice = 0;
+          updatedQuoteDetail.transportTotalPrice += clientTransportPrice || 0;
+          updatedQuoteDetail.sampleValue += clientTransportPrice || 0;
+        } else {
+          //TODO: FEDEX
+          updatedQuoteDetail.transportTotalPrice += 20000;
+        }
+      };
+    };
+
+    //* VERIFICAR SI EL PRODUCTO TIENE EMPAQUE
+    const packing: Packing = product.packings.length > 0 ? product.packings[0] : product?.refProduct?.packings[0] || undefined;
+    const packingUnities: number = product.packings.length > 0 ? product?.packings[0]?.unities : product?.refProduct?.packings[0]?.unities || 0;
+
+    //* CALCULAR EL VOLUMEN DEL EMPAQUE DEL PRODUCTO
+    let boxesQuantity: number = (quantity / packingUnities) || 0;
+
+    boxesQuantity = Math.round(boxesQuantity) + 1 || 0;
+
+    //* CALCULAR EL VOLUMEN DEL PAQUETE
+    const packingVolume: number = (packing?.height * packing?.width * packing?.large) || 0;
+    totalVolume = (packingVolume * boxesQuantity) || 0;
+
+    //* CALCULA EL COSTO DE TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL MARCADO
+    const markingClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
+      ? markingTransportPrices.sort((a, b) => {
+        const diffA = Math.abs(a.volume - totalVolume);
+        const diffB = Math.abs(b.volume - totalVolume);
+        return diffA - diffB;
+      })[0]
+      : undefined;
+
+    const { origin: markingOrigin, destination: markingDestination, price: markingTransportPrice, volume: markingTransportVolume } = markingClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
+
+    //* CALCULAR EL COSTO DE TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL CLIENTE
+    const clientClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
+      ? markingTransportPrices.sort((a, b) => {
+        const diffA = Math.abs(a.volume - totalVolume);
+        const diffB = Math.abs(b.volume - totalVolume);
+        return diffA - diffB;
+      })[0]
+      : undefined;
+
+    const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
+
+    //* COTIZAR SERVICIO DE MARCACIÓN
+    const quoteDetailRefProduct: RefProduct = product.refProduct;
+
+    const markingServices: MarkingService[] = updatedQuoteDetail?.markingServices || [];
+
+    //* SI ES PERSONALIZABLE EL PRODUCTO
+
+    if (quoteDetailRefProduct?.personalizableMarking == 1) {
+      if (markingServices || markingServices.length > 0) {
+        for (const markingService of markingServices) {
+          let markingServicePropertyPrice: number = 0;
+
+          const markingServiceProperty: MarkingServiceProperty = markingService?.markingServiceProperty;
+
+          for (const markedServicePrice of markingServiceProperty.markedServicePrices) {
+            //* VERIFICAR QUE LA CANTIDAD SE ENCUENTRE ENTRE EL RANGO DEL PRECIO SERVICIO MARCADO
+            if (markedServicePrice.minRange >= quantity && markedServicePrice.maxRange <= quantity) {
+              let totalMarking: number = (quantity * markedServicePrice.unitPrice);
+              updatedQuoteDetail.markingTotalPrice = totalMarking;
+
+              const marking: Marking = markingServiceProperty.externalSubTechnique.marking;
+
+              //* SI EL SERVICIO DE MARCADO TIENE IVA
+              if (marking.iva > 0) {
+                //* CALCULAR EL IVA
+                const iva: number = (marking.iva / 100) * totalMarking || 0;
+                totalMarking += iva;
+                totalCost += iva;
+                updatedQuoteDetail.markingPriceWithIva = iva;
+
+                //* CALCULAR EL 4X1000
+                let value4x1000: number = totalMarking * 0.004 || 0;
+                totalMarking += value4x1000;
+                totalCost += value4x1000;
+                updatedQuoteDetail.markingPriceWith4x1000 = value4x1000;
+              };
+
+              //* ADICIONAR EL % DE MARGEN DE GANANCIA POR SERVICIO 
+              const marginForDialingServices: number = (systemConfig.marginForDialingServices / 100) * totalMarking || 0;
+              totalMarking += marginForDialingServices;
+
+              //* CALCULAR EL COSTO DEL TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL PROVEEDOR
+              markingService.markingTransportPrice = markingTransportPrice;
+              totalMarking += markingTransportPrice;
+              totalCost += markingTransportPrice;
+              updatedQuoteDetail.markingWithProductSupplierTransport += markingTransportPrice;
+
+              //* ADICIONAR EL MARGEN DE GANANCIA POR SERVICIO DE TRANSPORTE
+              const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * markingTransportPrice || 0;
+              totalMarking += supplierFinancingPercentage;
+
+              markingService.markingTransportPrice = (markingTransportPrice + supplierFinancingPercentage) || 0;
+              markingService.calculatedMarkingPrice = totalMarking;
+
+              await this.markingServicePropertyRepository.save(markingService);
+            };
+          };
+        };
+      };
+    };
+
+    //* CALCULAR Y ADICIONAR MARGEN DE GANANCIA DE TRANSPORTE
+    const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * clientTransportPrice || 0;
+    totalTransportPrice += (clientTransportPrice + supplierFinancingPercentage) || 0;
+
+    updatedQuoteDetail.totalPriceWithTransport = (updatedQuoteDetail.unitPrice + totalTransportPrice) || 0;
+    updatedQuoteDetail.transportTotalPrice += totalTransportPrice || 0;
+
+    //* CALCULAR EL 4X1000 PARA PAGAR SERVICIOS DE ENTREGA
+    let value4x1000: number = totalPrice * 0.004 || 0;
+    totalPrice += value4x1000;
+    totalCost += value4x1000;
+    updatedQuoteDetail.transportServices4x1000 = value4x1000;
+
+    //* ADICIONAR EL % DE MARGEN DE GANANCIA DE CLIENTE
+    if (clientType == 'cliente corporativo secundario') {
+      //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
+      const mainClient: Client = await this.clientRepository
+        .createQueryBuilder('client')
+        .leftJoinAndSelect('client.user', 'clientUser')
+        .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
+        .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
+        .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
+        .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
+        .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
+        .getOne();
+
+      totalPrice += mainClient?.margin;
+    };
+
+    totalPrice += cartQuote?.client?.margin || 0;
+
+    //* SE DEBE ADICIONAR UN FEE ADICIONAL AL USUARIO DENTRO DEL CLIENTE
+    if (clientUser) {
+      if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 1)
+        clientType = 'cliente corporativo secundario';
+      else if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 0)
+        clientType = 'cliente corporativo principal';
+    };
+
+    if (clientType.toLowerCase() == 'cliente corporativo secundario' || clientType.toLowerCase() == 'cliente corporativo principal') {
+      const brandId: string = cartQuote.brandId;
+
+      if (brandId != null || brandId.trim() != '' || brandId != undefined) {
+        const cartQuoteBrand: Brand = await this.brandRepository.findOne({
+          where: {
+            id: brandId,
+          },
+        });
+
+        if (!cartQuoteBrand)
+          throw new NotFoundException(`Brand with id ${brandId} not found`);
+
+        if (cartQuote.client.user.brands.some(brand => brand.id == cartQuoteBrand.id)) {
+          const fee: number = (+cartQuoteBrand.fee / 100) * totalPrice || 0;
+
+          totalPrice += fee;
+          totalCost += fee;
+          updatedQuoteDetail.aditionalClientFee = fee;
+          cartQuote.fee = fee;
+        };
+      };
+    };
+
+    //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
+    const profitMargin: number = 0;
+
+    const paymentDays = [
+      {
+        day: 1,
+        percentage: 3,
       },
-    });
+      {
+        day: 15,
+        percentage: 3,
+      },
+      {
+        day: 30,
+        percentage: 3,
+      },
+      {
+        day: 45,
+        percentage: 4,
+      },
+      {
+        day: 60,
+        percentage: 6,
+      },
+      {
+        day: 90,
+        percentage: 9,
+      },
+    ];
 
-    if (!product)
-      throw new NotFoundException(`Product with id ${updateQuoteDetailDto.product} not found`);
+    //* SI EL CLIENTE ES SECUNDARIO
+    if (clientType == 'cliente corporativo secundario') {
+      //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
+      const mainClient: Client = await this.clientRepository
+        .createQueryBuilder('client')
+        .leftJoinAndSelect('client.user', 'clientUser')
+        .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
+        .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
+        .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
+        .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
+        .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
+        .getOne();
 
-    updatedQuoteDetail.cartQuote = cartQuote;
-    updatedQuoteDetail.product = product;
+      const marginProfit: number = mainClient.margin || 0;
+      const paymentTerms: number = mainClient.paymentTerms || 0;
 
-    // const discountProduct: number = updatedQuoteDetail.product.refProduct.supplier.disccounts[0].disccounts.reduce((maxDiscount, disccount) => {
-    //   if (disccount.maxQuantity !== 0) {
-    //     if (updatedQuoteDetail.quantities >= disccount.minQuantity && updatedQuoteDetail.quantities <= disccount.maxQuantity) {
-    //       return Math.max(maxDiscount, disccount.disccountValue);
-    //     }
-    //   } else {
-    //     if (updatedQuoteDetail.quantities >= disccount.minQuantity) {
-    //       return Math.max(maxDiscount, disccount.disccountValue);
-    //     }
-    //   }
-    //   return maxDiscount;
-    // }, 0);
+      let percentageDiscount: number = 0;
 
-    // updatedQuoteDetail.sampleValue = product.samplePrice;
-    // updatedQuoteDetail.totalValue = updatedQuoteDetail.unitPrice * updatedQuoteDetail.quantities;
-    // updatedQuoteDetail.unitDiscount = updatedQuoteDetail.unitPrice * (discountProduct);
-    // updatedQuoteDetail.subTotal = updatedQuoteDetail.unitPrice * updatedQuoteDetail.quantities + updatedQuoteDetail.markingTotalPrice;
-    // updatedQuoteDetail.discount = updatedQuoteDetail.unitPrice * (discountProduct / 100) * updatedQuoteDetail.quantities | 0;
+      paymentDays.forEach(paymentDay => {
+        if (paymentDay.day == paymentTerms) {
+          percentageDiscount = paymentDay.percentage;
+        };
+      });
 
-    // updatedQuoteDetail.subTotalWithDiscount = updatedQuoteDetail.subTotal - updatedQuoteDetail.discount;
-    // updatedQuoteDetail.iva = (updatedQuoteDetail.subTotalWithDiscount * (updatedQuoteDetail.iva / 100));
-    // updatedQuoteDetail.total = updatedQuoteDetail.subTotalWithDiscount + updatedQuoteDetail.iva;
+      let value: number = totalPrice * (1 - percentageDiscount);
+      totalPrice = Math.round(value);
+    };
+
+    //* SI EL CLIENTE ES PRINCIPAL
+    if (clientType == 'cliente corporativo principal') {
+      const margin: number = cartQuoteClient.margin || 0;
+      const paymentTerms: number = cartQuoteClient.paymentTerms || 0;
+
+      let percentageDiscount: number = 0;
+
+      paymentDays.forEach(paymentDay => {
+        if (paymentDay.day == paymentTerms) {
+          percentageDiscount = paymentDay.percentage;
+        };
+      });
+
+      let value: number = totalPrice * (1 - percentageDiscount);
+      totalPrice = Math.round(value);
+    };
+
+    //* SE HACE DESCUENTO ADICIONAL POR EL COMERCIAL (YA HECHO)
+    updatedQuoteDetail.subTotal = totalPrice;
+
+    //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
+    updatedQuoteDetail.totalValueWithoutIva = totalPrice;
+
+    //* IVA DE LA VENTA
+    const iva: number = (product.iva / 100) * totalPrice || 0;
+    updatedQuoteDetail.iva = iva;
+    totalPrice += iva;
+    totalCost += iva;
+
+    //* CALCULAR PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
+    Math.round(updatedQuoteDetail.totalValue);
+
+    //* CALCULAR EL COSTO DE LA RETENCIÓN EN LA FUENTE
+    const withholdingAtSource: number = systemConfig.withholdingAtSource || 0;
+    const withholdingAtSourceValue: number = (withholdingAtSource / 100) * totalPrice || 0;
+
+    totalPrice += withholdingAtSourceValue;
+    updatedQuoteDetail.withholdingAtSourceValue = withholdingAtSourceValue;
+    totalCost += withholdingAtSourceValue;
+    cartQuoteDb.withholdingAtSourceValue = withholdingAtSourceValue;
+
+    //* CALCULAR UTILIDAD DEL NEGOCIO
+    const businessUtility = (totalPrice - totalCost - withholdingAtSourceValue) || 0;
+    updatedQuoteDetail.businessUtility = businessUtility;
+
+    //* CALCULAR DESCUENTO
+    const discount: number = (product.promoDisccount / 100) * updatedQuoteDetail.subTotal || 0;
+    updatedQuoteDetail.discount = discount;
+
+    //* CALCULAR SUBTOTAL CON DESCUENTO
+    updatedQuoteDetail.subTotalWithDiscount = (updatedQuoteDetail.subTotal - discount) || 0;
+    updatedQuoteDetail.totalCost = totalCost;
+    updatedQuoteDetail.totalValue = totalPrice;
+
+    //* CALCULAR % MARGEN DE GANANCIA DEL NEGOCIO Y MAXIMO DESCUENTO PERMITIDO AL COMERCIAL
+    const businessMarginProfit: number = (totalPrice - updatedQuoteDetail.totalValueWithoutIva);
+    updatedQuoteDetail.businessMarginProfit = businessMarginProfit;
+    cartQuoteDb.totalPrice += totalPrice;
+
+    //TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
+    updatedQuoteDetail.maximumDiscount = 20;
+
+    await this.cartQuoteRepository.save(cartQuoteDb);
+    await this.quoteDetailRepository.save(updatedQuoteDetail);
 
     Object.assign(quoteDetail, updatedQuoteDetail);
 
