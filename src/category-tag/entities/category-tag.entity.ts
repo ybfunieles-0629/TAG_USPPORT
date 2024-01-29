@@ -14,6 +14,11 @@ export class CategoryTag {
   offspringType: string;
 
   @Column('varchar', {
+
+  })
+  icon: string;
+
+  @Column('varchar', {
     
   })
   name: string;
