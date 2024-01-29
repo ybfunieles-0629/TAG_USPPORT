@@ -98,7 +98,7 @@ export class UsersService {
     };
   }
 
-  async createUser(createUserDto: CreateUserDto, externalUser: boolean) {
+  async createUser(createUserDto: CreateUserDto, externalUser: number) {
     const emailInUse: User = await this.userRepository.findOne({
       where: {
         email: createUserDto.email
@@ -143,8 +143,7 @@ export class UsersService {
 
     newUser.roles = roles;
 
-    if (externalUser) {
-
+    if (externalUser == 1) {
       if (newUser.roles.some((role: Role) => role.name.toLowerCase() === 'cliente' || role.name.toLowerCase() === 'proveedor')) {
         newUser.isActive = false;
 
