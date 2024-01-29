@@ -654,6 +654,7 @@ export class UsersService {
 
     const query = this.userRepository.createQueryBuilder('user');
 
+    // Verificar si isAllowed está definido en paginationDto
     if (typeof isAllowed !== 'undefined') {
       query.andWhere('user.isAllowed = :isAllowed', { isAllowed });
     }
@@ -699,9 +700,9 @@ export class UsersService {
       } else {
         for (const role of roles.roles) {
           const [users, totalCount] = await query
-            .leftJoinAndSelect('user.roles', 'userRoles')
+            .leftJoinAndSelect('user.roles', 'userRoless')
             .where('user.isAllowed = :isAllowed', { isAllowed })
-            .andWhere('userRoles.name = :role', { role })
+            .andWhere('userRoless.name = :role', { role })
             .leftJoinAndSelect('user.brands', 'brands')
             .leftJoinAndSelect('user.company', 'company')
             .leftJoinAndSelect('user.privileges', 'privileges')
