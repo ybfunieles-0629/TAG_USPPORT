@@ -17,4 +17,7 @@ export class PaginationDto {
 
   @IsOptional()
   supplier?: number;
+
+  @IsOptional()
+  isAllowed?: number;
 }
