@@ -515,6 +515,7 @@ export class CartQuotesService {
         );
       });
     } else {
+      // Lógica para usuarios no comerciales
       cartQuotes = await this.cartQuoteRepository
         .createQueryBuilder('quote')
         .where('quote.isActive =:isActive', { isActive: true })
@@ -525,13 +526,14 @@ export class CartQuotesService {
         .leftJoinAndSelect('client.user', 'user')
         .leftJoinAndSelect('user.company', 'company')
         .leftJoinAndSelect('quote.quoteDetails', 'quoteDetails')
+        .leftJoinAndSelect('quoteDetails.product', 'product')
+        .leftJoinAndSelect('product.images', 'images') // Unir la tabla de imágenes del producto
+        .addSelect(['quote', 'images']) // Seleccionar las columnas de quote y images
         .leftJoinAndSelect('quote.orderListDetail', 'orderListDetail')
         .leftJoinAndSelect('orderListDetail.orderRating', 'orderRating')
         .leftJoinAndSelect('quoteDetails.transportServices', 'transportServices')
-        .leftJoinAndSelect('quoteDetails.product', 'product')
         .leftJoinAndSelect('product.colors', 'colors')
         .leftJoinAndSelect('product.variantReferences', 'variantReferences')
-        .leftJoinAndSelect('product.images', 'images')
         .leftJoinAndSelect('quoteDetails.markingServices', 'markingServices')
         .leftJoinAndSelect('markingServices.logos', 'logos')
         .leftJoinAndSelect('markingServices.marking', 'marking')
@@ -548,185 +550,18 @@ export class CartQuotesService {
         .getMany();
     }
 
-    const localTransportPricesDb: LocalTransportPrice[] = await this.localTransportPriceRepository.find({
-      where: {
-        origin: 'Bogota',
-      },
+    const cartQuotesWithOneImage = cartQuotes.map((cartQuote) => {
+      const { id, quoteDetails } = cartQuote;
+      const modifiedQuoteDetails = quoteDetails.map((quoteDetail) => {
+        const { product } = quoteDetail;
+        const { images, ...restProduct } = product;
+        const modifiedImages = images.slice(0, 1);
+        return { ...quoteDetail, product: { ...restProduct, images: modifiedImages } };
+      });
+      return { id, quoteDetails: modifiedQuoteDetails, ...cartQuote };
     });
 
-    const result = await Promise.all(cartQuotes.map(async (cartQuote: CartQuote) => {
-      let markingTotalPrice: number = 0;
-
-      const brand: Brand = await this.brandRepository.findOne({
-        where: {
-          id: cartQuote.brandId,
-        },
-      });
-
-      return {
-        id: cartQuote.id,
-        isActive: cartQuote.isActive,
-        brand,
-        quoteName: cartQuote.quoteName,
-        description: cartQuote.description,
-        client: cartQuote?.client || '',
-        clientCompany: cartQuote?.client?.user?.company?.name,
-        destinationCity: cartQuote.destinationCity,
-        deliveryAddress: cartQuote.deliveryAddress,
-        totalPrice: cartQuote.totalPrice,
-        productsQuantity: cartQuote.productsQuantity,
-        weightToOrder: cartQuote.weightToOrder,
-        createdAt: cartQuote.createdAt,
-        state: cartQuote.state?.name || '',
-        quoteDetails: cartQuote?.quoteDetails,
-        products: cartQuote.quoteDetails.map((quoteDetail: QuoteDetail) => {
-          return {
-            id: quoteDetail?.product?.id,
-            name: quoteDetail.product.refProduct.name,
-            discount: quoteDetail.discount,
-            iva: quoteDetail.iva,
-            subTotal: quoteDetail.subTotal,
-            subTotalWithDiscount: quoteDetail.subTotalWithDiscount,
-            totalValue: quoteDetail.totalValue,
-            total: quoteDetail.total,
-            unitPrice: quoteDetail.unitPrice,
-            quantity: quoteDetail.quantities,
-            image: quoteDetail.product?.refProduct?.images[0]?.url || 'default.png',
-            color: quoteDetail.product?.colors[0]?.name || '',
-            samplePrice: quoteDetail.product.samplePrice,
-            refundSampleTime: quoteDetail.product.refundSampleTime,
-            productIva: quoteDetail.product.iva,
-            loanSample: quoteDetail.product.loanSample,
-            // discount: quoteDetail.product.refProduct.supplier.disccounts[0].disccounts.reduce((maxDiscount, disccount) => {
-            //   if (disccount.maxQuantity !== 0) {
-            //     if (quoteDetail.quantities >= disccount.minQuantity && quoteDetail.quantities <= disccount.maxQuantity) {
-            //       return Math.max(maxDiscount, disccount.disccountValue);
-            //     }
-            //   } else {
-            //     if (quoteDetail.quantities >= disccount.minQuantity) {
-            //       return Math.max(maxDiscount, disccount.disccountValue);
-            //     }
-            //   }
-            //   return maxDiscount;
-            // }, 0),
-            packings: quoteDetail.product.packings !== undefined
-              ? quoteDetail.product.packings.map((packing: Packing) => {
-                const packingVolume: number = (packing.height * packing.width * packing.height);
-                const productQuantity: number = quoteDetail.quantities;
-                const volumeWithQuantities: number = (packingVolume * productQuantity);
-
-                const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination == cartQuote.destinationCity);
-
-                const closestLocalTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
-                  ? localTransportPrices.sort((a, b) => {
-                    const diffA = Math.abs(a.volume - volumeWithQuantities);
-                    const diffB = Math.abs(b.volume - volumeWithQuantities);
-                    return diffA - diffB;
-                  })[0]
-                  : undefined;
-
-                const { origin, destination, price, volume } = closestLocalTransportPrice || { origin: '', destination: '', price: 0, volume: 0 };
-
-                const transportCalculation = [{
-                  packingVolume,
-                  productQuantity,
-                  volumeWithQuantities
-                }];
-
-                return {
-                  unities: packing.unities,
-                  large: packing.large,
-                  width: packing.width,
-                  height: packing.height,
-                  smallPackingWeight: packing.smallPackingWeight,
-                  transportCalculation,
-                  localTransportPrice: {
-                    origin,
-                    destination,
-                    price,
-                    volume
-                  },
-                };
-              })
-              : quoteDetail.product.refProduct.packings.map((packing: Packing) => {
-                const packingVolume: number = (packing.height * packing.width * packing.height);
-                const productQuantity: number = quoteDetail.quantities;
-                const volumeWithQuantities: number = (packingVolume * productQuantity);
-
-                const localTransportPrices: LocalTransportPrice[] = localTransportPricesDb.filter((localTransportPriceDb) => localTransportPriceDb.destination == cartQuote.destinationCity);
-
-                const closestLocalTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
-                  ? localTransportPrices.sort((a, b) => {
-                    const diffA = Math.abs(a.volume - volumeWithQuantities);
-                    const diffB = Math.abs(b.volume - volumeWithQuantities);
-                    return diffA - diffB;
-                  })[0]
-                  : undefined;
-
-                const { origin, destination, price, volume } = closestLocalTransportPrice;
-
-                const transportCalculation = [{
-                  packingVolume,
-                  productQuantity,
-                  volumeWithQuantities
-                }];
-
-                return {
-                  unities: packing.unities,
-                  large: packing.large,
-                  width: packing.width,
-                  height: packing.height,
-                  smallPackingWeight: packing.smallPackingWeight,
-                  transportCalculation,
-                  localTransportPrice: {
-                    origin,
-                    destination,
-                    price,
-                    volume
-                  },
-                };
-              }),
-            variantReferences: quoteDetail.product.variantReferences.map((variantReference: VariantReference) => {
-              return {
-                name: variantReference?.name || '',
-              };
-            }),
-            markingServices: quoteDetail?.markingServices?.map((markingService: MarkingService) => {
-              return {
-                logo: markingService?.logos?.map((logo: Logo) => {
-                  return {
-                    logo: logo?.logo || '',
-                    mounting: logo?.mounting || ''
-                  };
-                }),
-                calculatedMarkingPrice: markingService?.calculatedMarkingPrice || '',
-                markingTransportPrice: markingService?.markingTransportPrice || '',
-                marking: markingService?.marking?.name || '',
-                externalSubTechnique: markingService?.externalSubTechnique?.name || '',
-                markingServiceProperty: {
-                  name: markingService?.markingServiceProperty?.name || '',
-                  prices: (markingService.markingServiceProperty.markedServicePrices || [])
-                    .slice()
-                    .sort((a: MarkedServicePrice, b: MarkedServicePrice) => (a?.unitPrice || 0) - (b?.unitPrice || 0))
-                    .map((markedServicePrice: MarkedServicePrice) => {
-                      markingTotalPrice += markedServicePrice.unitPrice;
-
-                      return {
-                        markedServicePrice: markedServicePrice?.unitPrice || 0
-                      };
-                    }),
-                },
-              };
-            }),
-            markingTotalPrice,
-          };
-        }),
-      };
-    }));
-
-    return {
-      cartQuotes: result
-    };
+    return { cartQuotes: cartQuotesWithOneImage };
   }
 
   async update(id: string, updateCartQuoteDto: UpdateCartQuoteDto) {
