@@ -9,4 +9,10 @@ export class CreateSwiperHomeDto {
 
   @IsString()
   imageUrl: string;
+
+  @IsString()
+  url: string;
+
+  @IsString()
+  location: string;
 }
