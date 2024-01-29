@@ -16,6 +16,7 @@ export class CreateOrderRatingDto {
   @IsString()
   comment: string;
 
+  @IsOptional()
   @IsString()
   @IsUUID()
   createdBy: string;
