@@ -30,7 +30,7 @@ export class UsersController {
   @Post()
   create(
     @Body() createUserDto: CreateUserDto,
-    @Query('externalUser') externalUser: boolean,
+    @Query('externalUser') externalUser: number,
   ) {
     return this.usersService.createUser(createUserDto, externalUser);
   }
