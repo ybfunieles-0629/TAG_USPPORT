@@ -148,9 +148,9 @@ export class UsersService {
         newUser.isActive = false;
 
         const characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        
+
         let registrationCode: string = '';
-        
+
         for (let i = 0; i < 6; i++) {
           registrationCode += characters.charAt(Math.floor(Math.random() * characters.length));
         };
@@ -708,6 +708,7 @@ export class UsersService {
             .leftJoinAndSelect('user.client', 'client')
             .leftJoinAndSelect('client.addresses', 'clientAddresses')
             .leftJoinAndSelect('user.supplier', 'supplier')
+            .andWhere('user.isAllowed =:isAllowed', { isAllowed: 1 })
             .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
             .getManyAndCount();
 
