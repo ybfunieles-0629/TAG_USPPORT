@@ -7,6 +7,9 @@ export class CreateCategoryTagDto {
   @IsString()
   description: string;
 
+  @IsString()
+  icon: string;
+
   @IsOptional()
   @IsString()
   categoryMargin: string;
