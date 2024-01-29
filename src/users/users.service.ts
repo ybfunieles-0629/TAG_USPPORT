@@ -655,72 +655,135 @@ export class UsersService {
     const query = this.userRepository.createQueryBuilder('user');
 
     // Verificar si isAllowed está definido en paginationDto
-    if (typeof isAllowed !== 'undefined') {
-      query.andWhere('user.isAllowed = :isAllowed', { isAllowed });
-    }
-
-    if (roles.isCommercial) {
-      const commercialWithClients: User[] = await query
-        .leftJoinAndSelect('user.client', 'client')
-        .leftJoinAndSelect('client.admin', 'clientAdmin')
-        .leftJoinAndSelect('clientAdmin.user', 'clientAdminUser')
-        .where('clientAdminUser.id = :adminId', { adminId: user.id })
-        .leftJoinAndSelect('client.addresses', 'clientAddresses')
-        .leftJoinAndSelect('client.user', 'clientUser')
-        .leftJoinAndSelect('clientUser.roles', 'clientUserRoles')
-        .leftJoinAndSelect('clientUser.brands', 'brands')
-        .leftJoinAndSelect('clientUser.company', 'company')
-        .leftJoinAndSelect('clientUser.privileges', 'privileges')
-        .leftJoinAndSelect('clientUser.permissions', 'permissions')
-        .getMany();
-
-      count += commercialWithClients.length;
-
-      usersToShow.push(...commercialWithClients);
-    } else {
-      if (user.client && user.mainSecondaryUser == 0) {
-        const [commercialWithClients, totalCount] = await query
-          .leftJoinAndSelect('user.company', 'userCompany')
-          .leftJoinAndSelect('user.client', 'userClient')
-          .leftJoinAndSelect('userClient.admin', 'clientAdmin')
+    if (isAllowed == undefined) {
+      if (roles.isCommercial) {
+        const commercialWithClients: User[] = await query
+          .leftJoinAndSelect('user.client', 'client')
+          .leftJoinAndSelect('client.admin', 'clientAdmin')
           .leftJoinAndSelect('clientAdmin.user', 'clientAdminUser')
+          .where('clientAdminUser.id = :adminId', { adminId: user.id })
           .leftJoinAndSelect('client.addresses', 'clientAddresses')
           .leftJoinAndSelect('client.user', 'clientUser')
           .leftJoinAndSelect('clientUser.roles', 'clientUserRoles')
           .leftJoinAndSelect('clientUser.brands', 'brands')
           .leftJoinAndSelect('clientUser.company', 'company')
-          .andWhere('company.id = :userCompanyId', { userCompanyId: user.company.id })
-          .andWhere('clientUser.mainSecondaryUser = :mainSecondaryUser', { mainSecondaryUser: 1 })
           .leftJoinAndSelect('clientUser.privileges', 'privileges')
           .leftJoinAndSelect('clientUser.permissions', 'permissions')
-          .getManyAndCount();
+          .getMany();
+
+        count += commercialWithClients.length;
 
         usersToShow.push(...commercialWithClients);
-        count += totalCount;
       } else {
-        for (const role of roles.roles) {
-          const [users, totalCount] = await query
-            .leftJoinAndSelect('user.roles', 'userRoless')
-            .where('user.isAllowed = :isAllowed', { isAllowed })
-            .andWhere('userRoless.name = :role', { role })
-            .leftJoinAndSelect('user.brands', 'brands')
-            .leftJoinAndSelect('user.company', 'company')
-            .leftJoinAndSelect('user.privileges', 'privileges')
-            .leftJoinAndSelect('user.permissions', 'permissions')
-            .leftJoinAndSelect('user.admin', 'admin')
-            .leftJoinAndSelect('admin.clients', 'adminClients')
-            .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
-            .leftJoinAndSelect('user.client', 'client')
+        if (user.client && user.mainSecondaryUser == 0) {
+          const [commercialWithClients, totalCount] = await query
+            .leftJoinAndSelect('user.company', 'userCompany')
+            .leftJoinAndSelect('user.client', 'userClient')
+            .leftJoinAndSelect('userClient.admin', 'clientAdmin')
+            .leftJoinAndSelect('clientAdmin.user', 'clientAdminUser')
             .leftJoinAndSelect('client.addresses', 'clientAddresses')
-            .leftJoinAndSelect('user.supplier', 'supplier')
-            .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
+            .leftJoinAndSelect('client.user', 'clientUser')
+            .leftJoinAndSelect('clientUser.roles', 'clientUserRoles')
+            .leftJoinAndSelect('clientUser.brands', 'brands')
+            .leftJoinAndSelect('clientUser.company', 'company')
+            .andWhere('company.id = :userCompanyId', { userCompanyId: user.company.id })
+            .andWhere('clientUser.mainSecondaryUser = :mainSecondaryUser', { mainSecondaryUser: 1 })
+            .leftJoinAndSelect('clientUser.privileges', 'privileges')
+            .leftJoinAndSelect('clientUser.permissions', 'permissions')
             .getManyAndCount();
 
-          if (!users)
-            throw new NotFoundException(`Users with role ${role} not found`);
-
-          usersToShow.push(...users);
+          usersToShow.push(...commercialWithClients);
           count += totalCount;
+        } else {
+          for (const role of roles.roles) {
+            const [users, totalCount] = await query
+              .leftJoinAndSelect('user.roles', 'userRoless')
+              .andWhere('userRoless.name = :role', { role })
+              .leftJoinAndSelect('user.brands', 'brands')
+              .leftJoinAndSelect('user.company', 'company')
+              .leftJoinAndSelect('user.privileges', 'privileges')
+              .leftJoinAndSelect('user.permissions', 'permissions')
+              .leftJoinAndSelect('user.admin', 'admin')
+              .leftJoinAndSelect('admin.clients', 'adminClients')
+              .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
+              .leftJoinAndSelect('user.client', 'client')
+              .leftJoinAndSelect('client.addresses', 'clientAddresses')
+              .leftJoinAndSelect('user.supplier', 'supplier')
+              .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
+              .getManyAndCount();
+
+            if (!users)
+              throw new NotFoundException(`Users with role ${role} not found`);
+
+            usersToShow.push(...users);
+            count += totalCount;
+          };
+        }
+      }
+    } else {
+      if (roles.isCommercial) {
+        const commercialWithClients: User[] = await query
+          .leftJoinAndSelect('user.client', 'client')
+          .leftJoinAndSelect('client.admin', 'clientAdmin')
+          .leftJoinAndSelect('clientAdmin.user', 'clientAdminUser')
+          .where('clientAdminUser.id = :adminId', { adminId: user.id })
+          .leftJoinAndSelect('client.addresses', 'clientAddresses')
+          .leftJoinAndSelect('client.user', 'clientUser')
+          .leftJoinAndSelect('clientUser.roles', 'clientUserRoles')
+          .leftJoinAndSelect('clientUser.brands', 'brands')
+          .leftJoinAndSelect('clientUser.company', 'company')
+          .leftJoinAndSelect('clientUser.privileges', 'privileges')
+          .leftJoinAndSelect('clientUser.permissions', 'permissions')
+          .getMany();
+
+        count += commercialWithClients.length;
+
+        usersToShow.push(...commercialWithClients);
+      } else {
+        if (user.client && user.mainSecondaryUser == 0) {
+          const [commercialWithClients, totalCount] = await query
+            .leftJoinAndSelect('user.company', 'userCompany')
+            .leftJoinAndSelect('user.client', 'userClient')
+            .leftJoinAndSelect('userClient.admin', 'clientAdmin')
+            .leftJoinAndSelect('clientAdmin.user', 'clientAdminUser')
+            .leftJoinAndSelect('client.addresses', 'clientAddresses')
+            .leftJoinAndSelect('client.user', 'clientUser')
+            .leftJoinAndSelect('clientUser.roles', 'clientUserRoles')
+            .leftJoinAndSelect('clientUser.brands', 'brands')
+            .leftJoinAndSelect('clientUser.company', 'company')
+            .andWhere('company.id = :userCompanyId', { userCompanyId: user.company.id })
+            .andWhere('clientUser.mainSecondaryUser = :mainSecondaryUser', { mainSecondaryUser: 1 })
+            .leftJoinAndSelect('clientUser.privileges', 'privileges')
+            .leftJoinAndSelect('clientUser.permissions', 'permissions')
+            .getManyAndCount();
+
+          usersToShow.push(...commercialWithClients);
+          count += totalCount;
+        } else {
+          for (const role of roles.roles) {
+            const [users, totalCount] = await query
+              .leftJoinAndSelect('user.roles', 'userRoless')
+              .where('user.isAllowed = :isAllowed', { isAllowed })
+              .andWhere('userRoless.name = :role', { role })
+              .leftJoinAndSelect('user.brands', 'brands')
+              .leftJoinAndSelect('user.company', 'company')
+              .leftJoinAndSelect('user.privileges', 'privileges')
+              .leftJoinAndSelect('user.permissions', 'permissions')
+              .leftJoinAndSelect('user.admin', 'admin')
+              .leftJoinAndSelect('admin.clients', 'adminClients')
+              .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
+              .leftJoinAndSelect('user.client', 'client')
+              .leftJoinAndSelect('client.addresses', 'clientAddresses')
+              .leftJoinAndSelect('user.supplier', 'supplier')
+              .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
+              .getManyAndCount();
+
+            if (!users)
+              throw new NotFoundException(`Users with role ${role} not found`);
+
+            usersToShow.push(...users);
+            count += totalCount;
+          };
         };
       }
     }
