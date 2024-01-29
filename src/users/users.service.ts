@@ -668,6 +668,8 @@ export class UsersService {
           .leftJoinAndSelect('clientUser.company', 'company')
           .leftJoinAndSelect('clientUser.privileges', 'privileges')
           .leftJoinAndSelect('clientUser.permissions', 'permissions')
+          .take(limit)
+          .skip(offset)
           .getMany();
 
         count += commercialWithClients.length;
@@ -690,6 +692,8 @@ export class UsersService {
             .andWhere('clientUser.mainSecondaryUser = :mainSecondaryUser', { mainSecondaryUser: 1 })
             .leftJoinAndSelect('clientUser.privileges', 'privileges')
             .leftJoinAndSelect('clientUser.permissions', 'permissions')
+            .take(limit)
+            .skip(offset)
             .getManyAndCount();
 
           usersToShow.push(...commercialWithClients);
@@ -711,6 +715,8 @@ export class UsersService {
               .leftJoinAndSelect('client.addresses', 'clientAddresses')
               .leftJoinAndSelect('user.supplier', 'supplier')
               .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
+              .take(limit)
+              .skip(offset)
               .getManyAndCount();
 
             if (!users)
@@ -736,6 +742,8 @@ export class UsersService {
           .leftJoinAndSelect('clientUser.company', 'company')
           .leftJoinAndSelect('clientUser.privileges', 'privileges')
           .leftJoinAndSelect('clientUser.permissions', 'permissions')
+          .take(limit)
+          .skip(offset)
           .getMany();
 
         count += commercialWithClients.length;
@@ -758,6 +766,8 @@ export class UsersService {
             .andWhere('clientUser.mainSecondaryUser = :mainSecondaryUser', { mainSecondaryUser: 1 })
             .leftJoinAndSelect('clientUser.privileges', 'privileges')
             .leftJoinAndSelect('clientUser.permissions', 'permissions')
+            .take(limit)
+            .skip(offset)
             .getManyAndCount();
 
           usersToShow.push(...commercialWithClients);
@@ -780,6 +790,8 @@ export class UsersService {
               .leftJoinAndSelect('client.addresses', 'clientAddresses')
               .leftJoinAndSelect('user.supplier', 'supplier')
               .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
+              .take(limit)
+              .skip(offset)
               .getManyAndCount();
 
             if (!users)
@@ -792,7 +804,7 @@ export class UsersService {
       }
     }
 
-    limit = count;
+    limit > 0 ? limit : count;
 
     const paginatedResults = usersToShow.slice(offset, offset + limit);
 
