@@ -90,7 +90,7 @@ export class StatisticsService {
           'user',
         ],
       });
-      
+
       // Obtener el cliente por su ID
       const orders = await this.purchaseOrderRepository.count({ where: { clientUser: clientId } });
       const orderDetails = await this.purchaseOrderRepository.find({
@@ -128,6 +128,59 @@ export class StatisticsService {
       ventas,
       utilidadTotal,
       top10Clientes: clientsMetrics
+    };
+  };
+
+  async getStatsForYear(yearParam: number) {
+    const currentDate: Date = new Date();
+    const currentYear: number = currentDate.getFullYear();
+    const year: number = yearParam || currentYear;
+
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year + 1, 0, 1);
+
+    // Obtener todas las órdenes de compra dentro del año especificado
+    const purchaseOrders: PurchaseOrder[] = await this.purchaseOrderRepository
+      .createQueryBuilder('purchaseOrder')
+      .leftJoinAndSelect('purchaseOrder.orderListDetails', 'orderListDetails')
+      .leftJoinAndSelect('orderListDetails.product', 'product')
+      .where('purchaseOrder.createdAt >= :startDate', { startDate })
+      .andWhere('purchaseOrder.createdAt < :endDate', { endDate })
+      .getMany();
+
+    // Calcular ventas totales y utilidad total
+    let ventas = 0;
+    let utilidadTotal = 0;
+    purchaseOrders.forEach(order => {
+      ventas += order.value;
+      utilidadTotal += order.businessUtility;
+    });
+
+    // Asegurarse de que la utilidad no sea negativa
+    utilidadTotal = Math.max(0, utilidadTotal);
+
+    // Calcular el total de pedidos
+    const totalOrders = purchaseOrders.length;
+
+    // Calcular el total de ítems cotizados
+    const totalItemsCotizados = purchaseOrders.reduce((acc, order) => {
+      order.orderListDetails.forEach(detail => acc += detail.quantities);
+      return acc;
+    }, 0);
+
+    // Calcular el total de productos pedidos
+    const totalProducts = purchaseOrders.reduce((acc, order) => {
+      order.orderListDetails.forEach(detail => acc += detail.quantities);
+      return acc;
+    }, 0);
+
+    return {
+      year,
+      ventas,
+      utilidadTotal,
+      totalOrders,
+      totalItemsCotizados,
+      totalProducts
     };
   }
 }

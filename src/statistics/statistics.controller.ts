@@ -19,4 +19,11 @@ export class StatisticsController {
   ) {
     return this.statisticsService.getTop10ClientsWithMostPurchases(yearParam);
   }
+
+  @Get('utility')
+  getStatsForYear(
+    @Query('yearParam') yearParam: number,
+  ) {
+    return this.statisticsService.getStatsForYear(yearParam);
+  }
 }
