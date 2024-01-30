@@ -612,6 +612,20 @@ export class QuoteDetailsService {
       },
       relations: [
         'cartQuote',
+        'cartQuote.client',
+        'cartQuote.client.user',
+        'cartQuote.client.user.company',
+        'cartQuote.client.user.brands',
+        'product.packings',
+        'product.refProduct',
+        'product.refProduct.packings',
+        'product.refProduct.supplier',
+        'product.refProduct.supplier.disccounts',
+        'product.refProduct.supplier.disccounts.disccounts',
+        'markingServices',
+        'markingServices.marking',
+        'markingServices.markingServiceProperty',
+        'markingServices.markingServiceProperty.markedServicePrices',
       ],
     });
 
