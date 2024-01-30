@@ -1328,6 +1328,28 @@ export class RefProductsService {
       updatedRefProduct.categorySuppliers = categorySuppliers;
     }
 
+    if (updateRefProductDto.categoryTags) {
+      const categoryTags: CategoryTag[] = [];
+      
+      for (const categoryTagId of updateRefProductDto.categoryTags) {
+        const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+          where: {
+            id: categoryTagId,
+          },
+        });
+
+        if (!categoryTag)
+          throw new NotFoundException(`Marking with id ${categoryTagId} not found`);
+
+        if (!categoryTag.isActive)
+          throw new BadRequestException(`Marking with id ${categoryTagId} is currently inactive`);
+
+        categoryTags.push(categoryTag);
+      };
+
+      updatedRefProduct.categoryTags = categoryTags;
+    }
+
     if (updateRefProductDto.variantReferences) {
       const variantReferences: VariantReference[] = [];
 
