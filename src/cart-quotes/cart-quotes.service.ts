@@ -701,17 +701,12 @@ export class CartQuotesService {
     if (state.name.toLowerCase() == 'aprobada' || state.name.toLowerCase() == 'rechazada') {
       cartQuote.user = user;
     };
-
-    // if (updateCartQuoteDto.epaycoCode) {
+    
     if (state.name.toLowerCase() == 'rechazada') {
       cartQuote.isAllowed = false;
     };
 
     if (state.name.toLowerCase() == 'convertido en orden de compra') {
-      const epaycoCode: string = updateCartQuoteDto.epaycoCode;
-
-      const { data: { data: response } } = await axios.get(`https://secure.epayco.co/validation/v1/reference/8832fb2b46b346206f71a569`);
-
       const supplierPurchaseOrderState: State = await this.stateRepository
         .createQueryBuilder('state')
         .where('LOWER(state.name) =:name', { name: 'por solicitar' })
