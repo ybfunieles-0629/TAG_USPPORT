@@ -145,7 +145,7 @@ export class UsersService {
 
     if (externalUser == 1) {
       if (newUser.roles.some((role: Role) => role.name.toLowerCase() === 'cliente' || role.name.toLowerCase() === 'proveedor')) {
-        newUser.isActive = false;
+        newUser.isConfirmed = false;
 
         const characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -272,7 +272,7 @@ export class UsersService {
       throw new NotFoundException(`User with email ${email} not found`);
 
     if (user.registrationCode == confirmRegistryDto.code)
-      user.isActive = true;
+      user.isConfirmed = true;
 
     await this.userRepository.save(user);
 
@@ -308,8 +308,11 @@ export class UsersService {
     if (!user.isActive)
       throw new BadRequestException(`The user is currently inactive`);
 
-    if (!bcrypt.compareSync(password, user.password))
-      throw new UnauthorizedException('Incorrect credentials');
+    if (!user.isConfirmed)
+      throw new BadRequestException(`The user account is not confirmed yet`);
+
+      if (!bcrypt.compareSync(password, user.password))
+        throw new UnauthorizedException('Incorrect credentials');
 
     const { id: userId, name: username, dni, city, address, isCoorporative, mainSecondaryUser, companyPosition } = user;
     const { id: companyId, billingEmail, nit, legalCapacity } = user.company;
