@@ -1028,7 +1028,6 @@ export class QuoteDetailsService {
     updatedQuoteDetail.maximumDiscount = 20;
 
     await this.cartQuoteRepository.save(cartQuoteDb);
-    await this.quoteDetailRepository.save(updatedQuoteDetail);
 
     Object.assign(quoteDetail, updatedQuoteDetail);
 
