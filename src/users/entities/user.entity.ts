@@ -95,6 +95,11 @@ export class User {
   })
   isAllowed: number;
 
+  @Column('boolean', {
+    default: true
+  })
+  isConfirmed: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 
