@@ -1027,11 +1027,9 @@ export class QuoteDetailsService {
     //TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
     updatedQuoteDetail.maximumDiscount = 20;
 
+    Object.assign(quoteDetail, updatedQuoteDetail);
     
     await this.cartQuoteRepository.save(cartQuoteDb);
-    
-    Object.assign(updatedQuoteDetail, quoteDetail);
-
     await this.quoteDetailRepository.save(quoteDetail);
 
     return {
