@@ -281,6 +281,47 @@ export class UsersService {
     };
   };
 
+  async resendCode(confirmRegistryDto: ConfirmRegistryDto) {
+    const email: string = confirmRegistryDto.email;
+
+    const user: User = await this.userRepository.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (!user)
+      throw new NotFoundException(`User with email ${email} not found`);
+
+    const characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+    let registrationCode: string = '';
+
+    for (let i = 0; i < 6; i++) {
+      registrationCode += characters.charAt(Math.floor(Math.random() * characters.length));
+    };
+
+    if (registrationCode.length > 0)
+      user.registrationCode = registrationCode;
+
+    await this.userRepository.save(user);
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    await transporter.sendMail({
+      from: this.emailSenderConfig.transport.from,
+      to: user.email,
+      subject: 'Confirmación de cuenta',
+      text: `Código de verificación: ${user.registrationCode}`,
+    });
+  };
+
   async login(loginUserDto: LoginUserDto) {
     const { email, password } = loginUserDto;
     let payloadToSend;
@@ -311,8 +352,8 @@ export class UsersService {
     if (!user.isConfirmed)
       throw new BadRequestException(`The user account is not confirmed yet`);
 
-      if (!bcrypt.compareSync(password, user.password))
-        throw new UnauthorizedException('Incorrect credentials');
+    if (!bcrypt.compareSync(password, user.password))
+      throw new UnauthorizedException('Incorrect credentials');
 
     const { id: userId, name: username, dni, city, address, isCoorporative, mainSecondaryUser, companyPosition } = user;
     const { id: companyId, billingEmail, nit, legalCapacity } = user.company;
