@@ -1108,11 +1108,13 @@ export class RefProductsService {
           const productKeywords: string = (refProduct.keywords || '').toLowerCase();
           const productName: string = (refProduct.name || '').toLowerCase();
           const productDescription: string = (refProduct.description || '').toLowerCase();
+          const productShortDescription: string = (refProduct.shortDescription || '').toLowerCase();
 
           return keywordsArray.some(keyword =>
             productKeywords.includes(keyword) ||
             productName.includes(keyword) ||
-            productDescription.includes(keyword)
+            productDescription.includes(keyword) ||
+            productShortDescription.includes(keyword)
           );
         });
       } else {
@@ -1138,7 +1140,7 @@ export class RefProductsService {
           .leftJoinAndSelect('markingExternalSubTechnique.marking', 'markingExternalSubTechniqueMarking')
           .where(
             keywordsArray.map(keyword =>
-              `(LOWER(refProduct.keywords) LIKE :keyword OR LOWER(refProduct.name) LIKE :keyword OR LOWER(refProduct.description) LIKE :keyword)`
+              `(LOWER(refProduct.keywords) LIKE :keyword OR LOWER(refProduct.name) LIKE :keyword OR LOWER(refProduct.description) LIKE :keyword OR LOWER(refProduct.shortDescription) LIKE :keyword)`
             ).join(' OR '),
             { keyword: `%${searchKeywords}%` }
           )
