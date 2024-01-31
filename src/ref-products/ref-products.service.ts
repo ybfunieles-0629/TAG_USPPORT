@@ -1106,8 +1106,14 @@ export class RefProductsService {
       if (refProductsToShow.length > 0) {
         refProductsToShow = refProductsToShow.filter((refProduct) => {
           const productKeywords: string = (refProduct.keywords || '').toLowerCase();
+          const productName: string = (refProduct.name || '').toLowerCase();
+          const productDescription: string = (refProduct.description || '').toLowerCase();
 
-          return keywordsArray.every(keyword => productKeywords.includes(keyword));
+          return keywordsArray.some(keyword =>
+            productKeywords.includes(keyword) ||
+            productName.includes(keyword) ||
+            productDescription.includes(keyword)
+          );
         });
       } else {
         const refProducts: RefProduct[] = await this.refProductRepository
@@ -1131,14 +1137,16 @@ export class RefProductsService {
           .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'markingExternalSubTechnique')
           .leftJoinAndSelect('markingExternalSubTechnique.marking', 'markingExternalSubTechniqueMarking')
           .where(
-            keywordsArray.map(keyword => `LOWER(refProduct.keywords) REGEXP :keyword`).join(' OR '),
-            { keyword: keywordsArray }
+            keywordsArray.map(keyword =>
+              `(LOWER(refProduct.keywords) LIKE :keyword OR LOWER(refProduct.name) LIKE :keyword OR LOWER(refProduct.description) LIKE :keyword)`
+            ).join(' OR '),
+            { keyword: `%${searchKeywords}%` }
           )
           .getMany();
 
-        refProductsToShow.push(...refProducts)
-      };
-    };
+        refProductsToShow.push(...refProducts);
+      }
+    }
 
     refProductsToShow = refProductsToShow.filter((refProduct) => refProduct.products.length > 0);
 
@@ -1330,7 +1338,7 @@ export class RefProductsService {
 
     if (updateRefProductDto.categoryTags) {
       const categoryTags: CategoryTag[] = [];
-      
+
       for (const categoryTagId of updateRefProductDto.categoryTags) {
         const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
           where: {
