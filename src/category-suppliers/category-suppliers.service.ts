@@ -85,6 +85,12 @@ export class CategorySuppliersService {
     for (const parentCategory of data) {
       if (origin === 'Marpico') {
         if (!referenceIdApiSet.has(parentCategory.jerarquia)) {
+          const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+            where: {
+              name: parentCategory.nombre,
+            },
+          });
+
           const newParentCategory = {
             offspringType: 'Principal',
             name: parentCategory.nombre,
@@ -96,7 +102,8 @@ export class CategorySuppliersService {
             parentCategory: '',
             apiReferenceId: parentCategory.jerarquia,
             supplier: userSupplier.supplier.id,
-            origin
+            origin,
+            categoryTag: categoryTag || null,
           };
 
           cleanedParentCategories.push(newParentCategory);
@@ -104,6 +111,12 @@ export class CategorySuppliersService {
           referenceIdApiSet.add(parentCategory.jerarquia);
         }
       } else {
+        const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+          where: {
+            name: parentCategory.nombre,
+          },
+        });
+
         const newParentCategory = {
           offspringType: 'Principal',
           name: parentCategory.nombre,
@@ -115,6 +128,7 @@ export class CategorySuppliersService {
           parentCategory: '',
           apiReferenceId: parentCategory.id,
           supplier: userSupplier.supplier.id,
+          categoryTag: categoryTag || null,
           origin
         }
 
@@ -200,6 +214,12 @@ export class CategorySuppliersService {
         }
 
         if (!referenceIdApiSet.has(subCategory.jerarquia)) {
+          const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+            where: {
+              name: subCategory.nombre,
+            },
+          });
+
           const newCategory = {
             offspringType: 'Padre',
             name: subCategory.nombre,
@@ -211,6 +231,7 @@ export class CategorySuppliersService {
             parentCategory: '',
             apiReferenceId: subCategory.jerarquia,
             supplier: userSupplier.supplier.id,
+            categoryTag: categoryTag || null,
             origin,
           };
 
@@ -219,6 +240,12 @@ export class CategorySuppliersService {
         }
       } else {
         firstPart = subCategory.idParent;
+
+        const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+          where: {
+            name: subCategory.nombre,
+          },
+        });
 
         const newCategory = {
           offspringType: 'Padre',
@@ -231,6 +258,7 @@ export class CategorySuppliersService {
           parentCategory: '',
           apiReferenceId: subCategory.id,
           supplier: userSupplier.supplier.id,
+          categoryTag: categoryTag || null,
           origin
         };
 
