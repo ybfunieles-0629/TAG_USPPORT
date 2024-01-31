@@ -109,6 +109,9 @@ export class ProductsService {
         where: {
           apiReferenceId: product.idCategoria,
         },
+        relations: [
+          'categoryTag',
+        ],
       });
 
       if (!categorySupplier)
@@ -120,6 +123,7 @@ export class ProductsService {
         keywords: product.palabrasClaveSeo,
         markedDesignArea: product.descripcionProducto,
         images,
+        tagCategory: categorySupplier.categoryTag.id,
         referenceCode: product.referencia,
         mainCategory: categorySupplier.id,
         supplier: user.supplier,
@@ -241,6 +245,7 @@ export class ProductsService {
         shortDescription: item.descripcion_comercial,
         description: item.descripcion_larga,
         mainCategory: categorySupplier.id,
+        tagCategory: categorySupplier.categoryTag.id,
         keywords: keyword,
         large: +item.empaque_largo,
         width: +item.empaque_ancho,
