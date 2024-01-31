@@ -96,16 +96,23 @@ export class AdminService {
     };
   }
 
-  findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll(paginationDto: PaginationDto) {
+    const count: number = await this.adminRepository.count();
 
-    return this.adminRepository.find({
+    const { limit = count, offset = 0 } = paginationDto;
+
+    const results: Admin[] = await this.adminRepository.find({
       take: limit,
       skip: offset,
       relations: [
         'clients',
       ],
     });
+
+    return {
+      count,
+      results
+    };
   }
 
   async findOne(term: string) {
