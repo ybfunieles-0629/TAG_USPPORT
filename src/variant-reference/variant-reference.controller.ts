@@ -24,7 +24,6 @@ export class VariantReferenceController {
   }
 
   @Get()
-  @UseGuards(AuthGuard())
   findAll(
     @Param() paginationDto: PaginationDto
   ) {
