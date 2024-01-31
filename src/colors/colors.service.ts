@@ -57,7 +57,7 @@ export class ColorsService {
 
     let imageAwsUrl: string = '';
 
-    if (file !== null) {
+    if (file != null || file != undefined) {
       const uniqueFilename = `${uuidv4()}-${file.originalname}`;
 
       file.originalname = uniqueFilename;
