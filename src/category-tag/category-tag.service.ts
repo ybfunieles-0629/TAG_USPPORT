@@ -274,8 +274,6 @@ export class CategoryTagService {
       if (categorySupplier) {
         throw new BadRequestException(`You can't delete a category with main and parent category`);
       }
-
-      return;
     };
 
     if (mainCategory.trim().length > 1 || mainCategory != undefined || mainCategory != null && parentCategory.trim() == '' || parentCategory == undefined || parentCategory == null) {
@@ -288,8 +286,6 @@ export class CategoryTagService {
       if (categorySupplier) {
         throw new BadRequestException(`You can't delete a category with main and parent category`);
       }
-
-      return;
     };
 
     await this.categoryTagRepository.remove(categoryTag);
