@@ -188,6 +188,8 @@ export class PurchaseOrderService {
       },
       relations: [
         'orderListDetails',
+        'orderListDetails.cartQuote',
+        'orderListDetails.orderRating',
         'orderListDetails.state',
         'orderListDetails.supplierPurchaseOrder',
         'orderListDetails.supplierPurchaseOrder.state',
