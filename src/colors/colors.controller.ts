@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put, Query, UseGuards, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 import { ColorsService } from './colors.service';
 import { CreateColorDto } from './dto/create-color.dto';
@@ -20,8 +21,12 @@ export class ColorsController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createColorDto: CreateColorDto) {
-    return this.colorsService.create(createColorDto);
+  @UseInterceptors(FileInterceptor('image'))
+  create(
+    @Body() createColorDto: CreateColorDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.colorsService.create(createColorDto, file);
   }
 
   @Post('create/multiple')
@@ -46,11 +51,13 @@ export class ColorsController {
 
   @Patch(':id')
   @UseGuards(AuthGuard())
+  @UseInterceptors(FileInterceptor('image'))
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateColorDto: UpdateColorDto
+    @Body() updateColorDto: UpdateColorDto,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.colorsService.update(id, updateColorDto);
+    return this.colorsService.update(id, updateColorDto, file);
   }
 
   @Put('/update/multiple')

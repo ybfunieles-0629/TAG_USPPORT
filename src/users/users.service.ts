@@ -377,6 +377,7 @@ export class UsersService {
     }
 
     return {
+      user: !user.isConfirmed ? user.email : '',
       token: this.getJwtToken(payloadToSend),
     }
   }
