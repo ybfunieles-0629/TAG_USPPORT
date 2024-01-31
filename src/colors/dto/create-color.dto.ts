@@ -8,6 +8,7 @@ export class CreateColorDto {
   @IsString()
   code?: string;
 
+  @IsOptional()
   @IsString()
-  hexadecimalValue: string;
+  hexadecimalValue?: string;
 }
