@@ -18,6 +18,11 @@ export class Color {
   code: string;
 
   @Column('varchar', {
+
+  })
+  image: string;
+
+  @Column('varchar', {
     
   })
   hexadecimalValue: string;
