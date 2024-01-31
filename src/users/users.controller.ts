@@ -35,6 +35,13 @@ export class UsersController {
     return this.usersService.createUser(createUserDto, externalUser);
   }
 
+  @Post('resend/code')
+  resendCode(
+    @Body() confirmRegistryDto: ConfirmRegistryDto,
+  ) {
+    return this.usersService.resendCode(confirmRegistryDto);
+  }
+
   @Post('confirm/account')
   confirmAccount(
     @Body() confirmRegistryDto: ConfirmRegistryDto,
