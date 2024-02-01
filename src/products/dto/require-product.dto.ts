@@ -7,14 +7,14 @@ export class RequireProductDto {
   @IsEmail()
   email: string;
 
-  @IsInt()
-  phone: number;
+  @IsString()
+  phone: string;
 
   @IsString()
   productName: string;
 
-  @IsInt()
-  quantity: number;
+  @IsString()
+  quantity: string;
 
   @IsString()
   productDescription: string;
