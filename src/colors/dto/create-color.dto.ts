@@ -11,4 +11,8 @@ export class CreateColorDto {
   @IsOptional()
   @IsString()
   hexadecimalValue?: string;
+
+  @IsOptional()
+  @IsString()
+  refProductId?: string;
 }

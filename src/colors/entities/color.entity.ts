@@ -23,6 +23,11 @@ export class Color {
   image: string;
 
   @Column('varchar', {
+
+  })
+  refProductId: string;
+
+  @Column('varchar', {
     
   })
   hexadecimalValue: string;
