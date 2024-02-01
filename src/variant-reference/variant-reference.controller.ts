@@ -36,6 +36,12 @@ export class VariantReferenceController {
     return this.variantReferenceService.findOne(id);
   }
 
+  @Get('filter/by/reference/:id')
+  @UseGuards(AuthGuard())
+  findByProductReference(@Param('id', ParseUUIDPipe) id: string) {
+    return this.variantReferenceService.findByProductReference(id);
+  }
+
   @Patch(':id')
   @UseGuards(AuthGuard())
   update(
