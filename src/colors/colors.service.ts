@@ -10,6 +10,7 @@ import { CreateColorDto } from './dto/create-color.dto';
 import { UpdateColorDto } from './dto/update-color.dto';
 import { Color } from './entities/color.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { RefProduct } from '../ref-products/entities/ref-product.entity';
 
 @Injectable()
 export class ColorsService {
@@ -18,6 +19,9 @@ export class ColorsService {
   constructor(
     @InjectRepository(Color)
     private readonly colorRepository: Repository<Color>,
+
+    @InjectRepository(RefProduct)
+    private readonly refProductRepository: Repository<RefProduct>,
   ) { }
 
   async loadColors() {
@@ -67,7 +71,25 @@ export class ColorsService {
       imageAwsUrl = imageUrl;
 
       newColor.image = file.originalname;
-    }
+    };
+
+    if (createColorDto.refProductId) {
+      const refProductId: string = createColorDto.refProductId;
+
+      const refProduct: RefProduct = await this.refProductRepository.findOne({
+        where: {
+          id: refProductId,
+        },
+      });
+
+      if (!refProduct)
+        throw new NotFoundException(`Ref product with id ${refProductId} not found`);
+
+      if (!refProduct.isActive)
+        throw new BadRequestException(`Ref product with id ${refProductId} is currently inactive`);
+
+      newColor.refProductId = refProduct.id;
+    };
 
     await this.colorRepository.save(newColor);
 
@@ -97,18 +119,34 @@ export class ColorsService {
 
     const { limit = count, offset = 0 } = paginationDto;
 
-    const results: Color[] = await this.colorRepository.find({
+    const colors: Color[] = await this.colorRepository.find({
       take: limit,
       skip: offset,
-      relations: [
-        'product',
-      ],
+      relations: ['product'],
     });
+
+    const results = await Promise.all(
+      colors.map(async (color) => {
+        const { refProductId, ...rest } = color;
+        const product = await this.refProductRepository.findOne({
+          where: {
+            id: refProductId,
+          },
+        });
+
+        const productInfo = product ? product : null;
+
+        return {
+          ...rest,
+          product: productInfo,
+        };
+      }),
+    );
 
     return {
       count,
       results
-    }
+    };
   }
 
   async findOne(id: string) {
@@ -124,8 +162,36 @@ export class ColorsService {
     if (!color)
       throw new NotFoundException(`Color with id ${id} not found`);
 
+    const productInfo = color.product ? color.product : null;
+
     return {
-      color
+      color: {
+        ...color,
+        product: productInfo,
+      }
+    };
+  }
+
+  async findOneByRefProduct(id: string) {
+    const color = await this.colorRepository.findOne({
+      where: {
+        refProductId: id,
+      },
+      relations: [
+        'product',
+      ],
+    });
+
+    if (!color)
+      throw new NotFoundException(`Color with ref product id ${id} not found`);
+
+    const productInfo = color.product ? color.product : null;
+
+    return {
+      color: {
+        ...color,
+        product: productInfo,
+      }
     };
   }
 
@@ -156,7 +222,25 @@ export class ColorsService {
       imageAwsUrl = imageUrl;
 
       updatedColor.image = file.originalname;
-    }
+    };
+
+    if (updateColorDto.refProductId) {
+      const refProductId: string = updateColorDto.refProductId;
+
+      const refProduct: RefProduct = await this.refProductRepository.findOne({
+        where: {
+          id: refProductId,
+        },
+      });
+
+      if (!refProduct)
+        throw new NotFoundException(`Ref product with id ${refProductId} not found`);
+
+      if (!refProduct.isActive)
+        throw new BadRequestException(`Ref product with id ${refProductId} is currently inactive`);
+
+      updatedColor.refProductId = refProduct.id;
+    };
 
     Object.assign(color, updatedColor);
 

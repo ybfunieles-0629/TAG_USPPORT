@@ -49,6 +49,11 @@ export class ColorsController {
     return this.colorsService.findOne(id);
   }
 
+  @Get('filter/by/reference/:id')
+  findOneByRefProduct(@Param('id', ParseUUIDPipe) id: string) {
+    return this.colorsService.findOneByRefProduct(id);
+  }
+
   @Patch(':id')
   @UseGuards(AuthGuard())
   @UseInterceptors(FileInterceptor('image'))
