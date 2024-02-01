@@ -16,11 +16,13 @@ import { EmailSenderModule } from '../email-sender/email-sender.module';
 import { SystemConfigsModule } from '../system-configs/system-configs.module';
 import { LocalTransportPricesModule } from '../local-transport-prices/local-transport-prices.module';
 import { DisccountModule } from '../disccount/disccount.module';
+import { CategoryTagModule } from '../category-tag/category-tag.module';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),    EmailSenderModule,
     CategorySuppliersModule,
+    CategoryTagModule,
     ColorsModule,
     DisccountModule,
     ImagesModule,
