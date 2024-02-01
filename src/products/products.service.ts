@@ -28,6 +28,7 @@ import { Disccount } from '../disccount/entities/disccount.entity';
 import { ListPrice } from '../list-prices/entities/list-price.entity';
 import { SupplierPrice } from '../supplier-prices/entities/supplier-price.entity';
 import { SystemConfig } from '../system-configs/entities/system-config.entity';
+import { CategoryTag } from '../category-tag/entities/category-tag.entity';
 
 
 @Injectable()
@@ -43,6 +44,9 @@ export class ProductsService {
 
     @InjectRepository(CategorySupplier)
     private readonly categorySupplierRepository: Repository<CategorySupplier>,
+
+    @InjectRepository(CategoryTag)
+    private readonly categoryTagRepository: Repository<CategoryTag>,
 
     @InjectRepository(Color)
     private readonly colorRepository: Repository<Color>,
@@ -230,11 +234,63 @@ export class ProductsService {
         images.push(savedImage);
       }
 
+      const categorySuppliers: CategorySupplier[] = [];
+      const categoryTags: CategoryTag[] = [];
+
       const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
         where: {
           apiReferenceId: item.subcategoria_1.categoria.jerarquia,
         },
       });
+
+      const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+        where: {
+          id: categorySupplier?.categoryTag?.id,
+        },
+      });
+
+      if (categoryTag)
+        categoryTags.push(categoryTag);
+
+      categorySuppliers.push(categorySupplier);
+
+      if (item.subcategoria_2 != null || item.subcategoria_2 != undefined) {
+        const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+          where: {
+            apiReferenceId: item.subcategoria_1.categoria.jerarquia,
+          },
+        });
+
+        const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+          where: {
+            id: categorySupplier?.categoryTag?.id,
+          },
+        });
+
+        if (categoryTag)
+          categoryTags.push(categoryTag);
+
+        categorySuppliers.push(categorySupplier);
+      };
+
+      if (item.subcategoria_3 != null || item.subcategoria_2 != undefined) {
+        const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+          where: {
+            apiReferenceId: item.subcategoria_1.categoria.jerarquia,
+          },
+        });
+
+        const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+          where: {
+            id: categorySupplier?.categoryTag?.id,
+          },
+        });
+
+        if (categoryTag)
+          categoryTags.push(categoryTag);
+
+        categorySuppliers.push(categorySupplier);
+      };
 
       if (!categorySupplier)
         throw new NotFoundException(`Category with id ${item.subcategoria_1.categoria.jerarquia} not found`);
@@ -255,6 +311,8 @@ export class ProductsService {
         markedDesignArea: item.area_impresion || '',
         supplier: user.supplier,
         personalizableMarking: 0,
+        categorySuppliers,
+        categoryTags,
         images
       }
 

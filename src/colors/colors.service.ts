@@ -32,14 +32,15 @@ export class ColorsService {
     const colorsToSave: Color[] = [];
 
     for (const color of data) {
-      const existColor = await this.colorRepository.findOne({
+      const existingColor = await this.colorRepository.findOne({
         where: {
           code: color.codigo,
         },
       });
 
-      if (existColor)
-        throw new BadRequestException(`Color with code ${color.codigo} is already registered`);
+      if (existingColor) {
+        continue;
+      };
 
       const newColor = {
         name: color.nombreColor,
