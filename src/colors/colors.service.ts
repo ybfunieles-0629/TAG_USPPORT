@@ -172,6 +172,29 @@ export class ColorsService {
     };
   }
 
+  async findOneByRefProduct(id: string) {
+    const color = await this.colorRepository.findOne({
+      where: {
+        refProductId: id,
+      },
+      relations: [
+        'product',
+      ],
+    });
+
+    if (!color)
+      throw new NotFoundException(`Color with ref product id ${id} not found`);
+
+    const productInfo = color.product ? color.product : null;
+
+    return {
+      color: {
+        ...color,
+        product: productInfo,
+      }
+    };
+  }
+
   async update(id: string, updateColorDto: UpdateColorDto, file: Express.Multer.File) {
     const color = await this.colorRepository.findOne({
       where: {
