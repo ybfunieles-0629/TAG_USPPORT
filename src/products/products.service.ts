@@ -1193,7 +1193,6 @@ export class ProductsService {
     };
 
     try {
-      // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -1202,22 +1201,32 @@ export class ProductsService {
         },
       });
 
+      const attachments = [];
+      if (image) {
+        attachments.push({
+          filename: 'image.png',
+          path: image,
+          cid: image
+        });
+      }
+
       await transporter.sendMail({
         from: this.emailSenderConfig.transport.from,
         to: ['puertodaniela586@gmail.com', 'locarr785@gmail.com', 'yeison.descargas@gmail.com'],
         subject: 'Solicitud de producto',
-        text: `
-        Nombre: ${name},
-        Correo electrónico: ${email},
-        Teléfono: ${phone},
-        Nombre del product. ${productName},
-        Cantidad: ${quantity},
-        Descripción del producto: ${productDescription},
-        Imagen: <img src="${image}" />
+        html: `
+          <p>Nombre: ${name}</p>
+          <p>Correo electrónico: ${email}</p>
+          <p>Teléfono: ${phone}</p>
+          <p>Nombre del producto: ${productName}</p>
+          <p>Cantidad: ${quantity}</p>
+          <p>Descripción del producto: ${productDescription}</p>
+          ${image ? '<img src="cid:unique@nodemailer.com" />' : ''}
         `,
+        attachments: attachments
       });
     } catch (error) {
-      console.log('Failed to send the password recovery email', error);
+      console.log('Failed to send the product request email', error);
       throw new InternalServerErrorException(`Internal server error`);
     }
   };
