@@ -167,31 +167,41 @@ export class ColorsService {
     return {
       color: {
         ...color,
-        product: productInfo,
+        refProductId: productInfo,
       }
     };
   }
 
   async findOneByRefProduct(id: string) {
-    const color = await this.colorRepository.findOne({
+    const colors: Color[] = await this.colorRepository.find({
       where: {
         refProductId: id,
       },
-      relations: [
-        'product',
-      ],
     });
 
-    if (!color)
+    if (!colors)
       throw new NotFoundException(`Color with ref product id ${id} not found`);
 
-    const productInfo = color.product ? color.product : null;
+    const results = await Promise.all(
+      colors.map(async (color) => {
+        const { refProductId, ...rest } = color;
+        const product = await this.refProductRepository.findOne({
+          where: {
+            id: refProductId,
+          },
+        });
+
+        const productInfo = product ? product : null;
+
+        return {
+          ...rest,
+          refProductId: productInfo,
+        };
+      }),
+    );
 
     return {
-      color: {
-        ...color,
-        product: productInfo,
-      }
+      results
     };
   }
 
@@ -289,7 +299,11 @@ export class ColorsService {
   // }
 
   async remove(id: string) {
-    const { color } = await this.findOne(id);
+    const color: Color = await this.colorRepository.findOne({
+      where: {
+        id,
+      },
+    });
 
     await this.colorRepository.remove(color);
 
