@@ -15,6 +15,11 @@ export class SystemConfigBrand {
   })
   logo: string;
 
+  @Column('varchar', {
+
+  })
+  brandType: string;
+
   @Column('boolean', {
     default: true,
   })
