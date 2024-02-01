@@ -68,6 +68,21 @@ export class VariantReferenceService {
     };
   }
 
+  async findByProductReference(id: string) {
+    const variantReferences: VariantReference[] = await this.variantReferenceRepository
+      .createQueryBuilder('variant')
+      .leftJoinAndSelect('variant.refProduct', 'refProduct')
+      .where('refProduct.id =:refProductId', { refProductId: id })
+      .getMany();
+
+    if (!variantReferences)
+      throw new NotFoundException(`Variant references with ref product with id ${id} not found`);
+
+    return {
+      variantReferences
+    };
+  };
+
   async update(id: string, updateVariantReferenceDto: UpdateVariantReferenceDto) {
     const variantReference = await this.variantReferenceRepository.findOne({
       where: {
