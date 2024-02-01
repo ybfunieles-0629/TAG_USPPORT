@@ -220,7 +220,7 @@ export class ColorsService {
 
     const updatedColor = plainToClass(Color, updateColorDto);
 
-    if (file !== null) {
+    if (file != null || file != undefined) {
       let imageAwsUrl: string = color.image;
 
       const uniqueFilename = `${uuidv4()}-${file.originalname}`;
