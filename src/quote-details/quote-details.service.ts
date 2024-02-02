@@ -565,11 +565,12 @@ export class QuoteDetailsService {
     //TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
     newQuoteDetail.maximumDiscount = 20;
 
-    await this.cartQuoteRepository.save(cartQuoteDb);
-    await this.quoteDetailRepository.save(newQuoteDetail);
+    // await this.cartQuoteRepository.save(cartQuoteDb);
+    // await this.quoteDetailRepository.save(newQuoteDetail);
 
     return {
-      newQuoteDetail
+      newQuoteDetail,
+      cartQuoteDb
     };
   };
 
@@ -702,7 +703,7 @@ export class QuoteDetailsService {
     updatedQuoteDetail.transportTotalPrice = 0;
 
     //* SE SOLICITA MUESTRA
-    if (hasSample) {
+    if (hasSample == true) {
       //* CALCULAR EL PRECIO DE LA MUESTRA
       // let samplePrice: number = await this.calculateSamplePrice(updatedQuoteDetail, systemConfig, quantity) || 0;
       // updatedQuoteDetail.sampleValue = samplePrice;
@@ -1029,11 +1030,12 @@ export class QuoteDetailsService {
 
     Object.assign(quoteDetail, updatedQuoteDetail);
     
-    await this.cartQuoteRepository.save(cartQuoteDb);
-    await this.quoteDetailRepository.save(quoteDetail);
+    // await this.cartQuoteRepository.save(cartQuoteDb);
+    // await this.quoteDetailRepository.save(quoteDetail);
 
     return {
-      quoteDetail
+      quoteDetail,
+      cartQuoteDb
     };
   }
 
