@@ -165,7 +165,7 @@ export class ProductsService {
         const colorsToAssign: Color[] = [];
 
         if (color) {
-          color.refProductId = savedRefProduct.id;
+          color.refProductId = savedRefProduct?.id;
 
           const savedColor: Color = await this.colorRepository.save(color);
 
@@ -392,7 +392,7 @@ export class ProductsService {
       const colors: Color[] = [];
 
       if (color) {
-        color.refProductId = refProduct.id;
+        color.refProductId = refProduct?.id;
 
         const savedColor: Color = await this.colorRepository.save(color);
 
