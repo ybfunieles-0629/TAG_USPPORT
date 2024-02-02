@@ -19,7 +19,6 @@ import { ConfirmRegistryDto } from './dto/confirm-registry.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
-  @UseGuards(AuthGuard())
   @Post('/seed')
   seedUsers(
 
