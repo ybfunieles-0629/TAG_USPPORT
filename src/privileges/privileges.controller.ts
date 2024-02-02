@@ -11,7 +11,6 @@ export class PrivilegesController {
   constructor(private readonly privilegesService: PrivilegesService) { }
 
   @Post('/seed')
-  @UseGuards(AuthGuard())
   seed() {
     return this.privilegesService.seed();
   }
