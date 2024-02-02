@@ -157,7 +157,7 @@ export class ProductsService {
       const { data: { data } } = await axios.get(`${this.apiUrl}/stock/${product.referencia}`);
 
       Promise.all(data?.resultado.forEach(async (product) => {
-        let color: Color = await this.colorRepository
+        const color: Color = await this.colorRepository
           .createQueryBuilder('color')
           .where('LOWER(color.name) =:productColor', { productColor: product.color.toLowerCase() })
           .getOne();
@@ -171,7 +171,7 @@ export class ProductsService {
 
           colorsToAssign.push(savedColor);
         };
-        
+
         const newProduct = {
           tagSku,
           availableUnit: product.totalDisponible,
@@ -375,19 +375,6 @@ export class ProductsService {
 
     // //* ---- LOAD PRODUCTS ---- *//
     for (const product of products) {
-      const colors: Color[] = [];
-
-      const color: Color = await this.colorRepository.findOne({
-        where: {
-          name: product.material.color_nombre,
-        },
-      });
-
-      if (!color)
-        throw new NotFoundException(`Color with id ${product.material.color_nombre} not found`);
-
-      colors.push(color);
-
       const refProduct = await this.refProductRepository.findOne({
         where: {
           referenceCode: product.familia,
@@ -396,6 +383,21 @@ export class ProductsService {
 
       if (!refProduct)
         throw new NotFoundException(`Ref product for product with familia ${product.familia} not found`);
+
+      const color: Color = await this.colorRepository
+        .createQueryBuilder('color')
+        .where('LOWER(color.name) =:productColor', { productColor: product.color.toLowerCase() })
+        .getOne();
+
+      const colors: Color[] = [];
+
+      if (color) {
+        color.refProductId = refProduct.id;
+
+        const savedColor: Color = await this.colorRepository.save(color);
+
+        colors.push(savedColor);
+      };
 
       const lastProducts = await this.productRepository.find({
         order: { createdAt: 'DESC' },
