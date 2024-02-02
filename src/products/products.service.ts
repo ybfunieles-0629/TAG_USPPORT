@@ -169,6 +169,8 @@ export class ProductsService {
 
           const savedColor: Color = await this.colorRepository.save(color);
 
+          console.log(savedColor);
+
           colorsToAssign.push(savedColor);
         };
 
@@ -262,6 +264,9 @@ export class ProductsService {
         where: {
           apiReferenceId: item.subcategoria_1.categoria.jerarquia,
         },
+        relations: [
+          'categoryTag'
+        ],
       });
 
       const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
@@ -280,6 +285,9 @@ export class ProductsService {
           where: {
             apiReferenceId: item.subcategoria_1.categoria.jerarquia,
           },
+          relations: [
+            'categoryTag'
+          ],
         });
 
         const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
@@ -299,6 +307,9 @@ export class ProductsService {
           where: {
             apiReferenceId: item.subcategoria_1.categoria.jerarquia,
           },
+          relations: [
+            'categoryTag'
+          ],
         });
 
         const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
@@ -316,6 +327,9 @@ export class ProductsService {
       if (!categorySupplier)
         throw new NotFoundException(`Category with id ${item.subcategoria_1.categoria.jerarquia} not found`);
 
+      console.log(categorySuppliers);
+      console.log(categoryTags);
+
       let newRefProduct = {
         name: item.descripcion_comercial,
         referenceCode: item.familia,
@@ -332,10 +346,12 @@ export class ProductsService {
         markedDesignArea: item.area_impresion || '',
         supplier: user.supplier,
         personalizableMarking: 0,
-        categorySuppliers,
+        // categorySuppliers,
         categoryTags,
         images
       }
+
+      console.log(newRefProduct)
 
       cleanedRefProducts.push(newRefProduct);
 
@@ -368,10 +384,15 @@ export class ProductsService {
       if (refProductExists) {
         console.log(`Ref product with reference code ${refProduct.referenceCode} is already registered`);
       } else {
-        await this.refProductRepository.save(refProduct);
-        refProductsToSave.push(refProduct);
+        const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
+
+        console.log(savedRefProduct);
+
+        refProductsToSave.push(savedRefProduct);
       }
     }
+
+    console.log(refProductsToSave);
 
     // //* ---- LOAD PRODUCTS ---- *//
     for (const product of products) {
@@ -380,6 +401,8 @@ export class ProductsService {
           referenceCode: product.familia,
         },
       });
+
+      console.log(refProduct);
 
       if (!refProduct)
         throw new NotFoundException(`Ref product for product with familia ${product.familia} not found`);
@@ -395,6 +418,9 @@ export class ProductsService {
         color.refProductId = refProduct?.id;
 
         const savedColor: Color = await this.colorRepository.save(color);
+
+        console.log(savedColor);
+        console.log(refProduct);
 
         colors.push(savedColor);
       };
@@ -431,6 +457,8 @@ export class ProductsService {
       const createdProduct: Product = this.productRepository.create(newProduct);
 
       const savedProduct: Product = await this.productRepository.save(createdProduct);
+
+      console.log(savedProduct);
     }
 
 
