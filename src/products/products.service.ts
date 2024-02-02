@@ -154,15 +154,36 @@ export class ProductsService {
         tagSku = 'SKU-1001';
       }
 
-      const newProduct = {
-        tagSku,
-        supplierSku: tagSku,
-        refProduct: savedRefProduct,
-        referencePrice: product.precio1,
-      };
+      const { data: { data } } = await axios.get(`${this.apiUrl}/stock/${product.referencia}`);
 
-      const createdProduct: Product = this.productRepository.create(newProduct);
-      const savedProduct: Product = await this.productRepository.save(createdProduct);
+      Promise.all(data?.resultado.forEach(async (product) => {
+        let color: Color = await this.colorRepository
+          .createQueryBuilder('color')
+          .where('LOWER(color.name) =:productColor', { productColor: product.color.toLowerCase() })
+          .getOne();
+
+        const colorsToAssign: Color[] = [];
+
+        if (color) {
+          color.refProductId = savedRefProduct.id;
+
+          const savedColor: Color = await this.colorRepository.save(color);
+
+          colorsToAssign.push(savedColor);
+        };
+        
+        const newProduct = {
+          tagSku,
+          availableUnit: product.totalDisponible,
+          supplierSku: tagSku,
+          refProduct: savedRefProduct,
+          referencePrice: product.precio1,
+          colors: colorsToAssign
+        };
+
+        const createdProduct: Product = this.productRepository.create(newProduct);
+        const savedProduct: Product = await this.productRepository.save(createdProduct);
+      }));
     }
   }
 
