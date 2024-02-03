@@ -349,8 +349,8 @@ export class ProductsService {
       }
 
       const newRefProduct: RefProduct = plainToClass(RefProduct, refProductData);
-      newRefProduct.categoryTags = categoryTags;
-      newRefProduct.categorySuppliers = categorySuppliers;
+      // newRefProduct.categoryTags = categoryTags;
+      // newRefProduct.categorySuppliers = categorySuppliers;
       newRefProduct.images = images;
 
       console.log(newRefProduct);
