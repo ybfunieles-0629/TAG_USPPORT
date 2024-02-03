@@ -330,7 +330,7 @@ export class ProductsService {
       console.log(categorySuppliers);
       console.log(categoryTags);
 
-      let newRefProduct = {
+      let refProductData = {
         name: item.descripcion_comercial,
         referenceCode: item.familia,
         shortDescription: item.descripcion_comercial,
@@ -346,12 +346,14 @@ export class ProductsService {
         markedDesignArea: item.area_impresion || '',
         supplier: user.supplier,
         personalizableMarking: 0,
-        // categorySuppliers,
-        categoryTags,
-        images
       }
 
-      console.log(newRefProduct)
+      const newRefProduct: RefProduct = plainToClass(RefProduct, refProductData);
+      newRefProduct.categoryTags = categoryTags;
+      newRefProduct.categorySuppliers = categorySuppliers;
+      newRefProduct.images = images;
+
+      console.log(newRefProduct);
 
       cleanedRefProducts.push(newRefProduct);
 
