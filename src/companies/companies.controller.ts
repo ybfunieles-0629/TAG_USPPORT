@@ -28,7 +28,7 @@ export class CompaniesController {
   }
 
   @Get()
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
