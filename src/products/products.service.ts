@@ -169,8 +169,6 @@ export class ProductsService {
 
           const savedColor: Color = await this.colorRepository.save(color);
 
-          console.log(savedColor);
-
           colorsToAssign.push(savedColor);
         };
 
@@ -326,7 +324,7 @@ export class ProductsService {
 
       if (!categorySupplier)
         throw new NotFoundException(`Category with id ${item.subcategoria_1.categoria.jerarquia} not found`);
-      
+
       let newRefProduct = {
         name: item.descripcion_comercial,
         referenceCode: item.familia,
@@ -378,8 +376,6 @@ export class ProductsService {
         console.log(`Ref product with reference code ${refProduct.referenceCode} is already registered`);
       } else {
         const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
-
-        console.log(savedRefProduct);
 
         refProductsToSave.push(savedRefProduct);
       }
