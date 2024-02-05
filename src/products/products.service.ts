@@ -326,11 +326,8 @@ export class ProductsService {
 
       if (!categorySupplier)
         throw new NotFoundException(`Category with id ${item.subcategoria_1.categoria.jerarquia} not found`);
-
-      console.log(categorySuppliers);
-      console.log(categoryTags);
-
-      let refProductData = {
+      
+      let newRefProduct = {
         name: item.descripcion_comercial,
         referenceCode: item.familia,
         shortDescription: item.descripcion_comercial,
@@ -346,14 +343,8 @@ export class ProductsService {
         markedDesignArea: item.area_impresion || '',
         supplier: user.supplier,
         personalizableMarking: 0,
+        images,
       }
-
-      const newRefProduct: RefProduct = plainToClass(RefProduct, refProductData);
-      // newRefProduct.categoryTags = categoryTags;
-      // newRefProduct.categorySuppliers = categorySuppliers;
-      newRefProduct.images = images;
-
-      console.log(newRefProduct);
 
       cleanedRefProducts.push(newRefProduct);
 
@@ -394,8 +385,6 @@ export class ProductsService {
       }
     }
 
-    console.log(refProductsToSave);
-
     // //* ---- LOAD PRODUCTS ---- *//
     for (const product of products) {
       const refProduct = await this.refProductRepository.findOne({
@@ -404,14 +393,14 @@ export class ProductsService {
         },
       });
 
-      console.log(refProduct);
-
       if (!refProduct)
         throw new NotFoundException(`Ref product for product with familia ${product.familia} not found`);
 
+      const productColor: string = product?.color?.toLowerCase() || '';
+
       const color: Color = await this.colorRepository
         .createQueryBuilder('color')
-        .where('LOWER(color.name) =:productColor', { productColor: product.color.toLowerCase() })
+        .where('LOWER(color.name) =:productColor', { productColor })
         .getOne();
 
       const colors: Color[] = [];
@@ -420,11 +409,6 @@ export class ProductsService {
         color.refProductId = refProduct?.id;
 
         const savedColor: Color = await this.colorRepository.save(color);
-
-        console.log(savedColor);
-        console.log(refProduct);
-
-        colors.push(savedColor);
       };
 
       const lastProducts = await this.productRepository.find({
@@ -459,8 +443,6 @@ export class ProductsService {
       const createdProduct: Product = this.productRepository.create(newProduct);
 
       const savedProduct: Product = await this.productRepository.save(createdProduct);
-
-      console.log(savedProduct);
     }
 
 
