@@ -748,7 +748,7 @@ export class UsersService {
             const [users, totalCount] = await this.userRepository
               .createQueryBuilder('user')
               .leftJoinAndSelect('user.roles', 'userRoless')
-              .andWhere('userRoless.name = :role', { role })
+              .where('userRoless.name IN (:...roles)', { roles: roles.roles })
               .leftJoinAndSelect('user.brands', 'brands')
               .leftJoinAndSelect('user.company', 'company')
               .leftJoinAndSelect('user.privileges', 'privileges')
@@ -823,7 +823,7 @@ export class UsersService {
               .createQueryBuilder('user')
               .leftJoinAndSelect('user.roles', 'userRoless')
               .where('user.isAllowed = :isAllowed', { isAllowed })
-              .andWhere('userRoless.name = :role', { role })
+              .where('userRoless.name IN (:...roles)', { roles: roles.roles })
               .leftJoinAndSelect('user.brands', 'brands')
               .leftJoinAndSelect('user.company', 'company')
               .leftJoinAndSelect('user.privileges', 'privileges')
