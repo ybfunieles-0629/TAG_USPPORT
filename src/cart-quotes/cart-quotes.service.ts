@@ -714,6 +714,21 @@ export class CartQuotesService {
       cartQuote.isAllowed = false;
 
       let supplierPurchaseOrderState: State;
+      let orderListDetailState: State;
+
+      if (cartClient.user.isCoorporative == 1) {
+        orderListDetailState = await this.stateRepository
+          .createQueryBuilder('state')
+          .where('LOWER(state.name) =:name', { name: 'montaje aprobado' })
+          .andWhere('LOWER(state.process) =:process', { process: 'pedido corporativo' })
+          .getOne();
+      } else {
+        orderListDetailState = await this.stateRepository
+          .createQueryBuilder('state')
+          .where('LOWER(state.name) =:name', { name: 'pedido en producción' })
+          .andWhere('LOWER(state.process) =:process', { process: 'pedido no corporativo' })
+          .getOne();
+      };
 
       if (cartClient.user.isCoorporative == 1) {
         supplierPurchaseOrderState = await this.stateRepository
@@ -730,22 +745,6 @@ export class CartQuotesService {
       };
 
       for (const quoteDetail of cartQuote.quoteDetails) {
-        let orderListDetailState: State;
-
-        if (cartClient.user.isCoorporative == 1) {
-          orderListDetailState = await this.stateRepository
-            .createQueryBuilder('state')
-            .where('LOWER(state.name) =:name', { name: 'montaje aprobado' })
-            .andWhere('LOWER(state.process) =:process', { process: 'pedido corporativo' })
-            .getOne();
-        } else {
-          orderListDetailState = await this.stateRepository
-            .createQueryBuilder('state')
-            .where('LOWER(state.name) =:name', { name: 'pedido en producción' })
-            .andWhere('LOWER(state.process) =:process', { process: 'pedido no corporativo' })
-            .getOne();
-        };
-
         const supplierPurchaseOrderData = {
           state: supplierPurchaseOrderState,
           orderCode: uuidv4(),
