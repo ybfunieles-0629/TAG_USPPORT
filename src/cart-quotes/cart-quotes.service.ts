@@ -701,40 +701,46 @@ export class CartQuotesService {
     if (state.name.toLowerCase() == 'aprobada' || state.name.toLowerCase() == 'rechazada') {
       cartQuote.user = user;
     };
-    
+
     if (state.name.toLowerCase() == 'rechazada') {
       cartQuote.isAllowed = false;
     };
 
     if (state.name.toLowerCase() == 'convertido en orden de compra') {
-      const supplierPurchaseOrderState: State = await this.stateRepository
-        .createQueryBuilder('state')
-        .where('LOWER(state.name) =:name', { name: 'por solicitar' })
-        .andWhere('LOWER(state.process) =:process', { process: 'orden de compra proveedor' })
-        .getOne();
-
-      if (!supplierPurchaseOrderState)
-        throw new NotFoundException(`State for supplier purchase order not found`);
-
       const orderListDetailsCreated: OrderListDetail[] = [];
 
       const cartClient: Client = cartQuote.client;
 
       cartQuote.isAllowed = false;
 
+      let supplierPurchaseOrderState: State;
       let orderListDetailState: State;
 
       if (cartClient.user.isCoorporative == 1) {
         orderListDetailState = await this.stateRepository
           .createQueryBuilder('state')
           .where('LOWER(state.name) =:name', { name: 'montaje aprobado' })
-          .andWhere('LOWER(state.process) =:process', { process: 'order list es corporativo' })
+          .andWhere('LOWER(state.process) =:process', { process: 'pedido corporativo' })
           .getOne();
       } else {
         orderListDetailState = await this.stateRepository
           .createQueryBuilder('state')
           .where('LOWER(state.name) =:name', { name: 'pedido en producción' })
-          .andWhere('LOWER(state.process) =:process', { process: 'order list es no corporativo' })
+          .andWhere('LOWER(state.process) =:process', { process: 'pedido no corporativo' })
+          .getOne();
+      };
+
+      if (cartClient.user.isCoorporative == 1) {
+        supplierPurchaseOrderState = await this.stateRepository
+          .createQueryBuilder('state')
+          .where('LOWER(state.name) =:name', { name: 'preaprobada' })
+          .andWhere('LOWER(state.process) =:process', { process: 'orden de compra corporativo' })
+          .getOne();
+      } else {
+        supplierPurchaseOrderState = await this.stateRepository
+          .createQueryBuilder('state')
+          .where('LOWER(state.name) =:name', { name: 'orden de compra realizada' })
+          .andWhere('LOWER(state.process) =:process', { process: 'orden de compra no corporativo' })
           .getOne();
       };
 
