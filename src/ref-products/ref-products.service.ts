@@ -480,6 +480,7 @@ export class RefProductsService {
     const results: RefProduct[] = await this.refProductRepository
       .createQueryBuilder('refProduct')
       .leftJoinAndSelect('refProduct.products', 'product')
+      .where('product.promoDisccount >:value', { value: 0 })
       .leftJoinAndSelect('refProduct.images', 'refProductImages')
       .leftJoinAndSelect('refProduct.categorySuppliers', 'refProductCategorySuppliers')
       .leftJoinAndSelect('refProduct.categoryTags', 'refProductCategoryTags')
@@ -508,8 +509,6 @@ export class RefProductsService {
       .take(limit)
       .skip(offset)
       .getMany();
-
-    //TODO: HACER EL FILTRO DE QUE SOLAMENTE TRAIGA REFPRODUCTS CON DESCUENTO
 
     const finalResults = results.length > 0 ? await this.calculations(results) : [];
 
