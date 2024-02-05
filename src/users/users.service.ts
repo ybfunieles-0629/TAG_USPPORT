@@ -851,11 +851,17 @@ export class UsersService {
 
     limit > 0 ? limit : count;
 
-    const paginatedResults = usersToShow.slice(offset, offset + limit);
+    const paginatedResults = usersToShow.map((user) => {
+      let isAdmin = false;
+      if (user.roles.some(role => role.name.toLowerCase() === 'admin' || role.name.toLowerCase() === 'super-admin')) {
+        isAdmin = true;
+      }
+      return { ...user, isAdmin };
+    });
 
     return {
       count,
-      users: paginatedResults
+      users: paginatedResults.slice(offset, offset + limit)
     };
   };
 
