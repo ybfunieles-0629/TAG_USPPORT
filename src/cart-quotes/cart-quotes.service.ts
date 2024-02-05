@@ -706,7 +706,7 @@ export class CartQuotesService {
       cartQuote.isAllowed = false;
     };
 
-    if (state.name.toLowerCase() == 'convertido en orden de compra') {
+    if (updateCartQuoteDto.generateOrder) {
       const orderListDetailsCreated: OrderListDetail[] = [];
 
       const cartClient: Client = cartQuote.client;
@@ -760,7 +760,7 @@ export class CartQuotesService {
           quantities: quoteDetail.quantities,
           productTotalPrice: quoteDetail.totalValue,
           clientTagTransportService: quoteDetail.transportServiceTagClient,
-          // estimatedDeliveryDate: cartQuote.,
+          estimatedDeliveryDate: Date.now(),
           iva: quoteDetail.iva,
           financingCost: quoteDetail.financingCost,
           withholdingAtSourceValue: quoteDetail.withholdingAtSourceValue,
@@ -825,8 +825,7 @@ export class CartQuotesService {
       purchaseOrder.orderListDetails = orderListDetailsCreated;
 
       purchaseOrderCreated = await this.purchaseOrderRepository.save(purchaseOrder);
-    }
-    // };
+    };
 
     await this.cartQuoteRepository.save(cartQuote);
 
