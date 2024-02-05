@@ -69,15 +69,19 @@ export class StatisticsService {
 
     // Obtener las ventas por cliente
     const clientSales: Map<string, number> = new Map();
+    const clientTotalValue: Map<string, number> = new Map(); // Map para almacenar el total de compras de cada cliente
     purchaseOrders.forEach(order => {
       const clientId = order.clientUser;
       const total = clientSales.get(clientId) || 0;
       clientSales.set(clientId, total + order.value);
+
+      const totalValue = clientTotalValue.get(clientId) || 0;
+      clientTotalValue.set(clientId, totalValue + order.value); // Agregar el valor de la compra al total del cliente
     });
 
-    // Ordenar los clientes por ventas
-    const sortedClients = Array.from(clientSales.entries())
-      .sort((a, b) => b[1] - a[1])
+    // Ordenar los clientes por total de compras
+    const sortedClients = Array.from(clientTotalValue.entries())
+      .sort((a, b) => b[1] - a[1]) // Ordenar de mayor a menor por valor total de compras
       .slice(0, 10);
 
     // Calcular métricas por cliente
@@ -108,6 +112,9 @@ export class StatisticsService {
         return acc;
       }, 0);
 
+      // Calcular ROI
+      const roi = utilidadTotal !== 0 ? utilidadTotal / ventas : 0;
+
       return {
         rank: index + 1,
         clientId,
@@ -115,8 +122,7 @@ export class StatisticsService {
         ventas: totalSales,
         porcentajeSobreVentas: ((totalSales - ventas) / ventas) * 100,
         utilidad: utilidadTotal,
-        // porcentajeSobreUtilidadTotal: ((utilidadTotal - orderDetail.businessUtility) / utilidadTotal) * 100,
-        roi: 0, // No se proporcionó una fórmula clara para calcular ROI
+        roi,
         carritosRealizados: orders,
         itemsCotizados,
         ocRecibidas: orders,
@@ -131,15 +137,16 @@ export class StatisticsService {
     };
   };
 
-  async getStatsForYear(yearParam: number) {
-    const currentDate: Date = new Date();
-    const currentYear: number = currentDate.getFullYear();
-    const year: number = yearParam || currentYear;
+  async getStatsForYears(startYear: number, endYear: number) {
+    // Validar que el año de inicio sea menor que el año de fin
+    if (startYear > endYear) {
+      throw new Error('El año de inicio no puede ser mayor que el año de fin.');
+    }
 
-    const startDate = new Date(year, 0, 1);
-    const endDate = new Date(year + 1, 0, 1);
+    const startDate = new Date(startYear, 0, 1);
+    const endDate = new Date(endYear + 1, 0, 1);
 
-    // Obtener todas las órdenes de compra dentro del año especificado
+    // Obtener todas las órdenes de compra dentro del rango de años especificado
     const purchaseOrders: PurchaseOrder[] = await this.purchaseOrderRepository
       .createQueryBuilder('purchaseOrder')
       .leftJoinAndSelect('purchaseOrder.orderListDetails', 'orderListDetails')
@@ -159,6 +166,9 @@ export class StatisticsService {
     // Asegurarse de que la utilidad no sea negativa
     utilidadTotal = Math.max(0, utilidadTotal);
 
+    // Calcular el ROI
+    const roi = ventas !== 0 ? utilidadTotal / ventas : 0;
+
     // Calcular el total de pedidos
     const totalOrders = purchaseOrders.length;
 
@@ -175,9 +185,11 @@ export class StatisticsService {
     }, 0);
 
     return {
-      year,
+      startYear,
+      endYear,
       ventas,
       utilidadTotal,
+      roi,
       totalOrders,
       totalItemsCotizados,
       totalProducts
