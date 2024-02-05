@@ -22,8 +22,9 @@ export class StatisticsController {
 
   @Get('utility')
   getStatsForYear(
-    @Query('yearParam') yearParam: number,
+    @Query('startYear') startYear: number,
+    @Query('endYear') endYear: number,
   ) {
-    return this.statisticsService.getStatsForYear(yearParam);
+    return this.statisticsService.getStatsForYears(startYear, endYear);
   }
 }
