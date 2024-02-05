@@ -685,24 +685,24 @@ export class CartQuotesService {
     if (!cartQuote)
       throw new NotFoundException(`Cart quote with id ${id} not found`);
 
-    const state: State = await this.stateRepository.findOne({
+    const stateDb: State = await this.stateRepository.findOne({
       where: {
         id: updateCartQuoteDto.state,
       },
     });
 
-    if (!state)
+    if (!stateDb)
       throw new NotFoundException(`State with id ${updateCartQuoteDto.state} not found`);
 
-    cartQuote.state = state;
+    cartQuote.state = stateDb;
 
     let purchaseOrderCreated: PurchaseOrder;
 
-    if (state.name.toLowerCase() == 'aprobada' || state.name.toLowerCase() == 'rechazada') {
+    if (stateDb.name.toLowerCase() == 'aprobada' || stateDb.name.toLowerCase() == 'rechazada') {
       cartQuote.user = user;
     };
 
-    if (state.name.toLowerCase() == 'rechazada') {
+    if (stateDb.name.toLowerCase() == 'rechazada') {
       cartQuote.isAllowed = false;
     };
 
@@ -737,11 +737,19 @@ export class CartQuotesService {
           .andWhere('LOWER(state.process) =:process', { process: 'orden de compra corporativo' })
           .getOne();
       } else {
-        supplierPurchaseOrderState = await this.stateRepository
-          .createQueryBuilder('state')
-          .where('LOWER(state.name) =:name', { name: 'orden de compra realizada' })
-          .andWhere('LOWER(state.process) =:process', { process: 'orden de compra no corporativo' })
-          .getOne();
+        if (stateDb.name.toLowerCase() == 'rechazada') {
+          supplierPurchaseOrderState = await this.stateRepository
+            .createQueryBuilder('state')
+            .where('LOWER(state.name) =:name', { name: 'pago rechazado por la pasarela' })
+            .andWhere('LOWER(state.process) =:process', { process: 'orden de compra no corporativo' })
+            .getOne();
+        } else {
+          supplierPurchaseOrderState = await this.stateRepository
+            .createQueryBuilder('state')
+            .where('LOWER(state.name) =:name', { name: 'orden de compra realizada' })
+            .andWhere('LOWER(state.process) =:process', { process: 'orden de compra no corporativo' })
+            .getOne();
+        };
       };
 
       for (const quoteDetail of cartQuote.quoteDetails) {
