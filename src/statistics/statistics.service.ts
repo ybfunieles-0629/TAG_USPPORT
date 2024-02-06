@@ -128,7 +128,7 @@ export class StatisticsService {
         clientName: client?.user?.name || 'Unknown', // Obtener el nombre del cliente
         ventas: totalSales,
         porcentajeSobreVentas: ((ventas - totalSales) / ventas) * 100,
-        porcentajeSobreUtilidad: (utilidadTotal - clientUtility) * 100,
+        porcentajeSobreUtilidad: (clientUtility / utilidadTotal) * 100,
         utilidad: clientUtility,
         roi,
         carritosRealizados: orders,

@@ -565,7 +565,7 @@ export class CartQuotesService {
     return { cartQuotes: cartQuotesWithOneImage };
   }
 
-  async update(id: string, updateCartQuoteDto: UpdateCartQuoteDto) {
+  async update(id: string, updateCartQuoteDto: UpdateCartQuoteDto, user: User) {
     const cartQuote = await this.cartQuoteRepository.findOne({
       where: {
         id,
@@ -638,6 +638,8 @@ export class CartQuotesService {
 
       updatedCartQuote.state = state;
     }
+
+    updatedCartQuote.updatedBy = user.id;
 
     Object.assign(cartQuote, updatedCartQuote);
 
