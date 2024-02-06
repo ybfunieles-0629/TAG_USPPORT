@@ -61,9 +61,10 @@ export class CartQuotesController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateCartQuoteDto: UpdateCartQuoteDto
+    @Body() updateCartQuoteDto: UpdateCartQuoteDto,
+    @GetUser() user: User,
   ) {
-    return this.cartQuotesService.update(id, updateCartQuoteDto);
+    return this.cartQuotesService.update(id, updateCartQuoteDto, user);
   }
 
   @Patch('/desactivate/:id')
