@@ -610,127 +610,33 @@ export class RefProductsService {
           throw new NotFoundException(`Category tag with id ${categoryTagId} not found`);
         }
 
-        const mainCategoryId = categoryTag.mainCategory;
-        const parentCategoryId = categoryTag.parentCategory;
-
-        const categorySuppliersWithTagId: CategorySupplier[] = await this.categorySupplierRepository
-          .createQueryBuilder('categorySupplier')
-          .leftJoinAndSelect('categorySupplier.refProducts', 'refProducts')
-          .leftJoinAndSelect('refProducts.images', 'images')
-          .leftJoinAndSelect('refProducts.products', 'products')
-          .leftJoinAndSelect('categorySupplier.categoryTag', 'categoryTag')
-          .where('categoryTag.id =:categoryTagId', { categoryTagId })
-          .getMany();
-
-        const categorySuppliersWithMainId: CategorySupplier[] = await this.categorySupplierRepository
-          .createQueryBuilder('categorySupplier')
-          .leftJoinAndSelect('categorySupplier.refProducts', 'refProducts')
-          .leftJoinAndSelect('refProducts.images', 'images')
-          .leftJoinAndSelect('refProducts.products', 'products')
-          .leftJoinAndSelect('categorySupplier.categoryTag', 'categoryTag')
-          .where('categoryTag.id =:mainCategoryId', { mainCategoryId })
-          .getMany();
-
-        const categorySuppliersWithParentId: CategorySupplier[] = await this.categorySupplierRepository
-          .createQueryBuilder('categorySupplier')
-          .leftJoinAndSelect('categorySupplier.refProducts', 'refProducts')
-          .leftJoinAndSelect('refProducts.images', 'images')
-          .leftJoinAndSelect('refProducts.products', 'products')
-          .leftJoinAndSelect('categorySupplier.categoryTag', 'categoryTag')
-          .where('categoryTag.id =:parentCategoryId', { parentCategoryId })
-          .getMany();
-
-        const promisesTagId: Promise<void>[] = categorySuppliersWithTagId.map(async (categorySupplier: CategorySupplier) => {
-          const refProducts: RefProduct[] = await this.refProductRepository.find({
-            where: {
-              mainCategory: categorySupplier.id,
-            },
-            relations: [
-              'images',
-              'categorySuppliers',
-              'deliveryTimes',
-              'markingServiceProperty',
-              'markingServiceProperty.externalSubTechnique',
-              'markingServiceProperty.externalSubTechnique.marking',
-              'packings',
-              'products',
-              'products.colors',
-              'products.variantReferences',
-              'products.packings',
-              'products.markingServiceProperties',
-              'products.markingServiceProperties.images',
-              'products.markingServiceProperties.externalSubTechnique',
-              'products.markingServiceProperties.externalSubTechnique.marking',
-              'supplier',
-              'supplier.user',
-              'variantReferences',
-            ],
-          });
-
-          refProductsToShow.push(...refProducts);
+        const refProducts: RefProduct[] = await this.refProductRepository.find({
+          where: {
+            tagCategory: categoryTagId,
+          },
+          relations: [
+            'images',
+            'categorySuppliers',
+            'deliveryTimes',
+            'markingServiceProperty',
+            'markingServiceProperty.externalSubTechnique',
+            'markingServiceProperty.externalSubTechnique.marking',
+            'packings',
+            'products',
+            'products.colors',
+            'products.variantReferences',
+            'products.packings',
+            'products.markingServiceProperties',
+            'products.markingServiceProperties.images',
+            'products.markingServiceProperties.externalSubTechnique',
+            'products.markingServiceProperties.externalSubTechnique.marking',
+            'supplier',
+            'supplier.user',
+            'variantReferences',
+          ],
         });
 
-        const promisesMainId: Promise<void>[] = categorySuppliersWithMainId.map(async (categorySupplier: CategorySupplier) => {
-          const refProducts: RefProduct[] = await this.refProductRepository.find({
-            where: {
-              mainCategory: categorySupplier.id,
-            },
-            relations: [
-              'images',
-              'categorySuppliers',
-              'deliveryTimes',
-              'markingServiceProperty',
-              'markingServiceProperty.externalSubTechnique',
-              'markingServiceProperty.externalSubTechnique.marking',
-              'packings',
-              'products',
-              'products.colors',
-              'products.variantReferences',
-              'products.packings',
-              'products.markingServiceProperties',
-              'products.markingServiceProperties.images',
-              'products.markingServiceProperties.externalSubTechnique',
-              'products.markingServiceProperties.externalSubTechnique.marking',
-              'supplier',
-              'supplier.user',
-              'variantReferences',
-            ],
-          });
-
-          refProductsToShow.push(...refProducts);
-        });
-
-        const promisesParentId: Promise<void>[] = categorySuppliersWithParentId.map(async (categorySupplier: CategorySupplier) => {
-          const refProducts: RefProduct[] = await this.refProductRepository.find({
-            where: {
-              mainCategory: categorySupplier.id,
-            },
-            relations: [
-              'images',
-              'categorySuppliers',
-              'deliveryTimes',
-              'markingServiceProperty',
-              'markingServiceProperty.externalSubTechnique',
-              'markingServiceProperty.externalSubTechnique.marking',
-              'packings',
-              'products',
-              'products.colors',
-              'products.variantReferences',
-              'products.packings',
-              'products.markingServiceProperties',
-              'products.markingServiceProperties.images',
-              'products.markingServiceProperties.externalSubTechnique',
-              'products.markingServiceProperties.externalSubTechnique.marking',
-              'supplier',
-              'supplier.user',
-              'variantReferences',
-            ],
-          });
-
-          refProductsToShow.push(...categorySupplier.refProducts, ...refProducts);
-        });
-
-        await Promise.all([...promisesMainId, ...promisesParentId, ...promisesTagId]);
+        refProductsToShow.push(...refProducts);
       }
     }
 
