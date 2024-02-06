@@ -813,8 +813,6 @@ export class UsersService {
           usersToShow.push(...commercialWithClients);
           count += totalCount;
         } else {
-          const rolesSend = roles.roles;
-
           const [users, totalCount] = await this.userRepository
             .createQueryBuilder('user')
             .leftJoinAndSelect('user.roles', 'userRoles')
