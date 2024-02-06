@@ -747,7 +747,7 @@ export class UsersService {
           const [users, totalCount] = await this.userRepository
             .createQueryBuilder('user')
             .leftJoinAndSelect('user.roles', 'userRoless')
-            .leftJoinAndSelect('user.users_have_roles', 'userRoles')
+            .where('userRoless.name IN (:...roles)', { roles: roles.roles })
             .leftJoinAndSelect('user.brands', 'brands')
             .leftJoinAndSelect('user.company', 'company')
             .leftJoinAndSelect('user.privileges', 'privileges')
