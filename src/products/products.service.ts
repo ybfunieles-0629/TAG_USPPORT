@@ -156,10 +156,10 @@ export class ProductsService {
 
       const { data: { data } } = await axios.get(`${this.apiUrl}/stock/${product.referencia}`);
 
-      Promise.all(data?.resultado.forEach(async (product) => {
+      await Promise.all(data?.resultado.map(async (product) => {
         const color: Color = await this.colorRepository
           .createQueryBuilder('color')
-          .where('LOWER(color.name) =:productColor', { productColor: product.color.toLowerCase() })
+          .where('LOWER(color.name) = :productColor', { productColor: product.color.toLowerCase() })
           .getOne();
 
         const colorsToAssign: Color[] = [];
@@ -170,7 +170,7 @@ export class ProductsService {
           const savedColor: Color = await this.colorRepository.save(color);
 
           colorsToAssign.push(savedColor);
-        };
+        }
 
         const newProduct = {
           tagSku,
@@ -183,6 +183,8 @@ export class ProductsService {
 
         const createdProduct: Product = this.productRepository.create(newProduct);
         const savedProduct: Product = await this.productRepository.save(createdProduct);
+
+        return savedProduct;
       }));
     }
   }
