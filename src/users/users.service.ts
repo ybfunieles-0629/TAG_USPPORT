@@ -744,32 +744,28 @@ export class UsersService {
           usersToShow.push(...commercialWithClients);
           count += totalCount;
         } else {
-          for (const role of roles.roles) {
-            const [users, totalCount] = await this.userRepository
-              .createQueryBuilder('user')
-              .leftJoinAndSelect('user.roles', 'userRoless')
-              .where('userRoless.name IN (:...roles)', { roles: roles.roles })
-              .leftJoinAndSelect('user.brands', 'brands')
-              .leftJoinAndSelect('user.company', 'company')
-              .leftJoinAndSelect('user.privileges', 'privileges')
-              .leftJoinAndSelect('user.permissions', 'permissions')
-              .leftJoinAndSelect('user.admin', 'admin')
-              .leftJoinAndSelect('admin.clients', 'adminClients')
-              .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
-              .leftJoinAndSelect('user.client', 'client')
-              .leftJoinAndSelect('client.addresses', 'clientAddresses')
-              .leftJoinAndSelect('user.supplier', 'supplier')
-              .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
-              .take(limit)
-              .skip(offset)
-              .getManyAndCount();
+          const [users, totalCount] = await this.userRepository
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.roles', 'userRoless')
+            .where('userRoless.name IN (:...roles)', { roles: roles.roles })
+            .leftJoinAndSelect('user.users_have_roles', 'userRoles')
+            .leftJoinAndSelect('user.brands', 'brands')
+            .leftJoinAndSelect('user.company', 'company')
+            .leftJoinAndSelect('user.privileges', 'privileges')
+            .leftJoinAndSelect('user.permissions', 'permissions')
+            .leftJoinAndSelect('user.admin', 'admin')
+            .leftJoinAndSelect('admin.clients', 'adminClients')
+            .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
+            .leftJoinAndSelect('user.client', 'client')
+            .leftJoinAndSelect('client.addresses', 'clientAddresses')
+            .leftJoinAndSelect('user.supplier', 'supplier')
+            .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
+            .take(limit)
+            .skip(offset)
+            .getManyAndCount();
 
-            if (!users)
-              throw new NotFoundException(`Users with role ${role} not found`);
-
-            usersToShow.push(...users);
-            count += totalCount;
-          };
+          usersToShow.push(...users);
+          count += totalCount;
         }
       }
     } else {
@@ -818,33 +814,30 @@ export class UsersService {
           usersToShow.push(...commercialWithClients);
           count += totalCount;
         } else {
-          for (const role of roles.roles) {
-            const [users, totalCount] = await this.userRepository
-              .createQueryBuilder('user')
-              .leftJoinAndSelect('user.roles', 'userRoless')
-              .where('user.isAllowed = :isAllowed', { isAllowed })
-              .where('userRoless.name IN (:...roles)', { roles: roles.roles })
-              .leftJoinAndSelect('user.brands', 'brands')
-              .leftJoinAndSelect('user.company', 'company')
-              .leftJoinAndSelect('user.privileges', 'privileges')
-              .leftJoinAndSelect('user.permissions', 'permissions')
-              .leftJoinAndSelect('user.admin', 'admin')
-              .leftJoinAndSelect('admin.clients', 'adminClients')
-              .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
-              .leftJoinAndSelect('user.client', 'client')
-              .leftJoinAndSelect('client.addresses', 'clientAddresses')
-              .leftJoinAndSelect('user.supplier', 'supplier')
-              .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
-              .take(limit)
-              .skip(offset)
-              .getManyAndCount();
+          const rolesSend = roles.roles;
 
-            if (!users)
-              throw new NotFoundException(`Users with role ${role} not found`);
+          const [users, totalCount] = await this.userRepository
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.roles', 'userRoles')
+            .where('userRoless.name IN (:...roles)', { roles: roles.roles })
+            .leftJoinAndSelect('user.users_have_roles', 'userRoles')
+            .leftJoinAndSelect('user.brands', 'brands')
+            .leftJoinAndSelect('user.company', 'company')
+            .leftJoinAndSelect('user.privileges', 'privileges')
+            .leftJoinAndSelect('user.permissions', 'permissions')
+            .leftJoinAndSelect('user.admin', 'admin')
+            .leftJoinAndSelect('admin.clients', 'adminClients')
+            .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
+            .leftJoinAndSelect('user.client', 'client')
+            .leftJoinAndSelect('client.addresses', 'clientAddresses')
+            .leftJoinAndSelect('user.supplier', 'supplier')
+            .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
+            .take(limit)
+            .skip(offset)
+            .getManyAndCount();
 
-            usersToShow.push(...users);
-            count += totalCount;
-          };
+          usersToShow.push(...users);
+          count += totalCount;
         };
       }
     }
