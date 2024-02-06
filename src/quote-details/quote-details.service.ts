@@ -537,7 +537,7 @@ export class QuoteDetailsService {
 
     //* CALCULAR EL COSTO DE LA RETENCIÓN EN LA FUENTE
     const withholdingAtSource: number = systemConfig.withholdingAtSource || 0;
-    const withholdingAtSourceValue: number = (withholdingAtSource / 100) * totalPrice || 0;
+    const withholdingAtSourceValue: number = (totalPrice * withholdingAtSource / 100) || 0;
 
     totalPrice += withholdingAtSourceValue;
     newQuoteDetail.withholdingAtSourceValue = withholdingAtSourceValue;
@@ -545,7 +545,7 @@ export class QuoteDetailsService {
     cartQuoteDb.withholdingAtSourceValue = withholdingAtSourceValue;
 
     //* CALCULAR UTILIDAD DEL NEGOCIO
-    const businessUtility = (totalPrice - totalCost - withholdingAtSourceValue) || 0;
+    const businessUtility = (totalPrice - (totalCost - withholdingAtSourceValue)) || 0;
     newQuoteDetail.businessUtility = businessUtility;
 
     //* CALCULAR DESCUENTO
@@ -1008,7 +1008,7 @@ export class QuoteDetailsService {
     cartQuoteDb.withholdingAtSourceValue = withholdingAtSourceValue;
 
     //* CALCULAR UTILIDAD DEL NEGOCIO
-    const businessUtility = (totalPrice - totalCost - withholdingAtSourceValue) || 0;
+    const businessUtility = (totalPrice - (totalCost - withholdingAtSourceValue)) || 0;
     updatedQuoteDetail.businessUtility = businessUtility;
 
     //* CALCULAR DESCUENTO
@@ -1029,7 +1029,7 @@ export class QuoteDetailsService {
     updatedQuoteDetail.maximumDiscount = 20;
 
     Object.assign(quoteDetail, updatedQuoteDetail);
-    
+
     // await this.cartQuoteRepository.save(cartQuoteDb);
     // await this.quoteDetailRepository.save(quoteDetail);
 
