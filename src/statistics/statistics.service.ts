@@ -7,12 +7,16 @@ import { SystemConfig } from '../system-configs/entities/system-config.entity';
 import { Client } from '../clients/entities/client.entity';
 import { OrderListDetail } from '../order-list-details/entities/order-list-detail.entity';
 import { User } from '../users/entities/user.entity';
+import { CategorySupplier } from '../category-suppliers/entities/category-supplier.entity';
 
 @Injectable()
 export class StatisticsService {
   constructor(
     @InjectRepository(Client)
     private readonly clientRepository: Repository<Client>,
+
+    @InjectRepository(CategorySupplier)
+    private readonly categorySupplierRepository: Repository<CategorySupplier>,
 
     @InjectRepository(PurchaseOrder)
     private readonly purchaseOrderRepository: Repository<PurchaseOrder>,
@@ -287,4 +291,82 @@ export class StatisticsService {
 
     return sortedCommercialReports;
   };
+
+  async getCategoryReportsForYear(yearParam: number) {
+    const currentDate: Date = new Date();
+    const currentYear: number = currentDate.getFullYear();
+    const year: number = yearParam || currentYear;
+
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year + 1, 0, 1);
+
+    // Obtener todas las órdenes de compra dentro del año especificado con la información de las categorías de los productos
+    const purchaseOrders: PurchaseOrder[] = await this.purchaseOrderRepository
+      .createQueryBuilder('purchaseOrder')
+      .leftJoinAndSelect('purchaseOrder.orderListDetails', 'orderListDetails')
+      .leftJoinAndSelect('orderListDetails.product', 'product')
+      .leftJoinAndSelect('product.refProduct', 'refProduct')
+      .leftJoinAndSelect('refProduct.mainCategory', 'mainCategory')
+      .where('purchaseOrder.createdAt >= :startDate', { startDate })
+      .andWhere('purchaseOrder.createdAt < :endDate', { endDate })
+      .getMany();
+
+    // Calcular los informes de categoría para cada orden
+    const categoryReports: any[] = [];
+    await Promise.all(purchaseOrders.map(async (order) => {
+      await Promise.all(order.orderListDetails.map(async (orderListDetail) => {
+        const mainCategory = orderListDetail.product.refProduct.mainCategory;
+
+        if (mainCategory) {
+          const categoryId = mainCategory;
+
+          // Verificar si ya se ha calculado el informe de categoría para esta categoría
+          const existingReport = categoryReports.find(report => report.categoryId === categoryId);
+
+          if (!existingReport) {
+            // Obtener la información de la categoría
+            const category = await this.categorySupplierRepository.findOne({
+              where: {
+                id: categoryId,
+              },
+            });
+
+            // Calcular las ventas y la utilidad para esta categoría
+            const totalSalesYear = order.value;
+            const totalUtilityYear = order.businessUtility;
+
+            // Asegurarse de que la utilidad no sea negativa
+            const utilityYear = Math.max(0, totalUtilityYear);
+
+            // Calcular los porcentajes
+            const salesPercentage = totalSalesYear !== 0 ? (totalSalesYear / totalSalesYear) * 100 : 0;
+            const utilityPercentage = totalSalesYear !== 0 ? (utilityYear / totalSalesYear) * 100 : 0;
+
+            // Crear el informe de categoría
+            categoryReports.push({
+              categoryId: categoryId,
+              categoryName: category?.name || 'Unknown',
+              totalSalesYear: totalSalesYear,
+              salesPercentage: salesPercentage,
+              totalUtilityYear: utilityYear,
+              utilityPercentage: utilityPercentage
+            });
+          } else {
+            // Si ya se ha calculado el informe de categoría para esta categoría, actualizar los valores
+            existingReport.totalSalesYear += order.value;
+            existingReport.totalUtilityYear += order.businessUtility;
+            existingReport.salesPercentage = existingReport.totalSalesYear !== 0 ?
+              (existingReport.totalSalesYear / existingReport.totalSalesYear) * 100 : 0;
+            existingReport.utilityPercentage = existingReport.totalUtilityYear !== 0 ?
+              (existingReport.totalUtilityYear / existingReport.totalSalesYear) * 100 : 0;
+          }
+        }
+      }));
+    }));
+
+    // Ordenar los informes de categoría por ventas totales del año
+    const sortedCategoryReports = categoryReports.sort((a, b) => b.totalSalesYear - a.totalSalesYear);
+
+    return sortedCategoryReports;
+  }
 }
