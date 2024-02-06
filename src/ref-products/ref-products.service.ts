@@ -462,15 +462,58 @@ export class RefProductsService {
 
     const finalResults: RefProduct[] = results;
     let finalCalculatedResults = [];
+    let finalFinalResults = [];
 
     if (calculations == 1) {
       const calculatedResults = results.length > 0 ? await this.calculations(results) : [];
       finalCalculatedResults = calculatedResults;
     }
 
+    if (finalCalculatedResults.length > 0) {
+      finalFinalResults = await Promise.all(finalCalculatedResults.map(async (result) => {
+        const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+          where: {
+            id: result.tagCategory,
+          },
+        });
+
+        const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+          where: {
+            id: result.mainCategory,
+          },
+        });
+
+        return {
+          ...result,
+          tagCategory: categoryTag,
+          mainCategory: categorySupplier
+        }
+      }));
+    } else if (finalResults.length > 0) {
+      finalFinalResults = await Promise.all(finalResults.map(async (result) => {
+        const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+          where: {
+            id: result.tagCategory,
+          },
+        });
+
+        const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+          where: {
+            id: result.mainCategory,
+          },
+        });
+
+        return {
+          ...result,
+          tagCategory: categoryTag,
+          mainCategory: categorySupplier
+        }
+      }));
+    }
+
     return {
       totalCount,
-      results: calculations == 1 ? finalCalculatedResults : finalResults,
+      results: finalFinalResults,
     };
   }
 
@@ -1085,12 +1128,24 @@ export class RefProductsService {
 
           let value: number = changingValue * (1 - percentageDiscount);
 
+          let iva: number = 0;
+
+          if (filterRefProductsDto.iva > 0) {
+            iva = (filterRefProductsDto.iva / 100) * changingValue || 0;
+          }
+
+          value += iva;
+
           value = Math.round(value);
 
           changingValue = value;
+
         }
 
-        return { ...product, burnPriceTable };
+        return {
+          ...product,
+          burnPriceTable,
+        };
       }));
 
       const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
@@ -1108,7 +1163,13 @@ export class RefProductsService {
         },
       });
 
-      return { ...result, isPending: 1, products: modifiedProducts, mainCategory: categorySupplier, tagCategory: categoryTag };
+      return {
+        ...result,
+        isPending: 1,
+        products: modifiedProducts,
+        mainCategory: categorySupplier,
+        tagCategory: categoryTag,
+      };
     }));
 
     const paginatedRefProducts = finalResults.slice(offset, offset + limit);

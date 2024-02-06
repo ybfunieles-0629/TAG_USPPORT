@@ -42,6 +42,10 @@ export class FilterRefProductsDto {
   isNew?: boolean;
 
   @IsOptional()
+  @IsInt()
+  iva?: number;
+
+  @IsOptional()
   @IsBoolean()
   hasDiscount?: boolean;
 }
