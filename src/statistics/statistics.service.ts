@@ -70,6 +70,7 @@ export class StatisticsService {
     // Obtener las ventas por cliente
     const clientSales: Map<string, number> = new Map();
     const clientTotalValue: Map<string, number> = new Map(); // Map para almacenar el total de compras de cada cliente
+    const clientTotalUtility: Map<string, number> = new Map(); // Map para almacenar la utilidad total de compras de cada cliente
     purchaseOrders.forEach(order => {
       const clientId = order.clientUser;
       const total = clientSales.get(clientId) || 0;
@@ -77,6 +78,9 @@ export class StatisticsService {
 
       const totalValue = clientTotalValue.get(clientId) || 0;
       clientTotalValue.set(clientId, totalValue + order.value); // Agregar el valor de la compra al total del cliente
+
+      const totalUtility = clientTotalUtility.get(clientId) || 0;
+      clientTotalUtility.set(clientId, totalUtility + order.businessUtility); // Agregar la utilidad de la compra al total del cliente
     });
 
     // Ordenar los clientes por total de compras
@@ -112,21 +116,26 @@ export class StatisticsService {
         return acc;
       }, 0);
 
+      // Calcular la utilidad total del cliente
+      const clientUtility = clientTotalUtility.get(clientId) || 0;
+
       // Calcular ROI
-      const roi = utilidadTotal !== 0 ? utilidadTotal / ventas : 0;
+      const roi = utilidadTotal !== 0 ? clientUtility / ventas : 0;
 
       return {
         rank: index + 1,
         clientId,
         clientName: client?.user?.name || 'Unknown', // Obtener el nombre del cliente
         ventas: totalSales,
-        porcentajeSobreVentas: ((totalSales - ventas) / ventas) * 100,
-        utilidad: utilidadTotal,
+        porcentajeSobreVentas: ((ventas - totalSales) / ventas) * 100,
+        porcentajeSobreUtilidad: (utilidadTotal - clientUtility) * 100,
+        utilidad: clientUtility,
         roi,
         carritosRealizados: orders,
         itemsCotizados,
         ocRecibidas: orders,
-        pedidos: totalProducts
+        pedidos: totalProducts,
+        ticket: ((totalSales - orders))
       };
     }));
 
@@ -136,6 +145,11 @@ export class StatisticsService {
       top10Clientes: clientsMetrics
     };
   };
+
+
+  // ticket: ((totalSales - orders))
+  // porcentajeSobreUtilidad: (utitilidadTotal ) * 100,
+  // porcentajeSobreVentas: ((ventas - totalSales) / ventas) * 100,
 
   async getStatsForYears(startYear: number, endYear: number) {
     // Validar que el año de inicio sea menor que el año de fin
