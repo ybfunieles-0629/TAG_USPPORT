@@ -462,15 +462,58 @@ export class RefProductsService {
 
     const finalResults: RefProduct[] = results;
     let finalCalculatedResults = [];
+    let finalFinalResults = [];
 
     if (calculations == 1) {
       const calculatedResults = results.length > 0 ? await this.calculations(results) : [];
       finalCalculatedResults = calculatedResults;
     }
 
+    if (finalCalculatedResults.length > 0) {
+      finalFinalResults = await Promise.all(finalCalculatedResults.map(async (result) => {
+        const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+          where: {
+            id: result.tagCategory,
+          },
+        });
+
+        const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+          where: {
+            id: result.mainCategory,
+          },
+        });
+
+        return {
+          ...result,
+          tagCategory: categoryTag,
+          mainCategory: categorySupplier
+        }
+      }));
+    } else if (finalResults.length > 0) {
+      finalFinalResults = await Promise.all(finalResults.map(async (result) => {
+        const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+          where: {
+            id: result.tagCategory,
+          },
+        });
+
+        const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+          where: {
+            id: result.mainCategory,
+          },
+        });
+
+        return {
+          ...result,
+          tagCategory: categoryTag,
+          mainCategory: categorySupplier
+        }
+      }));
+    }
+
     return {
       totalCount,
-      results: calculations == 1 ? finalCalculatedResults : finalResults,
+      results: finalFinalResults,
     };
   }
 
