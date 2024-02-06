@@ -1101,7 +1101,13 @@ export class RefProductsService {
       if (!categorySupplier)
         throw new NotFoundException(`Category supplier with id ${result.mainCategory} not found`);
 
-      return { ...result, isPending: 1, products: modifiedProducts, mainCategory: categorySupplier };
+      const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+        where: {
+          id: result.tagCategory,
+        },
+      });
+
+      return { ...result, isPending: 1, products: modifiedProducts, mainCategory: categorySupplier, tagCategory: categoryTag };
     }));
 
     const paginatedRefProducts = finalResults.slice(offset, offset + limit);
