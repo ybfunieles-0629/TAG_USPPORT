@@ -27,4 +27,11 @@ export class StatisticsController {
   ) {
     return this.statisticsService.getStatsForYears(startYear, endYear);
   }
+
+  @Get('commercials/report')
+  getCommercialReportsForYear(
+    @Query('yearParam') yearParam: number,
+  ) {
+    return this.statisticsService.getCommercialReportsForYear(yearParam);
+  };
 }
