@@ -442,14 +442,28 @@ export class RefProductsService {
       finalCalculatedResults = calculatedResults;
     }
 
-    const mappedResults = results.map(result => ({
-      categoryTag: result.categoryTags,
-      mainCategory: result.categorySuppliers,
+    const finalFinalResults = Promise.all(finalResults.map(async (result) => {
+      const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+        where: {
+          id: result.mainCategory,
+        },
+      });
+
+      if (!categorySupplier)
+        throw new NotFoundException(`Category supplier with id ${result.mainCategory} not found`);
+
+      const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+        where: {
+          id: result.tagCategory,
+        },
+      });
+
+      return { ...result, isPending: 1, mainCategory: categorySupplier, tagCategory: categoryTag };
     }));
 
     return {
       totalCount,
-      results: calculations == 1 ? finalCalculatedResults : mappedResults,
+      results: calculations == 1 ? finalCalculatedResults : finalFinalResults,
     };
   }
 
