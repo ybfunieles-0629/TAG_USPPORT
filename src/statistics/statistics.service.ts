@@ -227,7 +227,6 @@ export class StatisticsService {
       .createQueryBuilder('purchaseOrder')
       .leftJoinAndSelect('purchaseOrder.orderListDetails', 'orderListDetails')
       .leftJoinAndSelect('orderListDetails.product', 'product')
-      .leftJoinAndSelect('purchaseOrder.userApproval', 'userApproval')
       .where('purchaseOrder.createdAt >= :startDate', { startDate })
       .andWhere('purchaseOrder.createdAt < :endDate', { endDate })
       .getMany();
