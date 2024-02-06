@@ -451,27 +451,27 @@ export class QuoteDetailsService {
     const paymentDays = [
       {
         day: 1,
-        percentage: 3,
+        percentage: 0.03,
       },
       {
         day: 15,
-        percentage: 3,
+        percentage: 0.03,
       },
       {
         day: 30,
-        percentage: 3,
+        percentage: 0.03,
       },
       {
         day: 45,
-        percentage: 4,
+        percentage: 0.04,
       },
       {
         day: 60,
-        percentage: 6,
+        percentage: 0.06,
       },
       {
         day: 90,
-        percentage: 9,
+        percentage: 0.09,
       },
     ];
 
@@ -498,6 +498,8 @@ export class QuoteDetailsService {
           percentageDiscount = paymentDay.percentage;
         };
       });
+
+      // Precio original * (1 - Descuento individual) * (1 - Descuento general)
 
       let value: number = totalPrice * (1 - percentageDiscount);
       totalPrice = Math.round(value);
