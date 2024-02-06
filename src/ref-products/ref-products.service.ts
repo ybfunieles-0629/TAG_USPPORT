@@ -1085,12 +1085,24 @@ export class RefProductsService {
 
           let value: number = changingValue * (1 - percentageDiscount);
 
+          let iva: number = 0;
+
+          if (filterRefProductsDto.iva > 0) {
+            iva = (filterRefProductsDto.iva / 100) * changingValue || 0;
+          }
+
+          value += iva;
+
           value = Math.round(value);
 
           changingValue = value;
+
         }
 
-        return { ...product, burnPriceTable };
+        return {
+          ...product,
+          burnPriceTable,
+        };
       }));
 
       const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
@@ -1108,7 +1120,13 @@ export class RefProductsService {
         },
       });
 
-      return { ...result, isPending: 1, products: modifiedProducts, mainCategory: categorySupplier, tagCategory: categoryTag };
+      return {
+        ...result,
+        isPending: 1,
+        products: modifiedProducts,
+        mainCategory: categorySupplier,
+        tagCategory: categoryTag,
+      };
     }));
 
     const paginatedRefProducts = finalResults.slice(offset, offset + limit);
