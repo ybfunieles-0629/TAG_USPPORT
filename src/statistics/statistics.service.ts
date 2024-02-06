@@ -6,6 +6,7 @@ import { PurchaseOrder } from '../purchase-order/entities/purchase-order.entity'
 import { SystemConfig } from '../system-configs/entities/system-config.entity';
 import { Client } from '../clients/entities/client.entity';
 import { OrderListDetail } from '../order-list-details/entities/order-list-detail.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class StatisticsService {
@@ -15,6 +16,9 @@ export class StatisticsService {
 
     @InjectRepository(PurchaseOrder)
     private readonly purchaseOrderRepository: Repository<PurchaseOrder>,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
 
     @InjectRepository(SystemConfig)
     private readonly systemConfigRepository: Repository<SystemConfig>,
@@ -209,4 +213,79 @@ export class StatisticsService {
       totalProducts
     };
   }
+
+  async getCommercialReportsForYear(yearParam: number) {
+    const currentDate: Date = new Date();
+    const currentYear: number = currentDate.getFullYear();
+    const year: number = yearParam || currentYear;
+
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year + 1, 0, 1);
+
+    // Obtener todas las órdenes de compra dentro del año especificado con su información de aprobación de usuario
+    const purchaseOrders: PurchaseOrder[] = await this.purchaseOrderRepository
+      .createQueryBuilder('purchaseOrder')
+      .leftJoinAndSelect('purchaseOrder.orderListDetails', 'orderListDetails')
+      .leftJoinAndSelect('orderListDetails.product', 'product')
+      .leftJoinAndSelect('purchaseOrder.userApproval', 'userApproval')
+      .where('purchaseOrder.createdAt >= :startDate', { startDate })
+      .andWhere('purchaseOrder.createdAt < :endDate', { endDate })
+      .getMany();
+
+    // Calcular los informes comerciales para cada orden
+    const commercialReports: any[] = [];
+    await Promise.all(purchaseOrders.map(async (order) => {
+      const userApproval = order.userApproval;
+
+      if (userApproval) {
+        const userId = userApproval;
+
+        // Verificar si ya se ha calculado el informe comercial para este usuario
+        const existingReport = commercialReports.find(report => report.userId === userId);
+
+        if (!existingReport) {
+          // Obtener la información del usuario comercial
+          const user = await this.userRepository.findOne({
+            where: {
+              id: userId,
+            },
+          });
+
+          // Calcular las ventas y la utilidad para este comercial
+          const totalSalesYear = order.value;
+          const totalUtilityYear = order.businessUtility;
+
+          // Asegurarse de que la utilidad no sea negativa
+          const utilityYear = Math.max(0, totalUtilityYear);
+
+          // Calcular los porcentajes
+          const salesPercentage = totalSalesYear !== 0 ? (totalSalesYear / totalSalesYear) * 100 : 0;
+          const utilityPercentage = utilityYear !== 0 ? (utilityYear / totalSalesYear) * 100 : 0;
+
+          // Crear el informe comercial
+          commercialReports.push({
+            userId: userId,
+            commercialName: user?.name || 'Unknown',
+            totalSalesYear: totalSalesYear,
+            salesPercentage: salesPercentage,
+            totalUtilityYear: utilityYear,
+            utilityPercentage: utilityPercentage
+          });
+        } else {
+          // Si ya se ha calculado el informe comercial para este usuario, actualizar los valores
+          existingReport.totalSalesYear += order.value;
+          existingReport.totalUtilityYear += order.businessUtility;
+          existingReport.salesPercentage = existingReport.totalSalesYear !== 0 ?
+            (existingReport.totalSalesYear / existingReport.totalSalesYear) * 100 : 0;
+          existingReport.utilityPercentage = existingReport.totalUtilityYear !== 0 ?
+            (existingReport.totalUtilityYear / existingReport.totalSalesYear) * 100 : 0;
+        }
+      }
+    }));
+
+    // Ordenar los informes comerciales por ventas totales del año
+    const sortedCommercialReports = commercialReports.sort((a, b) => b.totalSalesYear - a.totalSalesYear);
+
+    return sortedCommercialReports;
+  };
 }
