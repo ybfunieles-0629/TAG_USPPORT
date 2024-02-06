@@ -429,34 +429,8 @@ export class RefProductsService {
       take: limit,
       skip: offset,
       relations: [
-        'images',
         'categorySuppliers',
         'categoryTags',
-        'deliveryTimes',
-        'markingServiceProperty',
-        'markingServiceProperty.externalSubTechnique',
-        'markingServiceProperty.externalSubTechnique.marking',
-        'packings',
-        'products',
-        'products.images',
-        'products.disccounts',
-        'products.refProduct',
-        'products.refProduct.deliveryTimes',
-        'products.refProduct.supplier',
-        'products.refProduct.supplier.disccounts',
-        'products.colors',
-        'products.variantReferences',
-        'products.packings',
-        'products.supplierPrices',
-        'products.supplierPrices.product',
-        'products.supplierPrices.listPrices',
-        'products.markingServiceProperties',
-        'products.markingServiceProperties.images',
-        'products.markingServiceProperties.externalSubTechnique',
-        'products.markingServiceProperties.externalSubTechnique.marking',
-        'supplier',
-        'supplier.user',
-        'variantReferences',
       ],
     });
 
@@ -468,11 +442,17 @@ export class RefProductsService {
       finalCalculatedResults = calculatedResults;
     }
 
+    const mappedResults = results.map(result => ({
+      categoryTag: result.categoryTags,
+      mainCategory: result.categorySuppliers,
+    }));
+
     return {
       totalCount,
-      results: calculations == 1 ? finalCalculatedResults : finalResults,
+      results: calculations == 1 ? finalCalculatedResults : mappedResults,
     };
   }
+
 
   async filterProductsWithDiscount(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
