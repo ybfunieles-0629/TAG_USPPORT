@@ -678,7 +678,7 @@ export class RefProductsService {
           .leftJoinAndSelect('productExternalSubTechnique.marking', 'productExternalSubTechniqueMarking')
           .leftJoinAndSelect('refProduct.supplier', 'supplier')
           .leftJoinAndSelect('supplier.user', 'supplierUser')
-          .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
+          .leftJoinAndSelect('refProduct.variantReferences', 'refProductVariantReferences')
           .getMany();
 
         refProductsToShow.push(...refProducts);
