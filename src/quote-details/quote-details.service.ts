@@ -421,10 +421,10 @@ export class QuoteDetailsService {
         clientType = 'cliente corporativo principal';
     };
 
-    if (clientType.toLowerCase() == 'cliente corporativo secundario' || clientType.toLowerCase() == 'cliente corporativo principal') {
-      const brandId: string = cartQuote.brandId;
+    if (clientType.toLowerCase() == 'cliente corporativo secundario' || clientType.toLowerCase() == 'cliente corporativo principal') {      
+      const brandId = cartQuote.brandId;
 
-      if (brandId != null || brandId.trim() != '' || brandId != undefined) {
+      if (brandId != '') {
         const cartQuoteBrand: Brand = await this.brandRepository.findOne({
           where: {
             id: brandId,
