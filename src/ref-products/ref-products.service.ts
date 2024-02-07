@@ -654,31 +654,31 @@ export class RefProductsService {
           throw new NotFoundException(`Category tag with id ${categoryTagId} not found`);
         }
 
-        const refProducts: RefProduct[] = await this.refProductRepository.find({
-          where: {
-            tagCategory: categoryTagId,
-          },
-          relations: [
-            'images',
-            'categorySuppliers',
-            'deliveryTimes',
-            'markingServiceProperty',
-            'markingServiceProperty.externalSubTechnique',
-            'markingServiceProperty.externalSubTechnique.marking',
-            'packings',
-            'products',
-            'products.colors',
-            'products.variantReferences',
-            'products.packings',
-            'products.markingServiceProperties',
-            'products.markingServiceProperties.images',
-            'products.markingServiceProperties.externalSubTechnique',
-            'products.markingServiceProperties.externalSubTechnique.marking',
-            'supplier',
-            'supplier.user',
-            'variantReferences',
-          ],
-        });
+        const refProducts: RefProduct[] = await this.refProductRepository
+          .createQueryBuilder('refProduct')
+          .leftJoinAndSelect('refProduct.images', 'images')
+          .where('refProduct.tagCategory = :categoryTagId OR refProduct.mainCategory = :categoyTagId', { categoryTagId })
+          .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
+          .orWhere('categorySuppliers.id =:categoryTagId', { categoryTagId })
+          .leftJoinAndSelect('refProduct.categoryTags', 'categoryTags')
+          .orWhere('categoryTags.id =:categoryTagId', { categoryTagId })
+          .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+          .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
+          .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
+          .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
+          .leftJoinAndSelect('refProduct.packings', 'packings')
+          .leftJoinAndSelect('refProduct.products', 'products')
+          .leftJoinAndSelect('products.colors', 'colors')
+          .leftJoinAndSelect('products.variantReferences', 'variantReferences')
+          .leftJoinAndSelect('products.packings', 'productPackings')
+          .leftJoinAndSelect('products.markingServiceProperties', 'productMarkingServiceProperties')
+          .leftJoinAndSelect('productMarkingServiceProperties.images', 'productMarkingServicePropertiesImages')
+          .leftJoinAndSelect('productMarkingServiceProperties.externalSubTechnique', 'productExternalSubTechnique')
+          .leftJoinAndSelect('productExternalSubTechnique.marking', 'productExternalSubTechniqueMarking')
+          .leftJoinAndSelect('refProduct.supplier', 'supplier')
+          .leftJoinAndSelect('supplier.user', 'supplierUser')
+          .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
+          .getMany();
 
         refProductsToShow.push(...refProducts);
       }
