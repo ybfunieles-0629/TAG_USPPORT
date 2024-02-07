@@ -38,18 +38,16 @@ export class ColorsService {
         },
       });
 
-      if (existingColor) {
-        continue;
+      if (!existingColor) {
+        const newColor = {
+          name: color.nombreColor,
+          code: color.codigo,
+        };
+
+        const colorToSave = await this.colorRepository.save(newColor);
+
+        colorsToSave.push(colorToSave);
       };
-
-      const newColor = {
-        name: color.nombreColor,
-        code: color.codigo,
-      };
-
-      const colorToSave = await this.colorRepository.save(newColor);
-
-      colorsToSave.push(colorToSave);
     }
 
     return {
