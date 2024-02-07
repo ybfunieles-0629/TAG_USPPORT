@@ -166,7 +166,9 @@ export class StatisticsService {
     }
 
     const startDate = new Date(startYear, 0, 1);
-    const endDate = new Date(endYear + 1, 0, 1);
+    const endDate = new Date(endYear, 0, 1);
+    endDate.setFullYear(endDate.getFullYear() + 1);
+
 
     // Obtener todas las órdenes de compra dentro del rango de años especificado
     const purchaseOrders: PurchaseOrder[] = await this.purchaseOrderRepository
@@ -306,7 +308,6 @@ export class StatisticsService {
       .leftJoinAndSelect('purchaseOrder.orderListDetails', 'orderListDetails')
       .leftJoinAndSelect('orderListDetails.product', 'product')
       .leftJoinAndSelect('product.refProduct', 'refProduct')
-      .leftJoinAndSelect('refProduct.mainCategory', 'mainCategory')
       .where('purchaseOrder.createdAt >= :startDate', { startDate })
       .andWhere('purchaseOrder.createdAt < :endDate', { endDate })
       .getMany();
