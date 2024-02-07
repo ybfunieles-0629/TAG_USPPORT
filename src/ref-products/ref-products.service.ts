@@ -657,7 +657,8 @@ export class RefProductsService {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
           .leftJoinAndSelect('refProduct.images', 'images')
-          .where('refProduct.tagCategory = :categoryTagId OR refProduct.mainCategory = :categoyTagId', { categoryTagId })
+          .where('refProduct.tagCategory = :categoryTagId', { categoryTagId })
+          .orWhere('refProduct.mainCategory = :categoryTagId', { categoryTagId })
           .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
           .orWhere('categorySuppliers.id =:categoryTagId', { categoryTagId })
           .leftJoinAndSelect('refProduct.categoryTags', 'categoryTags')
