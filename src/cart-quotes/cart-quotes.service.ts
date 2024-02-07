@@ -93,21 +93,25 @@ export class CartQuotesService {
     }
 
     if (createCartQuoteDto.brandId) {
-      const brandId: string = createCartQuoteDto.brandId;
+      if (createCartQuoteDto.brandId != null) {
+        const brandId: string = createCartQuoteDto.brandId;
 
-      const brand: Brand = await this.brandRepository.findOne({
-        where: {
-          id: brandId,
-        },
-      });
+        const brand: Brand = await this.brandRepository.findOne({
+          where: {
+            id: brandId,
+          },
+        });
 
-      if (!brand)
-        throw new NotFoundException(`Brand with id ${brandId} not found`);
+        if (!brand)
+          throw new NotFoundException(`Brand with id ${brandId} not found`);
 
-      if (!brand.isActive)
-        throw new BadRequestException(`Brand with id ${brandId} is currently inactive`);
+        if (!brand.isActive)
+          throw new BadRequestException(`Brand with id ${brandId} is currently inactive`);
 
-      newCartQuote.brandId = brand.id;
+        newCartQuote.brandId = brand.id;
+      } else {
+        newCartQuote.brandId = null;
+      }
     }
 
     newCartQuote.client = client;
