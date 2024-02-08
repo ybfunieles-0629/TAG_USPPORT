@@ -14,12 +14,14 @@ import { DeliveryTimesModule } from '../delivery-times/delivery-times.module';
 import { CategoryTagModule } from '../category-tag/category-tag.module';
 import { SystemConfigsModule } from '../system-configs/system-configs.module';
 import { LocalTransportPricesModule } from '../local-transport-prices/local-transport-prices.module';
+import { ColorsModule } from '../colors/colors.module';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     CategoryTagModule,
     CategorySuppliersModule,
+    forwardRef(() => ColorsModule),
     DeliveryTimesModule,
     SuppliersModule,
     SystemConfigsModule,

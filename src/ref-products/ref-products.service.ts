@@ -22,6 +22,7 @@ import { SystemConfig } from '../system-configs/entities/system-config.entity';
 import { Packing } from '../packings/entities/packing.entity';
 import { LocalTransportPrice } from '../local-transport-prices/entities/local-transport-price.entity';
 import { User } from '../users/entities/user.entity';
+import { Color } from 'src/colors/entities/color.entity';
 
 @Injectable()
 export class RefProductsService {
@@ -36,6 +37,9 @@ export class RefProductsService {
 
     @InjectRepository(CategoryTag)
     private readonly categoryTagRepository: Repository<CategoryTag>,
+
+    @InjectRepository(Color)
+    private readonly colorRepository: Repository<Color>,
 
     @InjectRepository(DeliveryTime)
     private readonly deliveryTimeRepository: Repository<DeliveryTime>,
@@ -121,6 +125,28 @@ export class RefProductsService {
         categoryTags.push(categoryTag);
       }
     }
+
+    if (createRefProductDto.colors) {
+      const colors: Color[] = [];
+
+      for (const colorId of createRefProductDto.categoryTags) {
+        const color: Color = await this.colorRepository.findOne({
+          where: {
+            id: colorId,
+          },
+        });
+
+        if (!color)
+          throw new NotFoundException(`Marking with id ${colorId} not found`);
+
+        // if (!color.isActive)
+        //   throw new BadRequestException(`Marking with id ${colorId} is currently inactive`);
+
+        colors.push(color);
+      }
+
+      newRefProduct.colors = colors;
+    };
 
     if (createRefProductDto.variantReferences) {
       for (const variantReferenceId of createRefProductDto.variantReferences) {
@@ -430,6 +456,7 @@ export class RefProductsService {
       skip: offset,
       relations: [
         'images',
+        'colors',
         'categorySuppliers',
         'categoryTags',
         'deliveryTimes',
@@ -526,6 +553,7 @@ export class RefProductsService {
       .leftJoinAndSelect('refProduct.products', 'product')
       .where('product.promoDisccount >:value', { value: 0 })
       .leftJoinAndSelect('refProduct.images', 'refProductImages')
+      .leftJoinAndSelect('refProduct.colors', 'refProductColors')
       .leftJoinAndSelect('refProduct.categorySuppliers', 'refProductCategorySuppliers')
       .leftJoinAndSelect('refProduct.categoryTags', 'refProductCategoryTags')
       .leftJoinAndSelect('refProduct.deliveryTimes', 'refProductDeliveryTimes')
@@ -569,6 +597,7 @@ export class RefProductsService {
       },
       relations: [
         'images',
+        'colors',
         'categorySuppliers',
         'categoryTags',
         'deliveryTimes',
@@ -603,6 +632,7 @@ export class RefProductsService {
       .createQueryBuilder('refProduct')
       .leftJoinAndSelect('refProduct.products', 'product')
       .leftJoinAndSelect('refProduct.images', 'refProductImages')
+      .leftJoinAndSelect('refProduct.colors', 'refProductColors')
       .leftJoinAndSelect('refProduct.categorySuppliers', 'refProductCategorySuppliers')
       .leftJoinAndSelect('refProduct.categoryTags', 'refProductCategoryTags')
       .leftJoinAndSelect('refProduct.deliveryTimes', 'refProductDeliveryTimes')
@@ -660,6 +690,7 @@ export class RefProductsService {
           .where('refProduct.tagCategory = :categoryTagId', { categoryTagId })
           .orWhere('refProduct.mainCategory = :categoryTagId', { categoryTagId })
           .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
+          .leftJoinAndSelect('refProduct.colors', 'refProductColors')
           .orWhere('categorySuppliers.id =:categoryTagId', { categoryTagId })
           .leftJoinAndSelect('refProduct.categoryTags', 'categoryTags')
           .orWhere('categoryTags.id =:categoryTagId', { categoryTagId })
@@ -707,6 +738,7 @@ export class RefProductsService {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
           .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+          .leftJoinAndSelect('refProduct.colors', 'refProductColors')
           .leftJoinAndSelect('refProduct.packings', 'packings')
           .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
           .leftJoinAndSelect('refProduct.categoryTags', 'categoryTags')
@@ -757,6 +789,7 @@ export class RefProductsService {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
           .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+          .leftJoinAndSelect('refProduct.colors', 'refProductColors')
           .leftJoinAndSelect('refProduct.packings', 'packings')
           .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
           .leftJoinAndSelect('refProduct.categoryTags', 'categoryTags')
@@ -804,6 +837,7 @@ export class RefProductsService {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
           .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+          .leftJoinAndSelect('refProduct.colors', 'refProductColors')
           .leftJoinAndSelect('refProduct.packings', 'packings')
           .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
           .leftJoinAndSelect('refProduct.categoryTags', 'categoryTags')
@@ -853,6 +887,7 @@ export class RefProductsService {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
           .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+          .leftJoinAndSelect('refProduct.colors', 'refProductColors')
           .leftJoinAndSelect('refProduct.packings', 'packings')
           .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
           .leftJoinAndSelect('refProduct.categoryTags', 'categoryTags')
@@ -904,6 +939,7 @@ export class RefProductsService {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
           .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+          .leftJoinAndSelect('refProduct.colors', 'refProductColors')
           .leftJoinAndSelect('refProduct.packings', 'packings')
           .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
           .leftJoinAndSelect('refProduct.categoryTags', 'categoryTags')
@@ -945,6 +981,7 @@ export class RefProductsService {
           const refProducts: RefProduct[] = await this.refProductRepository
             .createQueryBuilder('refProduct')
             .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+            .leftJoinAndSelect('refProduct.colors', 'refProductColors')
             .leftJoinAndSelect('refProduct.packings', 'packings')
             .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
             .leftJoinAndSelect('refProduct.categoryTags', 'categoryTags')
@@ -985,6 +1022,7 @@ export class RefProductsService {
           const refProducts: RefProduct[] = await this.refProductRepository
             .createQueryBuilder('refProduct')
             .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+            .leftJoinAndSelect('refProduct.colors', 'refProductColors')
             .leftJoinAndSelect('refProduct.packings', 'packings')
             .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
             .leftJoinAndSelect('refProduct.categoryTags', 'categoryTags')
@@ -1032,6 +1070,7 @@ export class RefProductsService {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
           .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+          .leftJoinAndSelect('refProduct.colors', 'refProductColors')
           .leftJoinAndSelect('refProduct.packings', 'packings')
           .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
           .leftJoinAndSelect('refProduct.categoryTags', 'categoryTags')
@@ -1080,6 +1119,7 @@ export class RefProductsService {
           .createQueryBuilder('refProduct')
           .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
           .leftJoinAndSelect('refProduct.packings', 'packings')
+          .leftJoinAndSelect('refProduct.colors', 'refProductColors')
           .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
           .leftJoinAndSelect('refProduct.categoryTags', 'categoryTags')
           .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
@@ -1197,6 +1237,7 @@ export class RefProductsService {
     const refProducts: RefProduct[] = await this.refProductRepository.find({
       relations: [
         'images',
+        'colors',
         'categorySuppliers',
         'deliveryTimes',
         'markingServiceProperty',
@@ -1252,6 +1293,7 @@ export class RefProductsService {
       },
       relations: [
         'categorySuppliers',
+        'colors',
         'deliveryTimes',
         'markingServiceProperty',
         'markingServiceProperty.externalSubTechnique',
@@ -1361,6 +1403,28 @@ export class RefProductsService {
 
       updatedRefProduct.variantReferences = variantReferences;
     }
+
+    if (updateRefProductDto.colors) {
+      const colors: Color[] = [];
+
+      for (const colorId of updateRefProductDto.categoryTags) {
+        const color: Color = await this.colorRepository.findOne({
+          where: {
+            id: colorId,
+          },
+        });
+
+        if (!color)
+          throw new NotFoundException(`Marking with id ${colorId} not found`);
+
+        // if (!color.isActive)
+        //   throw new BadRequestException(`Marking with id ${colorId} is currently inactive`);
+
+        colors.push(color);
+      }
+
+      updatedRefProduct.colors = colors;
+    };
 
     if (updateRefProductDto.markingServiceProperty) {
       const markingServiceProperty: MarkingServiceProperty = await this.markingServicePropertyRepository.findOne({

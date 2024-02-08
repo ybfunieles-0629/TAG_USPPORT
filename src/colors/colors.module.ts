@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from '@nestjs/passport';
 
@@ -11,7 +11,7 @@ import { RefProductsModule } from '../ref-products/ref-products.module';
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     TypeOrmModule.forFeature([Color]),
-    RefProductsModule,
+    forwardRef(() => RefProductsModule),
   ],
   controllers: [ColorsController],
   providers: [ColorsService],
