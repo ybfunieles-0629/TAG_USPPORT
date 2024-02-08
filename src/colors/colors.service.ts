@@ -32,13 +32,15 @@ export class ColorsService {
     const colorsToSave: Color[] = [];
 
     for (const color of data) {
-      const existingColor = await this.colorRepository.findOne({
+      const existingColorInDb = await this.colorRepository.findOne({
         where: {
           code: color.codigo,
         },
       });
 
-      if (!existingColor) {
+      const existingColor: boolean = colorsToSave.some((colorDb) => colorDb.name == color.nombreColor);
+
+      if (!existingColorInDb && existingColor) {
         const newColor = {
           name: color.nombreColor,
           code: color.codigo,
