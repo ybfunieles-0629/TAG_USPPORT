@@ -40,7 +40,7 @@ export class ColorsService {
 
       const existingColor: boolean = colorsToSave.some((colorDb) => colorDb.name == color.nombreColor);
 
-      if (!existingColorInDb && existingColor) {
+      if (!existingColorInDb && !existingColor) {
         const newColor = {
           name: color.nombreColor,
           code: color.codigo,
