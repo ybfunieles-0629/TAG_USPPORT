@@ -9,6 +9,6 @@ yarn start:dev
 ```
 
 # ALUNA S.A.S
-# Ing Yeison Barrios Funieles.
-# Ing Sergio Varon.
-# Dev Jefferson García.
+# Ing Yeison Barrios Funieles
+# Ing Sergio Varon
+# Dev Jefferson García
