@@ -106,7 +106,7 @@ export class PurchaseOrderService {
     const { limit = 10, offset = 0 } = paginationDto;
     let results: PurchaseOrder[];
 
-    if (user.roles.some(role => role.name.toLowerCase() === 'comercial')) {
+    if (user.isCoorporative == 1) {
       const clients = await this.clientRepository.find({
         where: {
           commercialId: user.id
@@ -129,7 +129,7 @@ export class PurchaseOrderService {
         .leftJoinAndSelect('refProductSupplier.user', 'refProductSupplierUser')
         .leftJoinAndSelect('purchase.state', 'purchaseState')
         .leftJoinAndSelect('purchase.commercialQualification', 'commercialQualification')
-        .where('purchase.clientUser IN (:clientIds)', { clientIds })
+        .where('purchase.clientUser IN (:...clientIds)', { clientIds })
         .skip(offset)
         .take(limit)
         .getMany();
