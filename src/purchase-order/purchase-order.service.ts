@@ -102,16 +102,21 @@ export class PurchaseOrderService {
   }
 
   async findAll(paginationDto: PaginationDto, user: User) {
-    let count: number = await this.purchaseOrderRepository.count();
-
-    const { limit = count, offset = 0 } = paginationDto;
-
+    let count: number;
+    const { limit = 10, offset = 0 } = paginationDto;
     let results: PurchaseOrder[];
 
-    if (user.client) {
+    if (user.roles.some(role => role.name.toLowerCase() === 'comercial')) {
+      const clients = await this.clientRepository.find({
+        where: {
+          commercialId: user.id
+        }
+      });
+
+      const clientIds = clients.map(client => client.id);
+
       results = await this.purchaseOrderRepository
         .createQueryBuilder('purchase')
-        .where('purchase.clientUser =:clientId', { clientId: user.client.id })
         .leftJoinAndSelect('purchase.orderListDetails', 'orderListDetails')
         .leftJoinAndSelect('orderListDetails.cartQuote', 'cartQuote')
         .leftJoinAndSelect('orderListDetails.state', 'orderListDetailsState')
@@ -124,28 +129,31 @@ export class PurchaseOrderService {
         .leftJoinAndSelect('refProductSupplier.user', 'refProductSupplierUser')
         .leftJoinAndSelect('purchase.state', 'purchaseState')
         .leftJoinAndSelect('purchase.commercialQualification', 'commercialQualification')
+        .where('purchase.clientUser IN (:clientIds)', { clientIds })
+        .skip(offset)
+        .take(limit)
         .getMany();
 
       count = results.length;
     } else {
-      results = await this.purchaseOrderRepository.find({
-        take: limit,
-        skip: offset,
-        relations: [
-          'orderListDetails',
-          'orderListDetails.cartQuote',
-          'orderListDetails.orderRating',
-          'orderListDetails.state',
-          'orderListDetails.supplierPurchaseOrder',
-          'orderListDetails.supplierPurchaseOrder.state',
-          'orderListDetails.product',
-          'orderListDetails.product.refProduct',
-          'orderListDetails.product.refProduct.supplier',
-          'orderListDetails.product.refProduct.supplier.user',
-          'state',
-          'commercialQualification',
-        ],
-      });
+      results = await this.purchaseOrderRepository
+        .createQueryBuilder('purchase')
+        .where('purchase.clientUser = :clientId', { clientId: user.client.id })
+        .leftJoinAndSelect('purchase.orderListDetails', 'orderListDetails')
+        .leftJoinAndSelect('orderListDetails.cartQuote', 'cartQuote')
+        .leftJoinAndSelect('orderListDetails.state', 'orderListDetailsState')
+        .leftJoinAndSelect('orderListDetails.orderRating', 'orderListDetailsOrderRating')
+        .leftJoinAndSelect('orderListDetails.supplierPurchaseOrder', 'supplierPurchaseOrder')
+        .leftJoinAndSelect('supplierPurchaseOrder.state', 'supplierPurchaseOrderState')
+        .leftJoinAndSelect('orderListDetails.product', 'product')
+        .leftJoinAndSelect('product.refProduct', 'refProduct')
+        .leftJoinAndSelect('refProduct.supplier', 'refProductSupplier')
+        .leftJoinAndSelect('refProductSupplier.user', 'refProductSupplierUser')
+        .leftJoinAndSelect('purchase.state', 'purchaseState')
+        .leftJoinAndSelect('purchase.commercialQualification', 'commercialQualification')
+        .skip(offset)
+        .take(limit)
+        .getMany();
 
       count = results.length;
     }

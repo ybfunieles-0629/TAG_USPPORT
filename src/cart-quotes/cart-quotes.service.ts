@@ -461,7 +461,11 @@ export class CartQuotesService {
   }
 
 
-  async filterByClient(id: string, isCommercial: any) {
+  async filterByClient(id: string, isCommercial: any, paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    let count: number = 0;
+
     let cartQuotes: CartQuote[] = [];
 
     const { isCommercial: isCommercialUser = 0 } = isCommercial;
@@ -550,6 +554,8 @@ export class CartQuotesService {
         .leftJoinAndSelect('supplier.disccounts', 'disccounts')
         .leftJoinAndSelect('disccounts.disccounts', 'discounts')
         .leftJoinAndSelect('refProduct.packings', 'refPackings')
+        .take(limit)
+        .skip(offset)
         .getMany();
     }
 
@@ -566,7 +572,12 @@ export class CartQuotesService {
       };
     });
 
-    return { cartQuotes: cartQuotesWithOneImage };
+    count = cartQuotesWithOneImage.length;
+
+    return {
+      count,
+      cartQuotes: cartQuotesWithOneImage
+    };
   }
 
   async update(id: string, updateCartQuoteDto: UpdateCartQuoteDto, user: User) {
