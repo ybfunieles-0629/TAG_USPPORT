@@ -37,7 +37,7 @@ export class ColorsService {
         .where('LOWER(color.name) =:colorName', { colorName: color.nombreColor.toLowerCase() })
         .getOne();
 
-      const existingColor: boolean = colorsToSave.some((colorDb) => colorDb.name.toLowerCase() == color.nombreColor.toLowerCase());
+      const existingColor: boolean = colorsToSave.some((colorDb) => colorDb.name.trim().toLowerCase() == color.nombreColor.trim().toLowerCase());
 
       if (!existingColorInDb && !existingColor) {
         const newColor = {
