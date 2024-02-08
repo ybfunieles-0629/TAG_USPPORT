@@ -32,13 +32,12 @@ export class ColorsService {
     const colorsToSave: Color[] = [];
 
     for (const color of data) {
-      const existingColorInDb = await this.colorRepository.findOne({
-        where: {
-          code: color.codigo,
-        },
-      });
+      const existingColorInDb = await this.colorRepository
+        .createQueryBuilder('color')
+        .where('LOWER(color.name) =:colorName', { colorName: color.nombreColor.toLowerCase() })
+        .getOne();
 
-      const existingColor: boolean = colorsToSave.some((colorDb) => colorDb.code == color.codigo);
+      const existingColor: boolean = colorsToSave.some((colorDb) => colorDb.name.toLowerCase() == color.nombreColor.toLowerCase());
 
       if (!existingColorInDb && !existingColor) {
         const newColor = {
