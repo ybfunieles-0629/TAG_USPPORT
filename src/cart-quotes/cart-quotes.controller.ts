@@ -45,9 +45,8 @@ export class CartQuotesController {
   filterByClient(
     @Param('id', ParseUUIDPipe) id: string,
     @Query() paginationDto: PaginationDto,
-    @Query() isCommercial: any,
     ) {
-    return this.cartQuotesService.filterByClient(id, isCommercial, paginationDto);
+    return this.cartQuotesService.filterByClient(id, paginationDto);
   }
 
   // @Get('commercial/:id')
