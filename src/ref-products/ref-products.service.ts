@@ -117,10 +117,10 @@ export class RefProductsService {
         });
 
         if (!categoryTag)
-          throw new NotFoundException(`Marking with id ${categoryTagId} not found`);
+          throw new NotFoundException(`Category tag with id ${categoryTagId} not found`);
 
         if (!categoryTag.isActive)
-          throw new BadRequestException(`Marking with id ${categoryTagId} is currently inactive`);
+          throw new BadRequestException(`Category tag with id ${categoryTagId} is currently inactive`);
 
         categoryTags.push(categoryTag);
       }
