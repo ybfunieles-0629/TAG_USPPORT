@@ -103,6 +103,11 @@ export class CreateRefProductDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
+  colors?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
   deliveryTimes?: string[];
 
   @IsOptional()

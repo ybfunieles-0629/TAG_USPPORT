@@ -1,6 +1,7 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { Product } from '../../products/entities/product.entity';
+import { RefProduct } from 'src/ref-products/entities/ref-product.entity';
 
 @Entity('colors')
 export class Color {
@@ -41,4 +42,7 @@ export class Color {
   //* --- FK --- *//
   @ManyToOne(() => Product, (product) => product.colors)
   product: Product;
+
+  @ManyToMany(() => RefProduct, (refProduct) => refProduct.colors)
+  refProducts?: RefProduct[];
 }
