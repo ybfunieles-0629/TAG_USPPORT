@@ -38,7 +38,7 @@ export class ColorsService {
         },
       });
 
-      const existingColor: boolean = colorsToSave.some((colorDb) => colorDb.name == color.nombreColor);
+      const existingColor: boolean = colorsToSave.some((colorDb) => colorDb.name.toLowerCase() == color.nombreColor.toLowerCase());
 
       if (!existingColorInDb && !existingColor) {
         const newColor = {
