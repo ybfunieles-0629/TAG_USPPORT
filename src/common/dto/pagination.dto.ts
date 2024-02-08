@@ -20,4 +20,7 @@ export class PaginationDto {
 
   @IsOptional()
   isAllowed?: number;
+
+  @IsOptional()
+  isCommercial?: number;
 }

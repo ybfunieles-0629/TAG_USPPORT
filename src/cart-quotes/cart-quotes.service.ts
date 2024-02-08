@@ -461,16 +461,14 @@ export class CartQuotesService {
   }
 
 
-  async filterByClient(id: string, isCommercial: any, paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async filterByClient(id: string, paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0, isCommercial = 0 } = paginationDto;
 
     let count: number = 0;
 
     let cartQuotes: CartQuote[] = [];
 
-    const { isCommercial: isCommercialUser = 0 } = isCommercial;
-
-    if (isCommercialUser == 1) {
+    if (isCommercial == 1) {
       const commercialUser = await this.userRepository.findOne({
         where: {
           id,
