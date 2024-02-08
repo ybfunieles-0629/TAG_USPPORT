@@ -129,7 +129,7 @@ export class RefProductsService {
     if (createRefProductDto.colors) {
       const colors: Color[] = [];
 
-      for (const colorId of createRefProductDto.categoryTags) {
+      for (const colorId of createRefProductDto.colors) {
         const color: Color = await this.colorRepository.findOne({
           where: {
             id: colorId,
@@ -1407,7 +1407,7 @@ export class RefProductsService {
     if (updateRefProductDto.colors) {
       const colors: Color[] = [];
 
-      for (const colorId of updateRefProductDto.categoryTags) {
+      for (const colorId of updateRefProductDto.colors) {
         const color: Color = await this.colorRepository.findOne({
           where: {
             id: colorId,
