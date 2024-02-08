@@ -99,10 +99,10 @@ export class RefProductsService {
         });
 
         if (!categorySupplier)
-          throw new NotFoundException(`Marking with id ${categorySupplierId} not found`);
+          throw new NotFoundException(`Category supplier with id ${categorySupplierId} not found`);
 
         if (!categorySupplier.isActive)
-          throw new BadRequestException(`Marking with id ${categorySupplierId} is currently inactive`);
+          throw new BadRequestException(`Category supplier with id ${categorySupplierId} is currently inactive`);
 
         categorySuppliers.push(categorySupplier);
       }
@@ -137,10 +137,10 @@ export class RefProductsService {
         });
 
         if (!color)
-          throw new NotFoundException(`Marking with id ${colorId} not found`);
+          throw new NotFoundException(`Color with id ${colorId} not found`);
 
         // if (!color.isActive)
-        //   throw new BadRequestException(`Marking with id ${colorId} is currently inactive`);
+        //   throw new BadRequestException(`Color with id ${colorId} is currently inactive`);
 
         colors.push(color);
       }
@@ -1352,10 +1352,10 @@ export class RefProductsService {
         });
 
         if (!categorySupplier)
-          throw new NotFoundException(`Marking with id ${categorySupplierId} not found`);
+          throw new NotFoundException(`Category supplier with id ${categorySupplierId} not found`);
 
         if (!categorySupplier.isActive)
-          throw new BadRequestException(`Marking with id ${categorySupplierId} is currently inactive`);
+          throw new BadRequestException(`Category supplier with id ${categorySupplierId} is currently inactive`);
 
         categorySuppliers.push(categorySupplier);
       }
@@ -1374,10 +1374,10 @@ export class RefProductsService {
         });
 
         if (!categoryTag)
-          throw new NotFoundException(`Marking with id ${categoryTagId} not found`);
+          throw new NotFoundException(`Category tag with id ${categoryTagId} not found`);
 
         if (!categoryTag.isActive)
-          throw new BadRequestException(`Marking with id ${categoryTagId} is currently inactive`);
+          throw new BadRequestException(`Category tag with id ${categoryTagId} is currently inactive`);
 
         categoryTags.push(categoryTag);
       };
@@ -1415,10 +1415,10 @@ export class RefProductsService {
         });
 
         if (!color)
-          throw new NotFoundException(`Marking with id ${colorId} not found`);
+          throw new NotFoundException(`Color with id ${colorId} not found`);
 
         // if (!color.isActive)
-        //   throw new BadRequestException(`Marking with id ${colorId} is currently inactive`);
+        //   throw new BadRequestException(`Color with id ${colorId} is currently inactive`);
 
         colors.push(color);
       }
