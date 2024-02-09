@@ -73,22 +73,26 @@ export class ColorsService {
       newColor.image = file.originalname;
     };
 
-    if (createColorDto.refProductId) {
-      const refProductId: string = createColorDto.refProductId;
+    if (createColorDto.refProducts) {
+      const refProducts: RefProduct[] = [];
 
-      const refProduct: RefProduct = await this.refProductRepository.findOne({
-        where: {
-          id: refProductId,
-        },
-      });
+      for (const refProductId of createColorDto.refProducts) {
+        const refProduct: RefProduct = await this.refProductRepository.findOne({
+          where: {
+            id: refProductId,
+          },
+        });
 
-      if (!refProduct)
-        throw new NotFoundException(`Ref product with id ${refProductId} not found`);
+        if (!refProduct)
+          throw new NotFoundException(`Ref product with id ${refProductId} not found`);
 
-      if (!refProduct.isActive)
-        throw new BadRequestException(`Ref product with id ${refProductId} is currently inactive`);
+        if (!refProduct.isActive)
+          throw new BadRequestException(`Ref product with id ${refProductId} is currently inactive`);
 
-      newColor.refProductId = refProduct.id;
+        refProducts.push(refProduct);
+      };
+
+      newColor.refProducts = refProducts;
     };
 
     await this.colorRepository.save(newColor);
@@ -102,7 +106,7 @@ export class ColorsService {
     const createdColors = [];
 
     for (const createColorDto of createMultipleColors) {
-      const color = this.colorRepository.create(createColorDto);
+      const color: Color = plainToClass(Color, createColorDto);
 
       await this.colorRepository.save(color);
 
@@ -173,35 +177,17 @@ export class ColorsService {
   }
 
   async findOneByRefProduct(id: string) {
-    const colors: Color[] = await this.colorRepository.find({
-      where: {
-        refProductId: id,
-      },
-    });
+    const colors: Color[] = await this.colorRepository
+      .createQueryBuilder('color')
+      .leftJoinAndSelect('color.refProducts', 'refProduct')
+      .where('refProduct.id =:id', { id })
+      .getMany();
 
     if (!colors)
       throw new NotFoundException(`Color with ref product id ${id} not found`);
 
-    const results = await Promise.all(
-      colors.map(async (color) => {
-        const { refProductId, ...rest } = color;
-        const product = await this.refProductRepository.findOne({
-          where: {
-            id: refProductId,
-          },
-        });
-
-        const productInfo = product ? product : null;
-
-        return {
-          ...rest,
-          refProductId: productInfo,
-        };
-      }),
-    );
-
     return {
-      results
+      colors
     };
   }
 
@@ -234,22 +220,26 @@ export class ColorsService {
       updatedColor.image = file.originalname;
     };
 
-    if (updateColorDto.refProductId) {
-      const refProductId: string = updateColorDto.refProductId;
+    if (updateColorDto.refProducts) {
+      const refProducts: RefProduct[] = [];
 
-      const refProduct: RefProduct = await this.refProductRepository.findOne({
-        where: {
-          id: refProductId,
-        },
-      });
+      for (const refProductId of updateColorDto.refProducts) {
+        const refProduct: RefProduct = await this.refProductRepository.findOne({
+          where: {
+            id: refProductId,
+          },
+        });
 
-      if (!refProduct)
-        throw new NotFoundException(`Ref product with id ${refProductId} not found`);
+        if (!refProduct)
+          throw new NotFoundException(`Ref product with id ${refProductId} not found`);
 
-      if (!refProduct.isActive)
-        throw new BadRequestException(`Ref product with id ${refProductId} is currently inactive`);
+        if (!refProduct.isActive)
+          throw new BadRequestException(`Ref product with id ${refProductId} is currently inactive`);
 
-      updatedColor.refProductId = refProduct.id;
+        refProducts.push(refProduct);
+      };
+
+      updatedColor.refProducts = refProducts;
     };
 
     Object.assign(color, updatedColor);
