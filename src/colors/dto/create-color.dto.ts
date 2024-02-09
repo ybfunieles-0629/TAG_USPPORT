@@ -14,5 +14,5 @@ export class CreateColorDto {
 
   @IsOptional()
   @IsString()
-  refProductId?: string;
+  refProducts?: string;
 }
