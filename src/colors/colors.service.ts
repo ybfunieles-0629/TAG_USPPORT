@@ -126,30 +126,15 @@ export class ColorsService {
     const colors: Color[] = await this.colorRepository.find({
       take: limit,
       skip: offset,
-      relations: ['product'],
+      relations: [
+        'product',
+        'refProducts',
+      ],
     });
-
-    const results = await Promise.all(
-      colors.map(async (color) => {
-        const { refProductId, ...rest } = color;
-        const product = await this.refProductRepository.findOne({
-          where: {
-            id: refProductId,
-          },
-        });
-
-        const productInfo = product ? product : null;
-
-        return {
-          ...rest,
-          product: productInfo,
-        };
-      }),
-    );
 
     return {
       count,
-      results
+      colors
     };
   }
 
@@ -160,6 +145,7 @@ export class ColorsService {
       },
       relations: [
         'product',
+        'refProducts',
       ],
     });
 
@@ -198,6 +184,7 @@ export class ColorsService {
       },
       relations: [
         'product',
+        'refProducts',
       ],
     });
 
