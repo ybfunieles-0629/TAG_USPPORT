@@ -152,13 +152,8 @@ export class ColorsService {
     if (!color)
       throw new NotFoundException(`Color with id ${id} not found`);
 
-    const productInfo = color.product ? color.product : null;
-
     return {
-      color: {
-        ...color,
-        refProductId: productInfo,
-      }
+      color
     };
   }
 
