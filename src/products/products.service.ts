@@ -178,6 +178,7 @@ export class ProductsService {
           supplierSku: tagSku,
           refProduct: savedRefProduct,
           referencePrice: product.precio1,
+          apiCode: product.id,
           colors: colorsToAssign
         };
 
@@ -394,7 +395,7 @@ export class ProductsService {
       if (!refProduct)
         throw new NotFoundException(`Ref product for product with familia ${product.familia} not found`);
 
-      const productColor: string = product?.color?.toLowerCase() || '';
+      const productColor: string = product?.color?.material?.color_nombre?.toLowerCase() || '';
 
       const color: Color = await this.colorRepository
         .createQueryBuilder('color')
@@ -407,6 +408,8 @@ export class ProductsService {
         color.refProductId = refProduct?.id;
 
         const savedColor: Color = await this.colorRepository.save(color);
+
+        colors.push(color);
       };
 
       const lastProducts = await this.productRepository.find({
@@ -429,6 +432,7 @@ export class ProductsService {
 
       const newProduct = {
         tagSku,
+        apiCode: product.material.codigo,
         supplierSku: tagSku,
         variantReferences: [],
         colors,

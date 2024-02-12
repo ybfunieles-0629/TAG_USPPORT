@@ -25,6 +25,11 @@ export class Product {
   })
   disccountPromo: number;
 
+  @Column('varchar', {
+
+  })
+  apiCode: string;
+
   @Column('int', {
     default: 1,
   })
