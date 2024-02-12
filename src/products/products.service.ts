@@ -86,6 +86,8 @@ export class ProductsService {
       },
     });
 
+    console.log(lastProduct);
+
     let tagSku: string;
 
     if (lastProduct && lastProduct[0]?.tagSku?.trim() !== '') {
