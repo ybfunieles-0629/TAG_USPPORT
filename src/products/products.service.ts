@@ -80,25 +80,35 @@ export class ProductsService {
 
   //* ---------- LOAD PROMOS PRODUCTS METHOD ---------- *//
   private async generateUniqueTagSku(): Promise<string> {
-    const lastProduct: Product[] = await this.productRepository.find({
+    const lastProducts: Product[] = await this.productRepository.find({
       order: {
-        tagSku: 'DESC'
+        createdAt: 'DESC'
       },
     });
+
+    const lastProduct: Product = lastProducts[0];
 
     console.log(lastProduct);
 
     let tagSku: string;
 
-    if (lastProduct && lastProduct[0]?.tagSku?.trim() !== '') {
-      let skuNumber: number = parseInt(lastProduct[0]?.tagSku?.match(/\d+/)[0], 10);
-      skuNumber++;
+    if (lastProduct && lastProduct.tagSku.trim() !== '') {
+      const lastSkuMatch = lastProduct.tagSku.match(/\d+/);
+      let skuNumber: number;
+
+      if (lastSkuMatch && lastSkuMatch.length > 0) {
+        skuNumber = parseInt(lastSkuMatch[0], 10);
+        skuNumber++;
+      } else {
+        skuNumber = 1001;
+      }
+
       tagSku = `SKU-${skuNumber}`;
     } else {
       tagSku = 'SKU-1001';
     }
 
-    let existingProduct: Product = await this.productRepository.findOne({
+    let existingProduct = await this.productRepository.findOne({
       where: {
         tagSku: tagSku
       }
