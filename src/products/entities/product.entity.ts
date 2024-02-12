@@ -41,7 +41,7 @@ export class Product {
   supplierSku: string;
 
   @Column('varchar', {
-    unique: true,
+
   })
   tagSku: string;
 
