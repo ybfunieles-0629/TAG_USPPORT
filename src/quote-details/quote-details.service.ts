@@ -635,7 +635,7 @@ export class QuoteDetailsService {
     if (!quoteDetail)
       throw new NotFoundException(`Quote detail with id ${id} not found`);
 
-    const updatedQuoteDetail = plainToClass(QuoteDetail, updateQuoteDetailDto);
+    const updatedQuoteDetail = plainToClass(QuoteDetail, quoteDetail);
 
     const cartQuoteDb: CartQuote = await this.cartQuoteRepository.findOne({
       where: {
@@ -649,7 +649,7 @@ export class QuoteDetailsService {
     if (!cartQuoteDb)
       throw new NotFoundException(`Cart quote with id ${quoteDetail.cartQuote.id} not found`);
 
-    cartQuoteDb.totalPrice += quoteDetail.total || 0;
+    cartQuoteDb.totalPrice += quoteDetail.totalValue || 0;
     cartQuoteDb.productsQuantity += quoteDetail.quantities || 0;
 
     //* ------------- CALCULOS ------------- *//
@@ -705,7 +705,7 @@ export class QuoteDetailsService {
     updatedQuoteDetail.transportTotalPrice = 0;
 
     //* SE SOLICITA MUESTRA
-    if (hasSample == true) {
+    if (hasSample) {
       //* CALCULAR EL PRECIO DE LA MUESTRA
       // let samplePrice: number = await this.calculateSamplePrice(updatedQuoteDetail, systemConfig, quantity) || 0;
       // updatedQuoteDetail.sampleValue = samplePrice;
@@ -886,10 +886,10 @@ export class QuoteDetailsService {
         clientType = 'cliente corporativo principal';
     };
 
-    if (clientType.toLowerCase() == 'cliente corporativo secundario' || clientType.toLowerCase() == 'cliente corporativo principal') {
-      const brandId: string = cartQuote.brandId;
+    if (clientType.toLowerCase() == 'cliente corporativo secundario' || clientType.toLowerCase() == 'cliente corporativo principal') {      
+      const brandId = cartQuote.brandId;
 
-      if (brandId != null || brandId.trim() != '' || brandId != undefined) {
+      if (brandId != '') {
         const cartQuoteBrand: Brand = await this.brandRepository.findOne({
           where: {
             id: brandId,
@@ -916,27 +916,27 @@ export class QuoteDetailsService {
     const paymentDays = [
       {
         day: 1,
-        percentage: 3,
+        percentage: 0.03,
       },
       {
         day: 15,
-        percentage: 3,
+        percentage: 0.03,
       },
       {
         day: 30,
-        percentage: 3,
+        percentage: 0.03,
       },
       {
         day: 45,
-        percentage: 4,
+        percentage: 0.04,
       },
       {
         day: 60,
-        percentage: 6,
+        percentage: 0.06,
       },
       {
         day: 90,
-        percentage: 9,
+        percentage: 0.09,
       },
     ];
 
@@ -963,6 +963,8 @@ export class QuoteDetailsService {
           percentageDiscount = paymentDay.percentage;
         };
       });
+
+      // Precio original * (1 - Descuento individual) * (1 - Descuento general)
 
       let value: number = totalPrice * (1 - percentageDiscount);
       totalPrice = Math.round(value);
@@ -1002,7 +1004,7 @@ export class QuoteDetailsService {
 
     //* CALCULAR EL COSTO DE LA RETENCIÓN EN LA FUENTE
     const withholdingAtSource: number = systemConfig.withholdingAtSource || 0;
-    const withholdingAtSourceValue: number = (withholdingAtSource / 100) * totalPrice || 0;
+    const withholdingAtSourceValue: number = (totalPrice * withholdingAtSource / 100) || 0;
 
     totalPrice += withholdingAtSourceValue;
     updatedQuoteDetail.withholdingAtSourceValue = withholdingAtSourceValue;
