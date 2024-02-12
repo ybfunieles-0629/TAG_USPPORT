@@ -183,10 +183,6 @@ export class ProductsService {
       const createdRefProduct: RefProduct = this.refProductRepository.create(newReference);
       const savedRefProduct: RefProduct = await this.refProductRepository.save(createdRefProduct);
 
-      const lastProducts = await this.productRepository.find({
-        order: { createdAt: 'DESC' },
-      });
-
       let tagSku: string = await this.generateUniqueTagSku();
 
       const { data: { data } } = await axios.get(`${this.apiUrl}/stock/${product.referencia}`);
@@ -438,10 +434,6 @@ export class ProductsService {
       if (color) {
         colors.push(color);
       };
-
-      const lastProducts = await this.productRepository.find({
-        order: { createdAt: 'DESC' },
-      });
 
       let tagSku: string = await this.generateUniqueTagSku();
 
