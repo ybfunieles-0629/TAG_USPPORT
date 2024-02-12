@@ -191,7 +191,7 @@ export class ProductsService {
 
       const { data: { data } } = await axios.get(`${this.apiUrl}/stock/${product.referencia}`);
 
-      await Promise.all(data?.resultado.map(async (product) => {
+      await Promise.all(data?.resultado?.map(async (product) => {
         const color: Color = await this.colorRepository
           .createQueryBuilder('color')
           .where('LOWER(color.name) = :productColor', { productColor: product.color.toLowerCase() })
@@ -200,11 +200,7 @@ export class ProductsService {
         const colorsToAssign: Color[] = [];
 
         if (color) {
-          color.refProductId = savedRefProduct?.id;
-
-          const savedColor: Color = await this.colorRepository.save(color);
-
-          colorsToAssign.push(savedColor);
+          colorsToAssign.push(color);
         }
 
         const newProduct = {
@@ -440,10 +436,6 @@ export class ProductsService {
       const colors: Color[] = [];
 
       if (color) {
-        color.refProductId = refProduct?.id;
-
-        const savedColor: Color = await this.colorRepository.save(color);
-
         colors.push(color);
       };
 
