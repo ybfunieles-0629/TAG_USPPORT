@@ -79,6 +79,41 @@ export class ProductsService {
   ) { }
 
   //* ---------- LOAD PROMOS PRODUCTS METHOD ---------- *//
+  private async generateUniqueTagSku(): Promise<string> {
+    const lastProduct = await this.productRepository.findOne({
+      order: { tagSku: 'DESC' }
+    });
+
+    let tagSku: string;
+
+    if (lastProduct && lastProduct.tagSku.trim() !== '') {
+      let skuNumber: number = parseInt(lastProduct.tagSku.match(/\d+/)[0], 10);
+      skuNumber++;
+      tagSku = `SKU-${skuNumber}`;
+    } else {
+      tagSku = 'SKU-1001';
+    }
+
+    let existingProduct = await this.productRepository.findOne({
+      where: {
+        tagSku: tagSku
+      }
+    });
+
+    while (existingProduct) {
+      let skuNumber: number = parseInt(tagSku.match(/\d+/)[0], 10);
+      skuNumber++;
+      tagSku = `SKU-${skuNumber}`;
+      existingProduct = await this.productRepository.findOne({
+        where: {
+          tagSku: tagSku
+        }
+      });
+    }
+
+    return tagSku;
+  };
+
   private async loadPromosProducts() {
     const { data: { categorias } } = await axios.get(`${this.apiUrl}/misproductos`);
 
@@ -140,19 +175,7 @@ export class ProductsService {
         order: { createdAt: 'DESC' },
       });
 
-      let tagSku: string = '';
-
-      if (lastProducts[0] && lastProducts[0].tagSku.trim() !== ''.trim()) {
-        let skuNumber: number = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
-
-        skuNumber++;
-
-        const newTagSku = `SKU-${skuNumber}`;
-
-        tagSku = newTagSku;
-      } else {
-        tagSku = 'SKU-1001';
-      }
+      let tagSku: string = await this.generateUniqueTagSku();
 
       const { data: { data } } = await axios.get(`${this.apiUrl}/stock/${product.referencia}`);
 
@@ -416,19 +439,7 @@ export class ProductsService {
         order: { createdAt: 'DESC' },
       });
 
-      let tagSku: string = '';
-
-      if (lastProducts[0] && lastProducts[0].tagSku.trim() !== ''.trim()) {
-        let skuNumber: number = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
-
-        skuNumber++;
-
-        const newTagSku = `SKU-${skuNumber}`;
-
-        tagSku = newTagSku;
-      } else {
-        tagSku = 'SKU-1001';
-      }
+      let tagSku: string = await this.generateUniqueTagSku();
 
       const newProduct = {
         tagSku,
