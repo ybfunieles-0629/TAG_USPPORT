@@ -395,7 +395,7 @@ export class ProductsService {
       if (!refProduct)
         throw new NotFoundException(`Ref product for product with familia ${product.familia} not found`);
 
-      const productColor: string = product?.color?.material?.color_nombre?.toLowerCase() || '';
+      const productColor: string = product?.material?.color_nombre?.toLowerCase() || '';
 
       const color: Color = await this.colorRepository
         .createQueryBuilder('color')
