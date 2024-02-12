@@ -80,14 +80,17 @@ export class ProductsService {
 
   //* ---------- LOAD PROMOS PRODUCTS METHOD ---------- *//
   private async generateUniqueTagSku(): Promise<string> {
-    const lastProduct = await this.productRepository.findOne({
-      order: { tagSku: 'DESC' }
+    const lastProduct = await this.productRepository.find({
+      order: {
+        tagSku: 'DESC'
+      },
+      take: 1,
     });
 
     let tagSku: string;
 
-    if (lastProduct && lastProduct.tagSku.trim() !== '') {
-      let skuNumber: number = parseInt(lastProduct.tagSku.match(/\d+/)[0], 10);
+    if (lastProduct && lastProduct[0].tagSku.trim() !== '') {
+      let skuNumber: number = parseInt(lastProduct[0].tagSku.match(/\d+/)[0], 10);
       skuNumber++;
       tagSku = `SKU-${skuNumber}`;
     } else {
