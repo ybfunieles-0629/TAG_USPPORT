@@ -192,9 +192,6 @@ export class Product {
   updatedAt: Date;
 
   //* --- FK --- *//
-  @OneToMany(() => Color, (color) => color.product)
-  colors?: Color[];
-
   @OneToMany(() => Packing, (packing) => packing.product)
   packings?: Packing[];
 
@@ -212,7 +209,7 @@ export class Product {
 
   @OneToMany(() => SystemConfigOffer, (systemConfigOffer) => systemConfigOffer.product)
   systemConfigOffers: SystemConfigOffer[];
-  
+
 
   @OneToMany(() => OrderListDetail, (orderListDetail) => orderListDetail.product)
   orderListDetails: OrderListDetail[];
@@ -222,6 +219,21 @@ export class Product {
 
   @ManyToOne(() => RefProduct, (refProduct) => refProduct.products)
   refProduct: RefProduct;
+
+  @ManyToMany(() => Color, (color) => color.products)
+  @JoinTable({
+    name: 'products_has_colors',
+    joinColumn: {
+      name: 'productId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'colorId',
+      referencedColumnName: 'id',
+    },
+  })
+  colors?: Color[];
+
 
   @ManyToMany(() => VariantReference, (variantReference) => variantReference.products)
   @JoinTable({
