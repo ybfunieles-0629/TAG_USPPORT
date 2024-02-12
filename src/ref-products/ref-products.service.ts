@@ -1167,6 +1167,14 @@ export class RefProductsService {
         ];
 
         for (let i = 0; i < staticQuantities.length; i++) {
+          let iva: number = 0;
+
+          if (filterRefProductsDto.iva > 0) {
+            iva = (filterRefProductsDto.iva / 100) * changingValue || 0;
+          }
+
+          changingValue = Math.round(changingValue += iva);
+
           let prices = {
             quantity: staticQuantities[i],
             value: changingValue,
@@ -1178,18 +1186,9 @@ export class RefProductsService {
 
           let value: number = changingValue * (1 - percentageDiscount);
 
-          let iva: number = 0;
-
-          if (filterRefProductsDto.iva > 0) {
-            iva = (filterRefProductsDto.iva / 100) * changingValue || 0;
-          }
-
-          value += iva;
-
           value = Math.round(value);
 
           changingValue = value;
-
         }
 
         return {

@@ -79,6 +79,53 @@ export class ProductsService {
   ) { }
 
   //* ---------- LOAD PROMOS PRODUCTS METHOD ---------- *//
+  private async generateUniqueTagSku(): Promise<string> {
+    const lastProducts: Product[] = await this.productRepository.find({
+      order: {
+        createdAt: 'DESC'
+      },
+    });
+
+    const lastProduct: Product = lastProducts[0];
+
+    let tagSku: string;
+
+    if (lastProduct && lastProduct.tagSku.trim() !== '') {
+      const lastSkuMatch = lastProduct.tagSku.match(/\d+/);
+      let skuNumber: number;
+
+      if (lastSkuMatch && lastSkuMatch.length > 0) {
+        skuNumber = parseInt(lastSkuMatch[0], 10);
+        skuNumber++;
+      } else {
+        skuNumber = 1001;
+      }
+
+      tagSku = `SKU-${skuNumber}`;
+    } else {
+      tagSku = 'SKU-1001';
+    }
+
+    let existingProduct = await this.productRepository.findOne({
+      where: {
+        tagSku: tagSku
+      }
+    });
+
+    while (existingProduct) {
+      let skuNumber: number = parseInt(tagSku.match(/\d+/)[0], 10);
+      skuNumber++;
+      tagSku = `SKU-${skuNumber}`;
+      existingProduct = await this.productRepository.findOne({
+        where: {
+          tagSku: tagSku
+        }
+      });
+    }
+
+    return tagSku;
+  };
+
   private async loadPromosProducts() {
     const { data: { categorias } } = await axios.get(`${this.apiUrl}/misproductos`);
 
@@ -136,27 +183,11 @@ export class ProductsService {
       const createdRefProduct: RefProduct = this.refProductRepository.create(newReference);
       const savedRefProduct: RefProduct = await this.refProductRepository.save(createdRefProduct);
 
-      const lastProducts = await this.productRepository.find({
-        order: { createdAt: 'DESC' },
-      });
-
-      let tagSku: string = '';
-
-      if (lastProducts[0] && lastProducts[0].tagSku.trim() !== ''.trim()) {
-        let skuNumber: number = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
-
-        skuNumber++;
-
-        const newTagSku = `SKU-${skuNumber}`;
-
-        tagSku = newTagSku;
-      } else {
-        tagSku = 'SKU-1001';
-      }
+      let tagSku: string = await this.generateUniqueTagSku();
 
       const { data: { data } } = await axios.get(`${this.apiUrl}/stock/${product.referencia}`);
 
-      await Promise.all(data?.resultado.map(async (product) => {
+      await Promise.all(data?.resultado?.map(async (product) => {
         const color: Color = await this.colorRepository
           .createQueryBuilder('color')
           .where('LOWER(color.name) = :productColor', { productColor: product.color.toLowerCase() })
@@ -165,11 +196,7 @@ export class ProductsService {
         const colorsToAssign: Color[] = [];
 
         if (color) {
-          color.refProductId = savedRefProduct?.id;
-
-          const savedColor: Color = await this.colorRepository.save(color);
-
-          colorsToAssign.push(savedColor);
+          colorsToAssign.push(color);
         }
 
         const newProduct = {
@@ -178,6 +205,7 @@ export class ProductsService {
           supplierSku: tagSku,
           refProduct: savedRefProduct,
           referencePrice: product.precio1,
+          apiCode: product.id,
           colors: colorsToAssign
         };
 
@@ -394,7 +422,7 @@ export class ProductsService {
       if (!refProduct)
         throw new NotFoundException(`Ref product for product with familia ${product.familia} not found`);
 
-      const productColor: string = product?.color?.toLowerCase() || '';
+      const productColor: string = product?.material?.color_nombre?.toLowerCase() || '';
 
       const color: Color = await this.colorRepository
         .createQueryBuilder('color')
@@ -404,31 +432,14 @@ export class ProductsService {
       const colors: Color[] = [];
 
       if (color) {
-        color.refProductId = refProduct?.id;
-
-        const savedColor: Color = await this.colorRepository.save(color);
+        colors.push(color);
       };
 
-      const lastProducts = await this.productRepository.find({
-        order: { createdAt: 'DESC' },
-      });
-
-      let tagSku: string = '';
-
-      if (lastProducts[0] && lastProducts[0].tagSku.trim() !== ''.trim()) {
-        let skuNumber: number = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
-
-        skuNumber++;
-
-        const newTagSku = `SKU-${skuNumber}`;
-
-        tagSku = newTagSku;
-      } else {
-        tagSku = 'SKU-1001';
-      }
+      let tagSku: string = await this.generateUniqueTagSku();
 
       const newProduct = {
         tagSku,
+        apiCode: product.material.codigo,
         supplierSku: tagSku,
         variantReferences: [],
         colors,
