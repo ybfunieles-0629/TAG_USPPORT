@@ -40,8 +40,8 @@ export class Color {
   udpatedAt: Date;
 
   //* --- FK --- *//
-  @ManyToOne(() => Product, (product) => product.colors)
-  product: Product;
+  @ManyToMany(() => Product, (product) => product.colors)
+  products: Product[];
 
   @ManyToMany(() => RefProduct, (refProduct) => refProduct.colors)
   refProducts?: RefProduct[];
