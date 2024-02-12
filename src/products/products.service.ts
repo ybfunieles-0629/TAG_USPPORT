@@ -88,8 +88,6 @@ export class ProductsService {
 
     const lastProduct: Product = lastProducts[0];
 
-    console.log(lastProduct);
-
     let tagSku: string;
 
     if (lastProduct && lastProduct.tagSku.trim() !== '') {
