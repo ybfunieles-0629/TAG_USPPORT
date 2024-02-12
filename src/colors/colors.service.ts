@@ -127,7 +127,7 @@ export class ColorsService {
       take: limit,
       skip: offset,
       relations: [
-        'product',
+        'products',
         'refProducts',
       ],
     });
@@ -144,7 +144,7 @@ export class ColorsService {
         id,
       },
       relations: [
-        'product',
+        'products',
         'refProducts',
       ],
     });
@@ -179,7 +179,7 @@ export class ColorsService {
         id,
       },
       relations: [
-        'product',
+        'products',
         'refProducts',
       ],
     });
