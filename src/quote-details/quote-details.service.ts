@@ -660,6 +660,8 @@ export class QuoteDetailsService {
     let productVolume: number = 0;
     let totalVolume: number = 0;
 
+    cartQuoteDb.totalPrice -= quoteDetail.totalValue;
+
     //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL MARCADO
     const markingTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
       .createQueryBuilder('localTransportPrice')
@@ -1027,15 +1029,15 @@ export class QuoteDetailsService {
     //* CALCULAR % MARGEN DE GANANCIA DEL NEGOCIO Y MAXIMO DESCUENTO PERMITIDO AL COMERCIAL
     const businessMarginProfit: number = (totalPrice - updatedQuoteDetail.totalValueWithoutIva);
     updatedQuoteDetail.businessMarginProfit = businessMarginProfit;
-    cartQuoteDb.totalPrice += totalPrice;
+    cartQuoteDb.totalPrice = totalPrice;
 
     //TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
     updatedQuoteDetail.maximumDiscount = 20;
 
     Object.assign(quoteDetail, updatedQuoteDetail);
 
-    // await this.cartQuoteRepository.save(cartQuoteDb);
-    // await this.quoteDetailRepository.save(quoteDetail);
+    await this.cartQuoteRepository.save(cartQuoteDb);
+    await this.quoteDetailRepository.save(quoteDetail);
 
     return {
       quoteDetail,
