@@ -613,7 +613,7 @@ export class QuoteDetailsService {
   async update(id: string, updateQuoteDetailDto: UpdateQuoteDetailDto) {
     const hasSample: boolean = updateQuoteDetailDto.hasSample;
 
-    const quoteDetail = await this.quoteDetailRepository.findOne({
+    const quoteDetail: QuoteDetail = await this.quoteDetailRepository.findOne({
       where: {
         id,
       },
