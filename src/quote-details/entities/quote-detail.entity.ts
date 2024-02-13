@@ -20,6 +20,11 @@ export class QuoteDetail {
   })
   unitPrice: number;
 
+  @Column('boolean', {
+    default: false,
+  })
+  hasSample: boolean;
+
   @Column('int', {
 
   })

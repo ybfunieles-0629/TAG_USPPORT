@@ -248,6 +248,8 @@ export class QuoteDetailsService {
 
       // totalCost += samplePrice;
 
+      newQuoteDetail.hasSample = true;
+
       const productHasFreeSample: boolean = product?.freeSample == 1 ? true : false;
 
       newQuoteDetail.sampleValue = 0;
@@ -284,6 +286,8 @@ export class QuoteDetailsService {
           newQuoteDetail.transportTotalPrice += 20000;
         }
       };
+    } else {
+      newQuoteDetail.hasSample = false;
     };
 
     //* VERIFICAR SI EL PRODUCTO TIENE EMPAQUE
@@ -715,6 +719,8 @@ export class QuoteDetailsService {
 
       // totalCost += samplePrice;
 
+      updatedQuoteDetail.hasSample = true;
+
       const productHasFreeSample: boolean = product?.freeSample == 1 ? true : false;
 
       updatedQuoteDetail.sampleValue = 0;
@@ -751,6 +757,8 @@ export class QuoteDetailsService {
           updatedQuoteDetail.transportTotalPrice += 20000;
         }
       };
+    } else {
+      updatedQuoteDetail.hasSample = false;
     };
 
     //* VERIFICAR SI EL PRODUCTO TIENE EMPAQUE
