@@ -7,6 +7,7 @@ import { UpdateCartQuoteDto } from './dto/update-cart-quote.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { GetUser } from '../users/decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
+import { RemoveQuoteDetailDto } from './dto/remove-quote-detail.dto';
 
 @Controller('cart-quotes')
 export class CartQuotesController {
@@ -73,6 +74,14 @@ export class CartQuotesController {
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.cartQuotesService.desactivate(id);
+  }
+
+  @Patch('remove/quote-details/:id')
+  removeQuoteDetail(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() removeQuoteDetailDto: RemoveQuoteDetailDto
+  ) {
+    return this.cartQuotesService.removeQuoteDetail(id, removeQuoteDetailDto);
   }
 
   @Patch('change-status/:id')

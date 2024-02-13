@@ -23,6 +23,7 @@ import { OrderListDetail } from '../order-list-details/entities/order-list-detai
 import { PurchaseOrder } from '../purchase-order/entities/purchase-order.entity';
 import { SupplierPurchaseOrder } from '../supplier-purchase-orders/entities/supplier-purchase-order.entity';
 import { Brand } from '../brands/entities/brand.entity';
+import { RemoveQuoteDetailDto } from './dto/remove-quote-detail.dto';
 
 @Injectable()
 export class CartQuotesService {
@@ -575,6 +576,36 @@ export class CartQuotesService {
     return {
       count,
       cartQuotes: cartQuotesWithOneImage
+    };
+  }
+
+  async removeQuoteDetail(id: string, removeQuoteDetailDto: RemoveQuoteDetailDto) {
+    const cartQuote: CartQuote = await this.cartQuoteRepository.findOne({
+      where: { id },
+      relations: ['quoteDetails'],
+    });
+
+    if (!cartQuote)
+      throw new NotFoundException(`Cart quote with id ${id} not found`);
+
+    const quoteDetailsToRemove: QuoteDetail[] = cartQuote.quoteDetails.filter(
+      (quoteDetail: QuoteDetail) => removeQuoteDetailDto.quoteDetails.includes(quoteDetail.id),
+    );
+
+    let newTotalPrice = cartQuote.totalPrice;
+    quoteDetailsToRemove.forEach((quoteDetail: QuoteDetail) => {
+      newTotalPrice -= quoteDetail.total;
+    });
+
+    cartQuote.quoteDetails = cartQuote.quoteDetails.filter(
+      (quoteDetail: QuoteDetail) => !quoteDetailsToRemove.includes(quoteDetail),
+    );
+
+    cartQuote.totalPrice = newTotalPrice;
+    const updatedCartQuote: CartQuote = await this.cartQuoteRepository.save(cartQuote);
+
+    return {
+      updatedCartQuote
     };
   }
 
