@@ -625,6 +625,7 @@ export class QuoteDetailsService {
         'cartQuote.client.user.brands',
         'product.packings',
         'product.refProduct',
+        'product.refProduct.images',
         'product.refProduct.packings',
         'product.refProduct.supplier',
         'product.refProduct.supplier.disccounts',
@@ -652,7 +653,7 @@ export class QuoteDetailsService {
 
     if (!cartQuoteDb)
       throw new NotFoundException(`Cart quote with id ${quoteDetail.cartQuote.id} not found`);
-    
+
     cartQuoteDb.productsQuantity += quoteDetail.quantities || 0;
 
     //* ------------- CALCULOS ------------- *//
