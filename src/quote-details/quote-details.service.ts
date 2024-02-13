@@ -652,8 +652,7 @@ export class QuoteDetailsService {
 
     if (!cartQuoteDb)
       throw new NotFoundException(`Cart quote with id ${quoteDetail.cartQuote.id} not found`);
-
-    cartQuoteDb.totalPrice += quoteDetail.totalValue || 0;
+    
     cartQuoteDb.productsQuantity += quoteDetail.quantities || 0;
 
     //* ------------- CALCULOS ------------- *//
