@@ -271,8 +271,11 @@ export class UsersService {
     if (!user)
       throw new NotFoundException(`User with email ${email} not found`);
 
-    if (user.registrationCode == confirmRegistryDto.code)
+    if (user.registrationCode == confirmRegistryDto.code) {
       user.isConfirmed = true;
+    } else {
+      throw new BadRequestException(`Invalid confirmation code`);
+    }
 
     await this.userRepository.save(user);
 
