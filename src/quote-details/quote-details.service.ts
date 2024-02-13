@@ -1044,12 +1044,12 @@ export class QuoteDetailsService {
 
     Object.assign(quoteDetail, updatedQuoteDetail);
 
-    await this.cartQuoteRepository.save(cartQuoteDb);
+    const updatedCartQuote: CartQuote = await this.cartQuoteRepository.save(cartQuoteDb);
     await this.quoteDetailRepository.save(quoteDetail);
 
     return {
       quoteDetail,
-      cartQuoteDb
+      updatedCartQuote
     };
   }
 
