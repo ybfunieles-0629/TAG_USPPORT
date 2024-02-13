@@ -165,59 +165,63 @@ export class StatisticsService {
       throw new Error('El año de inicio no puede ser mayor que el año de fin.');
     }
 
-    const startDate = new Date(startYear, 0, 1);
-    const endDate = new Date(endYear, 0, 1);
-    endDate.setFullYear(endDate.getFullYear() + 1);
+    const statsByYear = [];
 
+    for (let year = startYear; year <= endYear; year++) {
+      const startDate = new Date(year, 0, 1);
+      const endDate = new Date(year, 11, 31, 23, 59, 59, 999);
 
-    // Obtener todas las órdenes de compra dentro del rango de años especificado
-    const purchaseOrders: PurchaseOrder[] = await this.purchaseOrderRepository
-      .createQueryBuilder('purchaseOrder')
-      .leftJoinAndSelect('purchaseOrder.orderListDetails', 'orderListDetails')
-      .leftJoinAndSelect('orderListDetails.product', 'product')
-      .where('purchaseOrder.createdAt >= :startDate', { startDate })
-      .andWhere('purchaseOrder.createdAt < :endDate', { endDate })
-      .getMany();
+      // Obtener todas las órdenes de compra dentro del año actual
+      const purchaseOrders: PurchaseOrder[] = await this.purchaseOrderRepository
+        .createQueryBuilder('purchaseOrder')
+        .leftJoinAndSelect('purchaseOrder.orderListDetails', 'orderListDetails')
+        .leftJoinAndSelect('orderListDetails.product', 'product')
+        .where('purchaseOrder.createdAt >= :startDate', { startDate })
+        .andWhere('purchaseOrder.createdAt < :endDate', { endDate })
+        .getMany();
 
-    // Calcular ventas totales y utilidad total
-    let ventas = 0;
-    let utilidadTotal = 0;
-    purchaseOrders.forEach(order => {
-      ventas += order.value;
-      utilidadTotal += order.businessUtility;
-    });
+      // Calcular ventas totales y utilidad total
+      let ventas = 0;
+      let utilidadTotal = 0;
+      purchaseOrders.forEach(order => {
+        ventas += order.value;
+        utilidadTotal += order.businessUtility;
+      });
 
-    // Asegurarse de que la utilidad no sea negativa
-    utilidadTotal = Math.max(0, utilidadTotal);
+      // Asegurarse de que la utilidad no sea negativa
+      utilidadTotal = Math.max(0, utilidadTotal);
 
-    // Calcular el ROI
-    const roi = ventas !== 0 ? utilidadTotal / ventas : 0;
+      // Calcular el ROI
+      const roi = ventas !== 0 ? utilidadTotal / ventas : 0;
 
-    // Calcular el total de pedidos
-    const totalOrders = purchaseOrders.length;
+      // Calcular el total de pedidos
+      const totalOrders = purchaseOrders.length;
 
-    // Calcular el total de ítems cotizados
-    const totalItemsCotizados = purchaseOrders.reduce((acc, order) => {
-      order.orderListDetails.forEach(detail => acc += detail.quantities);
-      return acc;
-    }, 0);
+      // Calcular el total de ítems cotizados
+      const totalItemsCotizados = purchaseOrders.reduce((acc, order) => {
+        order.orderListDetails.forEach(detail => acc += detail.quantities);
+        return acc;
+      }, 0);
 
-    // Calcular el total de productos pedidos
-    const totalProducts = purchaseOrders.reduce((acc, order) => {
-      order.orderListDetails.forEach(detail => acc += detail.quantities);
-      return acc;
-    }, 0);
+      // Calcular el total de productos pedidos
+      const totalProducts = purchaseOrders.reduce((acc, order) => {
+        order.orderListDetails.forEach(detail => acc += detail.quantities);
+        return acc;
+      }, 0);
 
-    return {
-      startYear,
-      endYear,
-      ventas,
-      utilidadTotal,
-      roi,
-      totalOrders,
-      totalItemsCotizados,
-      totalProducts
-    };
+      // Agregar estadísticas por año al arreglo
+      statsByYear.push({
+        year,
+        ventas,
+        utilidadTotal,
+        roi,
+        totalOrders,
+        totalItemsCotizados,
+        totalProducts
+      });
+    }
+
+    return statsByYear;
   }
 
   async getCommercialReportsForYear(yearParam: number) {
