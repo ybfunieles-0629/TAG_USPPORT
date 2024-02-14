@@ -559,16 +559,18 @@ export class CartQuotesService {
     }
 
     const cartQuotesWithOneImage = cartQuotes.map((cartQuote) => {
-      return {
-        ...cartQuote,
-        quoteDetails: cartQuote.quoteDetails.map((quoteDetail: QuoteDetail) => ({
-          ...quoteDetail,
-          product: {
-            ...quoteDetail.product,
-            image: quoteDetail.product.images[0] || '',
-          }
-        }))
-      };
+      if (cartQuote.isActive == true) {
+        return {
+          ...cartQuote,
+          quoteDetails: cartQuote.quoteDetails.map((quoteDetail: QuoteDetail) => ({
+            ...quoteDetail,
+            product: {
+              ...quoteDetail.product,
+              image: quoteDetail.product.images[0] || '',
+            }
+          }))
+        };
+      }
     });
 
     count = cartQuotesWithOneImage.length;
@@ -593,6 +595,7 @@ export class CartQuotesService {
     );
 
     let newTotalPrice = cartQuote.totalPrice;
+
     quoteDetailsToRemove.forEach((quoteDetail: QuoteDetail) => {
       newTotalPrice -= quoteDetail.total;
     });
@@ -602,10 +605,10 @@ export class CartQuotesService {
     );
 
     cartQuote.totalPrice = newTotalPrice;
-    const updatedCartQuote: CartQuote = await this.cartQuoteRepository.save(cartQuote);
+    // const updatedCartQuote: CartQuote = await this.cartQuoteRepository.save(cartQuote);
 
     return {
-      updatedCartQuote
+      cartQuote
     };
   }
 
