@@ -844,7 +844,7 @@ export class UsersService {
 
     const paginatedResults = usersToShow.map((user) => {
       let isAdmin = false;
-      if (user.roles.some(role => role.name.toLowerCase() === 'administrador' || role.name.toLowerCase() === 'super-administrador')) {
+      if (user?.roles?.some(role => role?.name?.toLowerCase() === 'administrador' || role?.name?.toLowerCase() === 'super-administrador')) {
         isAdmin = true;
       }
       return { ...user, isAdmin };
