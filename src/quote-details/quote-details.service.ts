@@ -642,6 +642,10 @@ export class QuoteDetailsService {
 
     const updatedQuoteDetail = plainToClass(QuoteDetail, quoteDetail);
 
+    if (updateQuoteDetailDto.quantities) {
+      updatedQuoteDetail.quantities = updateQuoteDetailDto.quantities;
+    };
+
     const cartQuoteDb: CartQuote = await this.cartQuoteRepository.findOne({
       where: {
         id: quoteDetail.cartQuote.id,
