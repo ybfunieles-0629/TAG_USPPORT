@@ -470,42 +470,39 @@ export class CartQuotesService {
     let cartQuotes: CartQuote[] = [];
 
     if (isCommercial == 1) {
-      const commercialUser = await this.userRepository.findOne({
-        where: {
-          id,
-          isActive: true,
-        },
-        relations: [
-          'admin',
-          'admin.clients',
-          'admin.clients.user',
-          'admin.clients.cartQuotes',
-          'admin.clients.cartQuotes.client',
-          'admin.clients.cartQuotes.client.user',
-          'admin.clients.cartQuotes.user',
-          'admin.clients.cartQuotes.user.company',
-          'admin.clients.cartQuotes.state',
-          'admin.clients.cartQuotes.quoteDetails',
-          'admin.clients.cartQuotes.quoteDetails.transportServices',
-          'admin.clients.cartQuotes.quoteDetails.product',
-          'admin.clients.cartQuotes.quoteDetails.product.colors',
-          'admin.clients.cartQuotes.quoteDetails.product.variantReferences',
-          'admin.clients.cartQuotes.quoteDetails.product.images',
-          'admin.clients.cartQuotes.quoteDetails.product.packings',
-          'admin.clients.cartQuotes.quoteDetails.product.refProduct',
-          'admin.clients.cartQuotes.quoteDetails.product.refProduct.images',
-          'admin.clients.cartQuotes.quoteDetails.product.refProduct.packings',
-          'admin.clients.cartQuotes.quoteDetails.product.refProduct.supplier',
-          'admin.clients.cartQuotes.quoteDetails.product.refProduct.supplier.disccounts',
-          'admin.clients.cartQuotes.quoteDetails.product.refProduct.supplier.disccounts.disccounts',
-          'admin.clients.cartQuotes.quoteDetails.markingServices',
-          'admin.clients.cartQuotes.quoteDetails.markingServices.logos',
-          'admin.clients.cartQuotes.quoteDetails.markingServices.marking',
-          'admin.clients.cartQuotes.quoteDetails.markingServices.externalSubTechnique',
-          'admin.clients.cartQuotes.quoteDetails.markingServices.markingServiceProperty',
-          'admin.clients.cartQuotes.quoteDetails.markingServices.markingServiceProperty.markedServicePrices',
-        ],
-      });
+      const commercialUser = await this.userRepository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.admin', 'admin')
+        .leftJoinAndSelect('admin.clients', 'client')
+        .leftJoinAndSelect('client.user', 'clientUser')
+        .leftJoinAndSelect('client.cartQuotes', 'cartQuote')
+        .where('cartQuote.isActive =:cartQuoteState', { cartQuoteState: true })
+        .leftJoinAndSelect('cartQuote.client', 'quoteClient')
+        .leftJoinAndSelect('cartQuote.user', 'quoteUser')
+        .leftJoinAndSelect('quoteUser.company', 'quoteUserCompany')
+        .leftJoinAndSelect('cartQuote.state', 'quoteState')
+        .leftJoinAndSelect('cartQuote.quoteDetails', 'quoteDetail')
+        .leftJoinAndSelect('quoteDetail.transportServices', 'transportService')
+        .leftJoinAndSelect('quoteDetail.product', 'product')
+        .leftJoinAndSelect('product.colors', 'productColor')
+        .leftJoinAndSelect('product.variantReferences', 'variantReference')
+        .leftJoinAndSelect('product.images', 'productImage')
+        .leftJoinAndSelect('product.packings', 'productPacking')
+        .leftJoinAndSelect('product.refProduct', 'refProduct')
+        .leftJoinAndSelect('refProduct.images', 'refProductImage')
+        .leftJoinAndSelect('refProduct.packings', 'refProductPacking')
+        .leftJoinAndSelect('refProduct.supplier', 'supplier')
+        .leftJoinAndSelect('supplier.disccounts', 'supplierDiscount')
+        .leftJoinAndSelect('supplierDiscount.disccounts', 'nestedSupplierDiscount')
+        .leftJoinAndSelect('quoteDetail.markingServices', 'markingService')
+        .leftJoinAndSelect('markingService.logos', 'markingServiceLogo')
+        .leftJoinAndSelect('markingService.marking', 'marking')
+        .leftJoinAndSelect('markingService.externalSubTechnique', 'externalSubTechnique')
+        .leftJoinAndSelect('markingService.markingServiceProperty', 'markingServiceProperty')
+        .leftJoinAndSelect('markingServiceProperty.markedServicePrices', 'markedServicePrice')
+        .andWhere('user.id = :id', { id })
+        .andWhere('user.isActive = :isActive', { isActive: true })
+        .getOne();
 
       if (!commercialUser)
         throw new NotFoundException(`Commercial user with ID ${id} not found.`);
@@ -559,18 +556,16 @@ export class CartQuotesService {
     }
 
     const cartQuotesWithOneImage = cartQuotes.map((cartQuote) => {
-      if (cartQuote.isActive == true) {
-        return {
-          ...cartQuote,
-          quoteDetails: cartQuote.quoteDetails.map((quoteDetail: QuoteDetail) => ({
-            ...quoteDetail,
-            product: {
-              ...quoteDetail.product,
-              image: quoteDetail.product.images[0] || '',
-            }
-          }))
-        };
-      }
+      return {
+        ...cartQuote,
+        quoteDetails: cartQuote.quoteDetails.map((quoteDetail: QuoteDetail) => ({
+          ...quoteDetail,
+          product: {
+            ...quoteDetail.product,
+            image: quoteDetail.product.images[0] || '',
+          }
+        }))
+      };
     });
 
     count = cartQuotesWithOneImage.length;
