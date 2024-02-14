@@ -706,6 +706,7 @@ export class UsersService {
         const commercialWithClients: User[] = await this.userRepository
           .createQueryBuilder('user')
           .leftJoinAndSelect('user.client', 'client')
+          .leftJoinAndSelect('user.roles', 'userRoles')
           .leftJoinAndSelect('client.admin', 'clientAdmin')
           .leftJoinAndSelect('clientAdmin.user', 'clientAdminUser')
           .where('clientAdminUser.id = :adminId', { adminId: user.id })
@@ -728,6 +729,7 @@ export class UsersService {
           const [commercialWithClients, totalCount] = await this.userRepository
             .createQueryBuilder('user')
             .leftJoinAndSelect('user.company', 'userCompany')
+            .leftJoinAndSelect('user.roles', 'userRoles')
             .leftJoinAndSelect('user.client', 'userClient')
             .leftJoinAndSelect('userClient.admin', 'clientAdmin')
             .leftJoinAndSelect('clientAdmin.user', 'clientAdminUser')
@@ -775,6 +777,7 @@ export class UsersService {
         const commercialWithClients: User[] = await this.userRepository
           .createQueryBuilder('user')
           .leftJoinAndSelect('user.client', 'client')
+          .leftJoinAndSelect('user.roles', 'userRoles')
           .leftJoinAndSelect('client.admin', 'clientAdmin')
           .leftJoinAndSelect('clientAdmin.user', 'clientAdminUser')
           .where('clientAdminUser.id = :adminId', { adminId: user.id })
@@ -797,6 +800,7 @@ export class UsersService {
           const [commercialWithClients, totalCount] = await this.userRepository
             .createQueryBuilder('user')
             .leftJoinAndSelect('user.company', 'userCompany')
+            .leftJoinAndSelect('user.roles', 'userRoles')
             .leftJoinAndSelect('user.client', 'userClient')
             .leftJoinAndSelect('userClient.admin', 'clientAdmin')
             .leftJoinAndSelect('clientAdmin.user', 'clientAdminUser')
@@ -844,7 +848,7 @@ export class UsersService {
 
     const paginatedResults = usersToShow.map((user) => {
       let isAdmin = false;
-      if (user.roles.some(role => role.name.toLowerCase() === 'administrador' || role.name.toLowerCase() === 'super-administrador')) {
+      if (user?.roles?.some(role => role?.name?.toLowerCase() === 'administrador' || role?.name?.toLowerCase() === 'super-administrador')) {
         isAdmin = true;
       }
       return { ...user, isAdmin };

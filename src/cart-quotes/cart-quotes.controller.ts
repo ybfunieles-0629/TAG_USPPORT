@@ -77,6 +77,7 @@ export class CartQuotesController {
   }
 
   @Patch('remove/quote-details/:id')
+  @UseGuards(AuthGuard())
   removeQuoteDetail(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() removeQuoteDetailDto: RemoveQuoteDetailDto
