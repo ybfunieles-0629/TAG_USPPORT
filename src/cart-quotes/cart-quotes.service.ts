@@ -592,7 +592,7 @@ export class CartQuotesService {
     let newTotalPrice = cartQuote.totalPrice;
 
     quoteDetailsToRemove.forEach((quoteDetail: QuoteDetail) => {
-      newTotalPrice -= quoteDetail.total;
+      newTotalPrice -= quoteDetail.totalValue;
     });
 
     cartQuote.quoteDetails = cartQuote.quoteDetails.filter(
@@ -600,7 +600,7 @@ export class CartQuotesService {
     );
 
     cartQuote.totalPrice = newTotalPrice;
-    // const updatedCartQuote: CartQuote = await this.cartQuoteRepository.save(cartQuote);
+    const updatedCartQuote: CartQuote = await this.cartQuoteRepository.save(cartQuote);
 
     return {
       cartQuote
