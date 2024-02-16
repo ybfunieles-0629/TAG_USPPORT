@@ -1,7 +1,8 @@
-import { Injectable, Logger, NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException, InternalServerErrorException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
+import * as nodemailer from 'nodemailer';
 import axios from 'axios';
 
 import { CreateCategorySupplierDto } from './dto/create-category-supplier.dto';
@@ -29,9 +30,11 @@ export class CategorySuppliersService {
 
     @InjectRepository(Supplier)
     private readonly supplierRepository: Repository<Supplier>,
-    
+
     @InjectRepository(RefProduct)
     private readonly refProductRepository: Repository<RefProduct>,
+
+    @Inject('EMAIL_CONFIG') private emailSenderConfig,
   ) { }
 
   //* ---- LOAD PARENT CATEGORIES FROM EXT API METHOD ---- *//
@@ -148,6 +151,33 @@ export class CategorySuppliersService {
 
     if (parentCategoriesToSave.length === 0) {
       throw new BadRequestException(`There are no new parent categories to save`);
+    }
+
+    const categoryNames: string[] = parentCategoriesToSave.map(category => category.name);
+    const categoryNamesString: string = categoryNames.join(', ');
+
+    try {
+      // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      });
+
+      await transporter.sendMail({
+        from: this.emailSenderConfig.transport.from,
+        to: 'yeison.descargas@gmail.com',
+        subject: 'Nuevas categorías',
+        text: `
+        Nuevas categorías registradas:
+        ${categoryNamesString}
+        `,
+      });
+    } catch (error) {
+      console.log('Failed to send the email', error);
+      throw new InternalServerErrorException(`Internal server error`);
     }
 
     return {
@@ -279,6 +309,33 @@ export class CategorySuppliersService {
 
     if (subCategoriesToSave.length === 0)
       throw new BadRequestException('There are no new sub categories to save');
+
+    const categoryNames: string[] = subCategoriesToSave.map(category => category.name);
+    const categoryNamesString: string = categoryNames.join(', ');
+
+    try {
+      // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      });
+
+      await transporter.sendMail({
+        from: this.emailSenderConfig.transport.from,
+        to: 'yeison.descargas@gmail.com',
+        subject: 'Sub categorías nuevas',
+        text: `
+        Nuevas sub categorías registradas:
+        ${categoryNamesString}
+        `,
+      });
+    } catch (error) {
+      console.log('Failed to send the email', error);
+      throw new InternalServerErrorException(`Internal server error`);
+    }
 
     return {
       subCategoriesToSave,
