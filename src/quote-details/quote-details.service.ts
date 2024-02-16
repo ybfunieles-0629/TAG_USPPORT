@@ -654,6 +654,7 @@ export class QuoteDetailsService {
 
     if (updateQuoteDetailDto.discount) {
       updatedQuoteDetail.discount = updateQuoteDetailDto.discount;
+      updatedQuoteDetail.discountPercentage = updateQuoteDetailDto.discount;
     };
 
     const cartQuoteDb: CartQuote = await this.cartQuoteRepository.findOne({

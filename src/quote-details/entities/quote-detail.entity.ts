@@ -28,6 +28,11 @@ export class QuoteDetail {
   @Column('int', {
 
   })
+  discountPercentage: number;
+
+  @Column('int', {
+
+  })
   totalPriceWithTransport: number;
 
   @Column('int', {
