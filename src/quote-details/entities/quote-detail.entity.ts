@@ -16,7 +16,7 @@ export class QuoteDetail {
   quantities: number;
 
   @Column('int', {
-    default: 0
+
   })
   additionalDiscount: number;
 
