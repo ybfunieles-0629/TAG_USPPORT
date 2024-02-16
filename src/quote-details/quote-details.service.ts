@@ -425,7 +425,7 @@ export class QuoteDetailsService {
         clientType = 'cliente corporativo principal';
     };
 
-    if (clientType.toLowerCase() == 'cliente corporativo secundario' || clientType.toLowerCase() == 'cliente corporativo principal') {      
+    if (clientType.toLowerCase() == 'cliente corporativo secundario' || clientType.toLowerCase() == 'cliente corporativo principal') {
       const brandId = cartQuote.brandId;
 
       if (brandId != '') {
@@ -610,7 +610,13 @@ export class QuoteDetailsService {
     };
   }
 
-  async update(id: string, updateQuoteDetailDto: UpdateQuoteDetailDto) {
+  async update(id: string, updateQuoteDetailDto: UpdateQuoteDetailDto, save: number) {
+    let saveData: number = 0;
+
+    if (save) {
+      saveData = save;
+    };
+
     const hasSample: boolean = updateQuoteDetailDto.hasSample;
 
     const quoteDetail: QuoteDetail = await this.quoteDetailRepository.findOne({
@@ -904,7 +910,7 @@ export class QuoteDetailsService {
         clientType = 'cliente corporativo principal';
     };
 
-    if (clientType.toLowerCase() == 'cliente corporativo secundario' || clientType.toLowerCase() == 'cliente corporativo principal') {      
+    if (clientType.toLowerCase() == 'cliente corporativo secundario' || clientType.toLowerCase() == 'cliente corporativo principal') {
       const brandId = cartQuote.brandId;
 
       if (brandId != '') {
@@ -1034,7 +1040,7 @@ export class QuoteDetailsService {
     updatedQuoteDetail.businessUtility = businessUtility;
 
     //* CALCULAR DESCUENTO
-    const discount: number = (product.promoDisccount / 100) * updatedQuoteDetail.subTotal || 0;
+    const discount: number = (updateQuoteDetailDto.discount / 100) * updatedQuoteDetail.subTotal || 0;
     updatedQuoteDetail.discount = discount;
 
     //* CALCULAR SUBTOTAL CON DESCUENTO
@@ -1052,8 +1058,12 @@ export class QuoteDetailsService {
 
     Object.assign(quoteDetail, updatedQuoteDetail);
 
-    const updatedCartQuote: CartQuote = await this.cartQuoteRepository.save(cartQuoteDb);
-    await this.quoteDetailRepository.save(quoteDetail);
+    let updatedCartQuote: CartQuote = cartQuoteDb;
+
+    if (saveData == 1) {
+      updatedCartQuote = await this.cartQuoteRepository.save(cartQuoteDb);
+      await this.quoteDetailRepository.save(quoteDetail);
+    }
 
     return {
       quoteDetail,
