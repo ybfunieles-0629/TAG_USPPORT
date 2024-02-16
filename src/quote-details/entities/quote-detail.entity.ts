@@ -18,6 +18,11 @@ export class QuoteDetail {
   @Column('int', {
 
   })
+  additionalDiscount: number;
+
+  @Column('int', {
+
+  })
   unitPrice: number;
 
   @Column('boolean', {
