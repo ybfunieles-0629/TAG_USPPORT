@@ -217,14 +217,16 @@ export class CartQuotesService {
   async findAll(paginationDto: PaginationDto) {
     const count: number = await this.cartQuoteRepository.count();
 
-    const { limit = count, offset = 0 } = paginationDto;
+    const { limit = count, offset = 0, isAllowed = 1 } = paginationDto;
+
+    const isAllowedBoolean: boolean = isAllowed == 1 ? true : false;
 
     const cartQuotes: CartQuote[] = await this.cartQuoteRepository.find({
       take: limit,
       skip: offset,
       where: {
         isActive: true,
-        isAllowed: true,
+        isAllowed: isAllowedBoolean,
       },
       relations: [
         'quoteDetails',
