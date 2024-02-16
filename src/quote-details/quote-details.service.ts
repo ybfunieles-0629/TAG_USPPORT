@@ -652,9 +652,9 @@ export class QuoteDetailsService {
       updatedQuoteDetail.quantities = updateQuoteDetailDto.quantities;
     };
 
-    if (updateQuoteDetailDto.discount) {
-      updatedQuoteDetail.discount = updateQuoteDetailDto.discount;
-      updatedQuoteDetail.discountPercentage = updateQuoteDetailDto.discount;
+    if (updateQuoteDetailDto.additionalDiscount) {
+      updatedQuoteDetail.additionalDiscount = updateQuoteDetailDto.additionalDiscount;
+      updatedQuoteDetail.discountPercentage = updateQuoteDetailDto.additionalDiscount;
     };
 
     const cartQuoteDb: CartQuote = await this.cartQuoteRepository.findOne({
@@ -1013,6 +1013,9 @@ export class QuoteDetailsService {
     };
 
     //* SE HACE DESCUENTO ADICIONAL POR EL COMERCIAL (YA HECHO)
+    const additionalDiscount: number = (updateQuoteDetailDto.additionalDiscount / 100) * totalPrice || 0;
+    updatedQuoteDetail.additionalDiscount = additionalDiscount;
+    totalPrice -= additionalDiscount;
     updatedQuoteDetail.subTotal = totalPrice;
 
     //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
@@ -1041,7 +1044,7 @@ export class QuoteDetailsService {
     updatedQuoteDetail.businessUtility = businessUtility;
 
     //* CALCULAR DESCUENTO
-    const discount: number = (updateQuoteDetailDto.discount / 100) * updatedQuoteDetail.subTotal || 0;
+    const discount: number = (product.promoDisccount / 100) * updatedQuoteDetail.subTotal || 0;
     updatedQuoteDetail.discount = discount;
 
     //* CALCULAR SUBTOTAL CON DESCUENTO
