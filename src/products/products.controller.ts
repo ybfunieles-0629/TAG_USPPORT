@@ -15,9 +15,9 @@ export class ProductsController {
   @Post('/load')
   @UseGuards(AuthGuard())
   loadProducts(
-
+    @Query('supplier') supplier: string,
   ) {
-    return this.productsService.loadProducts();
+    return this.productsService.loadProducts(supplier);
   }
 
   @Post()

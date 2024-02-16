@@ -144,6 +144,12 @@ export class ProductsService {
     if (!user.supplier)
       throw new BadRequestException(`The user is not a supplier`);
 
+    const refProductsInDb: RefProduct[] = await this.refProductRepository.find();
+    const productsInDb: Product[] = await this.productRepository.find();
+
+    const refProductsToSave: RefProduct[] = [];
+    const productsToSave: Product[] = [];
+
     for (const product of categorias[0]) {
       const images: Image[] = [];
 
@@ -180,44 +186,93 @@ export class ProductsService {
         supplier: user.supplier,
       };
 
-      const createdRefProduct: RefProduct = this.refProductRepository.create(newReference);
-      const savedRefProduct: RefProduct = await this.refProductRepository.save(createdRefProduct);
+      const existingRefProduct = refProductsInDb.find(refProduct => refProduct.referenceCode === product.referencia);
+
+      let savedRefProduct: RefProduct;
+      if (existingRefProduct) {
+        savedRefProduct = existingRefProduct;
+      } else {
+        const createdRefProduct: RefProduct = this.refProductRepository.create(newReference);
+        savedRefProduct = await this.refProductRepository.save(createdRefProduct);
+        refProductsToSave.push(savedRefProduct);
+      }
 
       let tagSku: string = await this.generateUniqueTagSku();
 
       const { data: { data } } = await axios.get(`${this.apiUrl}/stock/${product.referencia}`);
 
       await Promise.all(data?.resultado?.map(async (product) => {
-        const color: Color = await this.colorRepository
-          .createQueryBuilder('color')
-          .where('LOWER(color.name) = :productColor', { productColor: product.color.toLowerCase() })
-          .getOne();
+        const existingProductInDb = productsInDb.find(prod => prod.refProduct.referenceCode === product.referencia);
 
-        const colorsToAssign: Color[] = [];
+        if (existingProductInDb) {
+          if (existingProductInDb.availableUnit !== product.totalDisponible ||
+            existingProductInDb.referencePrice !== product.precio1) {
+            existingProductInDb.availableUnit = product.totalDisponible;
+            existingProductInDb.referencePrice = product.precio1;
+            await this.productRepository.save(existingProductInDb);
+            productsToSave.push(existingProductInDb);
+          }
+        } else {
+          const color: Color = await this.colorRepository
+            .createQueryBuilder('color')
+            .where('LOWER(color.name) = :productColor', { productColor: product.color.toLowerCase() })
+            .getOne();
 
-        if (color) {
-          colorsToAssign.push(color);
+          const colorsToAssign: Color[] = [];
+
+          if (color) {
+            colorsToAssign.push(color);
+          }
+
+          const newProduct = {
+            tagSku,
+            availableUnit: product.totalDisponible,
+            supplierSku: tagSku,
+            refProduct: savedRefProduct,
+            referencePrice: product.precio1,
+            apiCode: product.id,
+            colors: colorsToAssign
+          };
+
+          const createdProduct: Product = this.productRepository.create(newProduct);
+          await this.productRepository.save(createdProduct);
+          productsToSave.push(createdProduct);
         }
-
-        const newProduct = {
-          tagSku,
-          availableUnit: product.totalDisponible,
-          supplierSku: tagSku,
-          refProduct: savedRefProduct,
-          referencePrice: product.precio1,
-          apiCode: product.id,
-          colors: colorsToAssign
-        };
-
-        const createdProduct: Product = this.productRepository.create(newProduct);
-        const savedProduct: Product = await this.productRepository.save(createdProduct);
-
-        return savedProduct;
       }));
     }
+
+    const productCodes: string[] = productsToSave.map(product => product.apiCode);
+    const productCodesString: string = productCodes.join(', ');
+
+    try {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      });
+
+      await transporter.sendMail({
+        from: this.emailSenderConfig.transport.from,
+        to: 'yeison.descargas@gmail.com',
+        subject: 'Productos nuevos y/o actualizados',
+        text: `
+          Productos nuevos y/o actualizados:
+          ${productCodesString}
+          `,
+      });
+    } catch (error) {
+      console.log('Failed to send the email', error);
+      throw new InternalServerErrorException(`Internal server error`);
+    }
+
+    return {
+      refProductsToSave,
+      productsToSave
+    };
   }
 
-  //* ---------- LOAD MARPICO PRODUCTS METHOD ---------- *//
   private async loadMarpicoProducts() {
     const apiUrl = 'https://marpicoprod.azurewebsites.net/api/inventarios/materialesAPI';
     const apiKey = 'KZuMI3Fh5yfPSd7bJwqoIicdw2SNtDkhSZKmceR0PsKZzCm1gK81uiW59kL9n76z';
@@ -230,11 +285,12 @@ export class ProductsService {
 
     const { data: { results } } = await axios.get(apiUrl, config);
 
-    const products = [];
     const refProductsToSave = [];
+    const productsToSave = [];
     const cleanedRefProducts = [];
 
-    const refProductsInDb = await this.refProductRepository.find();
+    const refProductsInDb: RefProduct[] = await this.refProductRepository.find();
+    const productsInDb: Product[] = await this.productRepository.find();
 
     const user = await this.userRepository.findOne({
       where: {
@@ -379,7 +435,7 @@ export class ProductsService {
       for (const material of item.materiales) {
         const productImages: Image[] = [];
 
-        material.imagenes.forEach(async imagen => {
+        for (const imagen of material.imagenes) {
           const image: Image = this.imageRepository.create({
             url: imagen.file,
           });
@@ -387,7 +443,7 @@ export class ProductsService {
           await this.imageRepository.save(image);
 
           productImages.push(image);
-        });
+        }
 
         const newProduct = {
           familia: item.familia,
@@ -395,78 +451,83 @@ export class ProductsService {
           material,
         };
 
-        products.push(newProduct);
+        productsToSave.push(newProduct);
       }
     }
 
     for (const refProduct of cleanedRefProducts) {
-      const refProductExists = refProductsInDb.some(refProductInDb => refProductInDb.referenceCode == refProduct.referenceCode);
+      const refProductExists = refProductsInDb.find(refProductInDb => refProductInDb.referenceCode == refProduct.referenceCode);
 
       if (refProductExists) {
-        console.log(`Ref product with reference code ${refProduct.referenceCode} is already registered`);
+        // Verificar si el producto existe y necesita actualización
+        const existingProductInDb = productsInDb.find(product => product.refProduct.referenceCode === refProduct.referenceCode);
+        if (existingProductInDb) {
+          // Comparar los campos que pueden haber cambiado y actualizarlos si es necesario
+          if (existingProductInDb.availableUnit !== refProduct.availableUnit ||
+            existingProductInDb.referencePrice !== refProduct.referencePrice ||
+            existingProductInDb.promoDisccount !== refProduct.promoDisccount) {
+            existingProductInDb.availableUnit = refProduct.availableUnit;
+            existingProductInDb.referencePrice = refProduct.referencePrice;
+            existingProductInDb.promoDisccount = refProduct.promoDisccount;
+            await this.productRepository.save(existingProductInDb);
+            productsToSave.push(existingProductInDb);
+          }
+        }
       } else {
+        // Si el producto no existe, guardarlo como nuevo
         const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
-
         refProductsToSave.push(savedRefProduct);
       }
     }
 
-    // //* ---- LOAD PRODUCTS ---- *//
-    for (const product of products) {
-      const refProduct = await this.refProductRepository.findOne({
-        where: {
-          referenceCode: product.familia,
+    if (refProductsToSave.length === 0 && productsToSave.length === 0)
+      throw new BadRequestException(`There are no new or updated products to save`);
+
+    const productCodes: string[] = productsToSave.map(product => product.apiCode);
+    const productCodesString: string = productCodes.join(', ');
+
+    try {
+      // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD,
         },
       });
 
-      if (!refProduct)
-        throw new NotFoundException(`Ref product for product with familia ${product.familia} not found`);
-
-      const productColor: string = product?.material?.color_nombre?.toLowerCase() || '';
-
-      const color: Color = await this.colorRepository
-        .createQueryBuilder('color')
-        .where('LOWER(color.name) =:productColor', { productColor })
-        .getOne();
-
-      const colors: Color[] = [];
-
-      if (color) {
-        colors.push(color);
-      };
-
-      let tagSku: string = await this.generateUniqueTagSku();
-
-      const newProduct = {
-        tagSku,
-        apiCode: product.material.codigo,
-        supplierSku: tagSku,
-        variantReferences: [],
-        colors,
-        referencePrice: +product.material.precio,
-        promoDisccount: parseFloat(product.material.descuento.replace('-', '')),
-        availableUnit: product?.material?.inventario_almacen[0]?.cantidad,
-        refProduct,
-      };
-
-      const createdProduct: Product = this.productRepository.create(newProduct);
-
-      const savedProduct: Product = await this.productRepository.save(createdProduct);
+      await transporter.sendMail({
+        from: this.emailSenderConfig.transport.from,
+        to: 'yeison.descargas@gmail.com',
+        subject: 'Productos nuevos y/o actualizados',
+        text: `
+          Productos nuevos y/o actualizados:
+          ${productCodesString}
+          `,
+      });
+    } catch (error) {
+      console.log('Failed to send the email', error);
+      throw new InternalServerErrorException(`Internal server error`);
     }
 
-
-    if (refProductsToSave.length === 0)
-      throw new BadRequestException(`There are no new products to save`);
-
     return {
-      refProductsToSave
+      refProductsToSave,
+      productsToSave
     };
   }
 
   //* ---------- LOAD ALL PRODUCTS FROM EXT APIS ---------- *//
-  async loadProducts() {
-    await this.loadMarpicoProducts();
-    await this.loadPromosProducts();
+  async loadProducts(supplier: string) {
+    const supplierName: string = supplier || '';
+
+    if (supplierName.toLowerCase().trim() == 'marpico') {
+      await this.loadMarpicoProducts();
+    } else if (supplierName.toLowerCase().trim() == 'promos') {
+      await this.loadPromosProducts();
+    } else {
+      await this.loadMarpicoProducts();
+      await this.loadPromosProducts();
+    };
   }
 
   async create(createProductDto: CreateProductDto) {

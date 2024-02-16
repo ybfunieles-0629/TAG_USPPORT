@@ -20,7 +20,8 @@ import { CategoryTagModule } from '../category-tag/category-tag.module';
 
 @Module({
   imports: [
-    PassportModule.register({ defaultStrategy: 'jwt' }),    EmailSenderModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    EmailSenderModule,
     CategorySuppliersModule,
     CategoryTagModule,
     ColorsModule,
