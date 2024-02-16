@@ -30,10 +30,6 @@ export class CreateQuoteDetailDto {
   @IsBoolean()
   hasSample: boolean;
 
-  @IsOptional()
-  @IsNumber()
-  additionalDiscount?: number;
-
   @IsString()
   product: string;
 
