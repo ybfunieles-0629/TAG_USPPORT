@@ -23,6 +23,11 @@ export class QuoteDetail {
   @Column('int', {
 
   })
+  profitability: number;
+
+  @Column('int', {
+
+  })
   unitPrice: number;
 
   @Column('boolean', {

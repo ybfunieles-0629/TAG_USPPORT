@@ -167,6 +167,8 @@ export class StatisticsService {
 
     const statsByYear = [];
 
+    let previousYearSales = 0; // Variable para almacenar las ventas del año anterior
+
     for (let year = startYear; year <= endYear; year++) {
       const startDate = new Date(year, 0, 1);
       const endDate = new Date(year, 11, 31, 23, 59, 59, 999);
@@ -209,6 +211,12 @@ export class StatisticsService {
         return acc;
       }, 0);
 
+      // Calcular la diferencia con respecto al año anterior
+      const difference = ventas - previousYearSales;
+
+      // Actualizar las ventas del año anterior para el próximo ciclo
+      previousYearSales = ventas;
+
       // Agregar estadísticas por año al arreglo
       statsByYear.push({
         year,
@@ -217,7 +225,12 @@ export class StatisticsService {
         roi,
         totalOrders,
         totalItemsCotizados,
-        totalProducts
+        totalProducts,
+        difference,
+        carritosRealizados: totalOrders,
+        pedidos: totalOrders,
+        ratioEficienciaProductos: totalItemsCotizados / totalProducts,
+        ticketPromedio: ventas / totalOrders
       });
     }
 

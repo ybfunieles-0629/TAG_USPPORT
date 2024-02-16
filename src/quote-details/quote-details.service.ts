@@ -554,6 +554,10 @@ export class QuoteDetailsService {
     const businessUtility = (totalPrice - (totalCost - withholdingAtSourceValue)) || 0;
     newQuoteDetail.businessUtility = businessUtility;
 
+    //* CALCULAR RENTABILIDAD DEL NEGOCIO
+    const profitability: number = (businessUtility / totalPrice) || 0;
+    newQuoteDetail.profitability = profitability;
+
     //* CALCULAR DESCUENTO
     const discount: number = (product.promoDisccount / 100) * totalPrice || 0;
     newQuoteDetail.discountPercentage = product.promoDisccount;
