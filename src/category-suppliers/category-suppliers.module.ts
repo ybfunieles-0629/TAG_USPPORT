@@ -9,6 +9,7 @@ import { CategoryTagModule } from '../category-tag/category-tag.module';
 import { SuppliersModule } from '../suppliers/suppliers.module';
 import { UsersModule } from '../users/users.module';
 import { RefProductsModule } from '../ref-products/ref-products.module';
+import { EmailSenderModule } from '../email-sender/email-sender.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { RefProductsModule } from '../ref-products/ref-products.module';
     SuppliersModule,
     forwardRef(() => RefProductsModule),
     UsersModule,
-    TypeOrmModule.forFeature([CategorySupplier])
+    TypeOrmModule.forFeature([CategorySupplier]),
+    EmailSenderModule,
   ],
   controllers: [CategorySuppliersController],
   providers: [CategorySuppliersService],
