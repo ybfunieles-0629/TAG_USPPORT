@@ -556,6 +556,7 @@ export class QuoteDetailsService {
 
     //* CALCULAR DESCUENTO
     const discount: number = (product.promoDisccount / 100) * newQuoteDetail.subTotal || 0;
+    newQuoteDetail.discountPercentage = product.promoDisccount;
     newQuoteDetail.discount = discount;
 
     //* CALCULAR SUBTOTAL CON DESCUENTO
