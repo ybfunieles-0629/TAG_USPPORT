@@ -530,7 +530,7 @@ export class ProductsService {
     };
   }
 
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, user: User) {
     const lastProducts = await this.productRepository.find({
       order: { createdAt: 'DESC' },
     });
@@ -554,6 +554,8 @@ export class ProductsService {
     const newProduct = plainToClass(Product, createProductDto);
 
     newProduct.volume = volume;
+
+    newProduct.createdBy = user.id;
 
     const variantReferences: VariantReference[] = [];
 
@@ -648,7 +650,7 @@ export class ProductsService {
     };
   }
 
-  async createMultiple(createMultipleProducts: CreateProductDto[]) {
+  async createMultiple(createMultipleProducts: CreateProductDto[], user: User) {
     const createdProducts = [];
 
     const lastProducts = await this.productRepository.find({
@@ -673,6 +675,8 @@ export class ProductsService {
       }
 
       const newProduct = plainToClass(Product, createProductDto);
+
+      newProduct.createdBy = user.id;
 
       newProduct.volume = volume;
 
@@ -1098,7 +1102,7 @@ export class ProductsService {
     };
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto) {
+  async update(id: string, updateProductDto: UpdateProductDto, user: User) {
     const product = await this.productRepository.findOne({
       where: {
         id,
@@ -1116,6 +1120,8 @@ export class ProductsService {
     });
 
     const updatedProduct = plainToClass(Product, updateProductDto);
+
+    updatedProduct.updatedBy = user.id;
 
     const refProduct = await this.refProductRepository.findOne({
       where: {
@@ -1214,7 +1220,7 @@ export class ProductsService {
     };
   }
 
-  async updateMultiple(updateMultipleProducts: UpdateProductDto[]) {
+  async updateMultiple(updateMultipleProducts: UpdateProductDto[], user: User) {
     const updatedProducts = [];
 
     for (const updateProductDto of updateMultipleProducts) {
@@ -1246,6 +1252,8 @@ export class ProductsService {
         throw new NotFoundException(`Ref product with id ${updateProductDto.refProduct} not found`);
 
       updatedProduct.refProduct = refProduct;
+
+      updatedProduct.updatedBy = user.id;
 
       if (updateProductDto.variantReferences) {
         for (const variantReferenceId of updateProductDto.variantReferences) {

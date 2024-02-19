@@ -11,7 +11,7 @@ import { UpdateLogoDto } from './dto/update-logo.dto';
 import { Logo } from './entities/logo.entity';
 import { MarkingService } from '../marking-services/entities/marking-service.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import path from 'path';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class LogosService {
@@ -23,8 +23,10 @@ export class LogosService {
     private readonly markingServiceRepository: Repository<MarkingService>,
   ) { }
 
-  async create(createLogoDto: CreateLogoDto, files: Record<string, Express.Multer.File>) {
+  async create(createLogoDto: CreateLogoDto, files: Record<string, Express.Multer.File>, user: User) {
     const newLogo = plainToClass(Logo, createLogoDto);
+
+    newLogo.createdBy = user.id;
 
     const markingService = await this.markingServiceRepository.findOne({
       where: {
@@ -101,7 +103,7 @@ export class LogosService {
     };
   }
 
-  async update(id: string, updateLogoDto: UpdateLogoDto, files: Record<string, Express.Multer.File>) {
+  async update(id: string, updateLogoDto: UpdateLogoDto, files: Record<string, Express.Multer.File>, user: User) {
     const logo = await this.logoRepository.findOne({
       where: {
         id,
@@ -115,6 +117,8 @@ export class LogosService {
       throw new NotFoundException(`Logo with id ${id} not found`);
 
     const updatedLogo = plainToClass(Logo, updateLogoDto);
+
+    updatedLogo.updatedBy = user.id;
 
     let imageAwsUrl: string = '';
 

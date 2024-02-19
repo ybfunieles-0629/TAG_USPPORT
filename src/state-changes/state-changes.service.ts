@@ -8,6 +8,7 @@ import { UpdateStateChangeDto } from './dto/update-state-change.dto';
 import { SupplierPurchaseOrder } from '../supplier-purchase-orders/entities/supplier-purchase-order.entity';
 import { StateChange } from './entities/state-change.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class StateChangesService {
@@ -19,8 +20,10 @@ export class StateChangesService {
     private readonly supplierPurchaseOrderRepository: Repository<SupplierPurchaseOrder>,
   ) { }
 
-  async create(createStateChangeDto: CreateStateChangeDto) {
+  async create(createStateChangeDto: CreateStateChangeDto, user: User) {
     const newStateChangeRepository: StateChange = plainToClass(StateChange, createStateChangeDto);
+
+    newStateChangeRepository.createdBy = user.id;
 
     if (createStateChangeDto.supplierPurchaseOrder) {
       const supplierPurchaseOrder: SupplierPurchaseOrder = await this.supplierPurchaseOrderRepository.findOne({
@@ -82,7 +85,7 @@ export class StateChangesService {
     };
   }
 
-  async update(id: string, updateStateChangeDto: UpdateStateChangeDto) {
+  async update(id: string, updateStateChangeDto: UpdateStateChangeDto, user: User) {
     const stateChange: StateChange = await this.stateChangeRepository.findOne({
       where: {
         id,
@@ -96,6 +99,8 @@ export class StateChangesService {
       throw new NotFoundException(`State change with id ${id} not found`);
 
     const updatedStateChange: StateChange = plainToClass(StateChange, updateStateChangeDto);
+
+    updatedStateChange.updatedBy = user.id;
 
     if (updateStateChangeDto.supplierPurchaseOrder) {
       const supplierPurchaseOrder: SupplierPurchaseOrder = await this.supplierPurchaseOrderRepository.findOne({

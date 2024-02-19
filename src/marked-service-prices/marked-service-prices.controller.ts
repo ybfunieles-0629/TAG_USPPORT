@@ -5,6 +5,8 @@ import { MarkedServicePricesService } from './marked-service-prices.service';
 import { CreateMarkedServicePriceDto } from './dto/create-marked-service-price.dto';
 import { UpdateMarkedServicePriceDto } from './dto/update-marked-service-price.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('marked-service-prices')
 export class MarkedServicePricesController {
@@ -12,16 +14,20 @@ export class MarkedServicePricesController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createMarkedServicePriceDto: CreateMarkedServicePriceDto) {
-    return this.markedServicePricesService.create(createMarkedServicePriceDto);
+  create(
+    @Body() createMarkedServicePriceDto: CreateMarkedServicePriceDto,
+    @GetUser() user: User,
+  ) {
+    return this.markedServicePricesService.create(createMarkedServicePriceDto, user);
   }
 
   @Post('create/multiple')
   @UseGuards(AuthGuard())
   createMultiple(
-    @Body() createMarkedServicePrices: CreateMarkedServicePriceDto[]
+    @Body() createMarkedServicePrices: CreateMarkedServicePriceDto[],
+    @GetUser() user: User,
   ) {
-    return this.markedServicePricesService.createMultiple(createMarkedServicePrices);
+    return this.markedServicePricesService.createMultiple(createMarkedServicePrices, user);
   }
 
   @Get()
@@ -42,17 +48,19 @@ export class MarkedServicePricesController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateMarkedServicePriceDto: UpdateMarkedServicePriceDto
+    @Body() updateMarkedServicePriceDto: UpdateMarkedServicePriceDto,
+    @GetUser() user: User,
   ) {
-    return this.markedServicePricesService.update(id, updateMarkedServicePriceDto);
+    return this.markedServicePricesService.update(id, updateMarkedServicePriceDto, user);
   }
 
   @Patch('update/multiple')
   @UseGuards(AuthGuard())
   updateMultiple(
-    @Body() updateMarkedServicePrices: UpdateMarkedServicePriceDto[]
+    @Body() updateMarkedServicePrices: UpdateMarkedServicePriceDto[],
+    @GetUser() user: User,
   ) {
-    return this.markedServicePricesService.updateMultiple(updateMarkedServicePrices);
+    return this.markedServicePricesService.updateMultiple(updateMarkedServicePrices, user);
   }
 
   @Patch('/desactivate/:id')

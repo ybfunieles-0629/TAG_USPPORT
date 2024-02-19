@@ -12,6 +12,7 @@ import { CategoryTag } from './entities/category-tag.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { RefProduct } from '../ref-products/entities/ref-product.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class CategoryTagService {
@@ -90,10 +91,12 @@ export class CategoryTagService {
     }
   }
 
-  async create(createCategoryTagDto: CreateCategoryTagDto, file: Express.Multer.File) {
+  async create(createCategoryTagDto: CreateCategoryTagDto, file: Express.Multer.File, user: User) {
     createCategoryTagDto.featured = +createCategoryTagDto.featured;
 
     const newCategoryTag = plainToClass(CategoryTag, createCategoryTagDto);
+
+    newCategoryTag.createdBy = user.id;
 
     let imageAwsUrl: string = '';
 
@@ -199,7 +202,7 @@ export class CategoryTagService {
     };
   }
 
-  async update(id: string, updateCategoryTagDto: UpdateCategoryTagDto, file: Express.Multer.File) {
+  async update(id: string, updateCategoryTagDto: UpdateCategoryTagDto, file: Express.Multer.File, user: User) {
     const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
       where: {
         id
@@ -222,6 +225,8 @@ export class CategoryTagService {
     }
 
     const updatedCategoryTag = plainToClass(CategoryTag, updateCategoryTagDto);
+
+    updatedCategoryTag.updatedBy = user.id;
 
     Object.assign(categoryTag, updatedCategoryTag);
 

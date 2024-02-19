@@ -7,6 +7,7 @@ import { CreateSubSupplierProductTypeDto } from './dto/create-sub-supplier-produ
 import { UpdateSubSupplierProductTypeDto } from './dto/update-sub-supplier-product-type.dto';
 import { SubSupplierProductType } from './entities/sub-supplier-product-type.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class SubSupplierProductTypesService {
@@ -17,9 +18,11 @@ export class SubSupplierProductTypesService {
     private readonly subSupplierProductTypeRepository: Repository<SubSupplierProductType>,
   ) { }
 
-  async create(createSubSupplierProductTypeDto: CreateSubSupplierProductTypeDto) {
+  async create(createSubSupplierProductTypeDto: CreateSubSupplierProductTypeDto, user: User) {
     try {
       const supplierType = this.subSupplierProductTypeRepository.create(createSubSupplierProductTypeDto);
+
+      supplierType.createdBy = user.id;
 
       await this.subSupplierProductTypeRepository.save(supplierType);
 
@@ -62,11 +65,13 @@ export class SubSupplierProductTypesService {
     };
   }
 
-  async update(id: string, updateSubSupplierProductTypeDto: UpdateSubSupplierProductTypeDto) {
+  async update(id: string, updateSubSupplierProductTypeDto: UpdateSubSupplierProductTypeDto, user: User) {
     const subSupplierProductType = await this.subSupplierProductTypeRepository.preload({
       id,
       ...updateSubSupplierProductTypeDto
     });
+
+    subSupplierProductType.updatedBy = user.id;
 
     if (!subSupplierProductType)
       throw new NotFoundException(`Sub supplier product type with id ${id} not found`);

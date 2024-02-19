@@ -59,8 +59,10 @@ export class CartQuotesService {
     private readonly supplierPurchaseOrderRepository: Repository<SupplierPurchaseOrder>,
   ) { }
 
-  async create(createCartQuoteDto: CreateCartQuoteDto) {
+  async create(createCartQuoteDto: CreateCartQuoteDto, user: User) {
     const newCartQuote = plainToClass(CartQuote, createCartQuoteDto);
+
+    newCartQuote.createdBy = user.id;
 
     const client = await this.clientRepository.findOne({
       where: {
@@ -71,13 +73,13 @@ export class CartQuotesService {
     if (!client)
       throw new NotFoundException(`Client with id ${createCartQuoteDto.client} not found`);
 
-    const user = await this.userRepository.findOne({
+    const userDb = await this.userRepository.findOne({
       where: {
         id: createCartQuoteDto.user,
       },
     });
 
-    if (!user)
+    if (!userDb)
       throw new NotFoundException(`User with id ${createCartQuoteDto.user} not found`);
 
     if (createCartQuoteDto.state) {
@@ -116,7 +118,7 @@ export class CartQuotesService {
     }
 
     newCartQuote.client = client;
-    newCartQuote.user = user;
+    newCartQuote.user = userDb;
 
     await this.cartQuoteRepository.save(newCartQuote);
 

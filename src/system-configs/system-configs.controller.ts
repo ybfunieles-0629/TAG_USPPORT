@@ -5,6 +5,8 @@ import { SystemConfigsService } from './system-configs.service';
 import { CreateSystemConfigDto } from './dto/create-system-config.dto';
 import { UpdateSystemConfigDto } from './dto/update-system-config.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('system-configs')
 export class SystemConfigsController {
@@ -13,9 +15,10 @@ export class SystemConfigsController {
   @Post()
   @UseGuards(AuthGuard())
   create(
-    @Body() createSystemConfigDto: CreateSystemConfigDto
+    @Body() createSystemConfigDto: CreateSystemConfigDto,
+    @GetUser() user: User,
   ) {
-    return this.systemConfigsService.create(createSystemConfigDto);
+    return this.systemConfigsService.create(createSystemConfigDto, user);
   }
 
   @Get()
@@ -38,9 +41,10 @@ export class SystemConfigsController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateSystemConfigDto: UpdateSystemConfigDto
+    @Body() updateSystemConfigDto: UpdateSystemConfigDto,
+    @GetUser() user: User,
   ) {
-    return this.systemConfigsService.update(id, updateSystemConfigDto);
+    return this.systemConfigsService.update(id, updateSystemConfigDto, user);
   }
 
   @Patch('desactivate/:id')

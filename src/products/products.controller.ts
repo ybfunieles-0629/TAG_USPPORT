@@ -1,12 +1,14 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put, Query, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from '@nestjs/passport';
 
 import { ProductsService } from './products.service';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { RequireProductDto } from './dto/require-product.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('products')
 export class ProductsController {
@@ -23,9 +25,10 @@ export class ProductsController {
   @Post()
   @UseGuards(AuthGuard())
   create(
-    @Body() createProductDto: CreateProductDto
+    @Body() createProductDto: CreateProductDto,
+    @GetUser() user: User,
   ) {
-    return this.productsService.create(createProductDto);
+    return this.productsService.create(createProductDto, user);
   }
 
   @Get('with/supplier/:id')
@@ -38,9 +41,10 @@ export class ProductsController {
   @Post('create/multiple')
   @UseGuards(AuthGuard())
   createMultiple(
-    @Body() createMultipleProducts: CreateProductDto[]
+    @Body() createMultipleProducts: CreateProductDto[],
+    @GetUser() user: User,
   ) {
-    return this.productsService.createMultiple(createMultipleProducts);
+    return this.productsService.createMultiple(createMultipleProducts, user);
   }
 
   @Post('require/product')
@@ -79,17 +83,19 @@ export class ProductsController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateProductDto: UpdateProductDto
+    @Body() updateProductDto: UpdateProductDto,
+    @GetUser() user: User,
   ) {
-    return this.productsService.update(id, updateProductDto);
+    return this.productsService.update(id, updateProductDto, user);
   }
 
   @Put('/update/multiple')
   @UseGuards(AuthGuard())
   updateMultiple(
-    @Body() updateMultipleProducts: UpdateProductDto[]
+    @Body() updateMultipleProducts: UpdateProductDto[],
+    @GetUser() user: User,
   ) {
-    return this.productsService.updateMultiple(updateMultipleProducts);
+    return this.productsService.updateMultiple(updateMultipleProducts, user);
   }
 
   @Patch('/allow/:id')

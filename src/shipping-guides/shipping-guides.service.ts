@@ -2,12 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { plainToClass } from 'class-transformer';
 import * as AWS from 'aws-sdk';
 
 import { CreateShippingGuideDto } from './dto/create-shipping-guide.dto';
 import { UpdateShippingGuideDto } from './dto/update-shipping-guide.dto';
 import { ShippingGuide } from './entities/shipping-guide.entity';
-import { plainToClass } from 'class-transformer';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class ShippingGuidesService {
@@ -16,8 +17,10 @@ export class ShippingGuidesService {
     private readonly shippingGuideRepository: Repository<ShippingGuide>,
   ) { }
 
-  async create(createShippingGuideDto: CreateShippingGuideDto, file: Express.Multer.File) {
+  async create(createShippingGuideDto: CreateShippingGuideDto, file: Express.Multer.File, user: User) {
     const newShippingGuide: ShippingGuide = plainToClass(ShippingGuide, createShippingGuideDto);
+
+    newShippingGuide.createdBy = user.id;
 
     let deliveryProofFile: string = '';
 
@@ -38,22 +41,6 @@ export class ShippingGuidesService {
     return {
       newShippingGuide
     };
-  }
-
-  findAll() {
-    return `This action returns all shippingGuides`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} shippingGuide`;
-  }
-
-  update(id: number, updateShippingGuideDto: UpdateShippingGuideDto) {
-    return `This action updates a #${id} shippingGuide`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} shippingGuide`;
   }
 
   private async uploadToAws(file: Express.Multer.File) {

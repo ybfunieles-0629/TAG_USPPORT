@@ -8,6 +8,7 @@ import { UpdateCommercialQualificationDto } from './dto/update-commercial-qualif
 import { PurchaseOrder } from '../purchase-order/entities/purchase-order.entity';
 import { CommercialQualification } from './entities/commercial-qualification.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class CommercialQualificationService {
@@ -19,8 +20,10 @@ export class CommercialQualificationService {
     private readonly purchaseOrderRepository: Repository<PurchaseOrder>,
   ) { }
 
-  async create(createCommercialQualificationDto: CreateCommercialQualificationDto) {
+  async create(createCommercialQualificationDto: CreateCommercialQualificationDto, user: User) {
     const newCommercialQualification = plainToClass(CommercialQualification, createCommercialQualificationDto);
+
+    newCommercialQualification.createdBy = user.id;
 
     const purchaseOrder = await this.purchaseOrderRepository.findOne({
       where: {
@@ -73,7 +76,7 @@ export class CommercialQualificationService {
     };
   }
 
-  async update(id: string, updateCommercialQualificationDto: UpdateCommercialQualificationDto) {
+  async update(id: string, updateCommercialQualificationDto: UpdateCommercialQualificationDto, user: User) {
     const commercialQualification = await this.commercialQualificationRepository.findOne({
       where: {
         id,
@@ -87,6 +90,8 @@ export class CommercialQualificationService {
       throw new NotFoundException(`Commercial order with id ${id} not found`);
 
     const updatedCommercialOrder = plainToClass(CommercialQualification, updateCommercialQualificationDto);
+
+    updatedCommercialOrder.updatedBy = user.id;
 
     const purchaseOrder = await this.purchaseOrderRepository.findOne({
       where: {

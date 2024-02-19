@@ -10,6 +10,7 @@ import { Marking } from '../markings/entities/marking.entity';
 import { ExternalSubTechnique } from '../external-sub-techniques/entities/external-sub-technique.entity';
 import { MarkingServiceProperty } from '../marking-service-properties/entities/marking-service-property.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class MarkingServicesService {
@@ -27,8 +28,10 @@ export class MarkingServicesService {
     private readonly markingServicePropertyRepository: Repository<MarkingServiceProperty>,
   ) { }
 
-  async create(createMarkingServiceDto: CreateMarkingServiceDto) {
+  async create(createMarkingServiceDto: CreateMarkingServiceDto, user: User) {
     const newMarkingService = plainToClass(MarkingService, createMarkingServiceDto);
+
+    newMarkingService.createdBy = user.id;
 
     const marking = await this.markingRepository.findOne({
       where: {
@@ -68,11 +71,13 @@ export class MarkingServicesService {
     };
   }
 
-  async createMultiple(createMarkingServices: CreateMarkingServiceDto[]) {
+  async createMultiple(createMarkingServices: CreateMarkingServiceDto[], user: User) {
     const createdMarkingServices: MarkingService[] = [];
 
     for (const createMarkingServiceDto of createMarkingServices) {
       const newMarkingService = plainToClass(MarkingService, createMarkingServiceDto);
+
+      newMarkingService.createdBy = user.id;
 
       const marking = await this.markingRepository.findOne({
         where: {
@@ -158,7 +163,7 @@ export class MarkingServicesService {
     };
   }
 
-  async update(id: string, updateMarkingServiceDto: UpdateMarkingServiceDto) {
+  async update(id: string, updateMarkingServiceDto: UpdateMarkingServiceDto, user: User) {
     const markingService = await this.markingServiceRepository.findOne({
       where: {
         id,
@@ -173,6 +178,8 @@ export class MarkingServicesService {
 
     if (!markingService)
       throw new NotFoundException(`Marking service with id ${id} not found`);
+
+    markingService.updatedBy = user.id;
 
     const marking = await this.markingRepository.findOne({
       where: {

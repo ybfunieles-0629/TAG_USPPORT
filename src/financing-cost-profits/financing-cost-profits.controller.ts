@@ -5,6 +5,8 @@ import { FinancingCostProfitsService } from './financing-cost-profits.service';
 import { CreateFinancingCostProfitDto } from './dto/create-financing-cost-profit.dto';
 import { UpdateFinancingCostProfitDto } from './dto/update-financing-cost-profit.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('financing-cost-profits')
 export class FinancingCostProfitsController {
@@ -13,17 +15,19 @@ export class FinancingCostProfitsController {
   @Post()
   @UseGuards(AuthGuard())
   create(
-    @Body() createFinancingCostProfitDto: CreateFinancingCostProfitDto
+    @Body() createFinancingCostProfitDto: CreateFinancingCostProfitDto,
+    @GetUser() user: User,
   ) {
-    return this.financingCostProfitsService.create(createFinancingCostProfitDto);
+    return this.financingCostProfitsService.create(createFinancingCostProfitDto, user);
   }
 
   @Post('create/multiple')
   @UseGuards(AuthGuard())
   createMultiple(
-    @Body() createFinancingCostProfits: CreateFinancingCostProfitDto[]
+    @Body() createFinancingCostProfits: CreateFinancingCostProfitDto[],
+    @GetUser() user: User,
   ) {
-    return this.financingCostProfitsService.createMultiple(createFinancingCostProfits);
+    return this.financingCostProfitsService.createMultiple(createFinancingCostProfits, user);
   }
 
   @Get()
@@ -46,17 +50,19 @@ export class FinancingCostProfitsController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateFinancingCostProfitDto: UpdateFinancingCostProfitDto
+    @Body() updateFinancingCostProfitDto: UpdateFinancingCostProfitDto,
+    @GetUser() user: User,
   ) {
-    return this.financingCostProfitsService.update(id, updateFinancingCostProfitDto);
+    return this.financingCostProfitsService.update(id, updateFinancingCostProfitDto, user);
   }
 
   @Patch('update/multiple')
   @UseGuards(AuthGuard())
   updateMultiple(
-    @Body() updateFinancingCostProfits: UpdateFinancingCostProfitDto[]
+    @Body() updateFinancingCostProfits: UpdateFinancingCostProfitDto[],
+    @GetUser() user: User,
   ) {
-    return this.financingCostProfitsService.updateMultiple(updateFinancingCostProfits);
+    return this.financingCostProfitsService.updateMultiple(updateFinancingCostProfits, user);
   }
 
   @Patch('desactivate/:id')

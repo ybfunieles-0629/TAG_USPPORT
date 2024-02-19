@@ -1,24 +1,33 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, Put, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
 import { BrandsService } from './brands.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('brands')
 export class BrandsController {
-  constructor(private readonly brandsService: BrandsService) {}
+  constructor(private readonly brandsService: BrandsService) { }
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createBrandDto: CreateBrandDto) {
-    return this.brandsService.create(createBrandDto);
+  create(
+    @Body() createBrandDto: CreateBrandDto,
+    @GetUser() user: User,
+  ) {
+    return this.brandsService.create(createBrandDto, user);
   }
 
   @Post('/multiple')
   @UseGuards(AuthGuard())
-  createMultipleBrands(@Body() createBrandsDto: CreateBrandDto[]) {
-    return this.brandsService.createMultipleBrands(createBrandsDto);
+  createMultipleBrands(
+    @Body() createBrandsDto: CreateBrandDto[],
+    @GetUser() user: User,
+  ) {
+    return this.brandsService.createMultipleBrands(createBrandsDto, user);
   }
 
   @Get()
@@ -38,25 +47,27 @@ export class BrandsController {
   @Put(':id')
   @UseGuards(AuthGuard())
   update(
-    @Param('id', ParseUUIDPipe) id: string, 
-    @Body() updateBrandDto: UpdateBrandDto
-    ) {
-    return this.brandsService.update(id, updateBrandDto);
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateBrandDto: UpdateBrandDto,
+    @GetUser() user: User,
+  ) {
+    return this.brandsService.update(id, updateBrandDto, user);
   }
 
   @Put('/update/multiple')
   @UseGuards(AuthGuard())
   updateMultipleBrands(
-    @Body() updateBrandsDto: UpdateBrandDto[]
-    ) {
-    return this.brandsService.updateMultipleBrands(updateBrandsDto);
+    @Body() updateBrandsDto: UpdateBrandDto[],
+    @GetUser() user: User,
+  ) {
+    return this.brandsService.updateMultipleBrands(updateBrandsDto, user);
   }
 
   @Patch('/desactivate/:id')
   @UseGuards(AuthGuard())
   desactivate(
-    @Param('id', ParseUUIDPipe) id: string, 
-    ) {
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
     return this.brandsService.desactivate(id);
   }
 

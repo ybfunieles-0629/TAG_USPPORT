@@ -6,6 +6,8 @@ import { LogosService } from './logos.service';
 import { CreateLogoDto } from './dto/create-logo.dto';
 import { UpdateLogoDto } from './dto/update-logo.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('logos')
 export class LogosController {
@@ -21,9 +23,10 @@ export class LogosController {
   )
   create(
     @Body() createLogoDto: CreateLogoDto,
-    @UploadedFiles() files: Record<string, Express.Multer.File>
+    @UploadedFiles() files: Record<string, Express.Multer.File>,
+    @GetUser() user: User,
   ) {
-    return this.logosService.create(createLogoDto, files);
+    return this.logosService.create(createLogoDto, files, user);
   }
 
   @Get()
@@ -51,9 +54,10 @@ export class LogosController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateLogoDto: UpdateLogoDto,
-    @UploadedFiles() files: Record<string, Express.Multer.File>
+    @UploadedFiles() files: Record<string, Express.Multer.File>,
+    @GetUser() user: User,
   ) {
-    return this.logosService.update(id, updateLogoDto, files);
+    return this.logosService.update(id, updateLogoDto, files, user);
   }
 
   @Patch('/desactivate/:id')

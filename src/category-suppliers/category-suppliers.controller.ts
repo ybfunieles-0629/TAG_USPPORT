@@ -1,10 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { CategorySuppliersService } from './category-suppliers.service';
 import { CreateCategorySupplierDto } from './dto/create-category-supplier.dto';
 import { UpdateCategorySupplierDto } from './dto/update-category-supplier.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('category-suppliers')
 export class CategorySuppliersController {
@@ -18,8 +20,11 @@ export class CategorySuppliersController {
 
   @UseGuards(AuthGuard())
   @Post()
-  create(@Body() createCategorySupplierDto: CreateCategorySupplierDto) {
-    return this.categorySuppliersService.create(createCategorySupplierDto);
+  create(
+    @Body() createCategorySupplierDto: CreateCategorySupplierDto,
+    @GetUser() user: User,
+  ) {
+    return this.categorySuppliersService.create(createCategorySupplierDto, user);
   }
 
   @Get()
@@ -45,9 +50,10 @@ export class CategorySuppliersController {
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateCategorySupplierDto: UpdateCategorySupplierDto
+    @Body() updateCategorySupplierDto: UpdateCategorySupplierDto,
+    @GetUser() user: User,
   ) {
-    return this.categorySuppliersService.update(id, updateCategorySupplierDto);
+    return this.categorySuppliersService.update(id, updateCategorySupplierDto, user);
   }
 
   @UseGuards(AuthGuard())

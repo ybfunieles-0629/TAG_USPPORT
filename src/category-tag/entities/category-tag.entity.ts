@@ -19,7 +19,7 @@ export class CategoryTag {
   icon: string;
 
   @Column('varchar', {
-    
+
   })
   name: string;
 
@@ -29,7 +29,7 @@ export class CategoryTag {
   description: string;
 
   @Column('varchar', {
-    
+
   })
   categoryMargin: string;
 
@@ -39,12 +39,12 @@ export class CategoryTag {
   featured: number;
 
   @Column('varchar', {
-    
+
   })
   image: string;
 
   @Column('varchar', {
-    
+
   })
   mainCategory: string;
 
@@ -57,6 +57,16 @@ export class CategoryTag {
     default: true,
   })
   isActive: boolean;
+
+  @Column('varchar', {
+
+  })
+  createdBy: string;
+
+  @Column('varchar', {
+
+  })
+  updatedBy: string;
 
   @CreateDateColumn()
   createdAt: Date;

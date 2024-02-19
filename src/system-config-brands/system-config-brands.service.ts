@@ -8,7 +8,8 @@ import * as AWS from 'aws-sdk';
 import { CreateSystemConfigBrandDto } from './dto/create-system-config-brand.dto';
 import { UpdateSystemConfigBrandDto } from './dto/update-system-config-brand.dto';
 import { SystemConfigBrand } from './entities/system-config-brand.entity';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class SystemConfigBrandsService {
@@ -17,8 +18,10 @@ export class SystemConfigBrandsService {
     private readonly systemConfigBrandRepository: Repository<SystemConfigBrand>,
   ) { }
 
-  async create(createSystemConfigBrandDto: CreateSystemConfigBrandDto, file: Express.Multer.File) {
+  async create(createSystemConfigBrandDto: CreateSystemConfigBrandDto, file: Express.Multer.File, user: User) {
     const newSystemConfigBrand: SystemConfigBrand = plainToClass(SystemConfigBrand, createSystemConfigBrandDto);
+
+    newSystemConfigBrand.createdBy = user.id;
 
     if (file != undefined) {
       const uniqueFilename = `${uuidv4()}-${file.originalname}`;
@@ -68,7 +71,7 @@ export class SystemConfigBrandsService {
     };
   };
 
-  async update(id: string, updateSystemConfigBrandDto: UpdateSystemConfigBrandDto, file: Express.Multer.File) {
+  async update(id: string, updateSystemConfigBrandDto: UpdateSystemConfigBrandDto, file: Express.Multer.File, user: User) {
     const systemConfigBrand: SystemConfigBrand = await this.systemConfigBrandRepository.findOne({
       where: {
         id,
@@ -79,6 +82,8 @@ export class SystemConfigBrandsService {
       throw new NotFoundException(`System config brand with id ${id} not found`);
 
     const updatedSystemConfigBrand = plainToClass(SystemConfigBrand, updateSystemConfigBrandDto);
+
+    updatedSystemConfigBrand.updatedBy = user.id;
 
     if (file != undefined) {
       const uniqueFilename = `${uuidv4()}-${file.originalname}`;

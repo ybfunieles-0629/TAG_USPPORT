@@ -14,8 +14,11 @@ export class OrderListDetailsController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createOrderListDetailDto: CreateOrderListDetailDto) {
-    return this.orderListDetailsService.create(createOrderListDetailDto);
+  create(
+    @Body() createOrderListDetailDto: CreateOrderListDetailDto,
+    @GetUser() user: User,
+  ) {
+    return this.orderListDetailsService.create(createOrderListDetailDto, user);
   }
 
   @Get()
@@ -39,9 +42,10 @@ export class OrderListDetailsController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateOrderListDetailDto: UpdateOrderListDetailDto
+    @Body() updateOrderListDetailDto: UpdateOrderListDetailDto,
+    @GetUser() user: User,
   ) {
-    return this.orderListDetailsService.update(id, updateOrderListDetailDto);
+    return this.orderListDetailsService.update(id, updateOrderListDetailDto, user);
   }
 
   @Patch('desactivate/:id')

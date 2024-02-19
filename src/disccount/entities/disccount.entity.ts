@@ -13,7 +13,7 @@ export class Disccount {
 
   })
   name: string;
-  
+
   @Column('varchar', {
 
   })
@@ -28,6 +28,16 @@ export class Disccount {
     default: true,
   })
   isActive: boolean;
+
+  @Column('varchar', {
+
+  })
+  createdBy: string;
+
+  @Column('varchar', {
+
+  })
+  updatedBy: string;
 
   @CreateDateColumn()
   createdAt: Date;

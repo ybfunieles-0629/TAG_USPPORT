@@ -18,6 +18,16 @@ export class VariantReference {
   })
   variableValue: string;
 
+  @Column('varchar', {
+
+  })
+  createdBy: string;
+
+  @Column('varchar', {
+    
+  })
+  updatedBy: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

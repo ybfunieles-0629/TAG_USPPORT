@@ -10,6 +10,7 @@ import { UpdateSupplierPurchaseOrderDto } from './dto/update-supplier-purchase-o
 import { SupplierPurchaseOrder } from './entities/supplier-purchase-order.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { State } from '../states/entities/state.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class SupplierPurchaseOrdersService {
@@ -21,8 +22,10 @@ export class SupplierPurchaseOrdersService {
     private readonly stateRepository: Repository<State>,
   ) { }
 
-  async create(createSupplierPurchaseOrderDto: CreateSupplierPurchaseOrderDto, file: Express.Multer.File) {
+  async create(createSupplierPurchaseOrderDto: CreateSupplierPurchaseOrderDto, file: Express.Multer.File, user: User) {
     const newSupplierPurchaseOrder: SupplierPurchaseOrder = plainToClass(SupplierPurchaseOrder, createSupplierPurchaseOrderDto);
+
+    newSupplierPurchaseOrder.createdBy = user.id;
 
     newSupplierPurchaseOrder.orderCode = uuidv4();
 
@@ -102,7 +105,7 @@ export class SupplierPurchaseOrdersService {
     };
   }
 
-  async update(id: string, updateSupplierPurchaseOrderDto: UpdateSupplierPurchaseOrderDto, file: Express.Multer.File) {
+  async update(id: string, updateSupplierPurchaseOrderDto: UpdateSupplierPurchaseOrderDto, file: Express.Multer.File, user: User) {
     const supplierPurchaseOrder: SupplierPurchaseOrder = await this.supplierPurchaseOrderRepository.findOne({
       where: {
         id,
@@ -117,6 +120,8 @@ export class SupplierPurchaseOrdersService {
       throw new NotFoundException(`Supplier purchase order with id ${id} not found`);
 
     const updatedSupplierPurchaseOrder: SupplierPurchaseOrder = plainToClass(SupplierPurchaseOrder, updateSupplierPurchaseOrderDto);
+
+    updatedSupplierPurchaseOrder.updatedBy = user.id;
 
     if (updateSupplierPurchaseOrderDto.state) {
       const state: State = await this.stateRepository.findOne({

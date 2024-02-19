@@ -5,6 +5,8 @@ import { TagSubTechniquePropertiesService } from './tag-sub-technique-properties
 import { CreateTagSubTechniquePropertyDto } from './dto/create-tag-sub-technique-property.dto';
 import { UpdateTagSubTechniquePropertyDto } from './dto/update-tag-sub-technique-property.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('tag-sub-technique-properties')
 export class TagSubTechniquePropertiesController {
@@ -13,17 +15,19 @@ export class TagSubTechniquePropertiesController {
   @Post()
   @UseGuards(AuthGuard())
   create(
-    @Body() createTagSubTechniquePropertyDto: CreateTagSubTechniquePropertyDto
+    @Body() createTagSubTechniquePropertyDto: CreateTagSubTechniquePropertyDto,
+    @GetUser() user: User,
   ) {
-    return this.tagSubTechniquePropertiesService.create(createTagSubTechniquePropertyDto);
+    return this.tagSubTechniquePropertiesService.create(createTagSubTechniquePropertyDto, user);
   }
 
   @Post('create/multiple')
   @UseGuards(AuthGuard())
   createMultiple(
-    @Body() createTagSubTechniqueProperties: CreateTagSubTechniquePropertyDto[]
+    @Body() createTagSubTechniqueProperties: CreateTagSubTechniquePropertyDto[],
+    @GetUser() user: User,
   ) {
-    return this.tagSubTechniquePropertiesService.createMultiple(createTagSubTechniqueProperties);
+    return this.tagSubTechniquePropertiesService.createMultiple(createTagSubTechniqueProperties, user);
   }
 
   @Get()
@@ -46,17 +50,19 @@ export class TagSubTechniquePropertiesController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateTagSubTechniquePropertyDto: UpdateTagSubTechniquePropertyDto
+    @Body() updateTagSubTechniquePropertyDto: UpdateTagSubTechniquePropertyDto,
+    @GetUser() user: User,
   ) {
-    return this.tagSubTechniquePropertiesService.update(id, updateTagSubTechniquePropertyDto);
+    return this.tagSubTechniquePropertiesService.update(id, updateTagSubTechniquePropertyDto, user);
   }
 
   @Patch('update/multiple')
   @UseGuards(AuthGuard())
   updateMultiple(
-    @Body() updateTagSubTechniqueProperties: UpdateTagSubTechniquePropertyDto[]
+    @Body() updateTagSubTechniqueProperties: UpdateTagSubTechniquePropertyDto[],
+    @GetUser() user: User,
   ) {
-    return this.tagSubTechniquePropertiesService.updateMultiple(updateTagSubTechniqueProperties);
+    return this.tagSubTechniquePropertiesService.updateMultiple(updateTagSubTechniqueProperties, user);
   }
 
   @Patch('/desactivate/:id')

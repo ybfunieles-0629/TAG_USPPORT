@@ -64,6 +64,16 @@ export class CategorySupplier {
   })
   isActive: boolean;
 
+  @Column('varchar', {
+
+  })
+  createdBy: string;
+
+  @Column('varchar', {
+
+  })
+  updatedBy: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

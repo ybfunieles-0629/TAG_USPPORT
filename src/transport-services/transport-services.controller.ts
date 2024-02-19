@@ -5,6 +5,8 @@ import { TransportServicesService } from './transport-services.service';
 import { CreateTransportServiceDto } from './dto/create-transport-service.dto';
 import { UpdateTransportServiceDto } from './dto/update-transport-service.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('transport-services')
 export class TransportServicesController {
@@ -13,9 +15,10 @@ export class TransportServicesController {
   @Post()
   @UseGuards(AuthGuard())
   create(
-    @Body() createTransportServiceDto: CreateTransportServiceDto
+    @Body() createTransportServiceDto: CreateTransportServiceDto,
+    @GetUser() user: User,
   ) {
-    return this.transportServicesService.create(createTransportServiceDto);
+    return this.transportServicesService.create(createTransportServiceDto, user);
   }
 
   @Get()
@@ -38,9 +41,10 @@ export class TransportServicesController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateTransportServiceDto: UpdateTransportServiceDto
+    @Body() updateTransportServiceDto: UpdateTransportServiceDto,
+    @GetUser() user: User,
   ) {
-    return this.transportServicesService.update(id, updateTransportServiceDto);
+    return this.transportServicesService.update(id, updateTransportServiceDto, user);
   }
 
   @Patch('/desactivate/:id')

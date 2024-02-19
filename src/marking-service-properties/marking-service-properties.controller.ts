@@ -5,6 +5,8 @@ import { MarkingServicePropertiesService } from './marking-service-properties.se
 import { CreateMarkingServicePropertyDto } from './dto/create-marking-service-property.dto';
 import { UpdateMarkingServicePropertyDto } from './dto/update-marking-service-property.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('marking-service-properties')
 export class MarkingServicePropertiesController {
@@ -12,16 +14,20 @@ export class MarkingServicePropertiesController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createMarkingServicePropertyDto: CreateMarkingServicePropertyDto) {
-    return this.markingServicePropertiesService.create(createMarkingServicePropertyDto);
+  create(
+    @Body() createMarkingServicePropertyDto: CreateMarkingServicePropertyDto,
+    @GetUser() user: User,
+  ) {
+    return this.markingServicePropertiesService.create(createMarkingServicePropertyDto, user);
   }
 
   @Post('create/multiple')
   @UseGuards(AuthGuard())
   createMultiple(
-    @Body() createMarkingServiceProperties: CreateMarkingServicePropertyDto[]
+    @Body() createMarkingServiceProperties: CreateMarkingServicePropertyDto[],
+    @GetUser() user: User,
   ) {
-    return this.markingServicePropertiesService.createMultiple(createMarkingServiceProperties);
+    return this.markingServicePropertiesService.createMultiple(createMarkingServiceProperties, user);
   }
 
   @Get()
@@ -42,17 +48,19 @@ export class MarkingServicePropertiesController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateMarkingServicePropertyDto: UpdateMarkingServicePropertyDto
+    @Body() updateMarkingServicePropertyDto: UpdateMarkingServicePropertyDto,
+    @GetUser() user: User,
   ) {
-    return this.markingServicePropertiesService.update(id, updateMarkingServicePropertyDto);
+    return this.markingServicePropertiesService.update(id, updateMarkingServicePropertyDto, user);
   }
 
   @Patch('update/multiple')
   @UseGuards(AuthGuard())
   updateMultiple(
-    @Body() updateMarkingServiceProperties: UpdateMarkingServicePropertyDto[]
+    @Body() updateMarkingServiceProperties: UpdateMarkingServicePropertyDto[],
+    @GetUser() user: User,
   ) {
-    return this.markingServicePropertiesService.updateMultiple(updateMarkingServiceProperties);
+    return this.markingServicePropertiesService.updateMultiple(updateMarkingServiceProperties, user);
   }
 
   @Patch('/desactivate/:id')

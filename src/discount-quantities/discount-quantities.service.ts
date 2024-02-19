@@ -7,6 +7,7 @@ import { CreateDiscountQuantityDto } from './dto/create-discount-quantity.dto';
 import { UpdateDiscountQuantityDto } from './dto/update-discount-quantity.dto';
 import { DiscountQuantity } from './entities/discount-quantity.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class DiscountQuantitiesService {
@@ -15,8 +16,10 @@ export class DiscountQuantitiesService {
     private readonly discountQuantityRepository: Repository<DiscountQuantity>,
   ) { }
 
-  async create(createDiscountQuantityDto: CreateDiscountQuantityDto) {
+  async create(createDiscountQuantityDto: CreateDiscountQuantityDto, user: User) {
     const newDiscountQuantity = plainToClass(DiscountQuantity, createDiscountQuantityDto);
+
+    newDiscountQuantity.createdBy = user.id;
 
     await this.discountQuantityRepository.save(newDiscountQuantity);
 
@@ -49,7 +52,7 @@ export class DiscountQuantitiesService {
     };
   }
 
-  async update(id: string, updateDiscountQuantityDto: UpdateDiscountQuantityDto) {
+  async update(id: string, updateDiscountQuantityDto: UpdateDiscountQuantityDto, user: User) {
     const discountQuantity = await this.discountQuantityRepository.findOne({
       where: {
         id
@@ -60,6 +63,8 @@ export class DiscountQuantitiesService {
       throw new NotFoundException(`Discount quantity with id ${id} not found`);
 
     const updatedDiscountQuantity = plainToClass(DiscountQuantity, updateDiscountQuantityDto);
+
+    updatedDiscountQuantity.updatedBy = user.id;
 
     Object.assign(discountQuantity, updatedDiscountQuantity);
 

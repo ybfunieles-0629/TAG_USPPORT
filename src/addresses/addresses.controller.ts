@@ -5,6 +5,8 @@ import { AddressesService } from './addresses.service';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('addresses')
 export class AddressesController {
@@ -12,8 +14,11 @@ export class AddressesController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createAddressDto: CreateAddressDto) {
-    return this.addressesService.create(createAddressDto);
+  create(
+    @Body() createAddressDto: CreateAddressDto,
+    @GetUser() user: User,
+  ) {
+    return this.addressesService.create(createAddressDto, user);
   }
 
   @Get()
@@ -34,9 +39,10 @@ export class AddressesController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateAddressDto: UpdateAddressDto
+    @Body() updateAddressDto: UpdateAddressDto,
+    @GetUser() user: User,
   ) {
-    return this.addressesService.update(id, updateAddressDto);
+    return this.addressesService.update(id, updateAddressDto, user);
   }
 
   @Patch('/desactivate/:id')

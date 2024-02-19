@@ -5,6 +5,8 @@ import { StatesService } from './states.service';
 import { CreateStateDto } from './dto/create-state.dto';
 import { UpdateStateDto } from './dto/update-state.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from 'src/users/decorators/get-user.decorator';
+import { User } from 'src/users/entities/user.entity';
 
 @Controller('states')
 export class StatesController {
@@ -12,8 +14,11 @@ export class StatesController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createStateDto: CreateStateDto) {
-    return this.statesService.create(createStateDto);
+  create(
+    @Body() createStateDto: CreateStateDto,
+    @GetUser() user: User,
+  ) {
+    return this.statesService.create(createStateDto, user);
   }
 
   @Get()
@@ -36,9 +41,10 @@ export class StatesController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateStateDto: UpdateStateDto
+    @Body() updateStateDto: UpdateStateDto,
+    @GetUser() user: User,
   ) {
-    return this.statesService.update(id, updateStateDto);
+    return this.statesService.update(id, updateStateDto, user);
   }
 
   @Patch('/desactivate/:id')

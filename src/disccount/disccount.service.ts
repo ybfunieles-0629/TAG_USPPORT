@@ -9,6 +9,7 @@ import { Disccount } from './entities/disccount.entity';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { Disccounts } from '../disccounts/entities/disccounts.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class DisccountService {
@@ -25,8 +26,10 @@ export class DisccountService {
     private readonly supplierRepository: Repository<Supplier>,
   ) { }
 
-  async create(createDisccountDto: CreateDisccountDto) {
+  async create(createDisccountDto: CreateDisccountDto, user: User) {
     const newDisccount = plainToClass(Disccount, createDisccountDto);
+
+    newDisccount.createdBy = user.id;
 
     const supplier = await this.supplierRepository.findOne({
       where: {
@@ -110,7 +113,7 @@ export class DisccountService {
     };
   }
 
-  async update(id: string, updateDisccountDto: UpdateDisccountDto) {
+  async update(id: string, updateDisccountDto: UpdateDisccountDto, user: User) {
     const disccount = await this.disccountRepository.findOne({
       where: {
         id,
@@ -162,6 +165,8 @@ export class DisccountService {
     }
 
     const updatedDisccount = plainToClass(Disccount, updateDisccountDto);
+
+    updatedDisccount.updatedBy = user.id;
 
     updatedDisccount.disccounts = disccounts;
 

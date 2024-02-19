@@ -1,4 +1,4 @@
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { Product } from '../../products/entities/product.entity';
 import { Image } from '../../images/entities/image.entity';
@@ -136,6 +136,22 @@ export class RefProduct {
     default: true,
   })
   isActive: boolean;
+
+  @Column('varchar', {
+
+  })
+  createdBy: string;
+
+  @Column('varchar', {
+
+  })
+  updatedBy: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   //* --- FK --- *//
   @OneToMany(() => Product, (product) => product.refProduct)

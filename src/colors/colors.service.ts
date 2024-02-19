@@ -11,6 +11,7 @@ import { UpdateColorDto } from './dto/update-color.dto';
 import { Color } from './entities/color.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { RefProduct } from '../ref-products/entities/ref-product.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class ColorsService {
@@ -56,8 +57,10 @@ export class ColorsService {
     };
   }
 
-  async create(createColorDto: CreateColorDto, file: Express.Multer.File) {
+  async create(createColorDto: CreateColorDto, file: Express.Multer.File, user: User) {
     const newColor = plainToClass(Color, createColorDto);
+
+    newColor.createdBy = user.id;
 
     let imageAwsUrl: string = '';
 
@@ -102,11 +105,13 @@ export class ColorsService {
     };
   }
 
-  async createMultiple(createMultipleColors: CreateColorDto[]) {
+  async createMultiple(createMultipleColors: CreateColorDto[], user: User) {
     const createdColors = [];
 
     for (const createColorDto of createMultipleColors) {
       const color: Color = plainToClass(Color, createColorDto);
+
+      color.createdBy = user.id;
 
       await this.colorRepository.save(color);
 
@@ -173,7 +178,7 @@ export class ColorsService {
     };
   }
 
-  async update(id: string, updateColorDto: UpdateColorDto, file: Express.Multer.File) {
+  async update(id: string, updateColorDto: UpdateColorDto, file: Express.Multer.File, user: User) {
     const color = await this.colorRepository.findOne({
       where: {
         id,
@@ -188,6 +193,8 @@ export class ColorsService {
       throw new NotFoundException(`Color with id ${id} not found`);
 
     const updatedColor = plainToClass(Color, updateColorDto);
+
+    updatedColor.updatedBy = user.id;
 
     if (file != null || file != undefined) {
       let imageAwsUrl: string = color.image;
@@ -234,7 +241,7 @@ export class ColorsService {
     };
   }
 
-  async updateMultiple(updateMultipleColors: UpdateColorDto[]) {
+  async updateMultiple(updateMultipleColors: UpdateColorDto[], user: User) {
     const updatedColors = [];
 
     for (const updateColorDto of updateMultipleColors) {
@@ -248,6 +255,8 @@ export class ColorsService {
 
       if (!color)
         throw new NotFoundException(`Color with id ${id} not found`);
+
+      color.updatedBy = user.id;
 
       Object.assign(color, dataToUpdate);
 

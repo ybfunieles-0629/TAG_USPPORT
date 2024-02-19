@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { Disccount } from '../../disccount/entities/disccount.entity';
 
@@ -31,6 +31,22 @@ export class Disccounts {
     default: true,
   })
   isActive: boolean;
+
+  @Column('varchar', {
+
+  })
+  createdBy: string;
+
+  @Column('varchar', {
+
+  })
+  updatedBy: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   //* ---- FK ---- *//
   @ManyToOne(() => Disccount, (disccount) => disccount.disccounts)

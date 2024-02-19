@@ -9,6 +9,7 @@ import { UpdateBrandDto } from './dto/update-brand.dto';
 import { Brand } from './entities/brand.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { Company } from '../companies/entities/company.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class BrandsService {
@@ -22,8 +23,10 @@ export class BrandsService {
     private readonly companyRepository: Repository<Company>,
   ) { }
 
-  async create(createBrandDto: CreateBrandDto) {
+  async create(createBrandDto: CreateBrandDto, user: User) {
     const newBrand: Brand = plainToClass(Brand, createBrandDto);
+
+    newBrand.createdBy = user.id;
 
     const company: Company = await this.companyRepository.findOneBy({ id: createBrandDto.companyId });
 
@@ -40,7 +43,7 @@ export class BrandsService {
     };
   }
 
-  async createMultipleBrands(createBrandsDto: CreateBrandDto[]) {
+  async createMultipleBrands(createBrandsDto: CreateBrandDto[], user: User) {
     const createdBrands: Brand[] = [];
 
     for (const createBrandDto of createBrandsDto) {
@@ -58,6 +61,8 @@ export class BrandsService {
         throw new NotFoundException(`Company with id ${createBrandDto.companyId} is currently inactive`);
 
       const brand: Brand = this.brandRepository.create(createBrandDto);
+
+      brand.createdBy = user.id;
 
       await this.brandRepository.save(brand);
 
@@ -138,7 +143,7 @@ export class BrandsService {
     };
   }
 
-  async update(id: string, updateBrandDto: UpdateBrandDto) {
+  async update(id: string, updateBrandDto: UpdateBrandDto, user: User) {
     const brand: Brand = await this.brandRepository.findOneBy({ id: id });
 
     if (!brand)
@@ -162,6 +167,8 @@ export class BrandsService {
       brand.companyId = updateBrandDto.companyId;
     }
 
+    brand.updatedBy = user.id;
+
     await this.brandRepository.save(brand);
 
     return {
@@ -169,7 +176,7 @@ export class BrandsService {
     };
   }
 
-  async updateMultipleBrands(updateBrandsDto: UpdateBrandDto[]) {
+  async updateMultipleBrands(updateBrandsDto: UpdateBrandDto[], user: User) {
     const updatedBrands: Brand[] = [];
 
     for (const updateBrandDto of updateBrandsDto) {
@@ -191,6 +198,8 @@ export class BrandsService {
 
         brand.companyId = updateBrandDto.companyId;
       }
+
+      brand.updatedBy = user.id;
 
       Object.assign(brand, dataToUpdate);
 

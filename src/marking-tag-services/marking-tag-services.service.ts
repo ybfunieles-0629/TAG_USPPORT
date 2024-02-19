@@ -1,12 +1,13 @@
 import { Injectable, BadRequestException, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
 
 import { CreateMarkingTagServiceDto } from './dto/create-marking-tag-service.dto';
 import { UpdateMarkingTagServiceDto } from './dto/update-marking-tag-service.dto';
 import { MarkingTagService } from './entities/marking-tag-service.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { plainToClass } from 'class-transformer';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class MarkingTagServicesService {
@@ -17,9 +18,11 @@ export class MarkingTagServicesService {
     private readonly markingTagServiceRepository: Repository<MarkingTagService>,
   ) { }
 
-  async create(createMarkingTagServiceDto: CreateMarkingTagServiceDto) {
+  async create(createMarkingTagServiceDto: CreateMarkingTagServiceDto, user: User) {
     try {
       const markingTagService = this.markingTagServiceRepository.create(createMarkingTagServiceDto);
+
+      markingTagService.createdBy = user.id;
 
       await this.markingTagServiceRepository.save(markingTagService);
 
@@ -72,7 +75,7 @@ export class MarkingTagServicesService {
     };
   }
 
-  async update(id: string, updateMarkingTagServiceDto: UpdateMarkingTagServiceDto) {
+  async update(id: string, updateMarkingTagServiceDto: UpdateMarkingTagServiceDto, user: User) {
     const markingTagService = await this.markingTagServiceRepository.findOne({
       where: {
         id,
@@ -88,6 +91,8 @@ export class MarkingTagServicesService {
       throw new NotFoundException(`Marking tag service with id ${id} not found`);
 
     const updatedMarkingTagService = plainToClass(MarkingTagService, updateMarkingTagServiceDto);
+
+    updatedMarkingTagService.updatedBy = user.id;
 
     Object.assign(markingTagService, updatedMarkingTagService);
 

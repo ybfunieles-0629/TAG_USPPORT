@@ -7,6 +7,7 @@ import { CreateSuscriptionDto } from './dto/create-suscription.dto';
 import { UpdateSuscriptionDto } from './dto/update-suscription.dto';
 import { Suscription } from './entities/suscription.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class SuscriptionsService {
@@ -15,8 +16,10 @@ export class SuscriptionsService {
     private readonly suscriptionRepository: Repository<Suscription>,
   ) { }
 
-  async create(createSuscriptionDto: CreateSuscriptionDto) {
+  async create(createSuscriptionDto: CreateSuscriptionDto, user: User) {
     const newSuscription: Suscription = plainToClass(Suscription, createSuscriptionDto);
+
+    newSuscription.createdBy = user.id;
 
     await this.suscriptionRepository.save(newSuscription);
 
@@ -56,7 +59,7 @@ export class SuscriptionsService {
     };
   };
 
-  async update(id: string, updateSuscriptionDto: UpdateSuscriptionDto) {
+  async update(id: string, updateSuscriptionDto: UpdateSuscriptionDto, user: User) {
     const suscription: Suscription = await this.suscriptionRepository.findOne({
       where: {
         id,
@@ -67,6 +70,8 @@ export class SuscriptionsService {
       throw new NotFoundException(`Suscription with id ${id} not found`);
 
     const updatedSuscription: Suscription = plainToClass(Suscription, updateSuscriptionDto);
+
+    updatedSuscription.updatedBy = user.id;
 
     Object.assign(suscription, updatedSuscription);
 

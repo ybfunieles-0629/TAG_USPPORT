@@ -5,6 +5,8 @@ import { QuoteDetailsService } from './quote-details.service';
 import { CreateQuoteDetailDto } from './dto/create-quote-detail.dto';
 import { UpdateQuoteDetailDto } from './dto/update-quote-detail.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('quote-details')
 export class QuoteDetailsController {
@@ -12,8 +14,11 @@ export class QuoteDetailsController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createQuoteDetailDto: CreateQuoteDetailDto) {
-    return this.quoteDetailsService.create(createQuoteDetailDto);
+  create(
+    @Body() createQuoteDetailDto: CreateQuoteDetailDto,
+    @GetUser() user: User,
+    ) {
+    return this.quoteDetailsService.create(createQuoteDetailDto, user);
   }
 
   @Get()

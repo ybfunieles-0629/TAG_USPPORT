@@ -8,6 +8,7 @@ import { UpdateFinancingCostProfitDto } from './dto/update-financing-cost-profit
 import { FinancingCostProfit } from './entities/financing-cost-profit.entity';
 import { SystemConfig } from '../system-configs/entities/system-config.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class FinancingCostProfitsService {
@@ -19,8 +20,10 @@ export class FinancingCostProfitsService {
     private readonly systemConfigRepository: Repository<SystemConfig>,
   ) { }
 
-  async create(createFinancingCostProfitDto: CreateFinancingCostProfitDto) {
+  async create(createFinancingCostProfitDto: CreateFinancingCostProfitDto, user: User) {
     const newFinancingCostProfit: FinancingCostProfit = plainToClass(FinancingCostProfit, createFinancingCostProfitDto);
+
+    newFinancingCostProfit.createdBy = user.id;
 
     if (createFinancingCostProfitDto.systemConfig) {
       const systemConfig: SystemConfig = await this.systemConfigRepository.findOne({
@@ -45,11 +48,13 @@ export class FinancingCostProfitsService {
     };
   }
 
-  async createMultiple(createFinancingCostProfits: CreateFinancingCostProfitDto[]) {
+  async createMultiple(createFinancingCostProfits: CreateFinancingCostProfitDto[], user: User) {
     const createdFinancingCostProfits: FinancingCostProfit[] = [];
 
     for (const createFinancingCostProfitDto of createFinancingCostProfits) {
       const newFinancingCostProfit: FinancingCostProfit = plainToClass(FinancingCostProfit, createFinancingCostProfitDto);
+
+      newFinancingCostProfit.createdBy = user.id;
 
       if (createFinancingCostProfitDto.systemConfig) {
         const systemConfig: SystemConfig = await this.systemConfigRepository.findOne({
@@ -114,7 +119,7 @@ export class FinancingCostProfitsService {
     };
   }
 
-  async update(id: string, updateFinancingCostProfitDto: UpdateFinancingCostProfitDto) {
+  async update(id: string, updateFinancingCostProfitDto: UpdateFinancingCostProfitDto, user: User) {
     const financingCostProfit: FinancingCostProfit = await this.financingCostProfitRepository.findOne({
       where: {
         id,
@@ -125,6 +130,8 @@ export class FinancingCostProfitsService {
     });
 
     const updatedFinancingCostProfit: FinancingCostProfit = plainToClass(FinancingCostProfit, updateFinancingCostProfitDto);
+
+    updatedFinancingCostProfit.updatedBy = user.id;
 
     if (updateFinancingCostProfitDto.systemConfig) {
       const systemConfig: SystemConfig = await this.systemConfigRepository.findOne({
@@ -151,7 +158,7 @@ export class FinancingCostProfitsService {
     };
   }
 
-  async updateMultiple(updateFinancingCostProfits: UpdateFinancingCostProfitDto[]) {
+  async updateMultiple(updateFinancingCostProfits: UpdateFinancingCostProfitDto[], user: User) {
     const updatedFinancingCostProfits: FinancingCostProfit[] = [];
 
     for (const updateFinancingCostProfitDto of updateFinancingCostProfits) {
@@ -165,6 +172,8 @@ export class FinancingCostProfitsService {
       });
 
       const updatedFinancingCostProfit: FinancingCostProfit = plainToClass(FinancingCostProfit, updateFinancingCostProfitDto);
+
+      updatedFinancingCostProfit.updatedBy = user.id;
 
       if (updateFinancingCostProfitDto.systemConfig) {
         const systemConfig: SystemConfig = await this.systemConfigRepository.findOne({

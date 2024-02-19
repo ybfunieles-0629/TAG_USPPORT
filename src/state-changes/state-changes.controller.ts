@@ -5,6 +5,8 @@ import { StateChangesService } from './state-changes.service';
 import { CreateStateChangeDto } from './dto/create-state-change.dto';
 import { UpdateStateChangeDto } from './dto/update-state-change.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('state-changes')
 export class StateChangesController {
@@ -12,8 +14,11 @@ export class StateChangesController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createStateChangeDto: CreateStateChangeDto) {
-    return this.stateChangesService.create(createStateChangeDto);
+  create(
+    @Body() createStateChangeDto: CreateStateChangeDto,
+    @GetUser() user: User,
+  ) {
+    return this.stateChangesService.create(createStateChangeDto, user);
   }
 
   @Get()
@@ -36,9 +41,10 @@ export class StateChangesController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateStateChangeDto: UpdateStateChangeDto
+    @Body() updateStateChangeDto: UpdateStateChangeDto,
+    @GetUser() user: User,
   ) {
-    return this.stateChangesService.update(id, updateStateChangeDto);
+    return this.stateChangesService.update(id, updateStateChangeDto, user);
   }
 
   @Patch('desactivate/:id')

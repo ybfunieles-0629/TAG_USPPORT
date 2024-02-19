@@ -5,6 +5,8 @@ import { PackingsService } from './packings.service';
 import { CreatePackingDto } from './dto/create-packing.dto';
 import { UpdatePackingDto } from './dto/update-packing.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('packings')
 export class PackingsController {
@@ -12,8 +14,11 @@ export class PackingsController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createPackingDto: CreatePackingDto) {
-    return this.packingsService.create(createPackingDto);
+  create(
+    @Body() createPackingDto: CreatePackingDto,
+    @GetUser() user: User,
+    ) {
+    return this.packingsService.create(createPackingDto, user);
   }
 
   @Get()
@@ -34,9 +39,10 @@ export class PackingsController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updatePackingDto: UpdatePackingDto
+    @Body() updatePackingDto: UpdatePackingDto,
+    @GetUser() user: User,
   ) {
-    return this.packingsService.update(id, updatePackingDto);
+    return this.packingsService.update(id, updatePackingDto, user);
   }
 
   @Patch('/desactivate/:id')

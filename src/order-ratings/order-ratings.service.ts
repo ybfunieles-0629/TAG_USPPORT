@@ -6,7 +6,8 @@ import { plainToClass } from 'class-transformer';
 import { CreateOrderRatingDto } from './dto/create-order-rating.dto';
 import { UpdateOrderRatingDto } from './dto/update-order-rating.dto';
 import { OrderRating } from './entities/order-rating.entity';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class OrderRatingsService {
@@ -15,9 +16,11 @@ export class OrderRatingsService {
     private readonly orderRatingService: Repository<OrderRating>,
   ) { }
 
-  async create(createOrderRatingDto: CreateOrderRatingDto) {
+  async create(createOrderRatingDto: CreateOrderRatingDto, user: User) {
     const orderRating: OrderRating = plainToClass(OrderRating, createOrderRatingDto);
   
+    orderRating.createdBy = user.id;
+
     await this.orderRatingService.save(orderRating);
 
     return {
@@ -62,7 +65,7 @@ export class OrderRatingsService {
     };
   }
 
-  async update(id: string, updateOrderRatingDto: UpdateOrderRatingDto) {
+  async update(id: string, updateOrderRatingDto: UpdateOrderRatingDto, user: User) {
     const orderRating: OrderRating = await this.orderRatingService.findOne({
       where: {
         id,
@@ -76,6 +79,8 @@ export class OrderRatingsService {
       throw new NotFoundException(`Order rating with id ${id} not found`);
 
     const updatedOrderRating: OrderRating = plainToClass(OrderRating, updateOrderRatingDto);
+
+    updatedOrderRating.updatedBy = user.id;
 
     Object.assign(orderRating, updatedOrderRating);
   

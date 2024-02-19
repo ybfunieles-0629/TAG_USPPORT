@@ -7,6 +7,7 @@ import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 import { Address } from './entities/address.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class AddressesService {
@@ -17,13 +18,15 @@ export class AddressesService {
     private readonly addressRepository: Repository<Address>,
   ) { }
 
-  async create(createAddressDto: CreateAddressDto) {
-    const address: Address = this.addressRepository.create(createAddressDto);
+  async create(createAddressDto: CreateAddressDto, user: User) {
+    const newAddress: Address = this.addressRepository.create(createAddressDto);
 
-    this.addressRepository.save(address);
+    newAddress.createdBy = user.id;
+
+    this.addressRepository.save(newAddress);
 
     return {
-      address
+      newAddress
     };
   }
 
@@ -59,7 +62,7 @@ export class AddressesService {
     };
   }
 
-  async update(id: string, updateAddressDto: UpdateAddressDto) {
+  async update(id: string, updateAddressDto: UpdateAddressDto, user: User) {
     const address: Address = await this.addressRepository.preload({
       id,
       ...updateAddressDto
@@ -67,6 +70,8 @@ export class AddressesService {
 
     if (!address)
       throw new NotFoundException(`Address with id ${id} not found`);
+
+    address.updatedBy = user.id;
 
     await this.addressRepository.save(address);
 

@@ -6,6 +6,8 @@ import { SupplierPurchaseOrdersService } from './supplier-purchase-orders.servic
 import { CreateSupplierPurchaseOrderDto } from './dto/create-supplier-purchase-order.dto';
 import { UpdateSupplierPurchaseOrderDto } from './dto/update-supplier-purchase-order.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('supplier-purchase-orders')
 export class SupplierPurchaseOrdersController {
@@ -17,8 +19,9 @@ export class SupplierPurchaseOrdersController {
   create(
     @Body() createSupplierPurchaseOrderDto: CreateSupplierPurchaseOrderDto,
     @UploadedFile() file: Express.Multer.File,
+    @GetUser() user: User,
   ) {
-    return this.supplierPurchaseOrdersService.create(createSupplierPurchaseOrderDto, file);
+    return this.supplierPurchaseOrdersService.create(createSupplierPurchaseOrderDto, file, user);
   }
 
   @Get()
@@ -44,8 +47,9 @@ export class SupplierPurchaseOrdersController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateSupplierPurchaseOrderDto: UpdateSupplierPurchaseOrderDto,
     @UploadedFile() file: Express.Multer.File,
+    @GetUser() user: User,
   ) {
-    return this.supplierPurchaseOrdersService.update(id, updateSupplierPurchaseOrderDto, file);
+    return this.supplierPurchaseOrdersService.update(id, updateSupplierPurchaseOrderDto, file, user);
   }
 
   @Patch('desactivate/:id')

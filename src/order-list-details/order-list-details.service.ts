@@ -44,8 +44,10 @@ export class OrderListDetailsService {
     private readonly transportServiceRepository: Repository<TransportService>,
   ) { }
 
-  async create(createOrderListDetailDto: CreateOrderListDetailDto) {
+  async create(createOrderListDetailDto: CreateOrderListDetailDto, user: User) {
     const newOrderListDetail: OrderListDetail = plainToClass(OrderListDetail, createOrderListDetailDto);
+
+    newOrderListDetail.createdBy = user.id;
 
     if (createOrderListDetailDto.orderRating) {
       const orderRating: OrderRating = await this.orderRatingRepository.findOne({
@@ -244,7 +246,7 @@ export class OrderListDetailsService {
     };
   }
 
-  async update(id: string, updateOrderListDetailDto: UpdateOrderListDetailDto) {
+  async update(id: string, updateOrderListDetailDto: UpdateOrderListDetailDto, user: User) {
     const orderListDetail: OrderListDetail = await this.orderListDetailRepository.findOne({
       where: {
         id,
@@ -263,6 +265,8 @@ export class OrderListDetailsService {
       throw new NotFoundException(`Order list detail with id ${id} not found`);
 
     const updatedOrderListDetail: OrderListDetail = plainToClass(OrderListDetail, updateOrderListDetailDto);
+
+    updatedOrderListDetail.updatedBy = user.id;
 
     if (updateOrderListDetailDto.orderRating) {
       const orderRating: OrderRating = await this.orderRatingRepository.findOne({

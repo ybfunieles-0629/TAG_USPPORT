@@ -6,6 +6,8 @@ import { ColorsService } from './colors.service';
 import { CreateColorDto } from './dto/create-color.dto';
 import { UpdateColorDto } from './dto/update-color.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('colors')
 export class ColorsController {
@@ -25,16 +27,18 @@ export class ColorsController {
   create(
     @Body() createColorDto: CreateColorDto,
     @UploadedFile() file: Express.Multer.File,
+    @GetUser() user: User,
   ) {
-    return this.colorsService.create(createColorDto, file);
+    return this.colorsService.create(createColorDto, file, user);
   }
 
   @Post('create/multiple')
   @UseGuards(AuthGuard())
   createMultiple(
-    @Body() createMultipleColors: CreateColorDto[]
+    @Body() createMultipleColors: CreateColorDto[],
+    @GetUser() user: User,
   ) {
-    return this.colorsService.createMultiple(createMultipleColors);
+    return this.colorsService.createMultiple(createMultipleColors, user);
   }
 
   @Get()
@@ -61,16 +65,18 @@ export class ColorsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateColorDto: UpdateColorDto,
     @UploadedFile() file: Express.Multer.File,
+    @GetUser() user: User,
   ) {
-    return this.colorsService.update(id, updateColorDto, file);
+    return this.colorsService.update(id, updateColorDto, file, user);
   }
 
   @Put('/update/multiple')
   @UseGuards(AuthGuard())
   updateMultiple(
-    @Body() updateMultipleColors: UpdateColorDto[]
+    @Body() updateMultipleColors: UpdateColorDto[],
+    @GetUser() user: User,
   ) {
-    return this.colorsService.updateMultiple(updateMultipleColors);
+    return this.colorsService.updateMultiple(updateMultipleColors, user);
   }
 
   @Delete(':id')

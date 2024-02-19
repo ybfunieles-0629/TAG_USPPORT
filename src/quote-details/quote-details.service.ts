@@ -58,12 +58,14 @@ export class QuoteDetailsService {
     private readonly systemConfigRepository: Repository<SystemConfig>,
   ) { }
 
-  async create(createQuoteDetailDto: CreateQuoteDetailDto) {
+  async create(createQuoteDetailDto: CreateQuoteDetailDto, user: User) {
     const hasSample: boolean = createQuoteDetailDto.hasSample;
 
     delete (createQuoteDetailDto.hasSample);
 
     const newQuoteDetail: QuoteDetail = plainToClass(QuoteDetail, createQuoteDetailDto);
+
+    newQuoteDetail.createdBy = user.id;
 
     const cartQuote: CartQuote = await this.cartQuoteRepository.findOne({
       where: {

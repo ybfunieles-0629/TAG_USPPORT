@@ -13,6 +13,7 @@ import { RefProduct } from '../ref-products/entities/ref-product.entity';
 import { TagSubTechniqueProperty } from '../tag-sub-technique-properties/entities/tag-sub-technique-property.entity';
 import { MarkingServiceProperty } from '../marking-service-properties/entities/marking-service-property.entity';
 import { Product } from '../products/entities/product.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class ImagesService {
@@ -35,8 +36,10 @@ export class ImagesService {
     private readonly tagSubTechniquePropertyRepository: Repository<TagSubTechniqueProperty>,
   ) { }
 
-  async create(createImageDto: CreateImageDto, file: Express.Multer.File) {
+  async create(createImageDto: CreateImageDto, file: Express.Multer.File, user: User) {
     const newImage = plainToClass(Image, createImageDto);
+
+    newImage.createdBy = user.id;
 
     if (createImageDto.refProduct) {
       const refProduct = await this.refProductRepository.findOne({
@@ -160,7 +163,7 @@ export class ImagesService {
     };
   }
 
-  async update(id: string, updateImageDto: UpdateImageDto, file: Express.Multer.File) {
+  async update(id: string, updateImageDto: UpdateImageDto, file: Express.Multer.File, user: User) {
     const image = await this.imageRepository.findOne({
       where: {
         id,
@@ -176,6 +179,8 @@ export class ImagesService {
       throw new NotFoundException(`Image with id ${id} not found`);
 
     const updatedImage = plainToClass(Image, updateImageDto);
+
+    updatedImage.updatedBy = user.id;
 
     if (updateImageDto.refProduct) {
       const refProduct = await this.refProductRepository.findOne({

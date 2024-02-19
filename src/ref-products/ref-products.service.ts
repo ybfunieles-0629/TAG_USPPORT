@@ -60,12 +60,14 @@ export class RefProductsService {
     private readonly variantReferenceRepository: Repository<VariantReference>,
   ) { }
 
-  async create(createRefProductDto: CreateRefProductDto) {
+  async create(createRefProductDto: CreateRefProductDto, user: User) {
     const { height, large, width } = createRefProductDto;
 
     const volume: number = (height * large * width);
 
     const newRefProduct = plainToClass(RefProduct, createRefProductDto);
+
+    newRefProduct.createdBy = user.id;
 
     newRefProduct.volume = volume;
 
@@ -1285,7 +1287,7 @@ export class RefProductsService {
     };
   }
 
-  async update(id: string, updateRefProductDto: UpdateRefProductDto) {
+  async update(id: string, updateRefProductDto: UpdateRefProductDto, user: User) {
     const refProduct = await this.refProductRepository.findOne({
       where: {
         id,
@@ -1316,6 +1318,8 @@ export class RefProductsService {
       throw new NotFoundException(`Ref product with id ${id} not found`);
 
     const updatedRefProduct = plainToClass(RefProduct, updateRefProductDto);
+
+    updatedRefProduct.updatedBy = user.id;
 
     if (updateRefProductDto.keywords) {
       const joinedKeywords: string = updateRefProductDto.keywords.join(';') + ';';

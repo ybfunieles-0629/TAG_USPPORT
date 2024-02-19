@@ -1,9 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
 import { MarkingServicesService } from './marking-services.service';
 import { CreateMarkingServiceDto } from './dto/create-marking-service.dto';
 import { UpdateMarkingServiceDto } from './dto/update-marking-service.dto';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('marking-services')
 export class MarkingServicesController {
@@ -12,17 +15,19 @@ export class MarkingServicesController {
   @Post()
   @UseGuards(AuthGuard())
   create(
-    @Body() createMarkingServiceDto: CreateMarkingServiceDto
+    @Body() createMarkingServiceDto: CreateMarkingServiceDto,
+    @GetUser() user: User,
   ) {
-    return this.markingServicesService.create(createMarkingServiceDto);
+    return this.markingServicesService.create(createMarkingServiceDto, user);
   }
 
   @Post('create/multiple')
   @UseGuards(AuthGuard())
   createMultiple(
-    @Body() createMarkingServices: CreateMarkingServiceDto[]
+    @Body() createMarkingServices: CreateMarkingServiceDto[],
+    @GetUser() user: User,
   ) {
-    return this.markingServicesService.createMultiple(createMarkingServices);
+    return this.markingServicesService.createMultiple(createMarkingServices, user);
   }
 
   @Get()
@@ -45,9 +50,10 @@ export class MarkingServicesController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateMarkingServiceDto: UpdateMarkingServiceDto
+    @Body() updateMarkingServiceDto: UpdateMarkingServiceDto,
+    @GetUser() user: User,
   ) {
-    return this.markingServicesService.update(id, updateMarkingServiceDto);
+    return this.markingServicesService.update(id, updateMarkingServiceDto, user);
   }
 
   @Patch('/desactivate/:id')

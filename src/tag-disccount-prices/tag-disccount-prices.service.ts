@@ -7,6 +7,7 @@ import { CreateTagDisccountPriceDto } from './dto/create-tag-disccount-price.dto
 import { UpdateTagDisccountPriceDto } from './dto/update-tag-disccount-price.dto';
 import { TagDisccountPrice } from './entities/tag-disccount-price.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class TagDisccountPricesService {
@@ -15,8 +16,10 @@ export class TagDisccountPricesService {
     private readonly tagDisccountPriceRepository: Repository<TagDisccountPrice>,
   ) { }
 
-  async create(createTagDisccountPriceDto: CreateTagDisccountPriceDto) {
-    const newTagDisccountPrice = plainToClass(TagDisccountPrice, createTagDisccountPriceDto);
+  async create(createTagDisccountPriceDto: CreateTagDisccountPriceDto, user: User) {
+    const newTagDisccountPrice: TagDisccountPrice = plainToClass(TagDisccountPrice, createTagDisccountPriceDto);
+
+    newTagDisccountPrice.createdBy = user.id;
 
     await this.tagDisccountPriceRepository.save(newTagDisccountPrice);
 
@@ -49,7 +52,7 @@ export class TagDisccountPricesService {
     };
   }
 
-  async update(id: string, updateTagDisccountPriceDto: UpdateTagDisccountPriceDto) {
+  async update(id: string, updateTagDisccountPriceDto: UpdateTagDisccountPriceDto, user: User) {
     const tagDisccountPrice = await this.tagDisccountPriceRepository.findOne({
       where: {
         id,
@@ -57,6 +60,8 @@ export class TagDisccountPricesService {
     });
 
     const updatedTagDisccountPrice = plainToClass(TagDisccountPrice, updateTagDisccountPriceDto);
+
+    updatedTagDisccountPrice.updatedBy = user.id;
 
     Object.assign(tagDisccountPrice, updatedTagDisccountPrice);
 

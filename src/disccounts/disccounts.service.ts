@@ -7,6 +7,7 @@ import { CreateDisccountsDto } from './dto/create-disccounts.dto';
 import { UpdateDisccountsDto } from './dto/update-disccounts.dto';
 import { Disccounts } from './entities/disccounts.entity';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class DisccountsService {
@@ -17,8 +18,10 @@ export class DisccountsService {
     private readonly disccountsRepository: Repository<Disccounts>,
   ) { }
 
-  async create(createDisccountsDto: CreateDisccountsDto) {
+  async create(createDisccountsDto: CreateDisccountsDto, user: User) {
     const newDisccounts = plainToClass(Disccounts, createDisccountsDto);
+
+    newDisccounts.createdBy = user.id;
 
     await this.disccountsRepository.save(newDisccounts);
 
@@ -27,11 +30,13 @@ export class DisccountsService {
     };
   }
 
-  async createMultiple(createMultipleDisccountsDto: CreateDisccountsDto[]) {
+  async createMultiple(createMultipleDisccountsDto: CreateDisccountsDto[], user: User) {
     const createdDisccounts = [];
 
     for (const createDisccountsDto of createMultipleDisccountsDto) {
       const disccounts = this.disccountsRepository.create(createDisccountsDto);
+
+      disccounts.createdBy = user.id;
 
       await this.disccountsRepository.save(disccounts);
 
@@ -74,7 +79,7 @@ export class DisccountsService {
     };
   }
 
-  async update(id: string, updateDisccountsDto: UpdateDisccountsDto) {
+  async update(id: string, updateDisccountsDto: UpdateDisccountsDto, user: User) {
     const disccounts = await this.disccountsRepository.findOne({
       where: {
         id,
@@ -86,6 +91,8 @@ export class DisccountsService {
 
     const updatedDisccounts = plainToClass(Disccounts, updateDisccountsDto);
 
+    updatedDisccounts.updatedBy = user.id;
+
     Object.assign(disccounts, updatedDisccounts);
 
     await this.disccountsRepository.save(disccounts);
@@ -95,7 +102,7 @@ export class DisccountsService {
     };
   }
 
-  async updateMultiple(udpateMultipleDisccountsDto: UpdateDisccountsDto[]) {
+  async updateMultiple(udpateMultipleDisccountsDto: UpdateDisccountsDto[], user: User) {
     const updatedDisccounts = [];
 
     for (const updateDisccountsDto of udpateMultipleDisccountsDto) {
@@ -109,6 +116,8 @@ export class DisccountsService {
 
       if (!disccounts)
         throw new NotFoundException(`Disccounts with id ${id} not found`);
+
+      disccounts.updatedBy = user.id;
 
       Object.assign(disccounts, dataToUpdate);
 

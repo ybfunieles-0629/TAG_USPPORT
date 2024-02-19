@@ -6,8 +6,9 @@ import { plainToClass } from 'class-transformer';
 import { CreateLocalTransportPriceDto } from './dto/create-local-transport-price.dto';
 import { UpdateLocalTransportPriceDto } from './dto/update-local-transport-price.dto';
 import { LocalTransportPrice } from './entities/local-transport-price.entity';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { TransportService } from 'src/transport-services/entities/transport-service.entity';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { TransportService } from '../transport-services/entities/transport-service.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class LocalTransportPricesService {
@@ -19,10 +20,12 @@ export class LocalTransportPricesService {
     private readonly transportServiceRepository: Repository<TransportService>,
   ) { }
 
-  async create(createLocalTransportPriceDto: CreateLocalTransportPriceDto) {
+  async create(createLocalTransportPriceDto: CreateLocalTransportPriceDto, user: User) {
     const { maximumHeight, maximumWidth, maximumLarge } = createLocalTransportPriceDto;
 
     const newLocalTransportPrice = plainToClass(LocalTransportPrice, createLocalTransportPriceDto);
+
+    newLocalTransportPrice.createdBy = user.id;
 
     const volume: number = (maximumHeight * maximumWidth * maximumLarge);
 
@@ -46,13 +49,15 @@ export class LocalTransportPricesService {
     };
   }
 
-  async createMultiple(createLocalTransportPrices: CreateLocalTransportPriceDto[]) {
+  async createMultiple(createLocalTransportPrices: CreateLocalTransportPriceDto[], user: User) {
     const createdLocalTransportPrices: LocalTransportPrice[] = [];
 
     for (const createLocalTransportPriceDto of createLocalTransportPrices) {
       const { maximumHeight, maximumWidth, maximumLarge } = createLocalTransportPriceDto;
 
       const newLocalTransportPrice = plainToClass(LocalTransportPrice, createLocalTransportPriceDto);
+
+      newLocalTransportPrice.createdBy = user.id;
 
       const volume: number = (maximumHeight * maximumWidth * maximumLarge);
 
@@ -116,7 +121,7 @@ export class LocalTransportPricesService {
     };
   }
 
-  async update(id: string, updateLocalTransportPriceDto: UpdateLocalTransportPriceDto) {
+  async update(id: string, updateLocalTransportPriceDto: UpdateLocalTransportPriceDto, user: User) {
     const localTransportPrice = await this.localTransportPriceRepository.findOne({
       where: {
         id,
@@ -130,6 +135,8 @@ export class LocalTransportPricesService {
       throw new NotFoundException(`Local transport price with id ${id} not found`);
 
     const updatedLocalTransportPrice = plainToClass(LocalTransportPrice, updateLocalTransportPriceDto);
+
+    updatedLocalTransportPrice.updatedBy = user.id;
 
     const { maximumHeight, maximumWidth, maximumLarge } = updateLocalTransportPriceDto;
 
@@ -157,7 +164,7 @@ export class LocalTransportPricesService {
     };
   }
 
-  async updateMultiple(updateLocalTransportPrices: UpdateLocalTransportPriceDto[]) {
+  async updateMultiple(updateLocalTransportPrices: UpdateLocalTransportPriceDto[], user: User) {
     const updatedLocalTransportPrices: LocalTransportPrice[] = [];
 
     for (const updateLocalTransportPriceDto of updateLocalTransportPrices) {
@@ -175,6 +182,8 @@ export class LocalTransportPricesService {
         throw new NotFoundException(`Local transport price with id ${updateLocalTransportPriceDto.id} not found`);
 
       const updatedLocalTransportPrice = plainToClass(LocalTransportPrice, updateLocalTransportPriceDto);
+      
+      updatedLocalTransportPrice.updatedBy = user.id;
 
       const { maximumHeight, maximumWidth, maximumLarge } = updateLocalTransportPriceDto;
 

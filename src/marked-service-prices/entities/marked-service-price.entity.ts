@@ -31,6 +31,16 @@ export class MarkedServicePrice {
   })
   isActive: boolean;
 
+  @Column('varchar', {
+
+  })
+  createdBy: string;
+
+  @Column('varchar', {
+
+  })
+  updatedBy: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
