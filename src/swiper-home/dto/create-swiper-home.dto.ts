@@ -1,18 +1,22 @@
-import { IsString } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 
 export class CreateSwiperHomeDto {
+  @IsOptional()
   @IsString()
-  title: string;
+  title?: string;
 
+  @IsOptional()
   @IsString()
-  subtitle: string;
+  subtitle?: string;
 
-  @IsString()
-  imageUrl: string;
+  // @IsString()
+  // imageUrl: string;
 
+  @IsOptional()
   @IsString()
-  url: string;
+  url?: string;
 
+  @IsOptional()
   @IsString()
-  location: string;
+  location?: string;
 }
