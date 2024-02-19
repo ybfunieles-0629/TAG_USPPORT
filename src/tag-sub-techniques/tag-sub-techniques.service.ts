@@ -8,6 +8,7 @@ import { UpdateTagSubTechniqueDto } from './dto/update-tag-sub-technique.dto';
 import { TagSubTechnique } from './entities/tag-sub-technique.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { MarkingTagService } from '../marking-tag-services/entities/marking-tag-service.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class TagSubTechniquesService {
@@ -19,8 +20,10 @@ export class TagSubTechniquesService {
     private readonly markingTagServiceRepository: Repository<MarkingTagService>,
   ) { }
 
-  async create(createTagSubTechniqueDto: CreateTagSubTechniqueDto) {
-    const newTagSubTechnique = plainToClass(TagSubTechnique, createTagSubTechniqueDto);
+  async create(createTagSubTechniqueDto: CreateTagSubTechniqueDto, user: User) {
+    const newTagSubTechnique: TagSubTechnique = plainToClass(TagSubTechnique, createTagSubTechniqueDto);
+
+    newTagSubTechnique.createdBy = user.id;
 
     const markingTagService: MarkingTagService = await this.markingTagServiceRepository.findOne({
       where: {
@@ -40,11 +43,13 @@ export class TagSubTechniquesService {
     };
   }
 
-  async createMultiple(createTagSubTechniques: CreateTagSubTechniqueDto[]) {
+  async createMultiple(createTagSubTechniques: CreateTagSubTechniqueDto[], user: User) {
     const createdSubTechniques: TagSubTechnique[] = [];
 
     for (const createTagSubTechniqueDto of createTagSubTechniques) {
       const newTagSubTechnique = plainToClass(TagSubTechnique, createTagSubTechniqueDto);
+
+      newTagSubTechnique.createdBy = user.id;
 
       const markingTagService: MarkingTagService = await this.markingTagServiceRepository.findOne({
         where: {
@@ -97,7 +102,7 @@ export class TagSubTechniquesService {
     };
   }
 
-  async update(id: string, updateTagSubTechniqueDto: UpdateTagSubTechniqueDto) {
+  async update(id: string, updateTagSubTechniqueDto: UpdateTagSubTechniqueDto, user: User) {
     const tagSubTechnique = await this.tagSubTecniqueRepository.findOne({
       where: {
         id,
@@ -111,6 +116,8 @@ export class TagSubTechniquesService {
       throw new NotFoundException(`Tag sub technique with id ${id} not found`);
 
     const updatedTagSubTechnique = plainToClass(TagSubTechnique, updateTagSubTechniqueDto);
+
+    updatedTagSubTechnique.updatedBy = user.id;
 
     const markingTagService: MarkingTagService = await this.markingTagServiceRepository.findOne({
       where: {
@@ -132,7 +139,7 @@ export class TagSubTechniquesService {
     };
   }
 
-  async updateMultiple(updateTagSubTechniques: UpdateTagSubTechniqueDto[]) {
+  async updateMultiple(updateTagSubTechniques: UpdateTagSubTechniqueDto[], user: User) {
     const updatedTagSubTechniques: TagSubTechnique[] = [];
 
     for (const updateTagSubTechniqueDto of updateTagSubTechniques) {
@@ -150,6 +157,8 @@ export class TagSubTechniquesService {
         throw new NotFoundException(`Tag sub technique with id ${updateTagSubTechniqueDto.id} not found`);
 
       const updatedTagSubTechnique = plainToClass(TagSubTechnique, updateTagSubTechniqueDto);
+
+      updatedTagSubTechnique.updatedBy = user.id;
 
       const markingTagService: MarkingTagService = await this.markingTagServiceRepository.findOne({
         where: {

@@ -33,8 +33,10 @@ export class PurchaseOrderService {
     private readonly shippingGuideRepository: Repository<ShippingGuide>,
   ) { }
 
-  async create(createPurchaseOrderDto: CreatePurchaseOrderDto) {
+  async create(createPurchaseOrderDto: CreatePurchaseOrderDto, user: User) {
     const newPurchaseOrder: PurchaseOrder = plainToClass(PurchaseOrder, createPurchaseOrderDto);
+
+    newPurchaseOrder.createdBy = user.id;
 
     if (createPurchaseOrderDto.state) {
       const state: State = await this.stateRepository.findOne({

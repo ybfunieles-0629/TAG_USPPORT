@@ -5,6 +5,8 @@ import { CommercialQualificationService } from './commercial-qualification.servi
 import { CreateCommercialQualificationDto } from './dto/create-commercial-qualification.dto';
 import { UpdateCommercialQualificationDto } from './dto/update-commercial-qualification.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('commercial-qualification')
 export class CommercialQualificationController {
@@ -13,9 +15,10 @@ export class CommercialQualificationController {
   @Post()
   @UseGuards(AuthGuard())
   create(
-    @Body() createCommercialQualificationDto: CreateCommercialQualificationDto
+    @Body() createCommercialQualificationDto: CreateCommercialQualificationDto,
+    @GetUser() user: User,
   ) {
-    return this.commercialQualificationService.create(createCommercialQualificationDto);
+    return this.commercialQualificationService.create(createCommercialQualificationDto, user);
   }
 
   @Get()
@@ -38,9 +41,10 @@ export class CommercialQualificationController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string, 
-    @Body() updateCommercialQualificationDto: UpdateCommercialQualificationDto
+    @Body() updateCommercialQualificationDto: UpdateCommercialQualificationDto,
+    @GetUser() user: User,
     ) {
-    return this.commercialQualificationService.update(id, updateCommercialQualificationDto);
+    return this.commercialQualificationService.update(id, updateCommercialQualificationDto, user);
   }
 
   @Patch('desactivate/:id')

@@ -8,6 +8,7 @@ import { UpdateSystemConfigOfferDto } from './dto/update-system-config-offer.dto
 import { SystemConfigOffer } from './entities/system-config-offer.entity';
 import { Product } from '../products/entities/product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class SystemConfigOffersService {
@@ -19,8 +20,10 @@ export class SystemConfigOffersService {
     private readonly productRepository: Repository<Product>,
   ) { }
 
-  async create(createSystemConfigOfferDto: CreateSystemConfigOfferDto) {
+  async create(createSystemConfigOfferDto: CreateSystemConfigOfferDto, user: User) {
     const newSystemConfigOffer: SystemConfigOffer = plainToClass(SystemConfigOffer, createSystemConfigOfferDto);
+
+    newSystemConfigOffer.createdBy = user.id;
 
     if (createSystemConfigOfferDto.product) {
       const productId: string = createSystemConfigOfferDto.product;
@@ -101,7 +104,7 @@ export class SystemConfigOffersService {
     };
   };
 
-  async update(id: string, updateSystemConfigOfferDto: UpdateSystemConfigOfferDto) {
+  async update(id: string, updateSystemConfigOfferDto: UpdateSystemConfigOfferDto, user: User) {
     const systemConfigOffer: SystemConfigOffer = await this.systemConfigOfferRepository.findOne({
       where: {
         id,
@@ -112,6 +115,8 @@ export class SystemConfigOffersService {
       throw new NotFoundException(`System config offer with id ${id} not found`);
 
     const updatedSystemConfigOffer: SystemConfigOffer = plainToClass(SystemConfigOffer, updateSystemConfigOfferDto);
+
+    updatedSystemConfigOffer.updatedBy = user.id;
 
     if (updateSystemConfigOfferDto.product) {
       const productId: string = updateSystemConfigOfferDto.product;

@@ -16,9 +16,10 @@ export class PurchaseOrderController {
   @Post()
   @UseGuards(AuthGuard())
   create(
-    @Body() createPurchaseOrderDto: CreatePurchaseOrderDto
+    @Body() createPurchaseOrderDto: CreatePurchaseOrderDto,
+    @GetUser() user: User,
   ) {
-    return this.purchaseOrderService.create(createPurchaseOrderDto);
+    return this.purchaseOrderService.create(createPurchaseOrderDto, user);
   }
 
   @Get()

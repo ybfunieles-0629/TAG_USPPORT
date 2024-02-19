@@ -5,6 +5,8 @@ import { DiscountQuantitiesService } from './discount-quantities.service';
 import { CreateDiscountQuantityDto } from './dto/create-discount-quantity.dto';
 import { UpdateDiscountQuantityDto } from './dto/update-discount-quantity.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('discount-quantities')
 export class DiscountQuantitiesController {
@@ -13,9 +15,10 @@ export class DiscountQuantitiesController {
   @Post()
   @UseGuards(AuthGuard())
   create(
-    @Body() createDiscountQuantityDto: CreateDiscountQuantityDto
+    @Body() createDiscountQuantityDto: CreateDiscountQuantityDto,
+    @GetUser() user: User,
   ) {
-    return this.discountQuantitiesService.create(createDiscountQuantityDto);
+    return this.discountQuantitiesService.create(createDiscountQuantityDto, user);
   }
 
   @Get()
@@ -38,9 +41,10 @@ export class DiscountQuantitiesController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string, 
-    @Body() updateDiscountQuantityDto: UpdateDiscountQuantityDto
+    @Body() updateDiscountQuantityDto: UpdateDiscountQuantityDto,
+    @GetUser() user: User,
   ) {
-    return this.discountQuantitiesService.update(id, updateDiscountQuantityDto);
+    return this.discountQuantitiesService.update(id, updateDiscountQuantityDto, user);
   }
 
   @Patch('/desactivate/:id')

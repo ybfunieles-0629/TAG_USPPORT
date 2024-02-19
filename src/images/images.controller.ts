@@ -6,6 +6,8 @@ import { ImagesService } from './images.service';
 import { CreateImageDto } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('images')
 export class ImagesController {
@@ -17,8 +19,9 @@ export class ImagesController {
   create(
     @Body() createImageDto: CreateImageDto,
     @UploadedFile() file: Express.Multer.File,
+    @GetUser() user: User,
   ) {
-    return this.imagesService.create(createImageDto, file);
+    return this.imagesService.create(createImageDto, file, user);
   }
 
   @Get()
@@ -42,8 +45,9 @@ export class ImagesController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateImageDto: UpdateImageDto,
     @UploadedFile() file: Express.Multer.File,
+    @GetUser() user: User,
   ) {
-    return this.imagesService.update(id, updateImageDto, file);
+    return this.imagesService.update(id, updateImageDto, file, user);
   }
 
   @Delete(':id')

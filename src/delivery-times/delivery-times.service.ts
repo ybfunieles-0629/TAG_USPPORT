@@ -8,6 +8,7 @@ import { UpdateDeliveryTimeDto } from './dto/update-delivery-time.dto';
 import { DeliveryTime } from './entities/delivery-time.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { RefProduct } from '../ref-products/entities/ref-product.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class DeliveryTimesService {
@@ -18,8 +19,10 @@ export class DeliveryTimesService {
     private readonly deliveryTimeRepository: Repository<DeliveryTime>,
   ) { }
 
-  async create(createDeliveryTimeDto: CreateDeliveryTimeDto) {
-    const newDeliveryTime = plainToClass(DeliveryTime, createDeliveryTimeDto);
+  async create(createDeliveryTimeDto: CreateDeliveryTimeDto, user: User) {
+    const newDeliveryTime: DeliveryTime = plainToClass(DeliveryTime, createDeliveryTimeDto);
+
+    newDeliveryTime.createdBy = user.id;
 
     await this.deliveryTimeRepository.save(newDeliveryTime);
 
@@ -28,11 +31,13 @@ export class DeliveryTimesService {
     };
   }
 
-  async createMultiple(createMultipleDeliveryTimes: CreateDeliveryTimeDto[]) {
+  async createMultiple(createMultipleDeliveryTimes: CreateDeliveryTimeDto[], user: User) {
     const createdDeliveryTimes: DeliveryTime[] = [];
 
     for (const createDeliveryTimeDto of createMultipleDeliveryTimes) {
       const newDeliveryTime: DeliveryTime = plainToClass(DeliveryTime, createDeliveryTimeDto);
+
+      newDeliveryTime.createdBy = user.id;
 
       await this.deliveryTimeRepository.save(newDeliveryTime);
       
@@ -78,7 +83,7 @@ export class DeliveryTimesService {
     };
   }
 
-  async update(id: string, updateDeliveryTimeDto: UpdateDeliveryTimeDto) {
+  async update(id: string, updateDeliveryTimeDto: UpdateDeliveryTimeDto, user: User) {
     const deliveryTime = await this.deliveryTimeRepository.findOne({
       where: {
         id,
@@ -92,6 +97,8 @@ export class DeliveryTimesService {
 
     const updatedDeliveryTime = plainToClass(DeliveryTime, updateDeliveryTimeDto);
 
+    updatedDeliveryTime.updatedBy = user.id;
+
     Object.assign(deliveryTime, updatedDeliveryTime);
 
     await this.deliveryTimeRepository.save(deliveryTime);
@@ -101,7 +108,7 @@ export class DeliveryTimesService {
     };
   }
 
-  async updateMultiple(updateMultipleDeliveryTimes: UpdateDeliveryTimeDto[]) {
+  async updateMultiple(updateMultipleDeliveryTimes: UpdateDeliveryTimeDto[], user: User) {
     const updatedDeliveryTimes = [];
 
     for (const updateDeliveryTimeDto of updateMultipleDeliveryTimes) {
@@ -119,6 +126,8 @@ export class DeliveryTimesService {
       if (!deliveryTime)
         throw new NotFoundException(`Delivery time with id ${id} not found`);
      
+        deliveryTime.updatedBy = user.id;
+
       Object.assign(deliveryTime, dataToUpdate);
 
       await this.deliveryTimeRepository.save(deliveryTime);

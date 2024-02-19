@@ -9,6 +9,7 @@ import { CreateSwiperHomeDto } from './dto/create-swiper-home.dto';
 import { UpdateSwiperHomeDto } from './dto/update-swiper-home.dto';
 import { SwiperHome } from './entities/swiper-home.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class SwiperHomeService {
@@ -17,8 +18,10 @@ export class SwiperHomeService {
     private readonly swiperHomeRepository: Repository<SwiperHome>,
   ) { }
 
-  async create(createSwiperHomeDto: CreateSwiperHomeDto, file: Express.Multer.File) {
+  async create(createSwiperHomeDto: CreateSwiperHomeDto, file: Express.Multer.File, user: User) {
     const newSwiperHome: SwiperHome = plainToClass(SwiperHome, createSwiperHomeDto);
+
+    newSwiperHome.createdBy = user.id;
 
     let imageAwsUrl: string = '';
 
@@ -75,7 +78,7 @@ export class SwiperHomeService {
     };
   };
 
-  async update(id: string, updateSwiperHomeDto: UpdateSwiperHomeDto, file: Express.Multer.File) {
+  async update(id: string, updateSwiperHomeDto: UpdateSwiperHomeDto, file: Express.Multer.File, user: User) {
     const swiperHome: SwiperHome = await this.swiperHomeRepository.findOne({
       where: {
         id,
@@ -89,6 +92,8 @@ export class SwiperHomeService {
       throw new BadRequestException(`Swiper home with id ${id} is currently inactive`);
 
     const updatedSwiperHome: SwiperHome = plainToClass(SwiperHome, updateSwiperHomeDto);
+
+    updatedSwiperHome.updatedBy = user.id;
 
     let imageAwsUrl: string = '';
 

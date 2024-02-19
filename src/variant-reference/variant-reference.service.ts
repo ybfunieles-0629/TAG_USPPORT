@@ -8,6 +8,7 @@ import { UpdateVariantReferenceDto } from './dto/update-variant-reference.dto';
 import { VariantReference } from './entities/variant-reference.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { RefProduct } from '../ref-products/entities/ref-product.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class VariantReferenceService {
@@ -18,8 +19,10 @@ export class VariantReferenceService {
     private readonly variantReferenceRepository: Repository<VariantReference>,
   ) { }
 
-  async create(createVariantReferenceDto: CreateVariantReferenceDto) {
-    const newVariantReference = this.variantReferenceRepository.create(createVariantReferenceDto);
+  async create(createVariantReferenceDto: CreateVariantReferenceDto, user: User) {
+    const newVariantReference: VariantReference = this.variantReferenceRepository.create(createVariantReferenceDto);
+
+    newVariantReference.createdBy = user.id;
 
     await this.variantReferenceRepository.save(newVariantReference);
 
@@ -28,11 +31,13 @@ export class VariantReferenceService {
     };
   }
 
-  async createMultiple(createMultipleVariantReferences: CreateVariantReferenceDto[]) {
+  async createMultiple(createMultipleVariantReferences: CreateVariantReferenceDto[], user: User) {
     const createdVariantReferences = [];
 
     for (const createVariantReferenceDto of createMultipleVariantReferences) {
-      const variantReference = this.variantReferenceRepository.create(createVariantReferenceDto);
+      const variantReference: VariantReference = this.variantReferenceRepository.create(createVariantReferenceDto);
+
+      variantReference.createdBy = user.id;
 
       await this.variantReferenceRepository.save(variantReference);
 
@@ -83,7 +88,7 @@ export class VariantReferenceService {
     };
   };
 
-  async update(id: string, updateVariantReferenceDto: UpdateVariantReferenceDto) {
+  async update(id: string, updateVariantReferenceDto: UpdateVariantReferenceDto, user: User) {
     const variantReference = await this.variantReferenceRepository.findOne({
       where: {
         id,
@@ -95,6 +100,8 @@ export class VariantReferenceService {
 
     const updatedVariantReference = plainToClass(VariantReference, updateVariantReferenceDto);
 
+    updatedVariantReference.updatedBy = user.id;
+
     Object.assign(variantReference, updatedVariantReference);
 
     await this.variantReferenceRepository.save(variantReference);
@@ -104,7 +111,7 @@ export class VariantReferenceService {
     };
   }
 
-  async updateMultiple(updateMultipleVariantReferences: UpdateVariantReferenceDto[]) {
+  async updateMultiple(updateMultipleVariantReferences: UpdateVariantReferenceDto[], user: User) {
     const updatedVariantReferences = [];
 
     for (const updateVariantReference of updateMultipleVariantReferences) {
@@ -120,6 +127,8 @@ export class VariantReferenceService {
         throw new NotFoundException(`Variant reference with id ${id} not found`);
 
       Object.assign(variantReference, dataToUpdate);
+
+      variantReference.updatedBy = user.id;
 
       await this.variantReferenceRepository.save(variantReference);
 

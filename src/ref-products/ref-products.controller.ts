@@ -15,8 +15,11 @@ export class RefProductsController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createRefProductDto: CreateRefProductDto) {
-    return this.refProductsService.create(createRefProductDto);
+  create(
+    @Body() createRefProductDto: CreateRefProductDto,
+    @GetUser() user: User,
+  ) {
+    return this.refProductsService.create(createRefProductDto, user);
   }
 
   @Get()
@@ -67,9 +70,10 @@ export class RefProductsController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateRefProductDto: UpdateRefProductDto
+    @Body() updateRefProductDto: UpdateRefProductDto,
+    @GetUser() user: User,
   ) {
-    return this.refProductsService.update(id, updateRefProductDto);
+    return this.refProductsService.update(id, updateRefProductDto, user);
   }
 
   @Patch('/allow/:id')

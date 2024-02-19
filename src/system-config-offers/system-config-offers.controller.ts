@@ -1,10 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { SystemConfigOffersService } from './system-config-offers.service';
 import { CreateSystemConfigOfferDto } from './dto/create-system-config-offer.dto';
 import { UpdateSystemConfigOfferDto } from './dto/update-system-config-offer.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('system-config-offers')
 export class SystemConfigOffersController {
@@ -12,8 +14,11 @@ export class SystemConfigOffersController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createSystemConfigOfferDto: CreateSystemConfigOfferDto) {
-    return this.systemConfigOffersService.create(createSystemConfigOfferDto);
+  create(
+    @Body() createSystemConfigOfferDto: CreateSystemConfigOfferDto,
+    @GetUser() user: User,
+  ) {
+    return this.systemConfigOffersService.create(createSystemConfigOfferDto, user);
   }
 
   @Get()
@@ -43,9 +48,10 @@ export class SystemConfigOffersController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateSystemConfigOfferDto: UpdateSystemConfigOfferDto
+    @Body() updateSystemConfigOfferDto: UpdateSystemConfigOfferDto,
+    @GetUser() user: User,
   ) {
-    return this.systemConfigOffersService.update(id, updateSystemConfigOfferDto);
+    return this.systemConfigOffersService.update(id, updateSystemConfigOfferDto, user);
   }
 
   @Patch(':id')
@@ -55,7 +61,7 @@ export class SystemConfigOffersController {
   ) {
     return this.systemConfigOffersService.desactivate(id);
   }
-  
+
   @Delete(':id')
   @UseGuards(AuthGuard())
   remove(

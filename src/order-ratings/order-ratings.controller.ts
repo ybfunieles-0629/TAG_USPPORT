@@ -5,6 +5,8 @@ import { OrderRatingsService } from './order-ratings.service';
 import { CreateOrderRatingDto } from './dto/create-order-rating.dto';
 import { UpdateOrderRatingDto } from './dto/update-order-rating.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('order-ratings')
 export class OrderRatingsController {
@@ -12,8 +14,11 @@ export class OrderRatingsController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createOrderRatingDto: CreateOrderRatingDto) {
-    return this.orderRatingsService.create(createOrderRatingDto);
+  create(
+    @Body() createOrderRatingDto: CreateOrderRatingDto,
+    @GetUser() user: User
+  ) {
+    return this.orderRatingsService.create(createOrderRatingDto, user);
   }
 
   @Get()
@@ -36,9 +41,10 @@ export class OrderRatingsController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateOrderRatingDto: UpdateOrderRatingDto
+    @Body() updateOrderRatingDto: UpdateOrderRatingDto,
+    @GetUser() user: User,
   ) {
-    return this.orderRatingsService.update(id, updateOrderRatingDto);
+    return this.orderRatingsService.update(id, updateOrderRatingDto, user);
   }
 
   @Patch('desactivate/:id')

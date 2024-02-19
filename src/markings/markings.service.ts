@@ -10,6 +10,7 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { MarkingTagService } from '../marking-tag-services/entities/marking-tag-service.entity';
 import { Company } from '../companies/entities/company.entity';
 import { Product } from '../products/entities/product.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class MarkingsService {
@@ -26,8 +27,10 @@ export class MarkingsService {
     private readonly companyRepository: Repository<Company>,
   ) { }
 
-  async create(createMarkingDto: CreateMarkingDto) {
-    const newMarking = plainToClass(Marking, createMarkingDto);
+  async create(createMarkingDto: CreateMarkingDto, user: User) {
+    const newMarking: Marking = plainToClass(Marking, createMarkingDto);
+
+    newMarking.createdBy = user.id;
 
     if (createMarkingDto.markingTagService) {
       const markingTagService = await this.markingTagServiceRepository.findOne({
@@ -68,11 +71,13 @@ export class MarkingsService {
     };
   }
 
-  async createMultiple(createMultipleMarkings: CreateMarkingDto[]) {
+  async createMultiple(createMultipleMarkings: CreateMarkingDto[], user: User) {
     const createdMarkings = [];
 
     for (const createMarkingDto of createMultipleMarkings) {
       const newMarking = plainToClass(Marking, createMarkingDto);
+
+      newMarking.createdBy = user.id;
 
       if (createMarkingDto.markingTagService) {
         const markingTagService = await this.markingTagServiceRepository.findOne({
@@ -165,7 +170,7 @@ export class MarkingsService {
     };
   }
 
-  async update(id: string, updateMarkingDto: UpdateMarkingDto) {
+  async update(id: string, updateMarkingDto: UpdateMarkingDto, user: User) {
     const marking = await this.markingRepository.findOne({
       where: {
         id,
@@ -185,6 +190,8 @@ export class MarkingsService {
       throw new NotFoundException(`Marking with id ${id} not found`);
 
     const updatedMarking = plainToClass(Marking, updateMarkingDto);
+
+    updatedMarking.updatedBy = user.id;
 
     if (updateMarkingDto.markingTagService) {
       const markingTagService = await this.markingTagServiceRepository.findOne({
@@ -227,7 +234,7 @@ export class MarkingsService {
     };
   }
 
-  async updateMultiple(updateMultipleMarkings: UpdateMarkingDto[]) {
+  async updateMultiple(updateMultipleMarkings: UpdateMarkingDto[], user: User) {
     const updatedMarkings = [];
 
     for (const updateMarkingDto of updateMultipleMarkings) {
@@ -249,6 +256,8 @@ export class MarkingsService {
         throw new NotFoundException(`Marking with id ${updateMarkingDto.id} not found`);
 
       const updatedMarking = plainToClass(Marking, updateMarkingDto);
+
+      updatedMarking.updatedBy = user.id;
 
       if (updateMarkingDto.markingTagService) {
         const markingTagService = await this.markingTagServiceRepository.findOne({

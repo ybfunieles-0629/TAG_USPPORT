@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { Client } from '../../clients/entities/client.entity';
+import { UpdateSubSupplierProductTypeDto } from '../../sub-supplier-product-types/dto/update-sub-supplier-product-type.dto';
 
 @Entity('addresses')
 export class Address {
@@ -46,6 +47,16 @@ export class Address {
     default: true,
   })
   isActive: boolean;
+
+  @Column('varchar', {
+
+  })
+  createdBy: string;
+
+  @Column('varchar', {
+
+  })
+  updatedBy: string;
 
   @CreateDateColumn()
   createdAt: Date;

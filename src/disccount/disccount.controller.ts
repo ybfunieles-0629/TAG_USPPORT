@@ -5,6 +5,8 @@ import { DisccountService } from './disccount.service';
 import { CreateDisccountDto } from './dto/create-disccount.dto';
 import { UpdateDisccountDto } from './dto/update-disccount.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('disccount')
 export class DisccountController {
@@ -12,8 +14,11 @@ export class DisccountController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createDisccountDto: CreateDisccountDto) {
-    return this.disccountService.create(createDisccountDto);
+  create(
+    @Body() createDisccountDto: CreateDisccountDto,
+    @GetUser() user: User,
+  ) {
+    return this.disccountService.create(createDisccountDto, user);
   }
 
   @Get()
@@ -36,9 +41,10 @@ export class DisccountController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateDisccountDto: UpdateDisccountDto
+    @Body() updateDisccountDto: UpdateDisccountDto,
+    @GetUser() user: User,
   ) {
-    return this.disccountService.update(id, updateDisccountDto);
+    return this.disccountService.update(id, updateDisccountDto, user);
   }
 
   @Patch('/desactivate/:id')

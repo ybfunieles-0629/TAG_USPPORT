@@ -10,6 +10,7 @@ import { Marking } from '../markings/entities/marking.entity';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { TagSubTechnique } from '../tag-sub-techniques/entities/tag-sub-technique.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class ExternalSubTechniquesService {
@@ -24,8 +25,10 @@ export class ExternalSubTechniquesService {
     private readonly tagSubTechniqueRepository: Repository<TagSubTechnique>,
   ) { }
 
-  async create(createExternalSubTechniqueDto: CreateExternalSubTechniqueDto) {
+  async create(createExternalSubTechniqueDto: CreateExternalSubTechniqueDto, user: User) {
     const newExternalSubTechnique = plainToClass(ExternalSubTechnique, createExternalSubTechniqueDto);
+
+    newExternalSubTechnique.createdBy = user.id;
 
     const marking = await this.markingRepository.findOne({
       where: {
@@ -58,11 +61,13 @@ export class ExternalSubTechniquesService {
     };
   }
 
-  async createMultiple(createExternalSubTechniques: CreateExternalSubTechniqueDto[]) {
+  async createMultiple(createExternalSubTechniques: CreateExternalSubTechniqueDto[], user: User) {
     const createdExternalSubTechniques: ExternalSubTechnique[] = [];
 
     for (const createExternalSubTechniqueDto of createExternalSubTechniques) {
       const newExternalSubTechnique = plainToClass(ExternalSubTechnique, createExternalSubTechniqueDto);
+
+      newExternalSubTechnique.createdBy = user.id;
 
       const marking = await this.markingRepository.findOne({
         where: {
@@ -130,7 +135,7 @@ export class ExternalSubTechniquesService {
     };
   }
 
-  async update(id: string, updateExternalSubTechniqueDto: UpdateExternalSubTechniqueDto) {
+  async update(id: string, updateExternalSubTechniqueDto: UpdateExternalSubTechniqueDto, user: User) {
     const externalSubTechnique = await this.externalSubTechniqueRepository.findOne({
       where: {
         id,
@@ -141,6 +146,8 @@ export class ExternalSubTechniquesService {
       throw new NotFoundException(`External sub technique with id ${id} not found`);
 
     const updatedExternalSubTechnique = plainToClass(ExternalSubTechnique, updateExternalSubTechniqueDto);
+
+    updatedExternalSubTechnique.updatedBy = user.id;
 
     const marking = await this.markingRepository.findOne({
       where: {
@@ -176,7 +183,7 @@ export class ExternalSubTechniquesService {
     };
   }
 
-  async updateMultiple(updateExternalSubTechniques: UpdateExternalSubTechniqueDto[]) {
+  async updateMultiple(updateExternalSubTechniques: UpdateExternalSubTechniqueDto[], user: User) {
     const updatedExternalSubTechniques: ExternalSubTechnique[] = [];
 
     for (const updateExternalSubTechniqueDto of updateExternalSubTechniques) {
@@ -191,6 +198,8 @@ export class ExternalSubTechniquesService {
         throw new NotFoundException(`External sub technique with id ${updateExternalSubTechniqueDto.id} not found`);
 
       const updatedExternalSubTechnique = plainToClass(ExternalSubTechnique, updateExternalSubTechniqueDto);
+
+      updatedExternalSubTechnique.updatedBy = user.id;
 
       const marking = await this.markingRepository.findOne({
         where: {

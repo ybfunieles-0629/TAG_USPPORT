@@ -1,11 +1,13 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from '@nestjs/passport';
 
 import { SystemConfigBrandsService } from './system-config-brands.service';
 import { CreateSystemConfigBrandDto } from './dto/create-system-config-brand.dto';
 import { UpdateSystemConfigBrandDto } from './dto/update-system-config-brand.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('system-config-brands')
 export class SystemConfigBrandsController {
@@ -17,8 +19,9 @@ export class SystemConfigBrandsController {
   create(
     @Body() createSystemConfigBrandDto: CreateSystemConfigBrandDto,
     @UploadedFile() file: Express.Multer.File,
+    @GetUser() user: User,
   ) {
-    return this.systemConfigBrandsService.create(createSystemConfigBrandDto, file);
+    return this.systemConfigBrandsService.create(createSystemConfigBrandDto, file, user);
   }
 
   @Get()
@@ -43,8 +46,9 @@ export class SystemConfigBrandsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateSystemConfigBrandDto: UpdateSystemConfigBrandDto,
     @UploadedFile() file: Express.Multer.File,
+    @GetUser() user: User,
   ) {
-    return this.systemConfigBrandsService.update(id, updateSystemConfigBrandDto, file);
+    return this.systemConfigBrandsService.update(id, updateSystemConfigBrandDto, file, user);
   }
 
   @Delete(':id')

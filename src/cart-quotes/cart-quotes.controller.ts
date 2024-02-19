@@ -14,8 +14,11 @@ export class CartQuotesController {
   constructor(private readonly cartQuotesService: CartQuotesService) { }
 
   @Post()
-  create(@Body() createCartQuoteDto: CreateCartQuoteDto) {
-    return this.cartQuotesService.create(createCartQuoteDto);
+  create(
+    @Body() createCartQuoteDto: CreateCartQuoteDto,
+    @GetUser() user: User,
+  ) {
+    return this.cartQuotesService.create(createCartQuoteDto, user);
   }
 
   @Post('dupply/:id')
@@ -46,7 +49,7 @@ export class CartQuotesController {
   filterByClient(
     @Param('id', ParseUUIDPipe) id: string,
     @Query() paginationDto: PaginationDto,
-    ) {
+  ) {
     return this.cartQuotesService.filterByClient(id, paginationDto);
   }
 

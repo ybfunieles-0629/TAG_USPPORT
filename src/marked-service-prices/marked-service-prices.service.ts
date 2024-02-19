@@ -8,6 +8,7 @@ import { UpdateMarkedServicePriceDto } from './dto/update-marked-service-price.d
 import { MarkedServicePrice } from './entities/marked-service-price.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { MarkingServiceProperty } from '../marking-service-properties/entities/marking-service-property.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class MarkedServicePricesService {
@@ -21,8 +22,10 @@ export class MarkedServicePricesService {
     private readonly markingServicePropertyRepository: Repository<MarkingServiceProperty>,
   ) { }
 
-  async create(createMarkedServicePriceDto: CreateMarkedServicePriceDto) {
+  async create(createMarkedServicePriceDto: CreateMarkedServicePriceDto, user: User) {
     const newMarkedServicePrice = plainToClass(MarkedServicePrice, createMarkedServicePriceDto);
+
+    newMarkedServicePrice.createdBy = user.id;
 
     const markingServiceProperty = await this.markingServicePropertyRepository.findOne({
       where: {
@@ -42,11 +45,13 @@ export class MarkedServicePricesService {
     };
   }
 
-  async createMultiple(createMarkedServicePrices: CreateMarkedServicePriceDto[]) {
+  async createMultiple(createMarkedServicePrices: CreateMarkedServicePriceDto[], user: User) {
     const createdMarkedServicePrices: MarkedServicePrice[] = [];
 
     for (const createMarkedServicePriceDto of createMarkedServicePrices) {
       const newMarkedServicePrice = plainToClass(MarkedServicePrice, createMarkedServicePriceDto);
+
+      newMarkedServicePrice.createdBy = user.id;
 
       const markingServiceProperty = await this.markingServicePropertyRepository.findOne({
         where: {
@@ -99,7 +104,7 @@ export class MarkedServicePricesService {
     };
   }
 
-  async update(id: string, updateMarkedServicePriceDto: UpdateMarkedServicePriceDto) {
+  async update(id: string, updateMarkedServicePriceDto: UpdateMarkedServicePriceDto, user: User) {
     const markedServicePrice = await this.markedServicePriceRepository.findOne({
       where: {
         id,
@@ -113,6 +118,8 @@ export class MarkedServicePricesService {
       throw new NotFoundException(`Marked service price with id ${id} not found`);
 
     const updatedMarkedServicePrice = plainToClass(MarkedServicePrice, updateMarkedServicePriceDto);
+
+    updatedMarkedServicePrice.updatedBy = user.id;
 
     const markingServiceProperty = await this.markingServicePropertyRepository.findOne({
       where: {
@@ -134,7 +141,7 @@ export class MarkedServicePricesService {
     };
   }
 
-  async updateMultiple(updateMarkedServicePrices: UpdateMarkedServicePriceDto[]) {
+  async updateMultiple(updateMarkedServicePrices: UpdateMarkedServicePriceDto[], user: User) {
     const updatedMarkedServicePrices: MarkedServicePrice[] = [];
 
     for (const updateMarkedServicePriceDto of updateMarkedServicePrices) {
@@ -151,6 +158,8 @@ export class MarkedServicePricesService {
         throw new NotFoundException(`Marked service price with id ${updateMarkedServicePriceDto.id} not found`);
 
       const updatedMarkedServicePrice = plainToClass(MarkedServicePrice, updateMarkedServicePriceDto);
+
+      updatedMarkedServicePrice.updatedBy = user.id;
 
       const markingServiceProperty = await this.markingServicePropertyRepository.findOne({
         where: {

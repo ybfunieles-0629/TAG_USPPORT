@@ -8,7 +8,9 @@ import { UpdateMarkingServicePropertyDto } from './dto/update-marking-service-pr
 import { MarkingServiceProperty } from './entities/marking-service-property.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { ExternalSubTechnique } from '../external-sub-techniques/entities/external-sub-technique.entity';
-import { TagSubTechniqueProperty } from 'src/tag-sub-technique-properties/entities/tag-sub-technique-property.entity';
+import { TagSubTechniqueProperty } from '../tag-sub-technique-properties/entities/tag-sub-technique-property.entity';
+import { User } from '../users/entities/user.entity';
+import { UpdateSubSupplierProductTypeDto } from '../sub-supplier-product-types/dto/update-sub-supplier-product-type.dto';
 
 @Injectable()
 export class MarkingServicePropertiesService {
@@ -25,8 +27,10 @@ export class MarkingServicePropertiesService {
     private readonly tagSubTechniquePropertyRepository: Repository<TagSubTechniqueProperty>,
   ) { }
 
-  async create(createMarkingServicePropertyDto: CreateMarkingServicePropertyDto) {
+  async create(createMarkingServicePropertyDto: CreateMarkingServicePropertyDto, user: User) {
     const newMarkingServiceProperty = plainToClass(MarkingServiceProperty, createMarkingServicePropertyDto);
+
+    newMarkingServiceProperty.createdBy = user.id;
 
     const externalSubTechnique = await this.externalSubTechniqueRepository.findOne({
       where: {
@@ -62,12 +66,14 @@ export class MarkingServicePropertiesService {
     };
   }
 
-  async createMultiple(createMarkingServiceProperties: CreateMarkingServicePropertyDto[]) {
+  async createMultiple(createMarkingServiceProperties: CreateMarkingServicePropertyDto[], user: User) {
     const createdMarkingServiceProperties: MarkingServiceProperty[] = [];
 
     for (const createMarkingServicePropertyDto of createMarkingServiceProperties) {
 
       const newMarkingServiceProperty = plainToClass(MarkingServiceProperty, createMarkingServicePropertyDto);
+
+      newMarkingServiceProperty.createdBy = user.id;
 
       const externalSubTechnique = await this.externalSubTechniqueRepository.findOne({
         where: {
@@ -147,7 +153,7 @@ export class MarkingServicePropertiesService {
     };
   }
 
-  async update(id: string, updateMarkingServicePropertyDto: UpdateMarkingServicePropertyDto) {
+  async update(id: string, updateMarkingServicePropertyDto: UpdateMarkingServicePropertyDto, user: User) {
     const markingServiceProperty = await this.markingServicePropertyRepository.findOne({
       where: {
         id,
@@ -163,6 +169,8 @@ export class MarkingServicePropertiesService {
       throw new NotFoundException(`Marking service property with id ${id} not found`);
 
     const updatedMarkingServiceProperty = plainToClass(MarkingServiceProperty, updateMarkingServicePropertyDto);
+
+    updatedMarkingServiceProperty.updatedBy = user.id;
 
     const externalSubTechnique = await this.externalSubTechniqueRepository.findOne({
       where: {
@@ -200,12 +208,10 @@ export class MarkingServicePropertiesService {
     };
   }
 
-  async updateMultiple(updateMarkingServiceProperties: UpdateMarkingServicePropertyDto[]) {
+  async updateMultiple(updateMarkingServiceProperties: UpdateMarkingServicePropertyDto[], user: User) {
     const updatedMarkingServiceProperties: MarkingServiceProperty[] = [];
 
     for (const updateMarkingServicePropertyDto of updateMarkingServiceProperties) {
-
-
       const markingServiceProperty = await this.markingServicePropertyRepository.findOne({
         where: {
           id: updateMarkingServicePropertyDto.id,
@@ -220,7 +226,9 @@ export class MarkingServicePropertiesService {
       if (!markingServiceProperty)
         throw new NotFoundException(`Marking service property with id ${updateMarkingServicePropertyDto.id} not found`);
 
-      const updatedMarkingServiceProperty = plainToClass(MarkingServiceProperty, updateMarkingServicePropertyDto);
+      const updatedMarkingServiceProperty: MarkingServiceProperty = plainToClass(MarkingServiceProperty, updateMarkingServicePropertyDto);
+
+      updatedMarkingServiceProperty.updatedBy = user.id;
 
       const externalSubTechnique = await this.externalSubTechniqueRepository.findOne({
         where: {

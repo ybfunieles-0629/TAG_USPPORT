@@ -29,9 +29,19 @@ export class Color {
   refProductId: string;
 
   @Column('varchar', {
-    
+
   })
   hexadecimalValue: string;
+
+  @Column('varchar', {
+
+  })
+  createdBy: string;
+
+  @Column('varchar', {
+
+  })
+  updatedBy: string;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -7,6 +7,8 @@ import { CreateCategoryTagDto } from './dto/create-category-tag.dto';
 import { UpdateCategoryTagDto } from './dto/update-category-tag.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { SendMessageDto } from './dto/send-message.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('category-tag')
 export class CategoryTagController {
@@ -33,8 +35,9 @@ export class CategoryTagController {
   create(
     @Body() createCategoryTagDto: CreateCategoryTagDto,
     @UploadedFile() file: Express.Multer.File,
+    @GetUser() user: User,
   ) {
-    return this.categoryTagService.create(createCategoryTagDto, file);
+    return this.categoryTagService.create(createCategoryTagDto, file, user);
   }
 
   @Get()
@@ -66,8 +69,9 @@ export class CategoryTagController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateCategoryTagDto: UpdateCategoryTagDto,
     @UploadedFile() file: Express.Multer.File,
+    @GetUser() user: User,
   ) {
-    return this.categoryTagService.update(id, updateCategoryTagDto, file);
+    return this.categoryTagService.update(id, updateCategoryTagDto, file, user);
   }
 
   @Patch('/featured/:id')

@@ -5,6 +5,8 @@ import { DisccountsService } from './disccounts.service';
 import { CreateDisccountsDto } from './dto/create-disccounts.dto';
 import { UpdateDisccountsDto } from './dto/update-disccounts.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from 'src/users/decorators/get-user.decorator';
+import { User } from 'src/users/entities/user.entity';
 
 @Controller('disccounts')
 export class DisccountsController {
@@ -12,16 +14,20 @@ export class DisccountsController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createDisccountsDto: CreateDisccountsDto) {
-    return this.disccountsService.create(createDisccountsDto);
+  create(
+    @Body() createDisccountsDto: CreateDisccountsDto,
+    @GetUser() user: User,
+  ) {
+    return this.disccountsService.create(createDisccountsDto, user);
   }
 
   @Post('create/multiple')
   @UseGuards(AuthGuard())
   createMultiple(
-    @Body() createMultipleDisccountsDto: CreateDisccountsDto[]
+    @Body() createMultipleDisccountsDto: CreateDisccountsDto[],
+    @GetUser() user: User,
   ) {
-    return this.disccountsService.createMultiple(createMultipleDisccountsDto);
+    return this.disccountsService.createMultiple(createMultipleDisccountsDto, user);
   }
 
   @Get()
@@ -44,17 +50,19 @@ export class DisccountsController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateDisccountsDto: UpdateDisccountsDto
+    @Body() updateDisccountsDto: UpdateDisccountsDto,
+    @GetUser() user: User,
   ) {
-    return this.disccountsService.update(id, updateDisccountsDto);
+    return this.disccountsService.update(id, updateDisccountsDto, user);
   }
 
   @Put('update/multiple')
   @UseGuards(AuthGuard())
   updateMultiple(
-    @Body() udpateMultipleDisccountsDto: UpdateDisccountsDto[]
+    @Body() udpateMultipleDisccountsDto: UpdateDisccountsDto[],
+    @GetUser() user: User,
   ) {
-    return this.disccountsService.updateMultiple(udpateMultipleDisccountsDto);
+    return this.disccountsService.updateMultiple(udpateMultipleDisccountsDto, user);
   }
 
   @Patch('/desactivate/:id')

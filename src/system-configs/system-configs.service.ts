@@ -7,6 +7,7 @@ import { UpdateSystemConfigDto } from './dto/update-system-config.dto';
 import { SystemConfig } from './entities/system-config.entity';
 import { plainToClass } from 'class-transformer';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class SystemConfigsService {
@@ -15,8 +16,10 @@ export class SystemConfigsService {
     private readonly systemConfigRepository: Repository<SystemConfig>,
   ) { }
 
-  async create(createSystemConfigDto: CreateSystemConfigDto) {
+  async create(createSystemConfigDto: CreateSystemConfigDto, user: User) {
     const newSystemConfig: SystemConfig = plainToClass(SystemConfig, createSystemConfigDto);
+
+    newSystemConfig.updatedBy = user.id;
 
     await this.systemConfigRepository.save(newSystemConfig);
 
@@ -62,7 +65,7 @@ export class SystemConfigsService {
     };
   }
 
-  async update(id: string, updateSystemConfigDto: UpdateSystemConfigDto) {
+  async update(id: string, updateSystemConfigDto: UpdateSystemConfigDto, user: User) {
     const systemConfig: SystemConfig = await this.systemConfigRepository.findOne({
       where: {
         id,
@@ -76,6 +79,8 @@ export class SystemConfigsService {
       throw new NotFoundException(`System config with id ${id} not found`);
 
     const updatedSystemConfig: SystemConfig = plainToClass(SystemConfig, updateSystemConfigDto);
+
+    updatedSystemConfig.updatedBy = user.id;
 
     Object.assign(systemConfig, updatedSystemConfig);
 

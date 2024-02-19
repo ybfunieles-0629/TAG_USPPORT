@@ -5,22 +5,28 @@ import { VariantReferenceService } from './variant-reference.service';
 import { CreateVariantReferenceDto } from './dto/create-variant-reference.dto';
 import { UpdateVariantReferenceDto } from './dto/update-variant-reference.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('variant-reference')
 export class VariantReferenceController {
   constructor(private readonly variantReferenceService: VariantReferenceService) { }
 
   @Post()
-  create(@Body() createVariantReferenceDto: CreateVariantReferenceDto) {
-    return this.variantReferenceService.create(createVariantReferenceDto);
+  create(
+    @Body() createVariantReferenceDto: CreateVariantReferenceDto,
+    @GetUser() user: User,
+  ) {
+    return this.variantReferenceService.create(createVariantReferenceDto, user);
   }
 
   @Post('create/multiple')
   @UseGuards(AuthGuard())
   createMultiple(
-    @Body() createMultipleVariantReferences: CreateVariantReferenceDto[]
+    @Body() createMultipleVariantReferences: CreateVariantReferenceDto[],
+    @GetUser() user: User,
   ) {
-    return this.variantReferenceService.createMultiple(createMultipleVariantReferences);
+    return this.variantReferenceService.createMultiple(createMultipleVariantReferences, user);
   }
 
   @Get()
@@ -46,17 +52,19 @@ export class VariantReferenceController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateVariantReferenceDto: UpdateVariantReferenceDto
+    @Body() updateVariantReferenceDto: UpdateVariantReferenceDto,
+    @GetUser() user: User,
   ) {
-    return this.variantReferenceService.update(id, updateVariantReferenceDto);
+    return this.variantReferenceService.update(id, updateVariantReferenceDto, user);
   }
 
   @Put('/update/multiple')
   @UseGuards(AuthGuard())
   updateMultiple(
-    @Body() updateMultipleVariantReferences: UpdateVariantReferenceDto[]
+    @Body() updateMultipleVariantReferences: UpdateVariantReferenceDto[],
+    @GetUser() user: User,
   ) {
-    return this.variantReferenceService.updateMultiple(updateMultipleVariantReferences);
+    return this.variantReferenceService.updateMultiple(updateMultipleVariantReferences, user);
   }
 
   @Delete(':id')

@@ -353,8 +353,10 @@ export class CategorySuppliersService {
     await this.loadSubCategories('categorias');
   }
 
-  async create(createCategorySupplierDto: CreateCategorySupplierDto) {
+  async create(createCategorySupplierDto: CreateCategorySupplierDto, user: User) {
     const newCategorySupplier = plainToClass(CategorySupplier, createCategorySupplierDto);
+
+    newCategorySupplier.createdBy = user.id;
 
     const categoryTag = await this.categoryTagRepository.findOne({
       where: {
@@ -473,7 +475,7 @@ export class CategorySuppliersService {
     };
   }
 
-  async update(id: string, updateCategorySupplierDto: UpdateCategorySupplierDto) {
+  async update(id: string, updateCategorySupplierDto: UpdateCategorySupplierDto, user: User) {
     const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
       where: {
         id
@@ -501,6 +503,8 @@ export class CategorySuppliersService {
     // const refProduct: RefProduct = await this.refProductRepository
 
     const updatedCategorySupplier = plainToClass(CategorySupplier, updateCategorySupplierDto);
+
+    updatedCategorySupplier.updatedBy = user.id;
 
     const supplier: Supplier = await this.supplierRepository.findOne({
       where: {

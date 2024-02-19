@@ -5,6 +5,8 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { TagDisccountPricesService } from './tag-disccount-prices.service';
 import { CreateTagDisccountPriceDto } from './dto/create-tag-disccount-price.dto';
 import { UpdateTagDisccountPriceDto } from './dto/update-tag-disccount-price.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('tag-disccount-prices')
 export class TagDisccountPricesController {
@@ -14,8 +16,9 @@ export class TagDisccountPricesController {
   @UseGuards(AuthGuard())
   create(
     @Body() createTagDisccountPriceDto: CreateTagDisccountPriceDto,
+    @GetUser() user: User,
   ) {
-    return this.tagDisccountPricesService.create(createTagDisccountPriceDto);
+    return this.tagDisccountPricesService.create(createTagDisccountPriceDto, user);
   }
 
   @Get()
@@ -38,9 +41,10 @@ export class TagDisccountPricesController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateTagDisccountPriceDto: UpdateTagDisccountPriceDto
+    @Body() updateTagDisccountPriceDto: UpdateTagDisccountPriceDto,
+    @GetUser() user: User,
   ) {
-    return this.tagDisccountPricesService.update(id, updateTagDisccountPriceDto);
+    return this.tagDisccountPricesService.update(id, updateTagDisccountPriceDto, user);
   }
 
   @Patch('/desactivate/:id')

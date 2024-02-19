@@ -1,9 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Put, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
 import { MarkingsService } from './markings.service';
 import { CreateMarkingDto } from './dto/create-marking.dto';
 import { UpdateMarkingDto } from './dto/update-marking.dto';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('markings')
 export class MarkingsController {
@@ -11,16 +14,20 @@ export class MarkingsController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createMarkingDto: CreateMarkingDto) {
-    return this.markingsService.create(createMarkingDto);
+  create(
+    @Body() createMarkingDto: CreateMarkingDto,
+    @GetUser() user: User,
+  ) {
+    return this.markingsService.create(createMarkingDto, user);
   }
 
   @Post('create/multiple')
   @UseGuards(AuthGuard())
   createMultiple(
-    @Body() createMultipleMarkings: CreateMarkingDto[]
+    @Body() createMultipleMarkings: CreateMarkingDto[],
+    @GetUser() user: User,
   ) {
-    return this.markingsService.createMultiple(createMultipleMarkings);
+    return this.markingsService.createMultiple(createMultipleMarkings, user);
   }
 
   @Get()
@@ -41,17 +48,19 @@ export class MarkingsController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateMarkingDto: UpdateMarkingDto
+    @Body() updateMarkingDto: UpdateMarkingDto,
+    @GetUser() user: User,
   ) {
-    return this.markingsService.update(id, updateMarkingDto);
+    return this.markingsService.update(id, updateMarkingDto, user);
   }
 
   @Put('/update/multiple')
   @UseGuards(AuthGuard())
   updateMultiple(
-    @Body() updateMultipleMarkings: UpdateMarkingDto[]
+    @Body() updateMultipleMarkings: UpdateMarkingDto[],
+    @GetUser() user: User,
   ) {
-    return this.markingsService.updateMultiple(updateMultipleMarkings);
+    return this.markingsService.updateMultiple(updateMultipleMarkings, user);
   }
 
 

@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { isUUID } from 'class-validator';
 
 import { CreatePackingDto } from './dto/create-packing.dto';
 import { UpdatePackingDto } from './dto/update-packing.dto';
@@ -9,7 +10,7 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { plainToClass } from 'class-transformer';
 import { Product } from '../products/entities/product.entity';
 import { RefProduct } from '../ref-products/entities/ref-product.entity';
-import { isUUID } from 'class-validator';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class PackingsService {
@@ -26,8 +27,10 @@ export class PackingsService {
     private readonly refProductRepository: Repository<RefProduct>,
   ) { }
 
-  async create(createPackingDto: CreatePackingDto) {
+  async create(createPackingDto: CreatePackingDto, user: User) {
     const newPacking = plainToClass(Packing, createPackingDto);
+
+    newPacking.createdBy = user.id;
 
     if (isUUID(createPackingDto.product)) {
       const product = await this.productRepository.findOne({
@@ -106,7 +109,7 @@ export class PackingsService {
     };
   }
 
-  async update(id: string, updatePackingDto: UpdatePackingDto) {
+  async update(id: string, updatePackingDto: UpdatePackingDto, user: User) {
     const packing = await this.packingRepository.findOne({
       where: {
         id,
@@ -118,6 +121,8 @@ export class PackingsService {
     });
 
     const updatedPacking = plainToClass(Packing, updatePackingDto);
+
+    updatedPacking.updatedBy = user.id;
 
     if (updatePackingDto.product) {
       const product = await this.productRepository.findOne({

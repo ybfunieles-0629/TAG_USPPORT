@@ -4,6 +4,8 @@ import { SuscriptionsService } from './suscriptions.service';
 import { CreateSuscriptionDto } from './dto/create-suscription.dto';
 import { UpdateSuscriptionDto } from './dto/update-suscription.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('suscriptions')
 export class SuscriptionsController {
@@ -11,9 +13,10 @@ export class SuscriptionsController {
 
   @Post()
   create(
-    @Body() createSuscriptionDto: CreateSuscriptionDto
+    @Body() createSuscriptionDto: CreateSuscriptionDto,
+    @GetUser() user: User,
   ) {
-    return this.suscriptionsService.create(createSuscriptionDto);
+    return this.suscriptionsService.create(createSuscriptionDto, user);
   }
 
   @Get()
@@ -33,9 +36,10 @@ export class SuscriptionsController {
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateSuscriptionDto: UpdateSuscriptionDto
+    @Body() updateSuscriptionDto: UpdateSuscriptionDto,
+    @GetUser() user: User,
   ) {
-    return this.suscriptionsService.update(id, updateSuscriptionDto);
+    return this.suscriptionsService.update(id, updateSuscriptionDto, user);
   };
 
   @Patch('desactivate/:id')

@@ -5,6 +5,8 @@ import { TagSubTechniquesService } from './tag-sub-techniques.service';
 import { CreateTagSubTechniqueDto } from './dto/create-tag-sub-technique.dto';
 import { UpdateTagSubTechniqueDto } from './dto/update-tag-sub-technique.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('tag-sub-techniques')
 export class TagSubTechniquesController {
@@ -12,16 +14,20 @@ export class TagSubTechniquesController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createTagSubTechniqueDto: CreateTagSubTechniqueDto) {
-    return this.tagSubTechniquesService.create(createTagSubTechniqueDto);
+  create(
+    @Body() createTagSubTechniqueDto: CreateTagSubTechniqueDto,
+    @GetUser() user: User,
+  ) {
+    return this.tagSubTechniquesService.create(createTagSubTechniqueDto, user);
   }
 
   @Post('create/multiple')
   @UseGuards(AuthGuard())
   createMultiple(
-    @Body() createTagSubTechniques: CreateTagSubTechniqueDto[]
-    ) {
-    return this.tagSubTechniquesService.createMultiple(createTagSubTechniques);
+    @Body() createTagSubTechniques: CreateTagSubTechniqueDto[],
+    @GetUser() user: User,
+  ) {
+    return this.tagSubTechniquesService.createMultiple(createTagSubTechniques, user);
   }
 
   @Get()
@@ -44,17 +50,19 @@ export class TagSubTechniquesController {
   @UseGuards(AuthGuard())
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateTagSubTechniqueDto: UpdateTagSubTechniqueDto
+    @Body() updateTagSubTechniqueDto: UpdateTagSubTechniqueDto,
+    @GetUser() user: User,
   ) {
-    return this.tagSubTechniquesService.update(id, updateTagSubTechniqueDto);
+    return this.tagSubTechniquesService.update(id, updateTagSubTechniqueDto, user);
   }
 
   @Patch('update/multiple')
   @UseGuards(AuthGuard())
   updateMultiple(
-    @Body() updateTagSubTechniques: UpdateTagSubTechniqueDto[]
+    @Body() updateTagSubTechniques: UpdateTagSubTechniqueDto[],
+    @GetUser() user: User,
   ) {
-    return this.tagSubTechniquesService.updateMultiple(updateTagSubTechniques);
+    return this.tagSubTechniquesService.updateMultiple(updateTagSubTechniques, user);
   }
 
   @Patch('desactivate/:id')
