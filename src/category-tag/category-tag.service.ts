@@ -57,8 +57,11 @@ export class CategoryTagService {
     }
   }
 
-  async sendMessage(sendMessageDto: SendMessageDto) {
+  async sendMessage(sendMessageDto: SendMessageDto) { 
     try {
+      if (!sendMessageDto.email || sendMessageDto.email.trim() == '')
+        throw new BadRequestException(`You must enter a valid email`);
+
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -69,11 +72,10 @@ export class CategoryTagService {
 
       await transporter.sendMail({
         from: this.emailSenderConfig.transport.from,
-        to: ['puertodaniela586@gmail.com', 'locarr785@gmail.com', 'yeison.descargas@gmail.com'],
+        to: [sendMessageDto.email],
         subject: 'Nuevo mensaje',
         html: `
           Nombre completo: ${sendMessageDto.name} <br />
-          Correo electrónico: ${sendMessageDto.email} <br />
           Asunto: ${sendMessageDto.subject} <br />
           Mensaje: ${sendMessageDto.message} <br />
         `,
