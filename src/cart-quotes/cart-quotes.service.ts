@@ -624,13 +624,13 @@ export class CartQuotesService {
         if (stateDb.name.toLowerCase() == 'rechazada') {
           supplierPurchaseOrderState = await this.stateRepository
             .createQueryBuilder('state')
-            .where('LOWER(state.name) =:name', { name: 'pago rechazado por la pasarela' })
+            .where('LOWER(state.name) =:name', { name: 'orden de compra pagada' })
             .andWhere('LOWER(state.process) =:process', { process: 'orden de compra no corporativo' })
             .getOne();
         } else {
           supplierPurchaseOrderState = await this.stateRepository
             .createQueryBuilder('state')
-            .where('LOWER(state.name) =:name', { name: 'orden de compra realizada' })
+            .where('LOWER(state.name) =:name', { name: 'orden de compra pagada' })
             .andWhere('LOWER(state.process) =:process', { process: 'orden de compra no corporativo' })
             .getOne();
         };
