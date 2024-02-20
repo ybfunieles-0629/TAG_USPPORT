@@ -60,7 +60,7 @@ export class CartQuotesService {
   ) { }
 
   async create(createCartQuoteDto: CreateCartQuoteDto) {
-    const newCartQuote = plainToClass(CartQuote, createCartQuoteDto);
+    const newCartQuote: CartQuote = plainToClass(CartQuote, createCartQuoteDto);
 
     // newCartQuote.createdBy = user.id;
 
