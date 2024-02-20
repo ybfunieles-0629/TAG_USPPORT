@@ -15,10 +15,10 @@ export class CartQuotesController {
 
   @Post()
   create(
+    // @GetUser() user: User,
     @Body() createCartQuoteDto: CreateCartQuoteDto,
-    @GetUser() user: User,
   ) {
-    return this.cartQuotesService.create(createCartQuoteDto, user);
+    return this.cartQuotesService.create(createCartQuoteDto);
   }
 
   @Post('dupply/:id')

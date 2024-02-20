@@ -59,10 +59,10 @@ export class CartQuotesService {
     private readonly supplierPurchaseOrderRepository: Repository<SupplierPurchaseOrder>,
   ) { }
 
-  async create(createCartQuoteDto: CreateCartQuoteDto, user: User) {
+  async create(createCartQuoteDto: CreateCartQuoteDto) {
     const newCartQuote = plainToClass(CartQuote, createCartQuoteDto);
 
-    newCartQuote.createdBy = user.id;
+    // newCartQuote.createdBy = user.id;
 
     const client = await this.clientRepository.findOne({
       where: {
