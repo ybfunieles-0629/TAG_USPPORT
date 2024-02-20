@@ -13,6 +13,7 @@ import { CategoryTag } from '../category-tag/entities/category-tag.entity';
 import { RefProduct } from '../ref-products/entities/ref-product.entity';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { User } from '../users/entities/user.entity';
+import { Role } from 'src/roles/entities/role.entity';
 
 @Injectable()
 export class CategorySuppliersService {
@@ -390,21 +391,34 @@ export class CategorySuppliersService {
     };
   }
 
-  async findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto, user: User) {
     const totalCount = await this.categorySupplierRepository.count();
 
     const { limit = totalCount, offset = 0 } = paginationDto;
 
-    const categorySuppliers = await this.categorySupplierRepository.find({
-      take: limit,
-      skip: offset,
-      relations: [
-        'categoryTag',
-        'supplier',
-        'supplier.user',
-        'refProducts',
-      ],
-    });
+    let categorySuppliers: CategorySupplier[] = [];
+
+    if (user.roles.some((role: Role) => role.name.toLowerCase().trim() == 'proveedor')) {
+      categorySuppliers = await this.categorySupplierRepository
+        .createQueryBuilder('categorySupplier')
+        .leftJoinAndSelect('categorySupplier.supplier', 'supplier')
+        .leftJoinAndSelect('supplier.user', 'user')
+        .where('user.id =:userId', { userId: user.id })
+        .leftJoinAndSelect('categorySupplier.categoryTag', 'categoryTag')
+        .leftJoinAndSelect('categorySupplier.refProducts', 'refProducts')
+        .getMany();
+    } else {
+      categorySuppliers = await this.categorySupplierRepository.find({
+        take: limit,
+        skip: offset,
+        relations: [
+          'categoryTag',
+          'supplier',
+          'supplier.user',
+          'refProducts',
+        ],
+      });
+    }
 
     const categoryCountsPromises = categorySuppliers.map(async (categorySupplier) => {
       const count = await this.calculateCategoryCount(categorySupplier);

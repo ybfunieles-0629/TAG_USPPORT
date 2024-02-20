@@ -29,9 +29,10 @@ export class CategorySuppliersController {
 
   @Get()
   findAll(
-    @Query() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto,
+    @GetUser() user: User,
   ) {
-    return this.categorySuppliersService.findAll(paginationDto);
+    return this.categorySuppliersService.findAll(paginationDto, user);
   }
 
   @Get('type/:type')
