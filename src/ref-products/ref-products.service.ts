@@ -23,6 +23,7 @@ import { Packing } from '../packings/entities/packing.entity';
 import { LocalTransportPrice } from '../local-transport-prices/entities/local-transport-price.entity';
 import { User } from '../users/entities/user.entity';
 import { Color } from 'src/colors/entities/color.entity';
+import { Role } from 'src/roles/entities/role.entity';
 
 @Injectable()
 export class RefProductsService {
@@ -449,45 +450,122 @@ export class RefProductsService {
   async findAll(paginationDto: PaginationDto, user: User) {
     const totalCount = await this.refProductRepository.count();
 
-    const { limit = totalCount, offset = 0, calculations = 0, supplier = 0 } = paginationDto;
+    const { limit = totalCount, offset = 0, calculations = 0, supplier = 0, dashboard = 1 } = paginationDto;
 
     let results: RefProduct[] = [];
 
-    results = await this.refProductRepository.find({
-      take: limit,
-      skip: offset,
-      relations: [
-        'images',
-        'colors',
-        'categorySuppliers',
-        'categoryTags',
-        'deliveryTimes',
-        'markingServiceProperty',
-        'markingServiceProperty.externalSubTechnique',
-        'markingServiceProperty.externalSubTechnique.marking',
-        'packings',
-        'products',
-        'products.images',
-        'products.disccounts',
-        'products.refProduct',
-        'products.refProduct.deliveryTimes',
-        'products.refProduct.supplier',
-        'products.refProduct.supplier.disccounts',
-        'products.colors',
-        'products.variantReferences',
-        'products.packings',
-        'products.supplierPrices',
-        'products.supplierPrices.product',
-        'products.supplierPrices.listPrices',
-        'products.markingServiceProperties',
-        'products.markingServiceProperties.images',
-        'products.markingServiceProperties.externalSubTechnique',
-        'products.markingServiceProperties.externalSubTechnique.marking',
-        'supplier',
-        'supplier.user',
-        'variantReferences',
-      ],
-    });
+    if (user.roles.some((role: Role) => role.name.toLowerCase().trim() == 'proveedor')) {
+      if (dashboard == 1) {
+        results = await this.refProductRepository
+          .createQueryBuilder('rp')
+          .leftJoinAndSelect('rp.supplier', 'rpSupplier')
+          .where('rpSupplier.id =:userId', { userId: user.id })
+          .leftJoinAndSelect('rp.images', 'rp_images')
+          .leftJoinAndSelect('rp.colors', 'rp_colors')
+          .leftJoinAndSelect('rp.categorySuppliers', 'rp_categorySuppliers')
+          .leftJoinAndSelect('rp.categoryTags', 'rp_categoryTags')
+          .leftJoinAndSelect('rp.deliveryTimes', 'rp_deliveryTimes')
+          .leftJoinAndSelect('rp.markingServiceProperty', 'rp_markingServiceProperty')
+          .leftJoinAndSelect('rp_markingServiceProperty.externalSubTechnique', 'rp_externalSubTechnique')
+          .leftJoinAndSelect('rp_externalSubTechnique.marking', 'rp_marking')
+          .leftJoinAndSelect('rp.packings', 'rp_packings')
+          .leftJoinAndSelect('rp.products', 'rp_products')
+          .leftJoinAndSelect('rp_products.images', 'rp_products_images')
+          .leftJoinAndSelect('rp_products.disccounts', 'rp_products_disccounts')
+          .leftJoinAndSelect('rp_products.refProduct', 'rp_products_refProduct')
+          .leftJoinAndSelect('rp_products_refProduct.deliveryTimes', 'rp_products_refProduct_deliveryTimes')
+          .leftJoinAndSelect('rp_products_refProduct.supplier', 'rp_products_refProduct_supplier')
+          .leftJoinAndSelect('rp_products_refProduct_supplier.disccounts', 'rp_products_refProduct_supplier_disccounts')
+          .leftJoinAndSelect('rp_products.colors', 'rp_products_colors')
+          .leftJoinAndSelect('rp_products.variantReferences', 'rp_products_variantReferences')
+          .leftJoinAndSelect('rp_products.packings', 'rp_products_packings')
+          .leftJoinAndSelect('rp_products.supplierPrices', 'rp_products_supplierPrices')
+          .leftJoinAndSelect('rp_products_supplierPrices.product', 'rp_products_supplierPrices_product')
+          .leftJoinAndSelect('rp_products_supplierPrices.listPrices', 'rp_products_supplierPrices_listPrices')
+          .leftJoinAndSelect('rp_products.markingServiceProperties', 'rp_products_markingServiceProperties')
+          .leftJoinAndSelect('rp_products_markingServiceProperties.images', 'rp_products_markingServiceProperties_images')
+          .leftJoinAndSelect('rp_products_markingServiceProperties.externalSubTechnique', 'rp_products_markingServiceProperties_externalSubTechnique')
+          .leftJoinAndSelect('rp_products_markingServiceProperties_externalSubTechnique.marking', 'rp_products_markingServiceProperties_externalSubTechnique_marking')
+          .leftJoinAndSelect('rp.supplier', 'rp_supplier')
+          .leftJoinAndSelect('rp_supplier.user', 'rp_supplier_user')
+          .leftJoinAndSelect('rp.variantReferences', 'rp_variantReferences')
+          .take(limit)
+          .skip(offset)
+          .getMany();
+      } else {
+        results = await this.refProductRepository.find({
+          take: limit,
+          skip: offset,
+          relations: [
+            'images',
+            'colors',
+            'categorySuppliers',
+            'categoryTags',
+            'deliveryTimes',
+            'markingServiceProperty',
+            'markingServiceProperty.externalSubTechnique',
+            'markingServiceProperty.externalSubTechnique.marking',
+            'packings',
+            'products',
+            'products.images',
+            'products.disccounts',
+            'products.refProduct',
+            'products.refProduct.deliveryTimes',
+            'products.refProduct.supplier',
+            'products.refProduct.supplier.disccounts',
+            'products.colors',
+            'products.variantReferences',
+            'products.packings',
+            'products.supplierPrices',
+            'products.supplierPrices.product',
+            'products.supplierPrices.listPrices',
+            'products.markingServiceProperties',
+            'products.markingServiceProperties.images',
+            'products.markingServiceProperties.externalSubTechnique',
+            'products.markingServiceProperties.externalSubTechnique.marking',
+            'supplier',
+            'supplier.user',
+            'variantReferences',
+          ],
+        });
+      }
+    } else {
+      results = await this.refProductRepository.find({
+        take: limit,
+        skip: offset,
+        relations: [
+          'images',
+          'colors',
+          'categorySuppliers',
+          'categoryTags',
+          'deliveryTimes',
+          'markingServiceProperty',
+          'markingServiceProperty.externalSubTechnique',
+          'markingServiceProperty.externalSubTechnique.marking',
+          'packings',
+          'products',
+          'products.images',
+          'products.disccounts',
+          'products.refProduct',
+          'products.refProduct.deliveryTimes',
+          'products.refProduct.supplier',
+          'products.refProduct.supplier.disccounts',
+          'products.colors',
+          'products.variantReferences',
+          'products.packings',
+          'products.supplierPrices',
+          'products.supplierPrices.product',
+          'products.supplierPrices.listPrices',
+          'products.markingServiceProperties',
+          'products.markingServiceProperties.images',
+          'products.markingServiceProperties.externalSubTechnique',
+          'products.markingServiceProperties.externalSubTechnique.marking',
+          'supplier',
+          'supplier.user',
+          'variantReferences',
+        ],
+      });
+    };
 
     const finalResults: RefProduct[] = results;
     let finalCalculatedResults = [];
