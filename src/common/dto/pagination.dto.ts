@@ -23,4 +23,7 @@ export class PaginationDto {
 
   @IsOptional()
   isCommercial?: number;
+
+  @IsOptional()
+  dashboard?: number;
 }
