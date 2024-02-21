@@ -28,11 +28,12 @@ export class CategorySuppliersController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto,
-    // @GetUser() user: User,
+    @GetUser() user: User,
   ) {
-    return this.categorySuppliersService.findAll(paginationDto);
+    return this.categorySuppliersService.findAll(paginationDto, user);
   }
 
   @Get('type/:type')
