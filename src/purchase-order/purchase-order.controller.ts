@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UseInterceptors, UploadedFile, UseGuards, UploadedFiles } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
 
 import { PurchaseOrderService } from './purchase-order.service';
 import { CreatePurchaseOrderDto } from './dto/create-purchase-order.dto';
@@ -41,14 +41,19 @@ export class PurchaseOrderController {
 
   @Patch(':id')
   @UseGuards(AuthGuard())
-  @UseInterceptors(FileInterceptor('orderDocument'))
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'orderDocument', maxCount: 1 },
+      { name: 'billingFile', maxCount: 1 },
+    ])
+  )
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePurchaseOrderDto: UpdatePurchaseOrderDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Record<string, Express.Multer.File>,
     @GetUser() user: User,
   ) {
-    return this.purchaseOrderService.update(id, updatePurchaseOrderDto, file, user);
+    return this.purchaseOrderService.update(id, updatePurchaseOrderDto, files, user);
   }
 
   @Patch('desactivate/:id')
