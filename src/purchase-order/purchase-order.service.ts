@@ -108,7 +108,7 @@ export class PurchaseOrderService {
     const { limit = 10, offset = 0 } = paginationDto;
     let results: PurchaseOrder[] = [];
 
-    if (user.isCoorporative == 1 && user.client == null || user.client == undefined) {
+    if (user.roles.some((role) => role.name.toLowerCase().trim() == 'comercial')) {
       const clients = await this.clientRepository.find({
         where: {
           commercialId: user.id
