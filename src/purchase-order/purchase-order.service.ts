@@ -244,7 +244,7 @@ export class PurchaseOrderService {
     };
   }
 
-  async update(id: string, updatePurchaseOrderDto: UpdatePurchaseOrderDto, file: Express.Multer.File, user: User) {
+  async update(id: string, updatePurchaseOrderDto: UpdatePurchaseOrderDto, files: Record<string, Express.Multer.File>, user: User) {
     const purchaseOrder: PurchaseOrder = await this.purchaseOrderRepository.findOne({
       where: {
         id,
@@ -284,17 +284,20 @@ export class PurchaseOrderService {
 
     let billingFileAwsUrl: string = '';
 
-    if (file != undefined || file != null) {
-      const uniqueFilename = `${uuidv4()}-${file.originalname}`;
+    if (files != undefined) {
+      for (const [fieldName, fileInfo] of Object.entries(files)) {
+        const uniqueFilename = `${uuidv4()}-${fileInfo[0].originalname}`;
+        fileInfo[0].originalname = uniqueFilename;
 
-      file.originalname = uniqueFilename;
+        await this.uploadToAws(fileInfo[0]);
 
-      const imageUrl = await this.uploadToAws(file);
-
-      billingFileAwsUrl = imageUrl;
-
-      updatedPurchaseOrder.billingFile = file.originalname;
-    }
+        if (fileInfo[0].fieldname === 'orderDocument') {
+          updatedPurchaseOrder.orderDocument = uniqueFilename;
+        } else if (fileInfo[0].fieldname === 'billingFile') {
+          updatedPurchaseOrder.billingFile = uniqueFilename;
+        }
+      }
+    };
 
     if (updatePurchaseOrderDto.shippingGuide) {
       const shipingGuideId: string = updatePurchaseOrderDto.shippingGuide;
