@@ -391,23 +391,23 @@ export class CategorySuppliersService {
     };
   }
 
-  async findAll(paginationDto: PaginationDto, user: User) {
+  async findAll(paginationDto: PaginationDto) {
     const totalCount = await this.categorySupplierRepository.count();
 
     const { limit = totalCount, offset = 0 } = paginationDto;
 
     let categorySuppliers: CategorySupplier[] = [];
 
-    if (user.roles.some((role: Role) => role.name.toLowerCase().trim() == 'proveedor')) {
-      categorySuppliers = await this.categorySupplierRepository
-        .createQueryBuilder('categorySupplier')
-        .leftJoinAndSelect('categorySupplier.supplier', 'supplier')
-        .leftJoinAndSelect('supplier.user', 'user')
-        .where('user.id =:userId', { userId: user.id })
-        .leftJoinAndSelect('categorySupplier.categoryTag', 'categoryTag')
-        .leftJoinAndSelect('categorySupplier.refProducts', 'refProducts')
-        .getMany();
-    } else {
+    // if (user.roles.some((role: Role) => role.name.toLowerCase().trim() == 'proveedor')) {
+    //   categorySuppliers = await this.categorySupplierRepository
+    //     .createQueryBuilder('categorySupplier')
+    //     .leftJoinAndSelect('categorySupplier.supplier', 'supplier')
+    //     .leftJoinAndSelect('supplier.user', 'user')
+    //     .where('user.id =:userId', { userId: user.id })
+    //     .leftJoinAndSelect('categorySupplier.categoryTag', 'categoryTag')
+    //     .leftJoinAndSelect('categorySupplier.refProducts', 'refProducts')
+    //     .getMany();
+    // } else {
       categorySuppliers = await this.categorySupplierRepository.find({
         take: limit,
         skip: offset,
@@ -418,7 +418,7 @@ export class CategorySuppliersService {
           'refProducts',
         ],
       });
-    }
+    // }
 
     const categoryCountsPromises = categorySuppliers.map(async (categorySupplier) => {
       const count = await this.calculateCategoryCount(categorySupplier);
