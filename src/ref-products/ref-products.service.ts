@@ -702,8 +702,14 @@ export class RefProductsService {
     if (!refProduct)
       throw new NotFoundException(`Ref product with id ${id} not found`);
 
+    const refProducts = [];
+    refProducts.push(refProduct);
+
+    const finalResults = refProducts.length > 0 ? await this.calculations(refProducts) : [];
+
+
     return {
-      refProduct
+      finalResults
     };
   }
 
@@ -1549,7 +1555,11 @@ export class RefProductsService {
   }
 
   async desactivate(id: string) {
-    const { refProduct } = await this.findOne(id);
+    const refProduct: RefProduct = await this.refProductRepository.findOne({
+      where: {
+        id,
+      },
+    });
 
     refProduct.isActive = !refProduct.isActive;
 
@@ -1576,7 +1586,11 @@ export class RefProductsService {
   }
 
   async remove(id: string) {
-    const { refProduct } = await this.findOne(id);
+    const refProduct: RefProduct = await this.refProductRepository.findOne({
+      where: {
+        id,
+      },
+    });
 
     await this.refProductRepository.remove(refProduct);
 
