@@ -144,8 +144,17 @@ export class ProductsService {
     if (!user.supplier)
       throw new BadRequestException(`The user is not a supplier`);
 
-    const refProductsInDb: RefProduct[] = await this.refProductRepository.find();
-    const productsInDb: Product[] = await this.productRepository.find();
+    const refProductsInDb: RefProduct[] = await this.refProductRepository.find({
+      relations: [
+        'products',
+      ],
+    });
+
+    const productsInDb: Product[] = await this.productRepository.find({
+      relations: [
+        'refProduct',
+      ],
+    });
 
     const refProductsToSave: RefProduct[] = [];
     const productsToSave: Product[] = [];
@@ -186,6 +195,8 @@ export class ProductsService {
         supplier: user.supplier,
       };
 
+      const referencePrice: number = product.precio1;
+
       const existingRefProduct = refProductsInDb.find(refProduct => refProduct.referenceCode === product.referencia);
 
       let savedRefProduct: RefProduct;
@@ -206,9 +217,9 @@ export class ProductsService {
 
         if (existingProductInDb) {
           if (existingProductInDb.availableUnit !== product.totalDisponible ||
-            existingProductInDb.referencePrice !== product.precio1) {
+            existingProductInDb.referencePrice !== referencePrice) {
             existingProductInDb.availableUnit = product.totalDisponible;
-            existingProductInDb.referencePrice = product.precio1;
+            existingProductInDb.referencePrice = product.referencePrice;
             await this.productRepository.save(existingProductInDb);
             productsToSave.push(existingProductInDb);
           }
@@ -229,7 +240,7 @@ export class ProductsService {
             availableUnit: product.totalDisponible,
             supplierSku: tagSku,
             refProduct: savedRefProduct,
-            referencePrice: product.precio1,
+            referencePrice,
             apiCode: product.id,
             colors: colorsToAssign
           };
