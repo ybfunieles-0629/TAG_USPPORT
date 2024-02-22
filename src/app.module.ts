@@ -58,6 +58,8 @@ import { SystemConfigOffersModule } from './system-config-offers/system-config-o
 import { SystemConfigBrandsModule } from './system-config-brands/system-config-brands.module';
 import { SuscriptionsModule } from './suscriptions/suscriptions.module';
 import { StatisticsModule } from './statistics/statistics.module';
+import { PaymentInvoicesModule } from './payment-invoices/payment-invoices.module';
+import { StatusHistoryModule } from './status-history/status-history.module';
 
 @Module({
   imports: [
@@ -133,7 +135,9 @@ import { StatisticsModule } from './statistics/statistics.module';
     SystemConfigOffersModule,
     SystemConfigBrandsModule,
     SuscriptionsModule,
-    StatisticsModule
+    StatisticsModule,
+    PaymentInvoicesModule,
+    StatusHistoryModule
   ],
 })
 export class AppModule { }
