@@ -37,7 +37,7 @@ export class OrderListDetailsService {
 
     @InjectRepository(State)
     private readonly stateRepository: Repository<State>,
-    
+
     @InjectRepository(StatusHistory)
     private readonly statusHistoryRepository: Repository<StatusHistory>,
 
@@ -357,16 +357,18 @@ export class OrderListDetailsService {
 
       updatedOrderListDetail.state = state;
 
-      const newStatusHistoryData = {
-        state,
-        user,
-        processId: id,
-        createdBy: user.id,
-      };
+      if (updateOrderListDetailDto.state != orderListDetail.state.id) {
+        const newStatusHistoryData = {
+          state,
+          user,
+          processId: id,
+          createdBy: user.id,
+        };
 
-      const newStatusHistory: StatusHistory = plainToClass(StatusHistory, newStatusHistoryData);
+        const newStatusHistory: StatusHistory = plainToClass(StatusHistory, newStatusHistoryData);
 
-      await this.statusHistoryRepository.save(newStatusHistory);
+        await this.statusHistoryRepository.save(newStatusHistory);
+      }
     };
 
     if (updateOrderListDetailDto.product) {
