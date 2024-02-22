@@ -23,6 +23,8 @@ export class PaymentInvoicesService {
   async create(createPaymentInvoiceDto: CreatePaymentInvoiceDto, user: User) {
     const newPaymentInvoice: PaymentInvoice = plainToClass(PaymentInvoice, createPaymentInvoiceDto);
 
+    newPaymentInvoice.createdBy = user.id;
+
     if (createPaymentInvoiceDto.supplierPurchaseOrder) {
       const supplierPurchaseOrderId: string = createPaymentInvoiceDto.supplierPurchaseOrder;
       
