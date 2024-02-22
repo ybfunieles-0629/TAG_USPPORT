@@ -9,6 +9,7 @@ import { Client } from '../../clients/entities/client.entity';
 import { Supplier } from '../../suppliers/entities/supplier.entity';
 import { Brand } from '../../brands/entities/brand.entity';
 import { CartQuote } from '../../cart-quotes/entities/cart-quote.entity';
+import { StatusHistory } from '../../status-history/entities/status-history.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -121,6 +122,9 @@ export class User {
 
   @OneToMany(() => Brand, (brand) => brand.user)
   brands?: Brand[];
+
+  @OneToMany(() => StatusHistory, (statusHistory) => statusHistory.user)
+  statusHistories?: StatusHistory[];
 
   @OneToMany(() => CartQuote, (cartQuote) => cartQuote.user, { onDelete: 'CASCADE' })
   cartQuotes?: CartQuote[];
