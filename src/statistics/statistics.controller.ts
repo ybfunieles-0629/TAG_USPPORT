@@ -41,4 +41,12 @@ export class StatisticsController {
   ) {
     return this.statisticsService.getCategoryReportsForYear(yearParam);
   };
+
+  @Get('commercial/stats')
+  getCommercialQualificationStatsByMonth(
+    @Query('year') year: number,
+    @Query('commercial') commercial: string,
+  ) {
+    return this.statisticsService.getCommercialQualificationStatsByMonth(year, commercial);
+  }
 }
