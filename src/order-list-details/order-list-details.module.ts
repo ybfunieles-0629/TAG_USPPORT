@@ -1,5 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PassportModule } from '@nestjs/passport';
 
 import { OrderListDetailsService } from './order-list-details.service';
 import { OrderListDetailsController } from './order-list-details.controller';
@@ -11,7 +12,7 @@ import { TransportServicesModule } from '../transport-services/transport-service
 import { StatesModule } from '../states/states.module';
 import { ProductsModule } from '../products/products.module';
 import { SupplierPurchaseOrdersModule } from '../supplier-purchase-orders/supplier-purchase-orders.module';
-import { PassportModule } from '@nestjs/passport';
+import { StatusHistoryModule } from '../status-history/status-history.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { PassportModule } from '@nestjs/passport';
     MarkingServicesModule,
     OrderRatingsModule,
     StatesModule,
+    StatusHistoryModule,
     SupplierPurchaseOrdersModule,
     PurchaseOrderModule,
     forwardRef(() => ProductsModule),

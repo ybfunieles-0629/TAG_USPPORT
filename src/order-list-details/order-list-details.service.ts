@@ -14,7 +14,8 @@ import { State } from '../states/entities/state.entity';
 import { Product } from '../products/entities/product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { SupplierPurchaseOrder } from '../supplier-purchase-orders/entities/supplier-purchase-order.entity';
-import { User } from 'src/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
+import { StatusHistory } from '../status-history/entities/status-history.entity';
 
 @Injectable()
 export class OrderListDetailsService {
@@ -36,6 +37,9 @@ export class OrderListDetailsService {
 
     @InjectRepository(State)
     private readonly stateRepository: Repository<State>,
+    
+    @InjectRepository(StatusHistory)
+    private readonly statusHistoryRepository: Repository<StatusHistory>,
 
     @InjectRepository(SupplierPurchaseOrder)
     private readonly supplierPurchaseOrderRepository: Repository<SupplierPurchaseOrder>,
@@ -352,6 +356,17 @@ export class OrderListDetailsService {
         throw new BadRequestException(`State with id ${updateOrderListDetailDto.state} is currently inactive`);
 
       updatedOrderListDetail.state = state;
+
+      const newStatusHistoryData = {
+        state,
+        user,
+        processId: id,
+        createdBy: user.id,
+      };
+
+      const newStatusHistory: StatusHistory = plainToClass(StatusHistory, newStatusHistoryData);
+
+      await this.statusHistoryRepository.save(newStatusHistory);
     };
 
     if (updateOrderListDetailDto.product) {
