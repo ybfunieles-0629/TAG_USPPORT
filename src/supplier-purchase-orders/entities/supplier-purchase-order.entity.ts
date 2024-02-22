@@ -25,6 +25,16 @@ export class SupplierPurchaseOrder {
   })
   cost: number;
 
+  @Column('int', {
+
+  })
+  amount: number;
+  
+  @Column('date', {
+    
+  })
+  expirationDate: Date;
+
   @Column('boolean', {
     default: true,
   })
