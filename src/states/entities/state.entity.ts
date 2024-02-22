@@ -4,6 +4,7 @@ import { CartQuote } from '../../cart-quotes/entities/cart-quote.entity';
 import { PurchaseOrder } from '../../purchase-order/entities/purchase-order.entity';
 import { OrderListDetail } from '../../order-list-details/entities/order-list-detail.entity';
 import { SupplierPurchaseOrder } from '../../supplier-purchase-orders/entities/supplier-purchase-order.entity';
+import { StatusHistory } from '../../status-history/entities/status-history.entity';
 
 @Entity('states')
 export class State {
@@ -44,6 +45,9 @@ export class State {
   //* ---- FK ---- *//
   @OneToMany(() => CartQuote, (cartQuote) => cartQuote.state)
   cartQuotes: CartQuote[];
+
+  @OneToMany(() => StatusHistory, (statusHistory) => statusHistory.state)
+  statusHistories?: StatusHistory[];
 
   @OneToMany(() => PurchaseOrder, (purchaseOrder) => purchaseOrder.state)
   purchaseOrders: PurchaseOrder[];

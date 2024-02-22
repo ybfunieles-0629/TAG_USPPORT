@@ -3,6 +3,7 @@ import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGenerate
 import { StateChange } from '../../state-changes/entities/state-change.entity';
 import { State } from '../../states/entities/state.entity';
 import { OrderListDetail } from '../../order-list-details/entities/order-list-detail.entity';
+import { PaymentInvoice } from '../../payment-invoices/entities/payment-invoice.entity';
 
 @Entity('supplier_purchase_orders')
 export class SupplierPurchaseOrder {
@@ -23,6 +24,16 @@ export class SupplierPurchaseOrder {
 
   })
   cost: number;
+
+  @Column('int', {
+
+  })
+  amount: number;
+  
+  @Column('date', {
+    
+  })
+  expirationDate: Date;
 
   @Column('boolean', {
     default: true,
@@ -51,6 +62,9 @@ export class SupplierPurchaseOrder {
 
   @OneToMany(() => StateChange, (stateChange) => stateChange.supplierPurchaseOrder)
   stateChanges: StateChange[];
+  
+  @OneToMany(() => PaymentInvoice, (paymentInvoice) => paymentInvoice.supplierPurchaseOrder)
+  paymentInvoices: PaymentInvoice[];
 
   @ManyToOne(() => State, (state) => state.supplierPurchaseOrders)
   state: State;

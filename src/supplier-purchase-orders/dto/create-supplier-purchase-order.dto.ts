@@ -8,6 +8,14 @@ export class CreateSupplierPurchaseOrderDto {
   @IsString()
   state: string;
 
+  @IsOptional()
+  @IsInt()
+  amount?: number;
+  
+  @IsOptional()
+  @IsString()
+  expirationDate?: string;
+  
   @IsString()
   @IsUUID()
   createdBy: string;
