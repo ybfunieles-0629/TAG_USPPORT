@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 
 import { PurchaseOrder } from '../purchase-order/entities/purchase-order.entity';
 import { SystemConfig } from '../system-configs/entities/system-config.entity';
@@ -8,6 +8,7 @@ import { Client } from '../clients/entities/client.entity';
 import { OrderListDetail } from '../order-list-details/entities/order-list-detail.entity';
 import { User } from '../users/entities/user.entity';
 import { CategorySupplier } from '../category-suppliers/entities/category-supplier.entity';
+import { CommercialQualification } from '../commercial-qualification/entities/commercial-qualification.entity';
 
 @Injectable()
 export class StatisticsService {
@@ -17,6 +18,9 @@ export class StatisticsService {
 
     @InjectRepository(CategorySupplier)
     private readonly categorySupplierRepository: Repository<CategorySupplier>,
+
+    @InjectRepository(CommercialQualification)
+    private readonly commercialQualificationRepository: Repository<CommercialQualification>,
 
     @InjectRepository(PurchaseOrder)
     private readonly purchaseOrderRepository: Repository<PurchaseOrder>,
@@ -386,5 +390,53 @@ export class StatisticsService {
     const sortedCategoryReports = categoryReports.sort((a, b) => b.totalSalesYear - a.totalSalesYear);
 
     return sortedCategoryReports;
+  }
+
+  async getCommercialQualificationStatsByMonth(year: number, commercial?: string): Promise<any> {
+    const startDate = new Date(year, 0, 1); // Primer día del año
+    const endDate = new Date(year, 11, 31, 23, 59, 59, 999); // Último día del año
+
+    const whereOptions: any = {
+      createdAt: Between(startDate, endDate), // Filtrar por el año especificado
+    };
+
+    if (commercial) {
+      whereOptions.purchaseOrder = { commercialUser: commercial }; // Filtrar por el usuario comercial especificado
+    }
+
+    const qualifications = await this.commercialQualificationRepository.find({
+      where: whereOptions,
+      relations: ['purchaseOrder'],
+    });
+
+    const statsByMonth = {
+      kindness: {},
+      responseTime: {},
+      quoteTime: {},
+    };
+
+    // Inicializar estadísticas por mes y calificación
+    for (let month = 0; month < 12; month++) {
+      const monthName = new Date(year, month).toLocaleString('default', { month: 'long' }); // Obtener el nombre del mes
+      statsByMonth.kindness[monthName] = {};
+      statsByMonth.responseTime[monthName] = {};
+      statsByMonth.quoteTime[monthName] = {};
+
+      for (let rating = 1; rating <= 5; rating++) {
+        statsByMonth.kindness[monthName][rating.toString()] = 0;
+        statsByMonth.responseTime[monthName][rating.toString()] = 0;
+        statsByMonth.quoteTime[monthName][rating.toString()] = 0;
+      }
+    }
+
+    // Contar las calificaciones por mes y por tipo
+    qualifications.forEach(qualification => {
+      const monthName = new Date(qualification.createdAt).toLocaleString('default', { month: 'long' });
+      statsByMonth.kindness[monthName][qualification.kindness.toString()]++;
+      statsByMonth.responseTime[monthName][qualification.responseTime.toString()]++;
+      statsByMonth.quoteTime[monthName][qualification.quoteTime.toString()]++;
+    });
+
+    return statsByMonth;
   }
 }
