@@ -9,6 +9,7 @@ import { OrderListDetail } from '../order-list-details/entities/order-list-detai
 import { User } from '../users/entities/user.entity';
 import { CategorySupplier } from '../category-suppliers/entities/category-supplier.entity';
 import { CommercialQualification } from '../commercial-qualification/entities/commercial-qualification.entity';
+import { OrderRating } from '../order-ratings/entities/order-rating.entity';
 
 @Injectable()
 export class StatisticsService {
@@ -27,6 +28,9 @@ export class StatisticsService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(OrderRating)
+    private readonly orderRatingRepository: Repository<OrderRating>,
 
     @InjectRepository(SystemConfig)
     private readonly systemConfigRepository: Repository<SystemConfig>,
@@ -437,6 +441,58 @@ export class StatisticsService {
       statsByMonth.quoteTime[monthName][qualification.quoteTime.toString()]++;
     });
 
+    return statsByMonth;
+  }
+
+  async getOrderRatingStatsByMonth(year: number, client?: string): Promise<any> {
+    const startDate = new Date(year, 0, 1); // Primer día del año
+    const endDate = new Date(year, 11, 31, 23, 59, 59, 999); // Último día del año
+  
+    const whereOptions: any = {
+      createdAt: Between(startDate, endDate), // Filtrar por el año especificado
+    };
+  
+    if (client) {
+      whereOptions['orderListDetail.purchaseOrder.clientUser'] = client;
+    }
+  
+    const ratings = await this.orderRatingRepository.find({
+      where: whereOptions,
+      relations: ['orderListDetail', 'orderListDetail.purchaseOrder'],
+    });
+  
+    const statsByMonth = {
+      deliveryTime: {},
+      packingQuality: {},
+      productQuality: {},
+      markingQuality: {},
+    };
+  
+    // Inicializar estadísticas por mes y calificación
+    for (let month = 0; month < 12; month++) {
+      const monthName = new Date(year, month).toLocaleString('default', { month: 'long' }); // Obtener el nombre del mes
+      statsByMonth.deliveryTime[monthName] = {};
+      statsByMonth.packingQuality[monthName] = {};
+      statsByMonth.productQuality[monthName] = {};
+      statsByMonth.markingQuality[monthName] = {};
+  
+      for (let rating = 1; rating <= 5; rating++) {
+        statsByMonth.deliveryTime[monthName][rating.toString()] = 0;
+        statsByMonth.packingQuality[monthName][rating.toString()] = 0;
+        statsByMonth.productQuality[monthName][rating.toString()] = 0;
+        statsByMonth.markingQuality[monthName][rating.toString()] = 0;
+      }
+    }
+  
+    // Contar las calificaciones por mes y por tipo
+    ratings.forEach(rating => {
+      const monthName = new Date(rating.createdAt).toLocaleString('default', { month: 'long' });
+      statsByMonth.deliveryTime[monthName][rating.deliveryTime.toString()]++;
+      statsByMonth.packingQuality[monthName][rating.packingQuality.toString()]++;
+      statsByMonth.productQuality[monthName][rating.productQuality.toString()]++;
+      statsByMonth.markingQuality[monthName][rating.markingQuality.toString()]++;
+    });
+  
     return statsByMonth;
   }
 }

@@ -49,4 +49,12 @@ export class StatisticsController {
   ) {
     return this.statisticsService.getCommercialQualificationStatsByMonth(year, commercial);
   }
+
+  @Get('clients/stats')
+  getOrderRatingStatsByMonth(
+    @Query('year') year: number,
+    @Query('client') client: string,
+  ) {
+    return this.statisticsService.getOrderRatingStatsByMonth(year, client);
+  }
 }
