@@ -167,7 +167,7 @@ export class ColorsService {
       .createQueryBuilder('color')
       .leftJoinAndSelect('color.refProducts', 'refProduct')
       .where('refProduct.id =:id', { id })
-      .leftJoinAndSelect('color.product', 'product')
+      .leftJoinAndSelect('color.products', 'product')
       .getMany();
 
     if (!colors)
