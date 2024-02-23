@@ -774,6 +774,7 @@ export class UsersService {
       if (roles.isCommercial) {
         const commercialWithClients: User[] = await this.userRepository
           .createQueryBuilder('user')
+          .where('user.isAllowed =:isAllowed', { isAllowed })
           .leftJoinAndSelect('user.client', 'client')
           .leftJoinAndSelect('user.roles', 'userRoles')
           .leftJoinAndSelect('client.admin', 'clientAdmin')
@@ -797,6 +798,7 @@ export class UsersService {
         if (user.client && user.mainSecondaryUser == 0) {
           const [commercialWithClients, totalCount] = await this.userRepository
             .createQueryBuilder('user')
+            .where('user.isAllowed =:isAllowed', { isAllowed })
             .leftJoinAndSelect('user.company', 'userCompany')
             .leftJoinAndSelect('user.roles', 'userRoles')
             .leftJoinAndSelect('user.client', 'userClient')
@@ -818,6 +820,7 @@ export class UsersService {
         } else {
           const [users, totalCount] = await this.userRepository
             .createQueryBuilder('user')
+            .where('user.isAllowed =:isAllowed', { isAllowed })
             .leftJoinAndSelect('user.roles', 'userRoless')
             .where('userRoless.name IN (:...roles)', { roles: roles.roles })
             .leftJoinAndSelect('user.brands', 'brands')
