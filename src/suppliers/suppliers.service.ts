@@ -42,7 +42,7 @@ export class SuppliersService {
       createSupplierDto.bills = +createSupplierDto.bills;
 
     if (!createSupplierDto.bankAccountNumber)
-      createSupplierDto.bankAccount = '';
+      delete createSupplierDto.bankAccount;
 
     const newSupplier = plainToClass(Supplier, createSupplierDto);
 
