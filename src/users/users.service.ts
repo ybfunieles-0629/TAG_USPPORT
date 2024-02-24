@@ -355,6 +355,9 @@ export class UsersService {
     if (!user.isConfirmed)
       throw new BadRequestException(`The user account is not confirmed yet`);
 
+    if (!user.isAllowed)
+      throw new BadRequestException(`The user account is not allowed yet`);
+
     if (!bcrypt.compareSync(password, user.password))
       throw new UnauthorizedException('Incorrect credentials');
 
