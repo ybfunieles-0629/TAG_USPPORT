@@ -392,7 +392,7 @@ export class CategorySuppliersService {
   }
 
   async findAll(paginationDto: PaginationDto, user: User) {
-    const totalCount = await this.categorySupplierRepository.count();
+    let totalCount = await this.categorySupplierRepository.count();
 
     const { limit = totalCount, offset = 0 } = paginationDto;
 
@@ -411,6 +411,8 @@ export class CategorySuppliersService {
         .getMany();
 
         categorySuppliers.push(...results);
+
+        totalCount = results.length;
     } else {
       const results: CategorySupplier[] = await this.categorySupplierRepository.find({
         take: limit,
