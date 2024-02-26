@@ -93,6 +93,7 @@ export class CategoryTagService {
 
   async create(createCategoryTagDto: CreateCategoryTagDto, file: Express.Multer.File, user: User) {
     createCategoryTagDto.featured = +createCategoryTagDto.featured;
+    createCategoryTagDto.isSeason = +createCategoryTagDto.isSeason;
 
     const newCategoryTag = plainToClass(CategoryTag, createCategoryTagDto);
 
@@ -213,6 +214,7 @@ export class CategoryTagService {
       throw new NotFoundException(`Category tag with id ${id} not found`);
 
     updateCategoryTagDto.featured = +updateCategoryTagDto.featured;
+    updateCategoryTagDto.isSeason = +updateCategoryTagDto.isSeason;
 
     if (file != undefined) {
       const uniqueFilename = `${uuidv4()}-${file.originalname}`;
