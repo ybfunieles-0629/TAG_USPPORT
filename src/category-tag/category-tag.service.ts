@@ -101,7 +101,7 @@ export class CategoryTagService {
 
     let imageAwsUrl: string = '';
 
-    if (file !== null) {
+    if (file != null) {
       const uniqueFilename = `${uuidv4()}-${file.originalname}`;
 
       file.originalname = uniqueFilename;
