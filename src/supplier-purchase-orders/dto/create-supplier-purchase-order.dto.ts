@@ -13,6 +13,10 @@ export class CreateSupplierPurchaseOrderDto {
   amount?: number;
   
   @IsOptional()
+  @IsInt()
+  newBalance?: number;
+  
+  @IsOptional()
   @IsString()
   expirationDate?: string;
   
