@@ -15,6 +15,10 @@ export class CreateCategoryTagDto {
   categoryMargin: string;
 
   @IsOptional()
+  @IsInt()
+  isSeason?: number;
+
+  @IsOptional()
   @IsString()
   featured: number;
 

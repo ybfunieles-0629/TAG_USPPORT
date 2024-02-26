@@ -53,6 +53,11 @@ export class CategoryTag {
   })
   parentCategory: string;
 
+  @Column('int', {
+    default: 0,
+  })
+  isSeason: number;
+
   @Column('boolean', {
     default: true,
   })
