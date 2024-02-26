@@ -357,7 +357,7 @@ export class OrderListDetailsService {
 
       updatedOrderListDetail.state = state;
 
-      if (updateOrderListDetailDto.state != orderListDetail.state.id) {
+      if (orderListDetail.state != undefined && updateOrderListDetailDto.state != orderListDetail?.state?.id) {
         const newStatusHistoryData = {
           state,
           user,

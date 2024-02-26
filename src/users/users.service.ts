@@ -698,10 +698,11 @@ export class UsersService {
   }
 
   async filterUsersByManyRoles(roles: FilterManyByRolesDto, user: User, paginationDto: PaginationDto) {
-    let { limit = 10, offset = 0, isAllowed } = paginationDto;
+    let count: number = 0;
+    
+    let { limit = count, offset = 0, isAllowed } = paginationDto;
 
     const usersToShow: User[] = [];
-    let count: number = 0;
 
     // Verificar si isAllowed está definido en paginationDto
     if (isAllowed == undefined) {
@@ -846,8 +847,6 @@ export class UsersService {
         };
       }
     }
-
-    limit > 0 ? limit : count;
 
     const paginatedResults = usersToShow.map((user) => {
       let isAdmin = false;
