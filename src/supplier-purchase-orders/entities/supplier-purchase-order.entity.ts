@@ -35,6 +35,11 @@ export class SupplierPurchaseOrder {
   })
   expirationDate: Date;
 
+  @Column('int', {
+
+  })
+  newBalance: number;
+
   @Column('boolean', {
     default: true,
   })
