@@ -303,9 +303,11 @@ export class CartQuotesService {
 
 
   async filterByClient(id: string, paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0, isCommercial = 0 } = paginationDto;
+    const { limit = 10, offset = 0, isCommercial = 0, isAllowed = 1 } = paginationDto;
 
     let count: number = 0;
+
+    const isAllowedBoolean: boolean = isAllowed == 1 ? true : false;
 
     let cartQuotes: CartQuote[] = [];
 
@@ -317,6 +319,7 @@ export class CartQuotesService {
         .leftJoinAndSelect('client.user', 'clientUser')
         .leftJoinAndSelect('client.cartQuotes', 'cartQuote')
         .where('cartQuote.isActive =:cartQuoteState', { cartQuoteState: true })
+        .andWhere('cartQuote.isAllowed =:isAllowedBoolean', { isAllowedBoolean })
         .leftJoinAndSelect('cartQuote.client', 'quoteClient')
         .leftJoinAndSelect('cartQuote.user', 'quoteUser')
         .leftJoinAndSelect('quoteUser.company', 'quoteUserCompany')
@@ -363,7 +366,7 @@ export class CartQuotesService {
       cartQuotes = await this.cartQuoteRepository
         .createQueryBuilder('quote')
         .where('quote.isActive =:isActive', { isActive: true })
-        .andWhere('quote.isAllowed =:isAllowed', { isAllowed: true })
+        .andWhere('cartQuote.isAllowed =:isAllowedBoolean', { isAllowedBoolean })
         .leftJoinAndSelect('quote.state', 'state')
         .leftJoinAndSelect('quote.client', 'client')
         .andWhere('client.id =:id', { id })
