@@ -7,8 +7,9 @@ export class CreateCategoryTagDto {
   @IsString()
   description: string;
 
+  @IsOptional()
   @IsString()
-  icon: string;
+  icon?: string;
 
   @IsOptional()
   @IsString()
