@@ -170,6 +170,8 @@ export class CartQuotesService {
       const newCartQuote: CartQuote = plainToClass(CartQuote, cartQuote);
       delete newCartQuote.id;
       newCartQuote.state = null;
+      newCartQuote.isActive = true;
+      newCartQuote.isAllowed = true;
 
       if (cartQuote.quoteDetails.length > 0) {
         const quoteDetails: QuoteDetail[] = [];
