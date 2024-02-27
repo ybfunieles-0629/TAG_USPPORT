@@ -169,6 +169,7 @@ export class CartQuotesService {
     try {
       const newCartQuote: CartQuote = plainToClass(CartQuote, cartQuote);
       delete newCartQuote.id;
+      newCartQuote.state = null;
 
       if (cartQuote.quoteDetails.length > 0) {
         const quoteDetails: QuoteDetail[] = [];
@@ -183,17 +184,6 @@ export class CartQuotesService {
         };
 
         newCartQuote.quoteDetails = quoteDetails;
-      };
-
-      if (cartQuote.state) {
-        const state: State = cartQuote.state;
-
-        const newState: State = plainToClass(State, state);
-        delete newState.id;
-
-        const createdState = await this.stateRepository.save(newState);
-
-        newCartQuote.state = createdState;
       };
 
       if (cartQuote.orderListDetail) {
