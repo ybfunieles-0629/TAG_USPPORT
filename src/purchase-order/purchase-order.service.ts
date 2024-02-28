@@ -104,18 +104,12 @@ export class PurchaseOrderService {
   }
 
   async findAll(paginationDto: PaginationDto, user: User) {
-    let count: number;
+    let count: number = 0;
     const { limit = 10, offset = 0 } = paginationDto;
     let results: PurchaseOrder[] = [];
 
     if (user.roles.some((role) => role.name.toLowerCase().trim() == 'comercial')) {
-      const clients = await this.clientRepository.find({
-        where: {
-          commercialId: user.id
-        }
-      });
-
-      const clientIds = clients.map(client => client.id);
+      const clientIds: string[] = user.admin.clients.map(client => client.id);
 
       for (const clientId of clientIds) {
         const result = await this.purchaseOrderRepository
@@ -141,6 +135,27 @@ export class PurchaseOrderService {
 
         count += results.length;
       }
+    } else if (user.roles.some((role) => role.name.toLowerCase().trim() == 'cliente')) {
+      results = await this.purchaseOrderRepository
+        .createQueryBuilder('purchase')
+        .where('purchase.clientUser =:clientId', { clientId: user.id })
+        .leftJoinAndSelect('purchase.orderListDetails', 'orderListDetails')
+        .leftJoinAndSelect('orderListDetails.cartQuote', 'cartQuote')
+        .leftJoinAndSelect('orderListDetails.state', 'orderListDetailsState')
+        .leftJoinAndSelect('orderListDetails.orderRating', 'orderListDetailsOrderRating')
+        .leftJoinAndSelect('orderListDetails.supplierPurchaseOrder', 'supplierPurchaseOrder')
+        .leftJoinAndSelect('supplierPurchaseOrder.state', 'supplierPurchaseOrderState')
+        .leftJoinAndSelect('orderListDetails.product', 'product')
+        .leftJoinAndSelect('product.refProduct', 'refProduct')
+        .leftJoinAndSelect('refProduct.supplier', 'refProductSupplier')
+        .leftJoinAndSelect('refProductSupplier.user', 'refProductSupplierUser')
+        .leftJoinAndSelect('purchase.state', 'purchaseState')
+        .leftJoinAndSelect('purchase.commercialQualification', 'commercialQualification')
+        .skip(offset)
+        .take(limit)
+        .getMany();
+
+      count = results.length;
     } else {
       results = await this.purchaseOrderRepository
         .createQueryBuilder('purchase')
@@ -161,7 +176,7 @@ export class PurchaseOrderService {
         .getMany();
 
       count = results.length;
-    }
+    };
 
     const finalResults = await Promise.all(
       results.map(async (purchaseOrder: PurchaseOrder) => {
