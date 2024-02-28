@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { classToPlain, plainToClass } from 'class-transformer';
 import { v4 as uuidv4 } from 'uuid';
+import * as nodemailer from 'nodemailer';
 import axios from 'axios';
 
 import { CreateCartQuoteDto } from './dto/create-cart-quote.dto';
@@ -57,6 +58,8 @@ export class CartQuotesService {
 
     @InjectRepository(SupplierPurchaseOrder)
     private readonly supplierPurchaseOrderRepository: Repository<SupplierPurchaseOrder>,
+
+    @Inject('EMAIL_CONFIG') private emailSenderConfig,
   ) { }
 
   async create(createCartQuoteDto: CreateCartQuoteDto) {
@@ -583,6 +586,47 @@ export class CartQuotesService {
 
     if (stateDb.name.toLowerCase() == 'rechazada') {
       cartQuote.isAllowed = false;
+    };
+
+    if (stateDb.name.toLowerCase() == 'en proceso') {
+      const commercialId: string = user?.client?.commercialId;
+
+      const commercialUser: User = await this.userRepository.findOne({
+        where: {
+          id: commercialId,
+        },
+      });
+
+      if (!commercialUser)
+        throw new NotFoundException(`Commercial user with id ${commercialId} not found`);
+
+      try {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD,
+          },
+        });
+
+        await transporter.sendMail({
+          from: this.emailSenderConfig.transport.from,
+          to: [commercialUser.email],
+          subject: 'Solicitud de cotización de carrito',
+          html: `
+              Señor Comercial, el cliente ${user.name} le ha enviado una solicitud de cotización para la compra de productos <br />
+              Información del carrito: ${cartQuote.quoteName} <br />
+              Fecha de realización: ${cartQuote.createdAt} <br />
+              `,
+        });
+
+        return {
+          msg: 'Email sended successfully'
+        };
+      } catch (error) {
+        console.log('Failed to send the email', error);
+        throw new InternalServerErrorException(`Internal server error`);
+      }
     };
 
     if (updateCartQuoteDto.generateOrder) {
