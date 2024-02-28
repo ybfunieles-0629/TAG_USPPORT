@@ -312,6 +312,7 @@ export class CartQuotesService {
         .leftJoinAndSelect('user.admin', 'admin')
         .leftJoinAndSelect('admin.clients', 'client')
         .leftJoinAndSelect('client.user', 'clientUser')
+        .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
         .leftJoinAndSelect('client.cartQuotes', 'cartQuote')
         .where('cartQuote.isActive =:cartQuoteState', { cartQuoteState: true })
         .andWhere('cartQuote.isAllowed =:isAllowedBoolean', { isAllowedBoolean })
