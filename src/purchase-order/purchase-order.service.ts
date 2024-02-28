@@ -138,7 +138,7 @@ export class PurchaseOrderService {
     } else if (user.roles.some((role) => role.name.toLowerCase().trim() == 'cliente')) {
       results = await this.purchaseOrderRepository
         .createQueryBuilder('purchase')
-        .where('purchase.clientUser =:clientId', { clientId: user.id })
+        .where('purchase.clientUser =:clientId', { clientId: user.client.id })
         .leftJoinAndSelect('purchase.orderListDetails', 'orderListDetails')
         .leftJoinAndSelect('orderListDetails.cartQuote', 'cartQuote')
         .leftJoinAndSelect('orderListDetails.state', 'orderListDetailsState')
