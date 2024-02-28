@@ -34,8 +34,9 @@ export class RefProductsController {
   @Get('with/supplier/:id')
   filterProductsBySupplier(
     @Param('id', ParseUUIDPipe) id: string,
+    @Query() paginationDto: PaginationDto,
   ) {
-    return this.refProductsService.filterProductsBySupplier(id);
+    return this.refProductsService.filterProductsBySupplier(id, paginationDto);
   }
 
   @Get('with/offers')
