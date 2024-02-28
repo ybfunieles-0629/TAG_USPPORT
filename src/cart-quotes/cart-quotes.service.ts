@@ -403,7 +403,7 @@ export class CartQuotesService {
             ...quoteDetail.product,
             image: quoteDetail.product.images[0] || '',
           }
-        }))
+        })),
       };
     });
 
