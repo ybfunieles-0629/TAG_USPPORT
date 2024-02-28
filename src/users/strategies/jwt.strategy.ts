@@ -35,6 +35,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         'supplier',
         'client',
         'admin',
+        'admin.clients',
+        'admin.clients.user',
         'roles',
         'permissions',
         'privileges',
