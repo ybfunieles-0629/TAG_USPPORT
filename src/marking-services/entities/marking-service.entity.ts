@@ -52,8 +52,7 @@ export class MarkingService {
   @ManyToOne(() => Marking, (marking) => marking.markingServices)
   marking: Marking;
 
-  @OneToOne(() =>  MarkingServiceProperty, (markingServiceProperty) => markingServiceProperty.markingService)
-  @JoinColumn()
+  @ManyToOne(() =>  MarkingServiceProperty, (markingServiceProperty) => markingServiceProperty.markingServices)
   markingServiceProperty: MarkingServiceProperty;
 
   @OneToOne(() =>  ExternalSubTechnique, (externalSubTechnique) => externalSubTechnique.markingService)
