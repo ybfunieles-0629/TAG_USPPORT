@@ -58,16 +58,14 @@ export class MarkingServiceProperty {
   @OneToOne(() => TagSubTechniqueProperty, (tagSubTechniqueProperty) => tagSubTechniqueProperty.markingServiceProperty)
   tagSubTechniqueProperty: TagSubTechniqueProperty;
 
-  @OneToOne(() => MarkingService, (markingService) => markingService.markingServiceProperty)
-  markingService: MarkingService;
+  @OneToMany(() => MarkingService, (markingService) => markingService.markingServiceProperty)
+  markingServices: MarkingService[];
 
   @OneToMany(() => MarkedServicePrice, (markedServicePrice) => markedServicePrice.markingServiceProperty)
   markedServicePrices?: MarkedServicePrice[];
 
   @OneToMany(() => Image, (image) => image.markingServiceProperty)
   images: Image[];
-
-  
 
   @ManyToOne(() => ExternalSubTechnique, (externalSubTechnique) => externalSubTechnique.markingServiceProperties)
   externalSubTechnique: ExternalSubTechnique;
