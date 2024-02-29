@@ -300,8 +300,18 @@ export class ProductsService {
     const productsToSave = [];
     const cleanedRefProducts = [];
 
-    const refProductsInDb: RefProduct[] = await this.refProductRepository.find();
-    const productsInDb: Product[] = await this.productRepository.find();
+    const refProductsInDb: RefProduct[] = await this.refProductRepository.find({
+      relations: [
+        'products',
+        'products.refProduct',
+      ],
+    });
+    const productsInDb: Product[] = await this.productRepository.find({
+      relations: [
+        'refProduct',
+        'refProduct.products',
+      ],
+    });
 
     const user = await this.userRepository.findOne({
       where: {
@@ -471,7 +481,7 @@ export class ProductsService {
 
       if (refProductExists) {
         // Verificar si el producto existe y necesita actualización
-        const existingProductInDb = productsInDb.find(product => product.refProduct.referenceCode === refProduct.referenceCode);
+        const existingProductInDb = productsInDb.find(product => product?.refProduct?.referenceCode === refProduct?.referenceCode);
         if (existingProductInDb) {
           // Comparar los campos que pueden haber cambiado y actualizarlos si es necesario
           if (existingProductInDb.availableUnit !== refProduct.availableUnit ||
