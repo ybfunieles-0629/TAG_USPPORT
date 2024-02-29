@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsInt, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsNumber, IsOptional, IsString, IsUUID, isInt } from 'class-validator';
 
 export class CreateQuoteDetailDto {
   @IsInt()
@@ -14,6 +14,10 @@ export class CreateQuoteDetailDto {
   @IsInt()
   @IsOptional()
   discount: number;
+
+  @IsOptional()
+  @IsInt()
+  sampleTransportValue?: number;
 
   @IsInt()
   totalPriceWithTransport: number;

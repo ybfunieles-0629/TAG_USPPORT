@@ -280,6 +280,7 @@ export class QuoteDetailsService {
           const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
 
           totalPrice += clientTransportPrice;
+          newQuoteDetail.sampleTransportValue = clientTransportPrice;
           newQuoteDetail.transportTotalPrice = 0;
           newQuoteDetail.transportTotalPrice += clientTransportPrice || 0;
           newQuoteDetail.sampleValue += clientTransportPrice || 0;
@@ -771,6 +772,7 @@ export class QuoteDetailsService {
 
           const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
 
+          updatedQuoteDetail.sampleTransportValue = clientTransportPrice;
           totalPrice += clientTransportPrice;
           updatedQuoteDetail.transportTotalPrice = 0;
           updatedQuoteDetail.transportTotalPrice += clientTransportPrice || 0;
