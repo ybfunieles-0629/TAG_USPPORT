@@ -46,7 +46,7 @@ export class QuoteDetail {
   totalPriceWithTransport: number;
   
   @Column('int', {
-
+    default: 0,
   })
   sampleTransportValue: number;
 
