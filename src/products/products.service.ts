@@ -467,7 +467,7 @@ export class ProductsService {
         }
 
         const newProduct = {
-          familia: item.familia,
+          apiCode: item.familia,
           images: productImages,
           material,
         };
@@ -477,28 +477,29 @@ export class ProductsService {
     }
 
     for (const refProduct of cleanedRefProducts) {
-      const refProductExists = refProductsInDb.find(refProductInDb => refProductInDb.referenceCode == refProduct.referenceCode);
+      const refProductExists = refProductsInDb.find(refProductInDb => refProductInDb?.referenceCode == refProduct?.referenceCode);
 
-      if (refProductExists) {
-        // Verificar si el producto existe y necesita actualización
-        const existingProductInDb = productsInDb.find(product => product?.refProduct?.referenceCode === refProduct?.referenceCode);
-        if (existingProductInDb) {
-          // Comparar los campos que pueden haber cambiado y actualizarlos si es necesario
-          if (existingProductInDb.availableUnit !== refProduct.availableUnit ||
-            existingProductInDb.referencePrice !== refProduct.referencePrice ||
-            existingProductInDb.promoDisccount !== refProduct.promoDisccount) {
-            existingProductInDb.availableUnit = refProduct.availableUnit;
-            existingProductInDb.referencePrice = refProduct.referencePrice;
-            existingProductInDb.promoDisccount = refProduct.promoDisccount;
-            await this.productRepository.save(existingProductInDb);
-            productsToSave.push(existingProductInDb);
-          }
-        }
-      } else {
+      // if (refProductExists) {
+      //   // Verificar si el producto existe y necesita actualización
+      //   const existingProductInDb = productsInDb.find(product => product?.refProduct?.referenceCode === refProduct?.referenceCode && product?.apiCode);
+
+      //   if (existingProductInDb) {
+      //     // Comparar los campos que pueden haber cambiado y actualizarlos si es necesario
+      //     if (existingProductInDb.availableUnit !== refProduct?.availableUnit ||
+      //       existingProductInDb.referencePrice !== refProduct?.referencePrice ||
+      //       existingProductInDb.promoDisccount !== refProduct?.promoDisccount) {
+      //       existingProductInDb.availableUnit = refProduct?.availableUnit;
+      //       existingProductInDb.referencePrice = refProduct?.referencePrice;
+      //       existingProductInDb.promoDisccount = refProduct?.promoDisccount;
+      //       await this.productRepository.save(existingProductInDb);
+      //       productsToSave.push(existingProductInDb);
+      //     }
+      //   }
+      // } else {
         // Si el producto no existe, guardarlo como nuevo
         const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
         refProductsToSave.push(savedRefProduct);
-      }
+      // }
     }
 
     if (refProductsToSave.length === 0 && productsToSave.length === 0)
