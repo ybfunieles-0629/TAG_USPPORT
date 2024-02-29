@@ -532,6 +532,8 @@ export class ProductsService {
       throw new InternalServerErrorException(`Internal server error`);
     }
 
+    await this.productRepository.save(productsToSave);
+
     return {
       refProductsToSave,
       productsToSave
