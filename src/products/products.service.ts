@@ -468,7 +468,10 @@ export class ProductsService {
 
         const newProduct = {
           apiCode: item.familia,
-          images: productImages,
+          large: + item.medidas_largo,
+          width: +item.medidas_ancho,
+          height: +item.medidas_alto,
+          weight: +item.medidas_peso_neto,
           material,
         };
 
@@ -496,9 +499,9 @@ export class ProductsService {
       //     }
       //   }
       // } else {
-        // Si el producto no existe, guardarlo como nuevo
-        const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
-        refProductsToSave.push(savedRefProduct);
+      // Si el producto no existe, guardarlo como nuevo
+      const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
+      refProductsToSave.push(savedRefProduct);
       // }
     }
 
