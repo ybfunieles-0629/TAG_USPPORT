@@ -470,6 +470,7 @@ export class ProductsService {
 
         const newProduct = {
           tagSku,
+          familia: item.familia,
           supplierSKu: tagSku,
           apiCode: item.familia,
           large: + item.medidas_largo,
