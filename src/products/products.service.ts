@@ -216,13 +216,13 @@ export class ProductsService {
         const existingProductInDb = productsInDb.find(prod => prod.refProduct.referenceCode === product.referencia);
 
         if (existingProductInDb) {
-          if (existingProductInDb.availableUnit !== product.totalDisponible ||
-            existingProductInDb.referencePrice !== referencePrice) {
-            existingProductInDb.availableUnit = product.totalDisponible;
-            existingProductInDb.referencePrice = product.referencePrice;
-            await this.productRepository.save(existingProductInDb);
-            productsToSave.push(existingProductInDb);
-          }
+          // if (existingProductInDb.availableUnit !== product.totalDisponible ||
+          //   existingProductInDb.referencePrice !== referencePrice) {
+          //   existingProductInDb.availableUnit = product.totalDisponible;
+          //   existingProductInDb.referencePrice = product.referencePrice;
+          //   await this.productRepository.save(existingProductInDb);
+          //   productsToSave.push(existingProductInDb);
+          // }
         } else {
           const color: Color = await this.colorRepository
             .createQueryBuilder('color')
