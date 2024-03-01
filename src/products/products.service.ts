@@ -564,7 +564,12 @@ export class ProductsService {
       const newProduct = {
         tagSku,
         supplierSku: tagSku,
+        apiCode: product?.familia,
         variantReferences: [],
+        large: + product?.medidas_largo,
+        width: +product?.medidas_ancho,
+        height: +product?.medidas_alto,
+        weight: +product?.medidas_peso_neto,
         colors,
         referencePrice: +product.material.precio,
         promoDisccount: parseFloat(product.material.descuento.replace('-', '')),
