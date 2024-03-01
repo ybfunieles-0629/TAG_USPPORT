@@ -213,42 +213,42 @@ export class ProductsService {
       const { data: { data } } = await axios.get(`${this.apiUrl}/stock/${product.referencia}`);
 
       await Promise.all(data?.resultado?.map(async (product) => {
-        const existingProductInDb = productsInDb.find(prod => prod.refProduct.referenceCode === product.referencia);
+        // const existingProductInDb = productsInDb.find(prod => prod?.refProduct?.referenceCode === product.referencia);
 
-        if (existingProductInDb) {
-          // if (existingProductInDb.availableUnit !== product.totalDisponible ||
-          //   existingProductInDb.referencePrice !== referencePrice) {
-          //   existingProductInDb.availableUnit = product.totalDisponible;
-          //   existingProductInDb.referencePrice = product.referencePrice;
-          //   await this.productRepository.save(existingProductInDb);
-          //   productsToSave.push(existingProductInDb);
-          // }
-        } else {
-          const color: Color = await this.colorRepository
-            .createQueryBuilder('color')
-            .where('LOWER(color.name) = :productColor', { productColor: product.color.toLowerCase() })
-            .getOne();
+        // if (existingProductInDb) {
+        // if (existingProductInDb.availableUnit !== product.totalDisponible ||
+        //   existingProductInDb.referencePrice !== referencePrice) {
+        //   existingProductInDb.availableUnit = product.totalDisponible;
+        //   existingProductInDb.referencePrice = product.referencePrice;
+        //   await this.productRepository.save(existingProductInDb);
+        //   productsToSave.push(existingProductInDb);
+        // }
+        // } else {
+        const color: Color = await this.colorRepository
+          .createQueryBuilder('color')
+          .where('LOWER(color.name) = :productColor', { productColor: product.color.toLowerCase() })
+          .getOne();
 
-          const colorsToAssign: Color[] = [];
+        const colorsToAssign: Color[] = [];
 
-          if (color) {
-            colorsToAssign.push(color);
-          }
-
-          const newProduct = {
-            tagSku,
-            availableUnit: product.totalDisponible,
-            supplierSku: tagSku,
-            refProduct: savedRefProduct,
-            referencePrice,
-            apiCode: product.id,
-            colors: colorsToAssign
-          };
-
-          const createdProduct: Product = this.productRepository.create(newProduct);
-          await this.productRepository.save(createdProduct);
-          productsToSave.push(createdProduct);
+        if (color) {
+          colorsToAssign.push(color);
         }
+
+        const newProduct = {
+          tagSku,
+          availableUnit: product.totalDisponible,
+          supplierSku: tagSku,
+          refProduct: savedRefProduct,
+          referencePrice,
+          apiCode: product.id,
+          colors: colorsToAssign
+        };
+
+        const createdProduct: Product = this.productRepository.create(newProduct);
+        await this.productRepository.save(createdProduct);
+        productsToSave.push(createdProduct);
+        // }
       }));
     }
 
@@ -466,7 +466,11 @@ export class ProductsService {
           productImages.push(image);
         }
 
+        let tagSku: string = await this.generateUniqueTagSku();
+
         const newProduct = {
+          tagSku,
+          supplierSKu: tagSku,
           apiCode: item.familia,
           large: + item.medidas_largo,
           width: +item.medidas_ancho,
@@ -500,9 +504,76 @@ export class ProductsService {
       //   }
       // } else {
       // Si el producto no existe, guardarlo como nuevo
-      const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
-      refProductsToSave.push(savedRefProduct);
-      // }
+      // const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
+      // refProductsToSave.push(savedRefProduct);
+      // // }
+      if (refProductExists) {
+        console.log(`Ref product with reference code ${refProduct.referenceCode} is already registered`);
+      } else {
+        const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
+
+        refProductsToSave.push(savedRefProduct);
+      }
+    }
+
+    //* ---------- LOAD PRODUCTS ----------*//
+    for (const product of productsToSave) {
+      const refProduct = await this.refProductRepository.findOne({
+        where: {
+          referenceCode: product.familia,
+        },
+      });
+
+      if (!refProduct)
+        throw new NotFoundException(`Ref product for product with familia ${product.familia} not found`);
+
+      const productColor: string = product?.color?.toLowerCase() || '';
+
+      const color: Color = await this.colorRepository
+        .createQueryBuilder('color')
+        .where('LOWER(color.name) =:productColor', { productColor })
+        .getOne();
+
+      const colors: Color[] = [];
+
+      if (color) {
+        color.refProductId = refProduct?.id;
+
+        const savedColor: Color = await this.colorRepository.save(color);
+      };
+
+      const lastProducts = await this.productRepository.find({
+        order: { createdAt: 'DESC' },
+      });
+
+      let tagSku: string = '';
+
+      if (lastProducts[0] && lastProducts[0].tagSku.trim() !== ''.trim()) {
+        let skuNumber: number = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
+
+        skuNumber++;
+
+        const newTagSku = `SKU-${skuNumber}`;
+
+        tagSku = newTagSku;
+      } else {
+        tagSku = 'SKU-1001';
+      }
+
+      const newProduct = {
+        tagSku,
+        supplierSku: tagSku,
+        variantReferences: [],
+        colors,
+        referencePrice: +product.material.precio,
+        promoDisccount: parseFloat(product.material.descuento.replace('-', '')),
+        availableUnit: product?.material?.inventario_almacen[0]?.cantidad,
+        refProduct,
+      };
+
+      const createdProduct: Product = this.productRepository.create(newProduct);
+
+      const savedProduct: Product = await this.productRepository.save(createdProduct);
     }
 
     if (refProductsToSave.length === 0 && productsToSave.length === 0)
@@ -534,8 +605,6 @@ export class ProductsService {
       console.log('Failed to send the email', error);
       throw new InternalServerErrorException(`Internal server error`);
     }
-
-    await this.productRepository.save(productsToSave);
 
     return {
       refProductsToSave,

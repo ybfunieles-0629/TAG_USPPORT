@@ -699,7 +699,7 @@ export class UsersService {
 
   async filterUsersByManyRoles(roles: FilterManyByRolesDto, user: User, paginationDto: PaginationDto) {
     let count: number = 0;
-    
+
     let { limit = count, offset = 0, isAllowed } = paginationDto;
 
     const usersToShow: User[] = [];
@@ -857,6 +857,9 @@ export class UsersService {
       }
     }
 
+    const calculatedOffset = offset * limit;
+    const calculatedLimit = limit;
+
     const paginatedResults = usersToShow.map((user) => {
       let isAdmin = false;
       if (user?.admin != null || user?.admin != undefined) {
@@ -865,9 +868,11 @@ export class UsersService {
       return { ...user, isAdmin };
     });
 
+    const finalPaginatedResults = paginatedResults.slice(calculatedOffset, calculatedOffset + calculatedLimit);
+
     return {
       count,
-      users: paginatedResults.slice(offset, offset + limit)
+      users: finalPaginatedResults
     };
   };
 
