@@ -543,10 +543,6 @@ export class ProductsService {
         const savedColor: Color = await this.colorRepository.save(color);
       };
 
-      const lastProducts = await this.productRepository.find({
-        order: { createdAt: 'DESC' },
-      });
-
       let tagSku: string = await this.generateUniqueTagSku();
 
       const newProduct = {
