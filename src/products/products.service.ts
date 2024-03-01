@@ -547,19 +547,7 @@ export class ProductsService {
         order: { createdAt: 'DESC' },
       });
 
-      let tagSku: string = '';
-
-      if (lastProducts[0] && lastProducts[0].tagSku.trim() !== ''.trim()) {
-        let skuNumber: number = parseInt(lastProducts[0].tagSku.match(/\d+/)[0], 10);
-
-        skuNumber++;
-
-        const newTagSku = `SKU-${skuNumber}`;
-
-        tagSku = newTagSku;
-      } else {
-        tagSku = 'SKU-1001';
-      }
+      let tagSku: string = await this.generateUniqueTagSku();
 
       const newProduct = {
         tagSku,
