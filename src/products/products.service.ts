@@ -213,7 +213,7 @@ export class ProductsService {
       const { data: { data } } = await axios.get(`${this.apiUrl}/stock/${product.referencia}`);
 
       await Promise.all(data?.resultado?.map(async (product) => {
-        // const existingProductInDb = productsInDb.find(prod => prod.refProduct.referenceCode === product.referencia);
+        // const existingProductInDb = productsInDb.find(prod => prod?.refProduct?.referenceCode === product.referencia);
 
         // if (existingProductInDb) {
           // if (existingProductInDb.availableUnit !== product.totalDisponible ||
