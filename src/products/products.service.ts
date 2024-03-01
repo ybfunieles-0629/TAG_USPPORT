@@ -466,7 +466,11 @@ export class ProductsService {
           productImages.push(image);
         }
 
+        let tagSku: string = await this.generateUniqueTagSku();
+
         const newProduct = {
+          tagSku,
+          supplierSKu: tagSku,
           apiCode: item.familia,
           large: + item.medidas_largo,
           width: +item.medidas_ancho,
