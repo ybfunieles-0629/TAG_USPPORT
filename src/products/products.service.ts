@@ -550,7 +550,7 @@ export class ProductsService {
         supplierSku: tagSku,
         apiCode: product?.familia,
         variantReferences: [],
-        large: + product?.medidas_largo || 0,
+        large: +product?.medidas_largo || 0,
         width: +product?.medidas_ancho || 0,
         height: +product?.medidas_alto || 0,
         weight: +product?.medidas_peso_neto || 0,
