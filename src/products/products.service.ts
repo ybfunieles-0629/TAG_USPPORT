@@ -213,9 +213,9 @@ export class ProductsService {
       const { data: { data } } = await axios.get(`${this.apiUrl}/stock/${product.referencia}`);
 
       await Promise.all(data?.resultado?.map(async (product) => {
-        const existingProductInDb = productsInDb.find(prod => prod.refProduct.referenceCode === product.referencia);
+        // const existingProductInDb = productsInDb.find(prod => prod.refProduct.referenceCode === product.referencia);
 
-        if (existingProductInDb) {
+        // if (existingProductInDb) {
           // if (existingProductInDb.availableUnit !== product.totalDisponible ||
           //   existingProductInDb.referencePrice !== referencePrice) {
           //   existingProductInDb.availableUnit = product.totalDisponible;
@@ -223,7 +223,7 @@ export class ProductsService {
           //   await this.productRepository.save(existingProductInDb);
           //   productsToSave.push(existingProductInDb);
           // }
-        } else {
+        // } else {
           const color: Color = await this.colorRepository
             .createQueryBuilder('color')
             .where('LOWER(color.name) = :productColor', { productColor: product.color.toLowerCase() })
@@ -248,7 +248,7 @@ export class ProductsService {
           const createdProduct: Product = this.productRepository.create(newProduct);
           await this.productRepository.save(createdProduct);
           productsToSave.push(createdProduct);
-        }
+        // }
       }));
     }
 
