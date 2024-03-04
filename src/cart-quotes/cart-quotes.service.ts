@@ -595,7 +595,7 @@ export class CartQuotesService {
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.admin', 'userAdmin')
       .leftJoinAndSelect('userAdmin.clients', 'userAdminClients')
-      .where('userAdminClients.id = clientId, { clientId: user.id }')
+      .where('userAdminClients.id =:clientId', { clientId: user.id })
       .getOne();
       
       const commercialId: string = commercialUserFound?.id;
