@@ -605,8 +605,8 @@ export class CartQuotesService {
         },
       });
 
-      if (!commercialUser)
-        throw new NotFoundException(`Commercial user with id ${commercialId} not found`);
+      // if (!commercialUser)
+      //   throw new NotFoundException(`Commercial user with id ${commercialId} not found`);
 
       try {
         const transporter = nodemailer.createTransport({
