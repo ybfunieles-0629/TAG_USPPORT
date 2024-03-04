@@ -578,7 +578,6 @@ export class CartQuotesService {
       throw new NotFoundException(`State with id ${updateCartQuoteDto.state} not found`);
 
     cartQuote.state = stateDb;
-
     let purchaseOrderCreated: PurchaseOrder;
 
     if (stateDb.name.toLowerCase() == 'aprobada' || stateDb.name.toLowerCase() == 'rechazada') {
@@ -590,8 +589,16 @@ export class CartQuotesService {
     };
 
     if (stateDb.name.toLowerCase() == 'en proceso') {
-      const commercialId: string = user?.client?.commercialId;
+      //const commercialId: string = user?.client?.commercialId;
 
+      const commercialUserFound: User = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.admin', 'userAdmin')
+      .leftJoinAndSelect('userAdmin.clients', 'userAdminClients')
+      .where('userAdminClients.id = clientId, { clientId: user.id }')
+      .getOne();
+      
+      const commercialId: string = commercialUserFound?.id;
       const commercialUser: User = await this.userRepository.findOne({
         where: {
           id: commercialId,
