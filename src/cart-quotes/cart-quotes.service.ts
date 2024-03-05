@@ -407,7 +407,7 @@ export class CartQuotesService {
         .getMany();
     }
 
-    const cartQuotesWithOneImage = Promise.all(cartQuotes.map(async (cartQuote) => {
+    const cartQuotesWithOneImage = await Promise.all(cartQuotes.map(async (cartQuote) => {
       const brand: Brand = await this.brandRepository.findOne({
         where: {
           id: cartQuote.brandId,
