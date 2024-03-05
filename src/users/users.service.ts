@@ -498,14 +498,10 @@ export class UsersService {
 
     const data = this.jwtService.decode(passwordRecovery.token);
 
-    console.log(data);
-
     const jwtStrategy: JwtStrategy = new JwtStrategy(
       this.userRepository, 
       this.configService,
     );
-
-    console.log(jwtStrategy);
 
     const user = await jwtStrategy.validate(data);
 
