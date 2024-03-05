@@ -394,9 +394,16 @@ export class CartQuotesService {
         .getMany();
     }
 
-    const cartQuotesWithOneImage = cartQuotes.map((cartQuote) => {
+    const cartQuotesWithOneImage = Promise.all(cartQuotes.map(async (cartQuote) => {
+      const brand: Brand = await this.brandRepository.findOne({
+        where: {
+          id: cartQuote.brandId,
+        }
+      });
+
       return {
         ...cartQuote,
+        brandId: brand,
         quoteDetails: cartQuote.quoteDetails.map((quoteDetail: QuoteDetail) => ({
           ...quoteDetail,
           product: {
@@ -405,9 +412,9 @@ export class CartQuotesService {
           }
         })),
       };
-    });
+    }));
 
-    count = cartQuotesWithOneImage.length;
+    count = (await cartQuotesWithOneImage).length;
 
     return {
       count,
@@ -592,12 +599,12 @@ export class CartQuotesService {
       //const commercialId: string = user?.client?.commercialId;
 
       const commercialUserFound: User = await this.userRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.admin', 'userAdmin')
-      .leftJoinAndSelect('userAdmin.clients', 'userAdminClients')
-      .where('userAdminClients.id =:clientId', { clientId: user.id })
-      .getOne();
-      
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.admin', 'userAdmin')
+        .leftJoinAndSelect('userAdmin.clients', 'userAdminClients')
+        .where('userAdminClients.id =:clientId', { clientId: user.id })
+        .getOne();
+
       const commercialId: string = commercialUserFound?.id;
       const commercialUser: User = await this.userRepository.findOne({
         where: {
