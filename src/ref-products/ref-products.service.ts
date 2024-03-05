@@ -607,7 +607,7 @@ export class RefProductsService {
         return {
           ...result,
           tagCategory: categoryTag,
-          mainCategory: categorySupplier
+          mainCategory: categorySupplier,
         }
       }));
     }
