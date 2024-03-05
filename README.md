@@ -8,7 +8,7 @@ To run the project use
 yarn start:dev
 ```
 
-
-# Dev Jefferson García
+# ALUNA S.A.S
 # Ing Yeison Barrios Funieles
 # Ing Sergio Varon
+# Dev Jefferson García

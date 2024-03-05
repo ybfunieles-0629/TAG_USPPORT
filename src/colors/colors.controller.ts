@@ -14,7 +14,7 @@ export class ColorsController {
   constructor(private readonly colorsService: ColorsService) { }
 
   @Post('load')
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
   loadColors(
 
   ) {
