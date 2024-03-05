@@ -1,4 +1,4 @@
-import { IsArray, IsEmail, IsInt, IsNumber, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsArray, IsBoolean, IsEmail, IsInt, IsNumber, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateUserDto {
   @IsEmail()
@@ -12,6 +12,12 @@ export class CreateUserDto {
 
   @IsString()
   picture: string;
+
+  @IsBoolean()
+  termsAndConditions: boolean;
+
+  @IsBoolean()
+  accessPolicies: boolean;
 
   @IsString()
   companyPosition: string;
