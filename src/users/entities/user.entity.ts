@@ -61,6 +61,16 @@ export class User {
   })
   city: string;
 
+  @Column('boolean', {
+    default: false,
+  })
+  termsAndConditions: boolean;
+
+  @Column('boolean', {
+    default: false,
+  })
+  accessPolicies: boolean;
+
   @Column('varchar', {
 
   })
