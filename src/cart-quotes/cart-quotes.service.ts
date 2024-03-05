@@ -253,9 +253,23 @@ export class CartQuotesService {
       ],
     });
 
+
+    const cartQuotesWithBrand = Promise.all(cartQuotes.map(async (cartQuote) => {
+      const brand: Brand = await this.brandRepository.findOne({
+        where: {
+          id: cartQuote.brandId,
+        }
+      });
+
+      return {
+        ...cartQuote,
+        brandId: brand,
+      };
+    }));
+
     return {
       count,
-      cartQuotes
+      cartQuotes: cartQuotesWithBrand
     };
   }
 
