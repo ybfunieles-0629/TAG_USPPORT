@@ -4,6 +4,10 @@ export class CreateQuoteDetailDto {
   @IsInt()
   quantities: number;
 
+  @IsOptional()
+  @IsInt()
+  additionalDiscount?: number;
+
   @IsInt()
   unitPrice: number;
 
