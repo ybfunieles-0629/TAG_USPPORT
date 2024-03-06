@@ -647,10 +647,6 @@ export class CartQuotesService {
               Fecha de realización: ${cartQuote.createdAt} <br />
               `,
         });
-
-        return {
-          msg: 'Email sended successfully'
-        };
       } catch (error) {
         console.log('Failed to send the email', error);
         throw new InternalServerErrorException(`Internal server error`);
