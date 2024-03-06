@@ -530,10 +530,14 @@ export class QuoteDetailsService {
     };
 
     //* SE HACE DESCUENTO ADICIONAL POR EL COMERCIAL (YA HECHO)
-    newQuoteDetail.subTotal = totalPrice;
+    let additionalDisccount: number = totalPrice * (1 - newQuoteDetail.additionalDiscount);
+    totalPrice -= additionalDisccount;
+    newQuoteDetail.totalAdditionalDiscount = additionalDisccount;
 
     //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
+    newQuoteDetail.subTotal = totalPrice;
     newQuoteDetail.totalValueWithoutIva = totalPrice;
+
 
     //* IVA DE LA VENTA
     const iva: number = (product.iva / 100) * totalPrice || 0;
@@ -1023,9 +1027,12 @@ export class QuoteDetailsService {
     };
 
     //* SE HACE DESCUENTO ADICIONAL POR EL COMERCIAL (YA HECHO)
-    updatedQuoteDetail.subTotal = totalPrice;
+    let additionalDisccount: number = totalPrice * (1 - updatedQuoteDetail.additionalDiscount);
+    totalPrice -= additionalDisccount;
+    updatedQuoteDetail.totalAdditionalDiscount = additionalDisccount;
 
     //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
+    updatedQuoteDetail.subTotal = totalPrice;
     updatedQuoteDetail.totalValueWithoutIva = totalPrice;
 
     //* IVA DE LA VENTA

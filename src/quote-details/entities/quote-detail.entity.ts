@@ -23,6 +23,11 @@ export class QuoteDetail {
   @Column('int', {
 
   })
+  totalAdditionalDiscount: number;
+
+  @Column('int', {
+
+  })
   profitability: number;
 
   @Column('int', {
