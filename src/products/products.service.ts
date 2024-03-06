@@ -472,7 +472,7 @@ export class ProductsService {
           tagSku,
           familia: item.familia,
           supplierSKu: tagSku,
-          apiCode: item.familia,
+          apiCode: material.codigo,
           large: + item.medidas_largo,
           width: +item.medidas_ancho,
           height: +item.medidas_alto,
@@ -1180,6 +1180,9 @@ export class ProductsService {
       .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
       .leftJoinAndSelect('product.colors', 'productColors')
       .leftJoin('product.refProduct', 'refProduct')
+      .leftJoin('refProduct.categorySuppliers', 'refProductCategorySuppliers')
+      .leftJoin('refProduct.categoryTags', 'refProductCategoryTag')
+      .leftJoin('refProduct.colors', 'refProductColors')
       .where('refProduct.supplierId = :supplierId', { supplierId: id })
       .getMany();
 
