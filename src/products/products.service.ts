@@ -481,7 +481,7 @@ export class ProductsService {
         };
 
         productsToSave.push(newProduct);
-      }
+      };
     }
 
     for (const refProduct of cleanedRefProducts) {
