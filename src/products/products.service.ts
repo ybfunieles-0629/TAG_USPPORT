@@ -548,7 +548,7 @@ export class ProductsService {
       const newProduct = {
         tagSku,
         supplierSku: tagSku,
-        apiCode: product?.familia,
+        apiCode: product?.apiCode,
         variantReferences: [],
         large: +product?.large || 0,
         width: +product?.width || 0,
