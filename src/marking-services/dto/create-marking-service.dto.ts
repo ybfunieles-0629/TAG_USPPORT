@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsArray, IsInt, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateMarkingServiceDto {
   @IsString()
@@ -18,9 +18,6 @@ export class CreateMarkingServiceDto {
 
   @IsString()
   externalSubTechnique: string;
-
-  @IsString()
-  quoteDetail: string;
 
   @IsString()
   @IsUUID()
