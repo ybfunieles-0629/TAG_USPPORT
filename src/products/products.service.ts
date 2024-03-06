@@ -472,7 +472,7 @@ export class ProductsService {
           tagSku,
           familia: item.familia,
           supplierSKu: tagSku,
-          apiCode: item.familia,
+          apiCode: material.codigo,
           large: + item.medidas_largo,
           width: +item.medidas_ancho,
           height: +item.medidas_alto,
@@ -481,7 +481,7 @@ export class ProductsService {
         };
 
         productsToSave.push(newProduct);
-      }
+      };
     }
 
     for (const refProduct of cleanedRefProducts) {
@@ -548,7 +548,7 @@ export class ProductsService {
       const newProduct = {
         tagSku,
         supplierSku: tagSku,
-        apiCode: product?.familia,
+        apiCode: product?.apiCode,
         variantReferences: [],
         large: +product?.large || 0,
         width: +product?.width || 0,
@@ -1180,6 +1180,9 @@ export class ProductsService {
       .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
       .leftJoinAndSelect('product.colors', 'productColors')
       .leftJoin('product.refProduct', 'refProduct')
+      .leftJoin('refProduct.categorySuppliers', 'refProductCategorySuppliers')
+      .leftJoin('refProduct.categoryTags', 'refProductCategoryTag')
+      .leftJoin('refProduct.colors', 'refProductColors')
       .where('refProduct.supplierId = :supplierId', { supplierId: id })
       .getMany();
 
