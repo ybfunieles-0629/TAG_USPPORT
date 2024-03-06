@@ -55,8 +55,7 @@ export class MarkingService {
   @ManyToOne(() =>  MarkingServiceProperty, (markingServiceProperty) => markingServiceProperty.markingServices)
   markingServiceProperty: MarkingServiceProperty;
 
-  @OneToOne(() =>  ExternalSubTechnique, (externalSubTechnique) => externalSubTechnique.markingService)
-  @JoinColumn()
+  @ManyToOne(() =>  ExternalSubTechnique, (externalSubTechnique) => externalSubTechnique.markingServices)
   externalSubTechnique: ExternalSubTechnique;
 
   @ManyToOne(() => OrderListDetail, (orderListDetail) => orderListDetail.markingServices)

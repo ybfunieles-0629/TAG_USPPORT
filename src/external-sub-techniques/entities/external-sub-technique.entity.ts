@@ -43,8 +43,8 @@ export class ExternalSubTechnique {
   updatedAt: Date;
 
   //* ---- FK ---- *//
-  @OneToOne(() => MarkingService, (markingService) => markingService.externalSubTechnique)
-  markingService: MarkingService;
+  @OneToMany(() => MarkingService, (markingService) => markingService.externalSubTechnique)
+  markingServices: MarkingService[];
 
   @OneToOne(() => TagSubTechnique, (tagSubTechnique) => tagSubTechnique.externalSubTechnique)
   tagSubTechnique: TagSubTechnique;
