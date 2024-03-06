@@ -50,6 +50,7 @@ export class UsersService {
     @Inject('EMAIL_CONFIG') private emailSenderConfig,
 
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) { }
 
   async seedUsers() {
@@ -458,7 +459,7 @@ export class UsersService {
     if (!user)
       throw new NotFoundException(`User with email ${passwordRecovery.email} not found`);
 
-    const token = this.getJwtToken({ email: user.email });
+    const token = this.getJwtToken({ email: user.email, userId: user.id });
     const resetUrl = `https://tag-web-16776.web.app/auth/change-password?t=${token}`;
     const emailText = `Click the following link to reset your password: <a href="${resetUrl}">${resetUrl}</a>`;
 
@@ -489,8 +490,6 @@ export class UsersService {
   }
 
   async passwordRecovery(passwordRecovery: PasswordRecoveryDto) {
-    let configService: ConfigService;
-
     if (!passwordRecovery.password)
       throw new BadRequestException(`The password is required`);
 
@@ -499,7 +498,10 @@ export class UsersService {
 
     const data = this.jwtService.decode(passwordRecovery.token);
 
-    const jwtStrategy = new JwtStrategy(this.userRepository, configService);
+    const jwtStrategy: JwtStrategy = new JwtStrategy(
+      this.userRepository, 
+      this.configService,
+    );
 
     const user = await jwtStrategy.validate(data);
 

@@ -716,6 +716,7 @@ export class CartQuotesService {
 
         const orderListDetailData = {
           orderCode: uuidv4(),
+          cartQuote: quoteDetail.cartQuote,
           quantities: quoteDetail.quantities,
           productTotalPrice: quoteDetail.totalValue,
           clientTagTransportService: quoteDetail.transportServiceTagClient,

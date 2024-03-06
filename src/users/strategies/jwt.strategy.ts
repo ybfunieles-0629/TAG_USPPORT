@@ -14,7 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
 
-    configService: ConfigService
+    private readonly configService: ConfigService
   ) {
     super({
       secretOrKey: configService.get('JWT_SECRET'),
