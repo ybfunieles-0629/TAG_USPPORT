@@ -1027,9 +1027,9 @@ export class QuoteDetailsService {
     };
 
     //* SE HACE DESCUENTO ADICIONAL POR EL COMERCIAL (YA HECHO)
-    let additionalDisccount: number = totalPrice * (1 - updatedQuoteDetail.additionalDiscount);
+    let additionalDisccount: number = totalPrice * (1 - updatedQuoteDetail.additionalDiscount) || 0;
     totalPrice -= additionalDisccount;
-    updatedQuoteDetail.totalAdditionalDiscount = additionalDisccount;
+    updatedQuoteDetail.totalAdditionalDiscount = additionalDisccount || 0;
 
     //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
     updatedQuoteDetail.subTotal = totalPrice;
