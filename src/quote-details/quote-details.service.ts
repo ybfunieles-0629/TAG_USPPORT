@@ -529,17 +529,9 @@ export class QuoteDetailsService {
       totalPrice = Math.round(value);
     };
 
-    console.log(totalPrice);
-
     //* SE HACE DESCUENTO ADICIONAL POR EL COMERCIAL (YA HECHO)
     let additionalDisccount: number = newQuoteDetail.additionalDiscount > 0 ? totalPrice * (1 - newQuoteDetail.additionalDiscount) : 0;
-    console.log(additionalDisccount);
-
-    console.log(totalPrice);
-
     totalPrice -= additionalDisccount;
-
-    console.log(totalPrice);
 
     newQuoteDetail.totalAdditionalDiscount = additionalDisccount || 0;
 
@@ -1035,7 +1027,7 @@ export class QuoteDetailsService {
     };
 
     //* SE HACE DESCUENTO ADICIONAL POR EL COMERCIAL (YA HECHO)
-    let additionalDisccount: number = totalPrice * (1 - updatedQuoteDetail.additionalDiscount) || 0;
+    let additionalDisccount: number = updatedQuoteDetail.additionalDiscount > 0 ? totalPrice * (1 - updatedQuoteDetail.additionalDiscount) : 0;
     totalPrice -= additionalDisccount;
     updatedQuoteDetail.totalAdditionalDiscount = additionalDisccount || 0;
 
