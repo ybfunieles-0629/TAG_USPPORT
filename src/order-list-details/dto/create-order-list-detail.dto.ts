@@ -1,8 +1,13 @@
 import { IsArray, IsDate, IsInt, IsOptional, IsString, IsUUID } from "class-validator";
 
 export class CreateOrderListDetailDto {
+  @IsOptional()
   @IsString()
-  orderCode: string;
+  orderCode?: string;
+
+  @IsOptional()
+  @IsString()
+  orderCodeClient?: string;
 
   @IsInt()
   quantities: number;
