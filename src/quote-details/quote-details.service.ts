@@ -569,10 +569,10 @@ export class QuoteDetailsService {
     const discount: number = (product.promoDisccount / 100) * totalPrice || 0;
     newQuoteDetail.discountPercentage = product.promoDisccount;
     newQuoteDetail.discount = discount;
-    totalPrice -= discount;
+    // totalPrice -= discount;
 
     //* CALCULAR SUBTOTAL CON DESCUENTO
-    newQuoteDetail.subTotalWithDiscount = (newQuoteDetail.subTotal - discount) || 0;
+    newQuoteDetail.subTotalWithDiscount = newQuoteDetail.subTotal || 0;
     newQuoteDetail.totalCost = totalCost;
     newQuoteDetail.totalValue = totalPrice;
 
@@ -1060,10 +1060,10 @@ export class QuoteDetailsService {
     // //* CALCULAR DESCUENTO
     const discount: number = (updatedQuoteDetail.discount / 100) * totalPrice || 0;
     updatedQuoteDetail.discount = discount;
-    totalPrice -= discount;
+    // totalPrice -= discount;
 
     //* CALCULAR SUBTOTAL CON DESCUENTO
-    updatedQuoteDetail.subTotalWithDiscount = (updatedQuoteDetail.subTotal - discount) || 0;
+    updatedQuoteDetail.subTotalWithDiscount = (updatedQuoteDetail.subTotal - additionalDisccount) || 0;
     updatedQuoteDetail.totalCost = totalCost;
     updatedQuoteDetail.totalValue = totalPrice;
 
