@@ -14,7 +14,7 @@ import { SupplierPurchaseOrder } from '../../supplier-purchase-orders/entities/s
 export class OrderListDetail {
   constructor(
     @InjectRepository(OrderListDetail)
-    private orderListDetailRepository: Repository<OrderListDetail>
+    private readonly orderListDetailRepository: Repository<OrderListDetail>
   ) { }
 
   @PrimaryGeneratedColumn('uuid')
@@ -186,21 +186,4 @@ export class OrderListDetail {
 
   @ManyToOne(() => Product, (product) => product.orderListDetails)
   product: Product;
-
-  @BeforeInsert()
-  async generateOrderCode() {
-    const lastOrder = await this.orderListDetailRepository.findOne({
-      order: {
-        createdAt: 'DESC'
-      }
-    });
-
-    let nextOrderNumber = 10000;
-    if (lastOrder) {
-      const lastOrderNumber = parseInt(lastOrder.orderCode.slice(1));
-      nextOrderNumber = lastOrderNumber + 1;
-    }
-
-    this.orderCode = `O${nextOrderNumber}`;
-  }
 }
