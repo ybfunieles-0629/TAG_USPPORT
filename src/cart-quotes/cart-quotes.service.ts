@@ -330,6 +330,8 @@ export class CartQuotesService {
         .where('cartQuote.isActive =:cartQuoteState', { cartQuoteState: true })
         .andWhere('cartQuote.isAllowed =:isAllowedBoolean', { isAllowedBoolean })
         .leftJoinAndSelect('cartQuote.client', 'quoteClient')
+        .leftJoinAndSelect('quoteClient.user', 'quoteClientUser')
+        .leftJoinAndSelect('quoteClientUser.company', 'quoteClientUserCompany')
         .leftJoinAndSelect('cartQuote.user', 'quoteUser')
         .leftJoinAndSelect('quoteUser.company', 'quoteUserCompany')
         .leftJoinAndSelect('cartQuote.state', 'quoteState')
@@ -360,18 +362,20 @@ export class CartQuotesService {
         throw new NotFoundException(`Commercial user with ID ${id} not found.`);
 
       const clientsWithCartQuotes = commercialUser.admin.clients.map(client => {
-        const clientInfo = classToPlain(client.user, { exposeDefaultValues: true });
+        const clientInfo = classToPlain(client, { exposeDefaultValues: true });
+        clientInfo.user = classToPlain(client.user, { exposeDefaultValues: true });
         clientInfo.cartQuotes = client.cartQuotes.map(cartQuote => classToPlain(cartQuote, { exposeDefaultValues: true }));
         return clientInfo;
       });
 
       cartQuotes = clientsWithCartQuotes.flatMap(client => {
-        return client.cartQuotes.map(cartQuote =>
-          plainToClass(CartQuote, cartQuote)
-        );
+        return client.cartQuotes.map(cartQuote => {
+          cartQuote.user = client.user;
+          return plainToClass(CartQuote, cartQuote);
+        });
       });
+
     } else {
-      // Lógica para usuarios no comerciales
       cartQuotes = await this.cartQuoteRepository
         .createQueryBuilder('quote')
         .where('quote.isActive =:isActive', { isActive: true })
