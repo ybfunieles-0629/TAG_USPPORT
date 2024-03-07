@@ -711,7 +711,6 @@ export class CartQuotesService {
         expirationDate.setDate(expirationDate.getDate() + 30);
 
         const orderListDetailData = {
-          orderCode: uuidv4(),
           cartQuote: quoteDetail.cartQuote,
           quantities: quoteDetail.quantities,
           productTotalPrice: quoteDetail.totalValue,

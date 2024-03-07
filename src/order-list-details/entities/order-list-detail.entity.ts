@@ -24,7 +24,7 @@ export class OrderListDetail {
     unique: true,
   })
   orderCode: string;
-  
+
   @Column('varchar', {
     unique: true,
   })
@@ -189,7 +189,11 @@ export class OrderListDetail {
 
   @BeforeInsert()
   async generateOrderCode() {
-    const lastOrder = await this.orderListDetailRepository.findOne({ order: { id: 'DESC' } });
+    const lastOrder = await this.orderListDetailRepository.findOne({
+      order: {
+        createdAt: 'DESC'
+      }
+    });
 
     let nextOrderNumber = 10000;
     if (lastOrder) {
