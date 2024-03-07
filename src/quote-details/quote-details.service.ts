@@ -529,15 +529,23 @@ export class QuoteDetailsService {
       totalPrice = Math.round(value);
     };
 
+    console.log(totalPrice);
+
     //* SE HACE DESCUENTO ADICIONAL POR EL COMERCIAL (YA HECHO)
-    let additionalDisccount: number = totalPrice * (1 - newQuoteDetail.additionalDiscount);
+    let additionalDisccount: number = newQuoteDetail.additionalDiscount > 0 ? totalPrice * (1 - newQuoteDetail.additionalDiscount) : 0;
+    console.log(additionalDisccount);
+
+    console.log(totalPrice);
+
     totalPrice -= additionalDisccount;
-    newQuoteDetail.totalAdditionalDiscount = additionalDisccount;
+
+    console.log(totalPrice);
+
+    newQuoteDetail.totalAdditionalDiscount = additionalDisccount || 0;
 
     //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
     newQuoteDetail.subTotal = totalPrice;
     newQuoteDetail.totalValueWithoutIva = totalPrice;
-
 
     //* IVA DE LA VENTA
     const iva: number = (product.iva / 100) * totalPrice || 0;
