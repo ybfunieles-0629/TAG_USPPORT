@@ -273,42 +273,42 @@ export class RefProductsService {
                   return;
                 };
               });
-            };
+            } else {
+              //* SI LO ENCUENTRA LO AÑADE, SINO LE PONE UN 0 Y NO AÑADE NADA
+              const entryDiscount: number = product.entryDiscount || 0;
+              const entryDiscountValue: number = (entryDiscount / 100) * value || 0;
+              value -= entryDiscountValue;
 
-            //* SI LO ENCUENTRA LO AÑADE, SINO LE PONE UN 0 Y NO AÑADE NADA
-            const entryDiscount: number = product.entryDiscount || 0;
-            const entryDiscountValue: number = (entryDiscount / 100) * value || 0;
-            value -= entryDiscountValue;
+              //* BUSCO DESCUENTO PROMO
+              const promoDiscount: number = product.promoDisccount || 0;
+              const promoDiscountPercentage: number = (promoDiscount / 100) * value || 0;
+              value -= promoDiscountPercentage;
 
-            //* BUSCO DESCUENTO PROMO
-            const promoDiscount: number = product.promoDisccount || 0;
-            const promoDiscountPercentage: number = (promoDiscount / 100) * value || 0;
-            value -= promoDiscountPercentage;
-
-            // //* APLICAR DESCUENTO POR MONTO
-            if (product?.refProduct?.supplier?.disccounts?.length > 0) {
-              product?.refProduct?.supplier?.disccounts?.forEach((discountItem: Disccount) => {
-                //* SI EL DESCUENTO ES DE TIPO MONTO
-                if (discountItem.disccountType.toLowerCase() == 'descuento de monto') {
-                  //* SI EL DESCUENTO TIENE DESCUENTO DE ENTRADA
-                  if (discountItem.entryDisccount != undefined || discountItem.entryDisccount != null || discountItem.entryDisccount > 0) {
-                    const discount: number = (discountItem.entryDisccount / 100) * value;
-                    value -= discount;
-
-                    return;
-                  };
-
-                  discountItem?.disccounts?.forEach((listDiscount: Disccounts) => {
-                    if (listDiscount.minQuantity >= i && listDiscount.nextMinValue == 1 && listDiscount.maxQuantity <= i || listDiscount.minQuantity >= i && listDiscount.nextMinValue == 0) {
-                      const discount: number = (listDiscount.disccountValue / 100) * value;
+              // //* APLICAR DESCUENTO POR MONTO
+              if (product?.refProduct?.supplier?.disccounts?.length > 0) {
+                product?.refProduct?.supplier?.disccounts?.forEach((discountItem: Disccount) => {
+                  //* SI EL DESCUENTO ES DE TIPO MONTO
+                  if (discountItem.disccountType.toLowerCase() == 'descuento de monto') {
+                    //* SI EL DESCUENTO TIENE DESCUENTO DE ENTRADA
+                    if (discountItem.entryDisccount != undefined || discountItem.entryDisccount != null || discountItem.entryDisccount > 0) {
+                      const discount: number = (discountItem.entryDisccount / 100) * value;
                       value -= discount;
 
                       return;
                     };
-                  });
-                };
-              });
-            };
+
+                    discountItem?.disccounts?.forEach((listDiscount: Disccounts) => {
+                      if (listDiscount.minQuantity >= i && listDiscount.nextMinValue == 1 && listDiscount.maxQuantity <= i || listDiscount.minQuantity >= i && listDiscount.nextMinValue == 0) {
+                        const discount: number = (listDiscount.disccountValue / 100) * value;
+                        value -= discount;
+
+                        return;
+                      };
+                    });
+                  };
+                });
+              };
+            }
           };
 
           // //* APLICAR IVA
@@ -627,7 +627,6 @@ export class RefProductsService {
       .andWhere('refProduct.width > :width', { width: 0 })
       .andWhere('refProduct.large > :large', { large: 0 })
       .leftJoinAndSelect('refProduct.products', 'product')
-      .where('product.weight > :weight', { weight: 0 })
       .where('product.weight > :weight', { weight: 0 })
       .andWhere('product.height > :height', { height: 0 })
       .andWhere('product.width > :width', { width: 0 })
