@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { BeforeInsert, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Repository, UpdateDateColumn } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 import { PurchaseOrder } from '../../purchase-order/entities/purchase-order.entity';
 import { OrderRating } from '../../order-ratings/entities/order-rating.entity';
@@ -11,13 +12,23 @@ import { SupplierPurchaseOrder } from '../../supplier-purchase-orders/entities/s
 
 @Entity('order_list_details')
 export class OrderListDetail {
+  constructor(
+    @InjectRepository(OrderListDetail)
+    private orderListDetailRepository: Repository<OrderListDetail>
+  ) { }
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column('varchar', {
-
+    unique: true,
   })
   orderCode: string;
+  
+  @Column('varchar', {
+    unique: true,
+  })
+  orderCodeClient: string;
 
   @Column('int', {
 
@@ -48,7 +59,7 @@ export class OrderListDetail {
 
   })
   estimatedMarketDate: Date;
-  
+
   @Column('date', {
 
   })
@@ -90,7 +101,7 @@ export class OrderListDetail {
   costNote: string;
 
   @Column('varchar', {
-    
+
   })
   secondaryState: string;
 
@@ -103,7 +114,7 @@ export class OrderListDetail {
 
   })
   samplePrice: number;
-  
+
   @Column('int', {
 
   })
@@ -113,17 +124,17 @@ export class OrderListDetail {
 
   })
   transportCost: number;
-  
+
   @Column('int', {
 
   })
   realTransportCost: number;
-  
+
   @Column('int', {
 
   })
   realMarkingCost: number;
-  
+
   @Column('int', {
 
   })
@@ -175,4 +186,17 @@ export class OrderListDetail {
 
   @ManyToOne(() => Product, (product) => product.orderListDetails)
   product: Product;
+
+  @BeforeInsert()
+  async generateOrderCode() {
+    const lastOrder = await this.orderListDetailRepository.findOne({ order: { id: 'DESC' } });
+
+    let nextOrderNumber = 10000;
+    if (lastOrder) {
+      const lastOrderNumber = parseInt(lastOrder.orderCode.slice(1));
+      nextOrderNumber = lastOrderNumber + 1;
+    }
+
+    this.orderCode = `O${nextOrderNumber}`;
+  }
 }
