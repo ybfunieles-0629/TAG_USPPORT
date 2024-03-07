@@ -410,9 +410,9 @@ export class CategorySuppliersService {
         .skip(offset)
         .getMany();
 
-        categorySuppliers.push(...results);
+      categorySuppliers.push(...results);
 
-        totalCount = results.length;
+      totalCount = results.length;
     } else {
       const results: CategorySupplier[] = await this.categorySupplierRepository.find({
         take: limit,
@@ -447,7 +447,9 @@ export class CategorySuppliersService {
   private async calculateCategoryCount(categorySupplier: CategorySupplier): Promise<number> {
     const count = await this.refProductRepository.count({
       where: {
-        categorySuppliers: categorySupplier,
+        categorySuppliers: {
+          id: categorySupplier.id
+        },
         tagCategory: categorySupplier.mainCategory,
       },
     });

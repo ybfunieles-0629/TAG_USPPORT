@@ -151,7 +151,9 @@ export class CategoryTagService {
     const count = await this.refProductRepository.count({
       where: {
         tagCategory: categoryTag.name,
-        categoryTags: categoryTag,
+        categoryTags: {
+          id: categoryTag.id,
+        },
       },
     });
 
