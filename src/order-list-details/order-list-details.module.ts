@@ -13,6 +13,7 @@ import { StatesModule } from '../states/states.module';
 import { ProductsModule } from '../products/products.module';
 import { SupplierPurchaseOrdersModule } from '../supplier-purchase-orders/supplier-purchase-orders.module';
 import { StatusHistoryModule } from '../status-history/status-history.module';
+import { OrderListDetailSubscriber } from './subscribers/order-list-detail.subscriber';
 
 @Module({
   imports: [
@@ -25,10 +26,10 @@ import { StatusHistoryModule } from '../status-history/status-history.module';
     PurchaseOrderModule,
     forwardRef(() => ProductsModule),
     forwardRef(() => TransportServicesModule),
-    TypeOrmModule.forFeature([OrderListDetail])
+    TypeOrmModule.forFeature([OrderListDetail]),
   ],
   controllers: [OrderListDetailsController],
-  providers: [OrderListDetailsService],
+  providers: [OrderListDetailsService, OrderListDetailSubscriber],
   exports: [TypeOrmModule, OrderListDetailsService],
 })
-export class OrderListDetailsModule {}
+export class OrderListDetailsModule { }
