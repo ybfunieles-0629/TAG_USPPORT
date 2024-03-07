@@ -530,10 +530,10 @@ export class QuoteDetailsService {
     };
 
     //* SE HACE DESCUENTO ADICIONAL POR EL COMERCIAL (YA HECHO)
-    let additionalDisccount: number = newQuoteDetail.additionalDiscount > 0 ? totalPrice * (1 - newQuoteDetail.additionalDiscount) : 0;
-    totalPrice -= additionalDisccount;
+    // let additionalDisccount: number = newQuoteDetail.additionalDiscount > 0 ? totalPrice * (1 - newQuoteDetail.additionalDiscount) : 0;
+    // totalPrice -= additionalDisccount;
 
-    newQuoteDetail.totalAdditionalDiscount = additionalDisccount || 0;
+    newQuoteDetail.totalAdditionalDiscount = 0;
 
     //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
     newQuoteDetail.subTotal = totalPrice;
