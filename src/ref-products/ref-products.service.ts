@@ -234,12 +234,8 @@ export class RefProductsService {
       .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
       .getMany();
 
-    console.log(results[0].products);
-
     const finalResults = await Promise.all(results.map(async (result) => {
       const modifiedProducts = await Promise.all(result.products.map(async (product) => {
-        console.log(product.hasNetPrice);
-
         const burnPriceTable = [];
 
         const initialValue: number = product.referencePrice;
@@ -258,8 +254,6 @@ export class RefProductsService {
           let value: number = changingValue * (1 - percentageDiscount);
 
           value = Math.round(value);
-
-          changingValue = value;
 
           //* SI EL PRODUCTO NO TIENE UN PRECIO NETO
           if (product.hasNetPrice == 0) {
@@ -452,6 +446,8 @@ export class RefProductsService {
           prices.totalValue = value;
 
           burnPriceTable.push(prices);
+
+          changingValue = value;
         }
 
         return { ...product, burnPriceTable };
