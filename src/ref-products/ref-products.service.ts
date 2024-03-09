@@ -234,8 +234,12 @@ export class RefProductsService {
       .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
       .getMany();
 
+    console.log(results[0].products);
+
     const finalResults = await Promise.all(results.map(async (result) => {
       const modifiedProducts = await Promise.all(result.products.map(async (product) => {
+        console.log(product.hasNetPrice);
+
         const burnPriceTable = [];
 
         const initialValue: number = product.referencePrice;
@@ -273,42 +277,42 @@ export class RefProductsService {
                   return;
                 };
               });
-            } else {
-              //* SI LO ENCUENTRA LO AÑADE, SINO LE PONE UN 0 Y NO AÑADE NADA
-              const entryDiscount: number = product.entryDiscount || 0;
-              const entryDiscountValue: number = (entryDiscount / 100) * value || 0;
-              value -= entryDiscountValue;
+            }
 
-              //* BUSCO DESCUENTO PROMO
-              const promoDiscount: number = product.promoDisccount || 0;
-              const promoDiscountPercentage: number = (promoDiscount / 100) * value || 0;
-              value -= promoDiscountPercentage;
+            //* SI LO ENCUENTRA LO AÑADE, SINO LE PONE UN 0 Y NO AÑADE NADA
+            const entryDiscount: number = product.entryDiscount || 0;
+            const entryDiscountValue: number = (entryDiscount / 100) * value || 0;
+            value -= entryDiscountValue;
 
-              // //* APLICAR DESCUENTO POR MONTO
-              if (product?.refProduct?.supplier?.disccounts?.length > 0) {
-                product?.refProduct?.supplier?.disccounts?.forEach((discountItem: Disccount) => {
-                  //* SI EL DESCUENTO ES DE TIPO MONTO
-                  if (discountItem.disccountType.toLowerCase() == 'descuento de monto') {
-                    //* SI EL DESCUENTO TIENE DESCUENTO DE ENTRADA
-                    if (discountItem.entryDisccount != undefined || discountItem.entryDisccount != null || discountItem.entryDisccount > 0) {
-                      const discount: number = (discountItem.entryDisccount / 100) * value;
+            //* BUSCO DESCUENTO PROMO
+            const promoDiscount: number = product.promoDisccount || 0;
+            const promoDiscountPercentage: number = (promoDiscount / 100) * value || 0;
+            value -= promoDiscountPercentage;
+
+            // //* APLICAR DESCUENTO POR MONTO
+            if (product?.refProduct?.supplier?.disccounts?.length > 0) {
+              product?.refProduct?.supplier?.disccounts?.forEach((discountItem: Disccount) => {
+                //* SI EL DESCUENTO ES DE TIPO MONTO
+                if (discountItem.disccountType.toLowerCase() == 'descuento de monto') {
+                  //* SI EL DESCUENTO TIENE DESCUENTO DE ENTRADA
+                  if (discountItem.entryDisccount != undefined || discountItem.entryDisccount != null || discountItem.entryDisccount > 0) {
+                    const discount: number = (discountItem.entryDisccount / 100) * value;
+                    value -= discount;
+
+                    return;
+                  };
+
+                  discountItem?.disccounts?.forEach((listDiscount: Disccounts) => {
+                    if (listDiscount.minQuantity >= i && listDiscount.nextMinValue == 1 && listDiscount.maxQuantity <= i || listDiscount.minQuantity >= i && listDiscount.nextMinValue == 0) {
+                      const discount: number = (listDiscount.disccountValue / 100) * value;
                       value -= discount;
 
                       return;
                     };
-
-                    discountItem?.disccounts?.forEach((listDiscount: Disccounts) => {
-                      if (listDiscount.minQuantity >= i && listDiscount.nextMinValue == 1 && listDiscount.maxQuantity <= i || listDiscount.minQuantity >= i && listDiscount.nextMinValue == 0) {
-                        const discount: number = (listDiscount.disccountValue / 100) * value;
-                        value -= discount;
-
-                        return;
-                      };
-                    });
-                  };
-                });
-              };
-            }
+                  });
+                };
+              });
+            };
           };
 
           // //* APLICAR IVA
@@ -736,6 +740,9 @@ export class RefProductsService {
       .andWhere('product.height > :height', { height: 0 })
       .andWhere('product.width > :width', { width: 0 })
       .andWhere('product.large > :large', { large: 0 })
+      .leftJoinAndSelect('product.packings', 'productPackings')
+      .leftJoinAndSelect('product.colors', 'productColors')
+      .leftJoinAndSelect('product.colors', 'productColors')
       .leftJoinAndSelect('refProduct.images', 'refProductImages')
       .leftJoinAndSelect('refProduct.colors', 'refProductColors')
       .leftJoinAndSelect('refProduct.categorySuppliers', 'refProductCategorySuppliers')
