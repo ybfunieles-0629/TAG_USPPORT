@@ -409,7 +409,7 @@ export class RefProductsService {
 
           value += transportPrice;
 
-          prices.transportPrice = transportPrice;
+          // prices.transportPrice = transportPrice;
 
           //* CALCULAR EL IMPUESTO 4 X 1000
           value += (value * 1.04);
@@ -438,15 +438,15 @@ export class RefProductsService {
           //* CALCULAR EL PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
           value = Math.round(value);
 
-          prices.totalValue = value;
+          // prices.totalValue = value;
 
           changingValue = value;
 
           let prices = {
             quantity: staticQuantities[i],
             value: changingValue,
-            totalValue: 0,
-            transportPrice: 0,
+            totalValue: value,
+            transportPrice: transportPrice,
           };
 
           burnPriceTable.push(prices);
