@@ -240,18 +240,13 @@ export class RefProductsService {
 
         const initialValue: number = product.referencePrice;
         let changingValue: number = initialValue;
-
+        let value: number = 0;
+        
         for (let i = 0; i < staticQuantities.length; i++) {
-          let prices = {
-            quantity: staticQuantities[i],
-            value: changingValue,
-            totalValue: 0,
-            transportPrice: 0,
-          };
-
+          
           const percentageDiscount: number = 0.01;
 
-          let value: number = changingValue * (1 - percentageDiscount);
+          value = changingValue * (1 - percentageDiscount);
 
           value = Math.round(value);
 
@@ -445,9 +440,20 @@ export class RefProductsService {
 
           prices.totalValue = value;
 
+          changingValue = value;
+
+          let prices = {
+            quantity: staticQuantities[i],
+            value: changingValue,
+            totalValue: 0,
+            transportPrice: 0,
+          };
+
           burnPriceTable.push(prices);
 
-          changingValue = value;
+
+         
+
         }
 
         return { ...product, burnPriceTable };
