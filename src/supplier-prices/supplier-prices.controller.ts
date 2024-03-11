@@ -5,6 +5,8 @@ import { SupplierPricesService } from './supplier-prices.service';
 import { CreateSupplierPriceDto } from './dto/create-supplier-price.dto';
 import { UpdateSupplierPriceDto } from './dto/update-supplier-price.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetUser } from '../users/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('supplier-prices')
 export class SupplierPricesController {
@@ -21,9 +23,10 @@ export class SupplierPricesController {
   @Get()
   @UseGuards(AuthGuard())
   findAll(
-    @Query() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto,
+    @GetUser() user: User,
   ) {
-    return this.supplierPricesService.findAll(paginationDto);
+    return this.supplierPricesService.findAll(paginationDto, user);
   }
 
   @Get(':id')
