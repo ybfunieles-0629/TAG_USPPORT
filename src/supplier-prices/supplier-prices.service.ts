@@ -9,7 +9,8 @@ import { Product } from '../products/entities/product.entity';
 import { ListPrice } from '../list-prices/entities/list-price.entity';
 import { plainToClass } from 'class-transformer';
 import { SupplierPrice } from './entities/supplier-price.entity';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class SupplierPricesService {
@@ -86,28 +87,46 @@ export class SupplierPricesService {
     };
   }
 
-  async findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto, user: User) {
     const count: number = await this.supplierPriceRepository.count();
 
     const { limit = count, offset = 0 } = paginationDto;
 
-    const results: SupplierPrice[] = await this.supplierPriceRepository.find({
-      take: limit,
-      skip: offset,
-      relations: [
-        'supplier',
-        'supplier.user',
-        'product',
-        'product.refProduct',
-        'product.colors',
-        'product.variantReferences',
-        'listPrices',
-      ],
-    });
+    let supplierPrices: SupplierPrice[] = [];
+
+    if (user.roles.some((role) => role.name.toLowerCase() == 'proveedor')) {
+      supplierPrices = await this.supplierPriceRepository
+        .createQueryBuilder('supplierPrices')
+        .leftJoinAndSelect('supplierPrices.supplier', 'supplier')
+        .where('supplier.id =:supplierId', { supplierId: user.supplier.id})
+        .leftJoinAndSelect('supplier.user', 'supplierUser')
+        .leftJoinAndSelect('supplierPrices.product', 'product')
+        .leftJoinAndSelect('product.refProduct', 'refProduct')
+        .leftJoinAndSelect('product.colors', 'colors')
+        .leftJoinAndSelect('product.variantReferences', 'variantReferences')
+        .leftJoinAndSelect('product.listPrices', 'listPrices')
+        .take(limit)
+        .skip(offset)
+        .getMany();
+    } else {
+      supplierPrices = await this.supplierPriceRepository.find({
+        take: limit,
+        skip: offset,
+        relations: [
+          'supplier',
+          'supplier.user',
+          'product',
+          'product.refProduct',
+          'product.colors',
+          'product.variantReferences',
+          'listPrices',
+        ],
+      });
+    };
 
     return {
       count,
-      results
+      results: supplierPrices
     };
   }
 
