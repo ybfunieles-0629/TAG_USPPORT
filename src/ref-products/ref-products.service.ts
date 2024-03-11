@@ -766,7 +766,6 @@ export class RefProductsService {
       .andWhere('product.large > :large', { large: 0 })
       .leftJoinAndSelect('product.packings', 'productPackings')
       .leftJoinAndSelect('product.colors', 'productColors')
-      .leftJoinAndSelect('product.colors', 'productColors')
       .leftJoinAndSelect('refProduct.images', 'refProductImages')
       .leftJoinAndSelect('refProduct.colors', 'refProductColors')
       .leftJoinAndSelect('refProduct.categorySuppliers', 'refProductCategorySuppliers')
