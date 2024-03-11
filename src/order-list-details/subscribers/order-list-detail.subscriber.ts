@@ -19,11 +19,17 @@ export class OrderListDetailSubscriber implements EntitySubscriberInterface<Orde
     });
 
     let nextOrderNumber = 10000;
+    let nextOrderClientNumber = 60000;
+
     if (lastOrder) {
       const lastOrderNumber = parseInt(lastOrder.orderCode.slice(1));
       nextOrderNumber = lastOrderNumber + 1;
+      
+      const lastOrderClientNumber = parseInt(lastOrder.orderCodeClient.slice(1));
+      nextOrderClientNumber = lastOrderClientNumber + 1;
     }
 
     orderListDetail.orderCode = `O${nextOrderNumber}`;
+    orderListDetail.orderCodeClient = `C${nextOrderClientNumber}`;
   }
 }
