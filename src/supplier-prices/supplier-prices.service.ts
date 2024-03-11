@@ -104,7 +104,7 @@ export class SupplierPricesService {
         .leftJoinAndSelect('product.refProduct', 'refProduct')
         .leftJoinAndSelect('product.colors', 'colors')
         .leftJoinAndSelect('product.variantReferences', 'variantReferences')
-        .leftJoinAndSelect('product.listPrices', 'listPrices')
+        .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
         .take(limit)
         .skip(offset)
         .getMany();
