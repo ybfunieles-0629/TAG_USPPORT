@@ -734,8 +734,8 @@ export class CartQuotesService {
           nextOrderClientNumber = lastOrderClientNumber + 1;
         }
 
-        const orderCode = `O${nextOrderNumber}`;
-        const orderCodeClient = `C${nextOrderClientNumber}`;
+        const orderCode: number = nextOrderNumber;
+        const orderCodeClient: number = nextOrderClientNumber;
 
         const orderListDetailData = {
           orderCode,
