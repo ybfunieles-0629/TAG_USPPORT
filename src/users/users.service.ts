@@ -459,7 +459,12 @@ export class UsersService {
     if (!user)
       throw new NotFoundException(`User with email ${passwordRecovery.email} not found`);
 
-    const token = this.getJwtToken({ email: user.email, userId: user.id });
+    const token = this.getJwtToken({
+      email: user.email,
+      user: {
+        userId: user.id,
+      }
+    });
     const resetUrl = `https://tag-web-16776.web.app/auth/change-password?t=${token}`;
     const emailText = `Click the following link to reset your password: <a href="${resetUrl}">${resetUrl}</a>`;
 
@@ -499,7 +504,7 @@ export class UsersService {
     const data = this.jwtService.decode(passwordRecovery.token);
 
     const jwtStrategy: JwtStrategy = new JwtStrategy(
-      this.userRepository, 
+      this.userRepository,
       this.configService,
     );
 
@@ -858,6 +863,8 @@ export class UsersService {
         };
       }
     }
+
+    console.log(usersToShow);
 
     const calculatedOffset = offset * limit;
     const calculatedLimit = limit;

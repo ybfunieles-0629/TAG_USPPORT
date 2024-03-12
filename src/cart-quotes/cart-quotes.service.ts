@@ -727,10 +727,10 @@ export class CartQuotesService {
         let nextOrderClientNumber = 60000;
 
         if (lastOrder) {
-          const lastOrderNumber = parseInt(lastOrder.orderCode.slice(1));
+          const lastOrderNumber: number = parseInt(lastOrder.orderCode);
           nextOrderNumber = lastOrderNumber + 1;
 
-          const lastOrderClientNumber = parseInt(lastOrder.orderCodeClient.slice(1));
+          const lastOrderClientNumber: number = parseInt(lastOrder.orderCodeClient);
           nextOrderClientNumber = lastOrderClientNumber + 1;
         }
 
