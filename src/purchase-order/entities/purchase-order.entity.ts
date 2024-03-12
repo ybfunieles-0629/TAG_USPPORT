@@ -23,6 +23,11 @@ export class PurchaseOrder {
   @Column('varchar', {
 
   })
+  deliveryAddress: string;
+
+  @Column('varchar', {
+
+  })
   orderDocument: string;
 
   @Column('date', {
