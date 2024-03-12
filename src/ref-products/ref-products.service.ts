@@ -738,8 +738,21 @@ export class RefProductsService {
 
     const finalResults = refProducts.length > 0 ? await this.calculations(refProducts) : [];
 
+    const finalFinalResults = await Promise.all(finalResults.map(async (refProduct) => {
+      const tagCategory: CategoryTag = await this.categoryTagRepository.findOne({
+        where: {
+          id: refProduct.tagCategory,
+        },
+      });
+
+      return {
+        ...refProduct,
+        tagCategory
+      }
+    }));
+
     return {
-      finalResults
+      finalResults: finalFinalResults
     };
   }
 
