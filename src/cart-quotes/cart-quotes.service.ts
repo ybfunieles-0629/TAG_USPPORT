@@ -714,7 +714,29 @@ export class CartQuotesService {
         let expirationDate: Date = new Date();
         expirationDate.setDate(expirationDate.getDate() + 30);
 
+        const lastOrder = await this.orderListDetailRepository.findOne({
+          order: {
+            createdAt: 'DESC',
+          },
+        });
+
+        let nextOrderNumber = 10000;
+        let nextOrderClientNumber = 60000;
+
+        if (lastOrder) {
+          const lastOrderNumber = parseInt(lastOrder.orderCode.slice(1));
+          nextOrderNumber = lastOrderNumber + 1;
+
+          const lastOrderClientNumber = parseInt(lastOrder.orderCodeClient.slice(1));
+          nextOrderClientNumber = lastOrderClientNumber + 1;
+        }
+
+        const orderCode = `O${nextOrderNumber}`;
+        const orderCodeClient = `C${nextOrderClientNumber}`;
+
         const orderListDetailData = {
+          orderCode,
+          orderCodeClient,
           cartQuote: cartQuote,
           quantities: quoteDetail.quantities,
           productTotalPrice: quoteDetail.totalValue,
