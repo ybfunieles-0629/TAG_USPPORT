@@ -864,11 +864,6 @@ export class UsersService {
       }
     }
 
-    console.log(usersToShow);
-
-    const calculatedOffset = offset * limit;
-    const calculatedLimit = limit;
-
     const paginatedResults = usersToShow.map((user) => {
       let isAdmin = false;
       if (user?.admin != null || user?.admin != undefined) {
@@ -877,11 +872,9 @@ export class UsersService {
       return { ...user, isAdmin };
     });
 
-    const finalPaginatedResults = paginatedResults.slice(calculatedOffset, calculatedOffset + calculatedLimit);
-
     return {
       count,
-      users: finalPaginatedResults
+      users: paginatedResults
     };
   };
 
