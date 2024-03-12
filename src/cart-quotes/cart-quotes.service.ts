@@ -714,11 +714,14 @@ export class CartQuotesService {
         let expirationDate: Date = new Date();
         expirationDate.setDate(expirationDate.getDate() + 30);
 
-        const lastOrder = await this.orderListDetailRepository.findOne({
+        const lastOrders = await this.orderListDetailRepository.find({
           order: {
             createdAt: 'DESC',
           },
+          take: 1
         });
+
+        const lastOrder = lastOrders[0];
 
         let nextOrderNumber = 10000;
         let nextOrderClientNumber = 60000;
