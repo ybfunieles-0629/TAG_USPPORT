@@ -759,6 +759,7 @@ export class CartQuotesService {
       expirationDate.setDate(expirationDate.getDate() + 30);
 
       const purchaseOrderData = {
+        deliveryAddress: cartQuote.deliveryAddress,
         tagOrderNumber: uuidv4(),
         clientOrderNumber: uuidv4(),
         approvalDate: cartQuote.updatedAt,
