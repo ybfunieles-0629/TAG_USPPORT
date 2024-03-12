@@ -440,14 +440,14 @@ export class ProductsService {
         mainCategory: categorySupplier?.id || '',
         tagCategory: categorySupplier?.categoryTag?.id || '',
         keywords: keyword,
-        large: +item.medidas_largo,
-        width: +item.medidas_ancho,
-        height: +item.medidas_alto,
+        large: +item.empaque_largo,
+        width: +item.empaque_ancho,
+        height: +item.empaque_alto,
         weight: +item.medidas_peso_neto,
         importedNational: 1,
         markedDesignArea: item.area_impresion || '',
         supplier: user.supplier,
-        personalizableMarking: 0,
+        personalizableMarking: item.tecnica_marca_codigo || 0,
         images,
       }
 
@@ -470,8 +470,11 @@ export class ProductsService {
 
         const newProduct = {
           tagSku,
+          availableUnit: item.inventario || 0,
+          referencePrice: item.precio,
+          disccountPromo: item.descuento || 0,
           familia: item.familia,
-          supplierSKu: tagSku,
+          supplierSKu: material.codigo,
           apiCode: material.codigo,
           large: + item.medidas_largo,
           width: +item.medidas_ancho,
@@ -547,7 +550,7 @@ export class ProductsService {
 
       const newProduct = {
         tagSku,
-        supplierSku: tagSku,
+        supplierSku: product?.supplierSku,
         apiCode: product?.apiCode,
         variantReferences: [],
         large: +product?.large || 0,
@@ -555,9 +558,10 @@ export class ProductsService {
         height: +product?.height || 0,
         weight: +product?.weight || 0,
         colors,
-        referencePrice: +product?.material?.precio,
-        promoDisccount: parseFloat(product.material.descuento.replace('-', '')),
-        availableUnit: +product?.material?.inventario_almacen[0]?.cantidad,
+        referencePrice: product.referencePrice,
+        // promoDisccount: parseFloat(product.material.descuento.replace('-', '')),
+        promoDisccount: product?.promoDisccount,
+        availableUnit: product?.inventario,
         refProduct,
       };
 

@@ -217,12 +217,16 @@ export class RefProductsService {
   }
 
   async calculations(results: RefProduct[]) {
+    // let staticQuantities: number[] = [
+    //   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
+    //   150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
+    //   1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
+    //   7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
+    //   100000, 200000,
+    // ];
+
     let staticQuantities: number[] = [
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
-      150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
-      1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
-      7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
-      100000, 200000,
+      1, 2
     ];
 
     const systemConfigs: SystemConfig[] = await this.systemConfigRepository.find();
@@ -250,10 +254,15 @@ export class RefProductsService {
 
           value = Math.round(value);
 
+          changingValue = value;
+
           //* SI EL PRODUCTO NO TIENE UN PRECIO NETO
           if (product.hasNetPrice == 0) {
             //* SI EL PRODUCTO TIENE UN PRECIO PROVEEDOR ASOCIADO
             if (product.supplierPrices.length > 0) {
+
+              console.log('entra');
+
               const supplierPrice: SupplierPrice = product.supplierPrices[0];
 
               //* RECORRO LA LISTA DE PRECIOS DEL PRECIO DEL PROVEEDOR
@@ -261,10 +270,15 @@ export class RefProductsService {
                 if (listPrice.minimun >= i && listPrice.nextMinValue == 1 && listPrice.maximum <= i || listPrice.minimun >= i && listPrice.nextMinValue == 0) {
                   //* SI APLICA PARA TABLA DE PRECIOS DE PROVEEDOR
                   value += listPrice.price;
+
+
+                  console.log(value);
+
                   return;
                 };
               });
             } else {
+
               //* SI LO ENCUENTRA LO AÑADE, SINO LE PONE UN 0 Y NO AÑADE NADA
               const entryDiscount: number = product.entryDiscount || 0;
               const entryDiscountValue: number = (entryDiscount / 100) * value || 0;
@@ -284,6 +298,8 @@ export class RefProductsService {
                     if (discountItem.entryDisccount != undefined || discountItem.entryDisccount != null || discountItem.entryDisccount > 0) {
                       const discount: number = (discountItem.entryDisccount / 100) * value;
                       value -= discount;
+
+                      console.log(value);
 
                       return;
                     };
@@ -343,11 +359,11 @@ export class RefProductsService {
             const unforeseenFee: number = (product.unforeseenFee / 100) * value;
 
             value += unforeseenFee;
-          };
-
-          const unforeseenFee: number = systemConfig.unforeseenFee;
-          const unforeseenFeePercentage: number = (unforeseenFee / 100) * value;
-          value += unforeseenFeePercentage;
+          } else {
+            const unforeseenFee: number = systemConfig.unforeseenFee;
+            const unforeseenFeePercentage: number = (unforeseenFee / 100) * value;
+            value += unforeseenFeePercentage;
+          }
 
           // //TODO: Validar calculos de ganacias por periodos y politicas de tienpos de entrega
           // //TODO: Después del margen del periodo validar del comercial
@@ -392,9 +408,10 @@ export class RefProductsService {
           };
 
           //* CALCULAR COSTOS FINANCIEROS DEL PERIODO DE PRODUCCIÓN
-          const supplierFinancingPercentage: number = systemConfig.supplierFinancingPercentage || 0;
-          const financingCost: number = ((value - advancePercentage) * supplierFinancingPercentage) * deliveryTimeToSave;
-          value += financingCost;
+          const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage) || 0;
+          const financingCost: number = ((value - advancePercentageValue));
+          const supplierFinancingPercentageValue: number = (supplierFinancingPercentage / 100) * financingCost;
+          value = (value - supplierFinancingPercentageValue) * deliveryTimeToSave;
 
           //* CALCULAR EL COSTO DE TRANSPORTE Y ENTREGA DE LOS PRODUCTOS (ESTA INFORMACIÓN VIENE DEL API DE FEDEX)
           const localTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
@@ -412,7 +429,8 @@ export class RefProductsService {
           // prices.transportPrice = transportPrice;
 
           //* CALCULAR EL IMPUESTO 4 X 1000
-          value += (value * 1.04);
+          const fourPercentage = (value * 0.004);
+          value += fourPercentage;
 
           //* CALCULAR EL COSTO DE LA OPERACIÓN (YA HECHO)
 
@@ -422,14 +440,15 @@ export class RefProductsService {
           value += profitMarginPercentage;
 
           //* ADICIONAR EL % DE MARGEN DE GANANCIA DEL PRODUCTO
-          const mainCategory: CategorySupplier = await this.categorySupplierRepository.findOne({
+          const mainCategory: CategoryTag = await this.categoryTagRepository.findOne({
             where: {
-              id: product?.refProduct?.mainCategory,
+              id: product?.refProduct?.tagCategory,
             },
           });
 
           if (mainCategory) {
-            value += (parseInt(mainCategory?.categoryTag?.categoryMargin)) || 0;
+            const categoryMarginValue: number = (+mainCategory.categoryMargin / 100) * value;
+            value += categoryMarginValue;
           };
 
           //* PRECIO TOTAL ANTES DEL IVA (YA HECHO)
@@ -450,10 +469,6 @@ export class RefProductsService {
           };
 
           burnPriceTable.push(prices);
-
-
-         
-
         }
 
         return { ...product, burnPriceTable };
@@ -744,8 +759,21 @@ export class RefProductsService {
 
     const finalResults = refProducts.length > 0 ? await this.calculations(refProducts) : [];
 
+    const finalFinalResults = await Promise.all(finalResults.map(async (refProduct) => {
+      const tagCategory: CategoryTag = await this.categoryTagRepository.findOne({
+        where: {
+          id: refProduct.tagCategory,
+        },
+      });
+
+      return {
+        ...refProduct,
+        tagCategory
+      }
+    }));
+
     return {
-      finalResults
+      finalResults: finalFinalResults
     };
   }
 
