@@ -785,6 +785,7 @@ export class CartQuotesService {
 
       const purchaseOrderData = {
         deliveryAddress: cartQuote.deliveryAddress,
+        destinationCity: cartQuote.destinationCity,
         tagOrderNumber: uuidv4(),
         clientOrderNumber: uuidv4(),
         approvalDate: cartQuote.updatedAt,
