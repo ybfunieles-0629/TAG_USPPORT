@@ -26,4 +26,7 @@ export class PaginationDto {
 
   @IsOptional()
   dashboard?: number;
+  
+  @IsOptional()
+  margin?: number;
 }
