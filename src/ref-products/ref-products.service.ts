@@ -350,7 +350,8 @@ export class RefProductsService {
             value += iva;
 
           
-          // //* VERIFICAR SI ES IMPORTADO NACIONAL
+          // //* VERIFICAR SI ES IMPORTADO NACIONALcod  
+
           if (product.importedNational.toLowerCase() == 'importado') {
             const importationFee: number = (systemConfig.importationFee / 100) * value;
 
@@ -462,6 +463,11 @@ export class RefProductsService {
             const iva: number = (product.iva / 100) * value;
             value += iva;
           };
+
+
+          // //* APLICAR ULTIMO IVA
+            const feeUsuarioLogin: number = (10 / 100) * value;
+            value += feeUsuarioLogin;
 
           //* CALCULAR EL PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
           value = Math.round(value);
