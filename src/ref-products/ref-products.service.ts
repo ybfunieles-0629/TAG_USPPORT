@@ -337,7 +337,9 @@ export class RefProductsService {
 
           //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
           if (margin) {
-            const marginValue: number = +margin;
+            const marginPercentage: number = +margin;
+            const marginValue: number = (marginPercentage / 100) * value;
+
             value += marginValue;
           };
 
