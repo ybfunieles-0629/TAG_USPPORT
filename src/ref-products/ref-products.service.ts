@@ -217,12 +217,16 @@ export class RefProductsService {
   }
 
   async calculations(results: RefProduct[], margin: number) {
+    // let staticQuantities: number[] = [
+    //   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
+    //   150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
+    //   1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
+    //   7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
+    //   100000, 200000,
+    // ];
+
     let staticQuantities: number[] = [
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
-      150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
-      1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
-      7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
-      100000, 200000,
+      1, 2
     ];
 
     const systemConfigs: SystemConfig[] = await this.systemConfigRepository.find();
@@ -341,7 +345,8 @@ export class RefProductsService {
 
           //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
           if (margin) {
-            value += margin;
+            const marginValue: number = +margin;
+            value += marginValue;
           };
 
           // //* APLICAR IVA
