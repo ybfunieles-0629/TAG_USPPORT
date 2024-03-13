@@ -216,7 +216,7 @@ export class RefProductsService {
     };
   }
 
-  async calculations(results: RefProduct[]) {
+  async calculations(results: RefProduct[], margin: number) {
     let staticQuantities: number[] = [
       1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
       150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
@@ -256,8 +256,6 @@ export class RefProductsService {
           if (product.hasNetPrice == 0) {
             //* SI EL PRODUCTO TIENE UN PRECIO PROVEEDOR ASOCIADO
             if (product.supplierPrices.length > 0) {
-
-              console.log('entra');
 
               const supplierPrice: SupplierPrice = product.supplierPrices[0];
 
@@ -335,6 +333,11 @@ export class RefProductsService {
               };
             };
           }
+
+          //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
+          if (margin) {
+            value += margin;
+          };
 
           // //* APLICAR IVA
           if (product.iva > 0 || product.iva != undefined) {
@@ -456,7 +459,8 @@ export class RefProductsService {
           };
 
           //* PRECIO TOTAL ANTES DEL IVA (YA HECHO)
-          value += product.iva;
+          const productIvaValue: number = (product.iva / 100) * value;
+          value += productIvaValue;
 
           // //* APLICAR ULTIMO IVA
           if (product.iva > 0 || product.iva != undefined) {
@@ -472,6 +476,7 @@ export class RefProductsService {
           //* CALCULAR EL PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
           value = Math.round(value);
 
+<<<<<<< HEAD
           // prices.totalValue = value;
 
           changingValue = value;
@@ -482,6 +487,13 @@ export class RefProductsService {
             totalValue: value,
             transportPrice: transportPrice,
           };
+=======
+          //* IVA ADICIONAL
+          const additionalProductIvaValue: number = (product.iva / 100) * value;
+          value += additionalProductIvaValue;
+
+          prices.totalValue = value;
+>>>>>>> 865ec99a078386c5a06fd0bf63982912049c7b93
 
           burnPriceTable.push(prices);
         }
@@ -507,7 +519,7 @@ export class RefProductsService {
   async findAll(paginationDto: PaginationDto, user: User) {
     const totalCount = await this.refProductRepository.count();
 
-    const { limit = totalCount, offset = 0, calculations = 0, supplier = 0, dashboard = 1 } = paginationDto;
+    const { limit = totalCount, offset = 0, calculations = 0, supplier = 0, dashboard = 1, margin = 0 } = paginationDto;
 
     let results: RefProduct[] = [];
 
@@ -622,7 +634,7 @@ export class RefProductsService {
     let finalFinalResults = [];
 
     if (calculations == 1) {
-      const calculatedResults = results.length > 0 ? await this.calculations(results) : [];
+      const calculatedResults = results.length > 0 ? await this.calculations(results, margin) : [];
       finalCalculatedResults = calculatedResults;
     }
 
@@ -676,7 +688,7 @@ export class RefProductsService {
 
 
   async filterProductsWithDiscount(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    const { limit = 10, offset = 0, margin } = paginationDto;
 
     const results: RefProduct[] = await this.refProductRepository
       .createQueryBuilder('refProduct')
@@ -719,7 +731,7 @@ export class RefProductsService {
       .skip(offset)
       .getMany();
 
-    const finalResults = results.length > 0 ? await this.calculations(results) : [];
+    const finalResults = results.length > 0 ? await this.calculations(results, margin) : [];
 
     return {
       totalCount: finalResults.length,
@@ -727,7 +739,7 @@ export class RefProductsService {
     };
   };
 
-  async findOne(id: string) {
+  async findOne(id: string, margin: number) {
     const refProduct: RefProduct = await this.refProductRepository.findOne({
       where: {
         id,
@@ -772,7 +784,7 @@ export class RefProductsService {
 
     refProducts.push(refProduct);
 
-    const finalResults = refProducts.length > 0 ? await this.calculations(refProducts) : [];
+    const finalResults = refProducts.length > 0 ? await this.calculations(refProducts, margin) : [];
 
     const finalFinalResults = await Promise.all(finalResults.map(async (refProduct) => {
       const tagCategory: CategoryTag = await this.categoryTagRepository.findOne({

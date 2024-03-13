@@ -63,8 +63,11 @@ export class RefProductsController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.refProductsService.findOne(id);
+  findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('margin') margin: number,
+  ) {
+    return this.refProductsService.findOne(id, margin);
   }
 
   @Patch(':id')
