@@ -472,7 +472,7 @@ export class ProductsService {
           tagSku,
           availableUnit: item.inventario || 0,
           referencePrice: item.precio,
-          disccountPromo: item.descuento || 0,
+          promoDisccount: item.descuento || 0,
           familia: item.familia,
           supplierSKu: material.codigo,
           apiCode: material.codigo,
