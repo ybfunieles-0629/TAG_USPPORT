@@ -467,7 +467,6 @@ export class RefProductsService {
           value += additionalProductIvaValue;
 
           prices.totalValue = value;
-
           burnPriceTable.push(prices);
         }
 
