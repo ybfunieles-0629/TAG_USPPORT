@@ -339,10 +339,17 @@ export class RefProductsService {
           // //* APLICAR IVA
           if (product.iva > 0 || product.iva != undefined) {
             const iva: number = (product.iva / 100) * value;
-
             value += iva;
           };
 
+
+           // //* ESTE PORCENTAJE SE SUMA DEL TIPO DE CLIENTE 
+           // VALIDAR MAS ADELANTE 
+           
+            const iva: number = (10 / 100) * value;
+            value += iva;
+
+          
           // //* VERIFICAR SI ES IMPORTADO NACIONAL
           if (product.importedNational.toLowerCase() == 'importado') {
             const importationFee: number = (systemConfig.importationFee / 100) * value;
@@ -380,7 +387,7 @@ export class RefProductsService {
 
             boxesQuantity = Math.round(boxesQuantity) + 1;
 
-            //   //* CALCULAR EL VOLUMEN DEL PAQUETE
+            //* CALCULAR EL VOLUMEN DEL PAQUETE
             const packingVolume: number = (packing?.height * packing?.width * packing?.large) || 0;
             const totalVolume: number = (packingVolume * boxesQuantity) || 0;
             totalPackingVolume = totalVolume || 0;
@@ -449,6 +456,12 @@ export class RefProductsService {
 
           //* PRECIO TOTAL ANTES DEL IVA (YA HECHO)
           value += product.iva;
+
+          // //* APLICAR ULTIMO IVA
+          if (product.iva > 0 || product.iva != undefined) {
+            const iva: number = (product.iva / 100) * value;
+            value += iva;
+          };
 
           //* CALCULAR EL PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
           value = Math.round(value);
