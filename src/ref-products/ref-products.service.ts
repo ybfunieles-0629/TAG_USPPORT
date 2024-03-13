@@ -476,24 +476,11 @@ export class RefProductsService {
           //* CALCULAR EL PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
           value = Math.round(value);
 
-<<<<<<< HEAD
-          // prices.totalValue = value;
-
-          changingValue = value;
-
-          let prices = {
-            quantity: staticQuantities[i],
-            value: changingValue,
-            totalValue: value,
-            transportPrice: transportPrice,
-          };
-=======
           //* IVA ADICIONAL
           const additionalProductIvaValue: number = (product.iva / 100) * value;
           value += additionalProductIvaValue;
 
           prices.totalValue = value;
->>>>>>> 865ec99a078386c5a06fd0bf63982912049c7b93
 
           burnPriceTable.push(prices);
         }
