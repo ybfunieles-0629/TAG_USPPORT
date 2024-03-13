@@ -240,13 +240,18 @@ export class RefProductsService {
 
         const initialValue: number = product.referencePrice;
         let changingValue: number = initialValue;
-        let value: number = 0;
-        
+
         for (let i = 0; i < staticQuantities.length; i++) {
-          
+          let prices = {
+            quantity: staticQuantities[i],
+            value: changingValue,
+            totalValue: 0,
+            transportPrice: 0,
+          };
+
           const percentageDiscount: number = 0.01;
 
-          value = changingValue * (1 - percentageDiscount);
+          let value: number = changingValue * (1 - percentageDiscount);
 
           value = Math.round(value);
 
@@ -342,19 +347,11 @@ export class RefProductsService {
           // //* APLICAR IVA
           if (product.iva > 0 || product.iva != undefined) {
             const iva: number = (product.iva / 100) * value;
+
             value += iva;
           };
 
-
-           // //* ESTE PORCENTAJE SE SUMA DEL TIPO DE CLIENTE 
-           // VALIDAR MAS ADELANTE 
-           
-            const iva: number = (10 / 100) * value;
-            value += iva;
-
-          
-          // //* VERIFICAR SI ES IMPORTADO NACIONALcod  
-
+          // //* VERIFICAR SI ES IMPORTADO NACIONAL
           if (product.importedNational.toLowerCase() == 'importado') {
             const importationFee: number = (systemConfig.importationFee / 100) * value;
 
@@ -391,7 +388,7 @@ export class RefProductsService {
 
             boxesQuantity = Math.round(boxesQuantity) + 1;
 
-            //* CALCULAR EL VOLUMEN DEL PAQUETE
+            //   //* CALCULAR EL VOLUMEN DEL PAQUETE
             const packingVolume: number = (packing?.height * packing?.width * packing?.large) || 0;
             const totalVolume: number = (packingVolume * boxesQuantity) || 0;
             totalPackingVolume = totalVolume || 0;
@@ -433,7 +430,7 @@ export class RefProductsService {
 
           value += transportPrice;
 
-          // prices.transportPrice = transportPrice;
+          prices.transportPrice = transportPrice;
 
           //* CALCULAR EL IMPUESTO 4 X 1000
           const fourPercentage = (value * 0.004);
@@ -461,17 +458,6 @@ export class RefProductsService {
           //* PRECIO TOTAL ANTES DEL IVA (YA HECHO)
           const productIvaValue: number = (product.iva / 100) * value;
           value += productIvaValue;
-
-          // //* APLICAR ULTIMO IVA
-          if (product.iva > 0 || product.iva != undefined) {
-            const iva: number = (product.iva / 100) * value;
-            value += iva;
-          };
-
-
-          // //* APLICAR ULTIMO IVA
-            const feeUsuarioLogin: number = (10 / 100) * value;
-            value += feeUsuarioLogin;
 
           //* CALCULAR EL PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
           value = Math.round(value);
