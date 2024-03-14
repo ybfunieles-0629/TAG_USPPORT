@@ -935,7 +935,7 @@ export class RefProductsService {
   };
 
   async filterProducts(filterRefProductsDto: FilterRefProductsDto, paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    const { limit = 10, offset = 0, margin, clientId } = paginationDto;
 
     let refProductsToShow: RefProduct[] = [];
 
@@ -1501,55 +1501,12 @@ export class RefProductsService {
 
     refProductsToShow = refProductsToShow.filter((refProduct) => refProduct.products.length > 0);
 
-    const finalResults = await Promise.all(refProductsToShow.map(async (result) => {
-      const modifiedProducts = await Promise.all(result.products.map(async (product) => {
-        const burnPriceTable = [];
+    const calculatedResults = await this.calculations(refProductsToShow, margin, clientId);
 
-        const initialValue: number = product.referencePrice;
-        let changingValue: number = initialValue;
-
-        const staticQuantities: number[] = [
-          1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
-          150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
-          1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
-          7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
-          100000, 200000,
-        ];
-
-        for (let i = 0; i < staticQuantities.length; i++) {
-          let iva: number = 0;
-
-          if (filterRefProductsDto.iva > 0) {
-            iva = (filterRefProductsDto.iva / 100) * changingValue || 0;
-          }
-
-          changingValue = Math.round(changingValue += iva);
-
-          let prices = {
-            quantity: staticQuantities[i],
-            value: changingValue,
-          };
-
-          burnPriceTable.push(prices);
-
-          const percentageDiscount: number = 0.01;
-
-          let value: number = changingValue * (1 - percentageDiscount);
-
-          value = Math.round(value);
-
-          changingValue = value;
-        }
-
-        return {
-          ...product,
-          burnPriceTable,
-        };
-      }));
-
+    const finalResults = await Promise.all(calculatedResults.map(async (result) => {
       const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
         where: {
-          id: result.mainCategory,
+          id: result.mainCategory.id,
         },
       });
 
@@ -1565,7 +1522,6 @@ export class RefProductsService {
       return {
         ...result,
         isPending: 1,
-        products: modifiedProducts,
         mainCategory: categorySupplier,
         tagCategory: categoryTag,
       };
