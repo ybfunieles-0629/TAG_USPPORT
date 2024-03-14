@@ -29,4 +29,7 @@ export class PaginationDto {
   
   @IsOptional()
   margin?: number;
+
+  @IsOptional()
+  clientId?: string;
 }
