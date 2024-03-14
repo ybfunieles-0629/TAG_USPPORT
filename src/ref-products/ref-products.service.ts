@@ -1501,7 +1501,7 @@ export class RefProductsService {
 
     refProductsToShow = refProductsToShow.filter((refProduct) => refProduct.products.length > 0);
 
-    const calculatedResults = await this.calculations(refProductsToShow, margin, clientId);
+    const calculatedResults = refProductsToShow.length > 0 ? await this.calculations(refProductsToShow, margin, clientId) : [];
 
     const finalResults = await Promise.all(calculatedResults.map(async (result) => {
       const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
