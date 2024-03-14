@@ -1501,7 +1501,7 @@ export class RefProductsService {
 
     refProductsToShow = refProductsToShow.filter((refProduct) => refProduct.products.length > 0);
 
-    const calculatedResults = refProductsToShow.length > 0 ? await this.calculations(refProductsToShow, margin, clientId) : [];
+    const calculatedResults = refProductsToShow?.length > 0 ? await this.calculations(refProductsToShow, margin, clientId) : [];
 
     const finalResults = await Promise.all(calculatedResults.map(async (result) => {
       const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
@@ -1528,10 +1528,10 @@ export class RefProductsService {
     }));
 
     const paginatedRefProducts = finalResults.slice(offset, offset + limit);
-    const finalRefProducts = await paginatedRefProducts.filter((refProduct) => refProduct.images.length > 0);
+    const finalRefProducts = await paginatedRefProducts.filter((refProduct) => refProduct?.images?.length > 0);
 
     return {
-      count: finalResults.length,
+      count: finalRefProducts?.length,
       refProducts: finalRefProducts,
     };
   }
