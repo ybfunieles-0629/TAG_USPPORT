@@ -243,7 +243,25 @@ export class RefProductsService {
 
     const clientUser: User = clientSended?.user;
 
+    const mainClient: Client = await this.clientRepository
+      .createQueryBuilder('client')
+      .leftJoinAndSelect('client.user', 'clientUser')
+      .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
+      .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
+      .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
+      .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
+      .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
+      .getOne();
+
     let clientType: string = '';
+
+    //* SE DEBE VERIFICAR SI EL USUARIO ES COORPORATIVO O QUÉ
+    if (clientUser) {
+      if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 1)
+        clientType = 'cliente corporativo secundario';
+      else if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 0)
+        clientType = 'cliente corporativo principal';
+    };
 
     const systemConfigs: SystemConfig[] = await this.systemConfigRepository.find();
     const systemConfig: SystemConfig = systemConfigs[0];
@@ -360,15 +378,6 @@ export class RefProductsService {
             if (margin > 0) {
               const marginValueResult: number = (margin / 100) * value;
               value += marginValueResult;
-
-              //* SE DEBE ADICIONAR UN FEE ADICIONAL AL USUARIO DENTRO DEL CLIENTE
-              if (clientUser) {
-                if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 1)
-                  clientType = 'cliente corporativo secundario';
-                else if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 0)
-                  clientType = 'cliente corporativo principal';
-              };
-
               //   //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
               const profitMargin: number = 0;
 
@@ -402,16 +411,6 @@ export class RefProductsService {
               //* SI EL CLIENTE ES SECUNDARIO
               if (clientType == 'cliente corporativo secundario') {
                 //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
-                const mainClient: Client = await this.clientRepository
-                  .createQueryBuilder('client')
-                  .leftJoinAndSelect('client.user', 'clientUser')
-                  .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
-                  .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
-                  .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
-                  .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
-                  .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
-                  .getOne();
-
                 const marginProfit: number = mainClient.margin || 0;
                 const paymentTerms: number = mainClient.paymentTerms || 0;
 
