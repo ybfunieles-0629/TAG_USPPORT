@@ -238,20 +238,11 @@ export class RefProductsService {
       },
       relations: [
         'user',
+        'user.company',
       ],
     });
 
     const clientUser: User = clientSended?.user;
-
-    const mainClient: Client = await this.clientRepository
-      .createQueryBuilder('client')
-      .leftJoinAndSelect('client.user', 'clientUser')
-      .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
-      .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
-      .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
-      .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
-      .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
-      .getOne();
 
     let clientType: string = '';
 
@@ -262,6 +253,20 @@ export class RefProductsService {
       else if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 0)
         clientType = 'cliente corporativo principal';
     };
+
+    let mainClient: Client;
+
+    if (clientType == 'cliente corporativo secundario') {
+      mainClient = await this.clientRepository
+        .createQueryBuilder('client')
+        .leftJoinAndSelect('client.user', 'clientUser')
+        .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
+        .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
+        .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
+        .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
+        .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
+        .getOne();
+    }
 
     const systemConfigs: SystemConfig[] = await this.systemConfigRepository.find();
     const systemConfig: SystemConfig = systemConfigs[0];
