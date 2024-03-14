@@ -22,8 +22,9 @@ import { SystemConfig } from '../system-configs/entities/system-config.entity';
 import { Packing } from '../packings/entities/packing.entity';
 import { LocalTransportPrice } from '../local-transport-prices/entities/local-transport-price.entity';
 import { User } from '../users/entities/user.entity';
-import { Color } from 'src/colors/entities/color.entity';
-import { Role } from 'src/roles/entities/role.entity';
+import { Color } from '../colors/entities/color.entity';
+import { Role } from '../roles/entities/role.entity';
+import { Client } from '../clients/entities/client.entity';
 
 @Injectable()
 export class RefProductsService {
@@ -39,6 +40,9 @@ export class RefProductsService {
     @InjectRepository(CategoryTag)
     private readonly categoryTagRepository: Repository<CategoryTag>,
 
+    @InjectRepository(Client)
+    private readonly clientRepository: Repository<Client>,
+
     @InjectRepository(Color)
     private readonly colorRepository: Repository<Color>,
 
@@ -50,6 +54,9 @@ export class RefProductsService {
 
     @InjectRepository(Supplier)
     private readonly supplierRepository: Repository<Supplier>,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
 
     @InjectRepository(MarkingServiceProperty)
     private readonly markingServicePropertyRepository: Repository<MarkingServiceProperty>,
@@ -216,7 +223,7 @@ export class RefProductsService {
     };
   }
 
-  async calculations(results: RefProduct[], margin: number) {
+  async calculations(results: RefProduct[], margin: number, clientId: string) {
     let staticQuantities: number[] = [
       1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
       150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
@@ -224,6 +231,19 @@ export class RefProductsService {
       7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
       100000, 200000,
     ];
+
+    const clientSended: Client = await this.clientRepository.findOne({
+      where: {
+        id: clientId,
+      },
+      relations: [
+        'user',
+      ],
+    });
+
+    const clientUser: User = clientSended?.user;
+
+    let clientType: string = '';
 
     const systemConfigs: SystemConfig[] = await this.systemConfigRepository.find();
     const systemConfig: SystemConfig = systemConfigs[0];
@@ -335,12 +355,104 @@ export class RefProductsService {
             };
           }
 
-          //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
-          if (margin) {
-            const marginPercentage: number = +margin;
-            const marginValue: number = (marginPercentage / 100) * value;
+          // //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
+          if (clientSended) {
+            if (margin > 0) {
+              const marginValueResult: number = (margin / 100) * value;
+              value += marginValueResult;
 
-            value += marginValue;
+              //* SE DEBE ADICIONAR UN FEE ADICIONAL AL USUARIO DENTRO DEL CLIENTE
+              if (clientUser) {
+                if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 1)
+                  clientType = 'cliente corporativo secundario';
+                else if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 0)
+                  clientType = 'cliente corporativo principal';
+              };
+
+              //   //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
+              const profitMargin: number = 0;
+
+              const paymentDays = [
+                {
+                  day: 1,
+                  percentage: 0.03,
+                },
+                {
+                  day: 15,
+                  percentage: 0.03,
+                },
+                {
+                  day: 30,
+                  percentage: 0.03,
+                },
+                {
+                  day: 45,
+                  percentage: 0.04,
+                },
+                {
+                  day: 60,
+                  percentage: 0.06,
+                },
+                {
+                  day: 90,
+                  percentage: 0.09,
+                },
+              ];
+
+              //* SI EL CLIENTE ES SECUNDARIO
+              if (clientType == 'cliente corporativo secundario') {
+                //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
+                const mainClient: Client = await this.clientRepository
+                  .createQueryBuilder('client')
+                  .leftJoinAndSelect('client.user', 'clientUser')
+                  .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
+                  .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
+                  .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
+                  .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
+                  .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
+                  .getOne();
+
+                const marginProfit: number = mainClient.margin || 0;
+                const paymentTerms: number = mainClient.paymentTerms || 0;
+
+                let percentageDiscount: number = 0;
+
+                paymentDays.forEach(paymentDay => {
+                  if (paymentDay.day == paymentTerms) {
+                    percentageDiscount = paymentDay.percentage;
+                  };
+                });
+
+                let result: number = value * (1 - percentageDiscount);
+                value += Math.round(result);
+              };
+
+              //* SI EL CLIENTE ES PRINCIPAL
+              if (clientType == 'cliente corporativo principal') {
+                const margin: number = clientSended.margin || 0;
+                const paymentTerms: number = clientSended.paymentTerms || 0;
+
+                let percentageDiscount: number = 0;
+
+                paymentDays.forEach(paymentDay => {
+                  if (paymentDay.day == paymentTerms) {
+                    percentageDiscount = paymentDay.percentage;
+                  };
+                });
+
+                let result: number = value * (1 - percentageDiscount);
+                value += Math.round(result);
+              };
+
+              const marginPercentage: number = +margin;
+              const finalMarginValue: number = (marginPercentage / 100) * value;
+
+              value += finalMarginValue;
+            };
+
+            //* IVA
+            const iva: number = (product.iva / 100) * value;
+            value += iva;
           };
 
           // //* APLICAR IVA
@@ -490,7 +602,7 @@ export class RefProductsService {
   async findAll(paginationDto: PaginationDto, user: User) {
     const totalCount = await this.refProductRepository.count();
 
-    const { limit = totalCount, offset = 0, calculations = 0, supplier = 0, dashboard = 1, margin = 0 } = paginationDto;
+    const { limit = totalCount, offset = 0, calculations = 0, supplier = 0, dashboard = 1, margin = 0, clientId = '' } = paginationDto;
 
     let results: RefProduct[] = [];
 
@@ -605,7 +717,7 @@ export class RefProductsService {
     let finalFinalResults = [];
 
     if (calculations == 1) {
-      const calculatedResults = results.length > 0 ? await this.calculations(results, margin) : [];
+      const calculatedResults = results.length > 0 ? await this.calculations(results, margin, clientId) : [];
       finalCalculatedResults = calculatedResults;
     }
 
@@ -659,7 +771,7 @@ export class RefProductsService {
 
 
   async filterProductsWithDiscount(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0, margin } = paginationDto;
+    const { limit = 10, offset = 0, margin, clientId = '' } = paginationDto;
 
     const results: RefProduct[] = await this.refProductRepository
       .createQueryBuilder('refProduct')
@@ -702,7 +814,7 @@ export class RefProductsService {
       .skip(offset)
       .getMany();
 
-    const finalResults = results.length > 0 ? await this.calculations(results, margin) : [];
+    const finalResults = results.length > 0 ? await this.calculations(results, margin, clientId) : [];
 
     return {
       totalCount: finalResults.length,
@@ -710,7 +822,7 @@ export class RefProductsService {
     };
   };
 
-  async findOne(id: string, margin: number) {
+  async findOne(id: string, margin: number, clientId: string) {
     const refProduct: RefProduct = await this.refProductRepository.findOne({
       where: {
         id,
@@ -755,7 +867,7 @@ export class RefProductsService {
 
     refProducts.push(refProduct);
 
-    const finalResults = refProducts.length > 0 ? await this.calculations(refProducts, margin) : [];
+    const finalResults = refProducts.length > 0 ? await this.calculations(refProducts, margin, clientId) : [];
 
     const finalFinalResults = await Promise.all(finalResults.map(async (refProduct) => {
       const tagCategory: CategoryTag = await this.categoryTagRepository.findOne({
