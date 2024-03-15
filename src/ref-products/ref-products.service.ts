@@ -620,7 +620,7 @@ export class RefProductsService {
   async findAll(paginationDto: PaginationDto, user: User) {
     const totalCount = await this.refProductRepository.count();
 
-    const { limit = 7, offset = 0, calculations = 0, supplier = 0, dashboard = 1, margin = 0, clientId = '' } = paginationDto;
+    const { limit = totalCount, offset = 0, calculations = 0, supplier = 0, dashboard = 1, margin = 0, clientId = '' } = paginationDto;
 
     let results: RefProduct[] = [];
 
@@ -789,7 +789,7 @@ export class RefProductsService {
 
 
   async filterProductsWithDiscount(paginationDto: PaginationDto) {
-    const { limit = 7, offset = 0, margin, clientId = '' } = paginationDto;
+    const { limit = 10, offset = 0, margin, clientId = '' } = paginationDto;
 
     const results: RefProduct[] = await this.refProductRepository
       .createQueryBuilder('refProduct')
