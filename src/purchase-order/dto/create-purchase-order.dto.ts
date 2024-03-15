@@ -38,7 +38,7 @@ export class CreatePurchaseOrderDto {
   @IsString()
   value: number;
 
-  @IsDate()
+  @IsString()
   invoiceDueDate: Date;
 
   @IsString()
