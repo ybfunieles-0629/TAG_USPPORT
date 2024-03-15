@@ -332,10 +332,6 @@ export class PurchaseOrderService {
       updatedPurchaseOrder.shippingGuide = shippingGuide;
     };
 
-    updatedPurchaseOrder.billingNumber = 0;
-    updatePurchaseOrderDto.expirationDate = new Date();
-    updatePurchaseOrderDto.value = 0;
-
     Object.assign(purchaseOrder, updatedPurchaseOrder);
 
     await this.purchaseOrderRepository.save(purchaseOrder);
