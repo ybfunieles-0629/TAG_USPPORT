@@ -223,14 +223,20 @@ export class RefProductsService {
     };
   }
 
-  async calculations(results: RefProduct[], margin: number, clientId: string) {
-    let staticQuantities: number[] = [
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
-      150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
-      1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
-      7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
-      100000, 200000,
-    ];
+  async calculations(results: RefProduct[], margin: number, clientId: string, tipo=false) {
+
+    let staticQuantities: number[];
+    if(tipo){
+       staticQuantities  = [
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
+        150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
+        1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
+        7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
+        100000, 200000,
+      ];
+    }else{
+      staticQuantities = [1];
+    }
 
     const clientSended: Client = await this.clientRepository.findOne({
       where: {
@@ -608,7 +614,7 @@ export class RefProductsService {
   async findAll(paginationDto: PaginationDto, user: User) {
     const totalCount = await this.refProductRepository.count();
 
-    const { limit = totalCount, offset = 0, calculations = 0, supplier = 0, dashboard = 1, margin = 0, clientId = '' } = paginationDto;
+    const { limit = 7, offset = 0, calculations = 0, supplier = 0, dashboard = 1, margin = 0, clientId = '' } = paginationDto;
 
     let results: RefProduct[] = [];
 
@@ -692,7 +698,6 @@ export class RefProductsService {
           .skip(offset)
           .getMany();
       } else {
-
         results = await this.refProductRepository
           .createQueryBuilder('rp')
           // .where('rp.weight > :weight', { weight: 0 })
@@ -796,7 +801,7 @@ export class RefProductsService {
 
 
   async filterProductsWithDiscount(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0, margin, clientId = '' } = paginationDto;
+    const { limit = 7, offset = 0, margin, clientId = '' } = paginationDto;
 
     const results: RefProduct[] = await this.refProductRepository
       .createQueryBuilder('refProduct')
@@ -839,7 +844,7 @@ export class RefProductsService {
       .skip(offset)
       .getMany();
 
-    const finalResults = results.length > 0 ? await this.calculations(results, margin, clientId) : [];
+    const finalResults = results.length > 0 ? await this.calculations(results, margin, clientId, true) : [];
 
     return {
       totalCount: finalResults.length,
@@ -892,7 +897,7 @@ export class RefProductsService {
 
     refProducts.push(refProduct);
 
-    const finalResults = refProducts.length > 0 ? await this.calculations(refProducts, margin, clientId) : [];
+    const finalResults = refProducts.length > 0 ? await this.calculations(refProducts, margin, clientId, true) : [];
 
     const finalFinalResults = await Promise.all(finalResults.map(async (refProduct) => {
       const tagCategory: CategoryTag = await this.categoryTagRepository.findOne({
