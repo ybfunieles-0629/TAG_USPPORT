@@ -832,7 +832,7 @@ export class RefProductsService {
       .skip(offset)
       .getMany();
 
-    const finalResults = results.length > 0 ? await this.calculations(results, margin, clientId) : [];
+    const finalResults = results.length > 0 ? await this.calculations(results, margin, clientId, true) : [];
 
     return {
       totalCount: finalResults.length,
