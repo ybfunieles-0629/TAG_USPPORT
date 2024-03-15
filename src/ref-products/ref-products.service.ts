@@ -224,16 +224,13 @@ export class RefProductsService {
   }
 
   async calculations(results: RefProduct[], margin: number, clientId: string) {
-    // let staticQuantities: number[] = [
-    //   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
-    //   150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
-    //   1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
-    //   7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
-    //   100000, 200000,
-    // ];
-
-    let staticQuantities: number[] = [1, 2];
-
+    let staticQuantities: number[] = [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
+      150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
+      1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
+      7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
+      100000, 200000,
+    ];
 
     const clientSended: Client = await this.clientRepository.findOne({
       where: {
@@ -310,13 +307,13 @@ export class RefProductsService {
               const supplierPrice: SupplierPrice = product.supplierPrices[0];
 
               //* RECORRO LA LISTA DE PRECIOS DEL PRECIO DEL PROVEEDOR
-              // supplierPrice.listPrices.forEach((listPrice: ListPrice) => {
-              //   if (listPrice.minimun >= i && listPrice.nextMinValue == 1 && listPrice.maximum <= i || listPrice.minimun >= i && listPrice.nextMinValue == 0) {
-              //     //* SI APLICA PARA TABLA DE PRECIOS DE PROVEEDOR
-              //     value += listPrice.price;
-              //     return;
-              //   };
-              // });
+              supplierPrice.listPrices.forEach((listPrice: ListPrice) => {
+                if (listPrice.minimun >= i && listPrice.nextMinValue == 1 && listPrice.maximum <= i || listPrice.minimun >= i && listPrice.nextMinValue == 0) {
+                  //* SI APLICA PARA TABLA DE PRECIOS DE PROVEEDOR
+                  value += listPrice.price;
+                  return;
+                };
+              });
             } else {
 
               //* SI LO ENCUENTRA LO AÑADE, SINO LE PONE UN 0 Y NO AÑADE NADA
@@ -676,49 +673,68 @@ export class RefProductsService {
           .skip(offset)
           .getMany();
       }
-
     } else {
-      results = await this.refProductRepository
-        .createQueryBuilder('rp')
-        // .where('rp.weight > :weight', { weight: 0 })
-        // .andWhere('rp.height > :height', { height: 0 })
-        // .andWhere('rp.width > :width', { width: 0 })
-        // .andWhere('rp.large > :large', { large: 0 })
-        .leftJoinAndSelect('rp.supplier', 'supplier')
-        .leftJoinAndSelect('rp.images', 'rpImages')
-        .leftJoinAndSelect('rp.colors', 'rpColors')
-        .leftJoinAndSelect('rp.categorySuppliers', 'rpCategorySuppliers')
-        .leftJoinAndSelect('rp.categoryTags', 'rpCategoryTags')
-        .leftJoinAndSelect('rp.deliveryTimes', 'rpDeliveryTimes')
-        .leftJoinAndSelect('rp.markingServiceProperty', 'rpMarkingServiceProperty')
-        .leftJoinAndSelect('rpMarkingServiceProperty.externalSubTechnique', 'rpExternalSubTechnique')
-        .leftJoinAndSelect('rpExternalSubTechnique.marking', 'rpMarking')
-        .leftJoinAndSelect('rp.packings', 'rpPackings')
-        .leftJoinAndSelect('rp.products', 'product')
-        .where('product.weight > :weight', { weight: 0 })
-        .andWhere('product.height > :height', { height: 0 })
-        .andWhere('product.width > :width', { width: 0 })
-        .andWhere('product.large > :large', { large: 0 })
-        .leftJoinAndSelect('product.images', 'productImages')
-        .leftJoinAndSelect('product.disccounts', 'productDisccounts')
-        .leftJoinAndSelect('product.refProduct', 'productRefProduct')
-        .leftJoinAndSelect('productRefProduct.deliveryTimes', 'productRefProductDeliveryTimes')
-        .leftJoinAndSelect('productRefProduct.supplier', 'productRefProductSupplier')
-        .leftJoinAndSelect('productRefProductSupplier.disccounts', 'productRefProductSupplierDisccounts')
-        .leftJoinAndSelect('product.colors', 'productColors')
-        .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
-        .leftJoinAndSelect('product.packings', 'productPackings')
-        .leftJoinAndSelect('product.supplierPrices', 'productSupplierPrices')
-        .leftJoinAndSelect('productSupplierPrices.product', 'productSupplierPricesProduct')
-        .leftJoinAndSelect('productSupplierPrices.listPrices', 'productSupplierPricesListPrices')
-        .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
-        .leftJoinAndSelect('productMarkingServiceProperties.images', 'productMarkingServicePropertiesImages')
-        .leftJoinAndSelect('productMarkingServiceProperties.externalSubTechnique', 'productMarkingServicePropertiesExternalSubTechnique')
-        .leftJoinAndSelect('productMarkingServicePropertiesExternalSubTechnique.marking', 'productMarkingServicePropertiesExternalSubTechniqueMarking')
-        .leftJoinAndSelect('supplier.user', 'supplierUser')
-        .take(limit)
-        .skip(offset)
-        .getMany();
+      if (dashboard == 1) {
+        results = await this.refProductRepository
+          .createQueryBuilder('rp')
+          .leftJoinAndSelect('rp.supplier', 'rpSupplier')
+          .where('rpSupplier.id =:userId', { userId: user.id })
+          .leftJoinAndSelect('rp.images', 'rpImages')
+          .leftJoinAndSelect('rp.colors', 'rpColors')
+          .leftJoinAndSelect('rp.categorySuppliers', 'rpCategorySuppliers')
+          .leftJoinAndSelect('rp.categoryTags', 'rpCategoryTags')
+          .leftJoinAndSelect('rp.deliveryTimes', 'rpDeliveryTimes')
+          .leftJoinAndSelect('rp.markingServiceProperty', 'rpMarkingServiceProperty')
+          .leftJoinAndSelect('rpMarkingServiceProperty.externalSubTechnique', 'rpExternalSubTechnique')
+          .leftJoinAndSelect('rpExternalSubTechnique.marking', 'rpMarking')
+          .leftJoinAndSelect('rp.packings', 'rpPackings')
+          .take(limit)
+          .skip(offset)
+          .getMany();
+      } else {
+
+        results = await this.refProductRepository
+          .createQueryBuilder('rp')
+          // .where('rp.weight > :weight', { weight: 0 })
+          // .andWhere('rp.height > :height', { height: 0 })
+          // .andWhere('rp.width > :width', { width: 0 })
+          // .andWhere('rp.large > :large', { large: 0 })
+          .leftJoinAndSelect('rp.supplier', 'supplier')
+          .leftJoinAndSelect('rp.images', 'rpImages')
+          .leftJoinAndSelect('rp.colors', 'rpColors')
+          .leftJoinAndSelect('rp.categorySuppliers', 'rpCategorySuppliers')
+          .leftJoinAndSelect('rp.categoryTags', 'rpCategoryTags')
+          .leftJoinAndSelect('rp.deliveryTimes', 'rpDeliveryTimes')
+          .leftJoinAndSelect('rp.markingServiceProperty', 'rpMarkingServiceProperty')
+          .leftJoinAndSelect('rpMarkingServiceProperty.externalSubTechnique', 'rpExternalSubTechnique')
+          .leftJoinAndSelect('rpExternalSubTechnique.marking', 'rpMarking')
+          .leftJoinAndSelect('rp.packings', 'rpPackings')
+          .leftJoinAndSelect('rp.products', 'product')
+          .where('product.weight > :weight', { weight: 0 })
+          .andWhere('product.height > :height', { height: 0 })
+          .andWhere('product.width > :width', { width: 0 })
+          .andWhere('product.large > :large', { large: 0 })
+          .leftJoinAndSelect('product.images', 'productImages')
+          .leftJoinAndSelect('product.disccounts', 'productDisccounts')
+          .leftJoinAndSelect('product.refProduct', 'productRefProduct')
+          .leftJoinAndSelect('productRefProduct.deliveryTimes', 'productRefProductDeliveryTimes')
+          .leftJoinAndSelect('productRefProduct.supplier', 'productRefProductSupplier')
+          .leftJoinAndSelect('productRefProductSupplier.disccounts', 'productRefProductSupplierDisccounts')
+          .leftJoinAndSelect('product.colors', 'productColors')
+          .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
+          .leftJoinAndSelect('product.packings', 'productPackings')
+          .leftJoinAndSelect('product.supplierPrices', 'productSupplierPrices')
+          .leftJoinAndSelect('productSupplierPrices.product', 'productSupplierPricesProduct')
+          .leftJoinAndSelect('productSupplierPrices.listPrices', 'productSupplierPricesListPrices')
+          .leftJoinAndSelect('product.markingServiceProperties', 'productMarkingServiceProperties')
+          .leftJoinAndSelect('productMarkingServiceProperties.images', 'productMarkingServicePropertiesImages')
+          .leftJoinAndSelect('productMarkingServiceProperties.externalSubTechnique', 'productMarkingServicePropertiesExternalSubTechnique')
+          .leftJoinAndSelect('productMarkingServicePropertiesExternalSubTechnique.marking', 'productMarkingServicePropertiesExternalSubTechniqueMarking')
+          .leftJoinAndSelect('supplier.user', 'supplierUser')
+          .take(limit)
+          .skip(offset)
+          .getMany();
+      };
     };
 
     const finalResults: RefProduct[] = results;
@@ -985,6 +1001,7 @@ export class RefProductsService {
           .andWhere('products.large > :large', { large: 0 })
           .leftJoinAndSelect('products.colors', 'colors')
           .leftJoinAndSelect('products.supplierPrices', 'supplierPrices')
+          .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
           .leftJoinAndSelect('products.variantReferences', 'variantReferences')
           .leftJoinAndSelect('products.refProduct', 'productRefProduct')
           .leftJoinAndSelect('productRefProduct.deliveryTimes', 'productRefProductDeliveryTimes')
@@ -1053,6 +1070,7 @@ export class RefProductsService {
           .leftJoinAndSelect('productRefProduct.supplier', 'productRefProductSupplier')
           .leftJoinAndSelect('productRefProductSupplier.disccounts', 'productRefProductSupplierDisccounts')
           .leftJoinAndSelect('product.supplierPrices', 'supplierPrices')
+          .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
           .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
           .leftJoinAndSelect('product.packings', 'productPackings')
           .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
@@ -1112,6 +1130,7 @@ export class RefProductsService {
           .andWhere('product.large > :large', { large: 0 })
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.supplierPrices', 'supplierPrices')
+          .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
           .leftJoinAndSelect('product.refProduct', 'productRefProduct')
           .leftJoinAndSelect('productRefProduct.deliveryTimes', 'productRefProductDeliveryTimes')
           .leftJoinAndSelect('productRefProduct.supplier', 'productRefProductSupplier')
@@ -1173,6 +1192,7 @@ export class RefProductsService {
           .andWhere('product.large > :large', { large: 0 })
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.supplierPrices', 'supplierPrices')
+          .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
           .leftJoinAndSelect('product.refProduct', 'productRefProduct')
           .leftJoinAndSelect('productRefProduct.deliveryTimes', 'productRefProductDeliveryTimes')
           .leftJoinAndSelect('productRefProduct.supplier', 'productRefProductSupplier')
@@ -1236,6 +1256,7 @@ export class RefProductsService {
           .andWhere('product.large > :large', { large: 0 })
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.supplierPrices', 'supplierPrices')
+          .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
           .leftJoinAndSelect('product.refProduct', 'productRefProduct')
           .leftJoinAndSelect('productRefProduct.deliveryTimes', 'productRefProductDeliveryTimes')
           .leftJoinAndSelect('productRefProduct.supplier', 'productRefProductSupplier')
@@ -1301,6 +1322,7 @@ export class RefProductsService {
           .andWhere('product.large > :large', { large: 0 })
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.supplierPrices', 'supplierPrices')
+          .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
           .leftJoinAndSelect('product.colors', 'productColors')
           .leftJoinAndSelect('product.refProduct', 'productRefProduct')
           .leftJoinAndSelect('productRefProduct.deliveryTimes', 'productRefProductDeliveryTimes')
@@ -1361,6 +1383,7 @@ export class RefProductsService {
             .leftJoinAndSelect('productRefProduct.supplier', 'productRefProductSupplier')
             .leftJoinAndSelect('productRefProductSupplier.disccounts', 'productRefProductSupplierDisccounts')
             .leftJoinAndSelect('product.supplierPrices', 'supplierPrices')
+            .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
             .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
             .leftJoinAndSelect('product.packings', 'productPackings')
             .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
@@ -1411,6 +1434,7 @@ export class RefProductsService {
             .leftJoinAndSelect('product.images', 'productImages')
             .leftJoinAndSelect('product.colors', 'productColors')
             .leftJoinAndSelect('product.supplierPrices', 'supplierPrices')
+            .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
             .leftJoinAndSelect('product.refProduct', 'productRefProduct')
             .leftJoinAndSelect('productRefProduct.deliveryTimes', 'productRefProductDeliveryTimes')
             .leftJoinAndSelect('productRefProduct.supplier', 'productRefProductSupplier')
@@ -1479,6 +1503,7 @@ export class RefProductsService {
           .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
           .leftJoinAndSelect('product.packings', 'productPackings')
           .leftJoinAndSelect('product.supplierPrices', 'supplierPrices')
+          .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
           .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
           .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'markingExternalSubTechnique')
           .leftJoinAndSelect('markingExternalSubTechnique.marking', 'markingExternalSubTechniqueMarking')
@@ -1537,6 +1562,7 @@ export class RefProductsService {
           .leftJoinAndSelect('productRefProductSupplier.disccounts', 'productRefProductSupplierDisccounts')
           .leftJoinAndSelect('product.colors', 'productColors')
           .leftJoinAndSelect('product.supplierPrices', 'supplierPrices')
+          .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
           .leftJoinAndSelect('product.variantReferences', 'productVariantReferences')
           .leftJoinAndSelect('product.packings', 'productPackings')
           .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
