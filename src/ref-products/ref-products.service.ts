@@ -232,7 +232,7 @@ export class RefProductsService {
     //   100000, 200000,
     // ];
 
-    let staticQuantities: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, ];
+    let staticQuantities: number[] = [1, 2];
 
 
     const clientSended: Client = await this.clientRepository.findOne({
