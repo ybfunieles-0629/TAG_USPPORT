@@ -620,7 +620,7 @@ export class RefProductsService {
   async findAll(paginationDto: PaginationDto, user: User) {
     const totalCount = await this.refProductRepository.count();
 
-    const { limit = totalCount, offset = 0, calculations = 0, supplier = 0, dashboard = 1, margin = 0, clientId = '' } = paginationDto;
+    const { limit = 10, offset = 0, calculations = 0, supplier = 0, dashboard = 1, margin = 0, clientId = '' } = paginationDto;
 
     let results: RefProduct[] = [];
 
