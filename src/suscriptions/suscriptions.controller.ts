@@ -47,10 +47,10 @@ export class SuscriptionsController {
     return this.suscriptionsService.desactivate(id);
   };
 
-  @Delete(':id')
+  @Delete(':email')
   remove(
-    @Param('id', ParseUUIDPipe) id: string
+    @Param('email') email: string
   ) {
-    return this.suscriptionsService.remove(id);
+    return this.suscriptionsService.remove(email);
   }
 }

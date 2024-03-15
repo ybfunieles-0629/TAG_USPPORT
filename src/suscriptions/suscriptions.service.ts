@@ -90,8 +90,15 @@ export class SuscriptionsService {
     };
   };
 
-  async remove(id: string) {
-    const { suscription } = await this.findOne(id);
+  async remove(email: string) {
+    const suscription: Suscription = await this.suscriptionRepository.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (!suscription)
+      throw new NotFoundException(`Suscription with email ${email} not found`);
 
     await this.suscriptionRepository.remove(suscription);
 
