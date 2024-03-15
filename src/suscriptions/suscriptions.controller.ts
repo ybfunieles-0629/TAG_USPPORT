@@ -14,9 +14,8 @@ export class SuscriptionsController {
   @Post()
   create(
     @Body() createSuscriptionDto: CreateSuscriptionDto,
-    @GetUser() user: User,
   ) {
-    return this.suscriptionsService.create(createSuscriptionDto, user);
+    return this.suscriptionsService.create(createSuscriptionDto);
   }
 
   @Get()
@@ -37,9 +36,8 @@ export class SuscriptionsController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateSuscriptionDto: UpdateSuscriptionDto,
-    @GetUser() user: User,
   ) {
-    return this.suscriptionsService.update(id, updateSuscriptionDto, user);
+    return this.suscriptionsService.update(id, updateSuscriptionDto);
   };
 
   @Patch('desactivate/:id')
