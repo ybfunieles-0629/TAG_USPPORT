@@ -29,31 +29,31 @@ export class CreatePurchaseOrderDto {
   @IsUUID()
   commercialUser: string;
 
-  @IsDate()
+  @IsString()
   invoiceIssueDate: Date;
 
-  @IsDate()
+  @IsString()
   expirationDate: Date;
 
-  @IsInt()
+  @IsString()
   value: number;
 
   @IsDate()
   invoiceDueDate: Date;
 
-  @IsInt()
+  @IsString()
   @Min(0)
   financingCost: number;
 
-  @IsInt()
+  @IsString()
   @Min(0)
   feeCost: number;
 
-  @IsInt()
+  @IsString()
   @Min(0)
   retentionCost: number;
 
-  @IsInt()
+  @IsString()
   billingNumber: number;
 
   @IsString()
