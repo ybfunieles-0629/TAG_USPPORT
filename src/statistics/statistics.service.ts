@@ -521,6 +521,17 @@ export class StatisticsService {
       })
       .getMany();
 
+    // Buscar todas las órdenes en producción para clientes no corporativos
+    const ordenesNoCorporativas = await this.purchaseOrderRepository
+      .createQueryBuilder('order')
+      .where('order.clientUser NOT IN (:...ids)', { ids: idsClientesCorporativos })
+      .andWhere('order.state = :state', { state: 'ORDEN DE COMPRA EN PRODUCCIÓN' })
+      .andWhere('order.creationDate BETWEEN :startDate AND :endDate', {
+        startDate: fechaInicio,
+        endDate: fechaFin,
+      })
+      .getMany();
+
     // Inicializar variables del reporte
     let montoTotalNoFacturado = 0;
     let montoTotalVencido = 0;
@@ -544,6 +555,14 @@ export class StatisticsService {
       }
     });
 
+    // Recorrer las órdenes no corporativas en producción
+    ordenesNoCorporativas.forEach(orden => {
+      // Para órdenes no facturadas, sumar al monto total no facturado
+      if (!orden.invoiceDueDate) {
+        montoTotalNoFacturado += orden.value;
+      }
+    });
+
     // Calcular el total de órdenes vencidas para cada categoría de días vencidos
     const totalOrdenesVencidasPorDias = Object.values<number>(ordenesVencidasPorDias).reduce((acc, val) => acc + val, 0);
 
@@ -551,7 +570,7 @@ export class StatisticsService {
     const totalOrdenesVencidas = Object.keys(ordenesVencidasPorDias).length;
 
     // Calcular el total de órdenes
-    const totalOrdenes = ordenesCorporativas.length;
+    const totalOrdenes = ordenesCorporativas.length + ordenesNoCorporativas.length;
 
     return {
       montoTotalNoFacturado,
@@ -561,7 +580,7 @@ export class StatisticsService {
       totalOrdenesVencidas,
       totalOrdenes,
     };
-  };
+  }
 
   async getPortfolioReport(year: number, month: number): Promise<any> {
     const fechaInicio = new Date(year, month - 1, 1); // Inicio del mes seleccionado
