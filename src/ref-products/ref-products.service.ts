@@ -223,18 +223,18 @@ export class RefProductsService {
     };
   }
 
-  async calculations(results: RefProduct[], margin: number, clientId: string, tipo=false) {
+  async calculations(results: RefProduct[], margin: number, clientId: string, tipo = false) {
 
     let staticQuantities: number[];
-    if(tipo){
-       staticQuantities  = [
+    if (tipo) {
+      staticQuantities = [
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
         150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
         1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
         7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
         100000, 200000,
       ];
-    }else{
+    } else {
       staticQuantities = [1];
     }
 
@@ -611,14 +611,47 @@ export class RefProductsService {
     return finalResults;
   };
 
-  async findAll(paginationDto: PaginationDto, user: User) {
+  async findAll(paginationDto: PaginationDto) {
     const totalCount = await this.refProductRepository.count();
 
     const { limit = 7, offset = 0, calculations = 0, supplier = 0, dashboard = 1, margin = 0, clientId = '' } = paginationDto;
 
+    let user;
+
+    const userFound = await this.userRepository.findOne({
+      where: {
+        client: {
+          id: clientId,
+        },
+      },
+      relations: [
+        'company',
+        'supplier',
+        'client',
+        'admin',
+        'admin.clients',
+        'admin.clients.user',
+        'roles',
+        'permissions',
+        'privileges',
+      ]
+    });
+
+    user = userFound;
+
+    if (!user) {
+      user = {
+        roles: [
+          {
+            name: '',
+          }]
+        ,
+      };
+    };
+
     let results: RefProduct[] = [];
 
-    if (user.roles.some((role: Role) => role.name.toLowerCase().trim() == 'proveedor')) {
+    if (user?.roles?.some((role: Role) => role.name.toLowerCase().trim() == 'proveedor')) {
       if (dashboard == 1) {
         results = await this.refProductRepository
           .createQueryBuilder('rp')
