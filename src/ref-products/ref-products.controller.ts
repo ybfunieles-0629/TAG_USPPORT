@@ -25,10 +25,9 @@ export class RefProductsController {
   @Get()
   @UseGuards(AuthGuard())
   findAll(
-    @GetUser() user: User,
     @Query() paginationDto: PaginationDto,
   ) {
-    return this.refProductsService.findAll(paginationDto, user);
+    return this.refProductsService.findAll(paginationDto);
   }
 
   @Get('with/supplier/:id')
