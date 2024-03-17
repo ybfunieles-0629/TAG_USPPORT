@@ -4,7 +4,7 @@ import { StatisticsService } from './statistics.service';
 
 @Controller('statistics')
 export class StatisticsController {
-  constructor(private readonly statisticsService: StatisticsService) {}
+  constructor(private readonly statisticsService: StatisticsService) { }
 
   @Get('')
   getStatistics(
@@ -56,5 +56,21 @@ export class StatisticsController {
     @Query('client') client: string,
   ) {
     return this.statisticsService.getOrderRatingStatsByMonth(year, client);
+  }
+
+  @Get('cash/flow/report')
+  getCashFlowReport(
+    @Query('year') year: number,
+    @Query('month') month: number,
+  ) {
+    return this.statisticsService.getCashFlowReport(year, month);
+  }
+
+  @Get('portfolio/report')
+  getPortfolioReport(
+    @Query('year') year: number,
+    @Query('month') month: number,
+  ) {
+    return this.statisticsService.getPortfolioReport(year, month);
   }
 }
