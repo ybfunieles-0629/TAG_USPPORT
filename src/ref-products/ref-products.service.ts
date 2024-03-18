@@ -388,7 +388,9 @@ export class RefProductsService {
 
           // //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
           if (clientSended) {
-            if (margin > 0) {
+            const parsedMargin: number = +margin;
+            
+            if (parsedMargin > 0) {
               const marginValueResult: number = (margin / 100) * value;
               value += marginValueResult;
               //   //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
