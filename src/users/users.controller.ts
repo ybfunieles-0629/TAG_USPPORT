@@ -77,7 +77,7 @@ export class UsersController {
   }
 
   @Get()
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -85,7 +85,7 @@ export class UsersController {
   }
 
   @Get('role/:role')
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
   findByRole(
     @Param('role') role: string,
   ) {
@@ -93,7 +93,7 @@ export class UsersController {
   }
 
   @Get(':term')
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
   findOne(
     @Param('term') term: string
   ) {
@@ -101,7 +101,7 @@ export class UsersController {
   }
 
   @Post('filter-by-many/roles')
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
   filterUsersByManyRoles(
     @GetUser() user: User,
     @Query() paginationDto: PaginationDto,
@@ -111,7 +111,7 @@ export class UsersController {
   }
 
   @Get('filter-by/secondary-client')
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
   getSecondaryClient(
     @GetUser() user: User,
     @Query() paginationDto: PaginationDto,
@@ -120,7 +120,7 @@ export class UsersController {
   }
 
   @Get('commercial/clients/:id')
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
   getClientsByCommercial(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -128,7 +128,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
@@ -142,7 +142,7 @@ export class UsersController {
   // }
 
   @Patch('/allow/:id')
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
   changeIsAllowedStatus(
     @Param('id', ParseUUIDPipe) id: string
   ) {
@@ -150,7 +150,7 @@ export class UsersController {
   }
 
   @Patch('/desactivate/:id')
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
   desactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -158,7 +158,7 @@ export class UsersController {
   }
 
   @Patch('/add/permissions/:id')
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
   addPermissionsByUserRole(
     @Param('id', ParseUUIDPipe) id: string,
   ) {
@@ -166,7 +166,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
