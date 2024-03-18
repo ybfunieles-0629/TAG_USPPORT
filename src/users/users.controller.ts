@@ -67,7 +67,7 @@ export class UsersController {
     @Body() passwordRecoveryDto: PasswordRecoveryDto
   ) {
     return this.usersService.sendPasswordRecoveryEmail(passwordRecoveryDto);
-  }
+  };
 
   @Post('password/change')
   passwordRecovery(
