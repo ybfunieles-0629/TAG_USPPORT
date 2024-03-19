@@ -26,6 +26,8 @@ export class SuscriptionsService {
     };
   };
 
+
+  
   async findAll(paginationDto: PaginationDto) {
     const count: number = await this.suscriptionRepository.count();
 
