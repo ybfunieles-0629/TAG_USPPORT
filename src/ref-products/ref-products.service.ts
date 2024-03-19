@@ -343,7 +343,6 @@ export class RefProductsService {
                       if (discountItem.entryDisccount != undefined || discountItem.entryDisccount != null || discountItem.entryDisccount > 0) {
                         const discount: number = (discountItem.entryDisccount / 100) * value;
                         value -= discount;
-
                         return;
                       };
 
@@ -351,7 +350,6 @@ export class RefProductsService {
                         if (listDiscount.minQuantity >= i && listDiscount.nextMinValue == 1 && listDiscount.maxQuantity <= i || listDiscount.minQuantity >= i && listDiscount.nextMinValue == 0) {
                           const discount: number = (listDiscount.disccountValue / 100) * value;
                           value -= discount;
-
                           return;
                         };
                       });
@@ -366,7 +364,6 @@ export class RefProductsService {
                         if (discountItem.entryDisccount != undefined || discountItem.entryDisccount != null || discountItem.entryDisccount > 0) {
                           const discount: number = (discountItem.entryDisccount / 100) * value;
                           value -= discount;
-
                           return;
                         };
 
@@ -374,7 +371,6 @@ export class RefProductsService {
                           if (listDiscount.minQuantity >= i && listDiscount.nextMinValue == 1 && listDiscount.maxQuantity <= i || listDiscount.minQuantity >= i && listDiscount.nextMinValue == 0) {
                             const discount: number = (listDiscount.disccountValue / 100) * value;
                             value -= discount;
-
                             return;
                           };
                         });
@@ -393,6 +389,7 @@ export class RefProductsService {
             if (parsedMargin > 0) {
               const marginValueResult: number = (margin / 100) * value;
               value += marginValueResult;
+
               //   //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
               const profitMargin: number = 0;
 
@@ -499,7 +496,7 @@ export class RefProductsService {
           // //* IDENTIFICAR PORCENTAJE DE ANTICIPIO DE PROVEEDOR
           const advancePercentage: number = product?.refProduct?.supplier?.advancePercentage || 0;
           const advancePercentageValue: number = (advancePercentage / 100) * value;
-          value += advancePercentageValue;
+          // value += advancePercentageValue;
 
           // //* CALCULAR LA CANTIDAD DE CAJAS PARA LAS UNIDADES COTIZADAS
           const packing: Packing = product.packings[0] || undefined;
@@ -540,7 +537,9 @@ export class RefProductsService {
           const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage) || 0;
           const financingCost: number = ((value - advancePercentageValue));
           const supplierFinancingPercentageValue: number = (supplierFinancingPercentage / 100) * financingCost;
-          value = (value - supplierFinancingPercentageValue) * deliveryTimeToSave;
+          const valueToAdd: number = (value - supplierFinancingPercentage) * deliveryTimeToSave;
+          
+          value += valueToAdd;
 
           //* CALCULAR EL COSTO DE TRANSPORTE Y ENTREGA DE LOS PRODUCTOS (ESTA INFORMACIÓN VIENE DEL API DE FEDEX)
           const localTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
