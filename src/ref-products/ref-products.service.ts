@@ -227,12 +227,15 @@ export class RefProductsService {
 
     let staticQuantities: number[];
     if (tipo) {
+      // staticQuantities = [
+      //   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
+      //   150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
+      //   1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
+      //   7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
+      //   100000, 200000,
+      // ];
       staticQuantities = [
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
-        150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
-        1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
-        7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
-        100000, 200000,
+        1, 2,
       ];
     } else {
       staticQuantities = [1];
@@ -288,7 +291,9 @@ export class RefProductsService {
         const burnPriceTable = [];
 
         const initialValue: number = product.referencePrice;
+
         let changingValue: number = initialValue;
+        console.log(changingValue)
 
         for (let i = 0; i < staticQuantities.length; i++) {
           let prices = {
@@ -298,13 +303,19 @@ export class RefProductsService {
             transportPrice: 0,
           };
 
-          const percentageDiscount: number = 0.01;
+          // console.log(changingValue)
 
-          let value: number = changingValue * (1 - percentageDiscount);
 
-          value = Math.round(value);
+          // const percentageDiscount: number = 0.01;
 
-          changingValue = value;
+          // let value: number = changingValue * (1 - percentageDiscount);
+          // console.log(value)
+
+          // value = Math.round(value);
+
+          // changingValue = value;
+          let value:number = changingValue;
+          console.log(value)
 
           //* SI EL PRODUCTO NO TIENE UN PRECIO NETO
           if (product.hasNetPrice == 0) {
@@ -317,6 +328,8 @@ export class RefProductsService {
                 if (listPrice.minimun >= i && listPrice.nextMinValue == 1 && listPrice.maximum <= i || listPrice.minimun >= i && listPrice.nextMinValue == 0) {
                   //* SI APLICA PARA TABLA DE PRECIOS DE PROVEEDOR
                   value += listPrice.price;
+          console.log(value)
+
                   return;
                 };
               });
@@ -326,11 +339,17 @@ export class RefProductsService {
               const entryDiscount: number = product.entryDiscount || 0;
               const entryDiscountValue: number = (entryDiscount / 100) * value || 0;
               value -= entryDiscountValue;
+              console.log(value)
 
               //* BUSCO DESCUENTO PROMO
               const promoDiscount: number = product.promoDisccount || 0;
               const promoDiscountPercentage: number = (promoDiscount / 100) * value || 0;
+              console.log(promoDiscount)
+
               value -= promoDiscountPercentage;
+              console.log(value)
+
+
 
               // //* APLICAR DESCUENTO POR MONTO
               if (product?.refProduct?.supplier?.disccounts != undefined) {
@@ -343,6 +362,8 @@ export class RefProductsService {
                       if (discountItem.entryDisccount != undefined || discountItem.entryDisccount != null || discountItem.entryDisccount > 0) {
                         const discount: number = (discountItem.entryDisccount / 100) * value;
                         value -= discount;
+          console.log(value)
+
                         return;
                       };
 
@@ -350,6 +371,8 @@ export class RefProductsService {
                         if (listDiscount.minQuantity >= i && listDiscount.nextMinValue == 1 && listDiscount.maxQuantity <= i || listDiscount.minQuantity >= i && listDiscount.nextMinValue == 0) {
                           const discount: number = (listDiscount.disccountValue / 100) * value;
                           value -= discount;
+          console.log(value)
+
                           return;
                         };
                       });
@@ -364,6 +387,8 @@ export class RefProductsService {
                         if (discountItem.entryDisccount != undefined || discountItem.entryDisccount != null || discountItem.entryDisccount > 0) {
                           const discount: number = (discountItem.entryDisccount / 100) * value;
                           value -= discount;
+          console.log(value)
+
                           return;
                         };
 
@@ -371,6 +396,8 @@ export class RefProductsService {
                           if (listDiscount.minQuantity >= i && listDiscount.nextMinValue == 1 && listDiscount.maxQuantity <= i || listDiscount.minQuantity >= i && listDiscount.nextMinValue == 0) {
                             const discount: number = (listDiscount.disccountValue / 100) * value;
                             value -= discount;
+          console.log(value)
+
                             return;
                           };
                         });
@@ -436,6 +463,8 @@ export class RefProductsService {
 
                 let result: number = value * (1 - percentageDiscount);
                 value += Math.round(result);
+          console.log(value)
+
               };
 
               //* SI EL CLIENTE ES PRINCIPAL
@@ -453,17 +482,23 @@ export class RefProductsService {
 
                 let result: number = value * (1 - percentageDiscount);
                 value += Math.round(result);
+          console.log(value)
+
               };
 
               const marginPercentage: number = +margin;
               const finalMarginValue: number = (marginPercentage / 100) * value;
 
               value += finalMarginValue;
+          console.log(value)
+
             };
 
             //* IVA
             const iva: number = (product.iva / 100) * value;
             value += iva;
+          console.log(value)
+
           };
 
           // //* APLICAR IVA
@@ -471,6 +506,8 @@ export class RefProductsService {
             const iva: number = (product.iva / 100) * value;
 
             value += iva;
+          console.log(value)
+
           };
 
           // //* VERIFICAR SI ES IMPORTADO NACIONAL
@@ -478,6 +515,8 @@ export class RefProductsService {
             const importationFee: number = (systemConfig.importationFee / 100) * value;
 
             value += importationFee;
+          console.log(value)
+
           };
 
           // //* VERIFICAR SI TIENE FEE DE IMPREVISTOS
@@ -485,10 +524,14 @@ export class RefProductsService {
             const unforeseenFee: number = (product.unforeseenFee / 100) * value;
 
             value += unforeseenFee;
+          console.log(value)
+
           } else {
             const unforeseenFee: number = systemConfig.unforeseenFee;
             const unforeseenFeePercentage: number = (unforeseenFee / 100) * value;
             value += unforeseenFeePercentage;
+          console.log(value)
+
           }
 
           // //TODO: Validar calculos de ganacias por periodos y politicas de tienpos de entrega
@@ -497,6 +540,7 @@ export class RefProductsService {
           const advancePercentage: number = product?.refProduct?.supplier?.advancePercentage || 0;
           const advancePercentageValue: number = (advancePercentage / 100) * value;
           // value += advancePercentageValue;
+          console.log(advancePercentage)
 
           // //* CALCULAR LA CANTIDAD DE CAJAS PARA LAS UNIDADES COTIZADAS
           const packing: Packing = product.packings[0] || undefined;
@@ -535,11 +579,17 @@ export class RefProductsService {
 
           //* CALCULAR COSTOS FINANCIEROS DEL PERIODO DE PRODUCCIÓN
           const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage) || 0;
+          console.log(supplierFinancingPercentage)
           const financingCost: number = ((value - advancePercentageValue));
+          console.log(financingCost)
           const supplierFinancingPercentageValue: number = (supplierFinancingPercentage / 100) * financingCost;
+          console.log(supplierFinancingPercentageValue)
           const valueToAdd: number = (value - supplierFinancingPercentage) * deliveryTimeToSave;
+          console.log(deliveryTimeToSave)
+          console.log(valueToAdd)
           
           value += valueToAdd;
+          console.log(value)
 
           //* CALCULAR EL COSTO DE TRANSPORTE Y ENTREGA DE LOS PRODUCTOS (ESTA INFORMACIÓN VIENE DEL API DE FEDEX)
           const localTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
@@ -551,14 +601,17 @@ export class RefProductsService {
             : undefined;
 
           const { origin: transportOrigin, destination: transportDestination, price: transportPrice, volume: transportVolume } = localTransportPrice || { origin: '', destination: '', price: 0, volume: 0 };
+          console.log(transportPrice)
 
           value += transportPrice;
+          console.log(value)
 
           prices.transportPrice = transportPrice;
 
           //* CALCULAR EL IMPUESTO 4 X 1000
           const fourPercentage = (value * 0.004);
           value += fourPercentage;
+          console.log(value)
 
           //* CALCULAR EL COSTO DE LA OPERACIÓN (YA HECHO)
 
@@ -566,6 +619,7 @@ export class RefProductsService {
           const profitMargin: number = product?.refProduct?.supplier?.profitMargin || 0;
           const profitMarginPercentage: number = (profitMargin / 100) * value;
           value += profitMarginPercentage;
+          console.log(value)
 
           //* ADICIONAR EL % DE MARGEN DE GANANCIA DEL PRODUCTO
           const mainCategory: CategoryTag = await this.categoryTagRepository.findOne({
@@ -577,21 +631,28 @@ export class RefProductsService {
           if (mainCategory) {
             const categoryMarginValue: number = (+mainCategory.categoryMargin / 100) * value;
             value += categoryMarginValue;
+          console.log(value)
+
           };
 
           //* PRECIO TOTAL ANTES DEL IVA (YA HECHO)
           const productIvaValue: number = (product.iva / 100) * value;
           value += productIvaValue;
+          console.log(value)
 
           //* CALCULAR EL PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
           value = Math.round(value);
-
-          //* IVA ADICIONAL
+          console.log(value)
+   
+          //* IVA ADICIONAL   
           const additionalProductIvaValue: number = (product.iva / 100) * value;
           value += additionalProductIvaValue;
+          console.log(value)
 
           prices.totalValue = value;
           burnPriceTable.push(prices);
+          console.log(value)
+
         }
 
         return { ...product, burnPriceTable };
