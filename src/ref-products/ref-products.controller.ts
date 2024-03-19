@@ -23,7 +23,6 @@ export class RefProductsController {
   }
 
   @Get()
-  @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto,
   ) {
