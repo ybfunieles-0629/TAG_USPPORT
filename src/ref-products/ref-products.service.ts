@@ -537,7 +537,7 @@ export class RefProductsService {
           const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage) || 0;
           const financingCost: number = ((value - advancePercentageValue));
           const supplierFinancingPercentageValue: number = (supplierFinancingPercentage / 100) * financingCost;
-          const valueToAdd: number = (value - supplierFinancingPercentage) * deliveryTimeToSave;
+          const valueToAdd: number = (value * supplierFinancingPercentage) * deliveryTimeToSave;
           
           value += valueToAdd;
 
