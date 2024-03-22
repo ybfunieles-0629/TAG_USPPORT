@@ -487,87 +487,100 @@ export class ProductsService {
       };
     }
 
+    const refProductCodes: string[] = [];
+    const refProductCodesString: string = refProductCodes.join(', ');
+    const updatedProductsCode: string[] = [];
+
     for (const refProduct of cleanedRefProducts) {
       const refProductExists = refProductsInDb.find(refProductInDb => refProductInDb?.referenceCode == refProduct?.referenceCode);
 
-      // if (refProductExists) {
-      //   // Verificar si el producto existe y necesita actualización
-      //   const existingProductInDb = productsInDb.find(product => product?.refProduct?.referenceCode === refProduct?.referenceCode && product?.apiCode);
-
-      //   if (existingProductInDb) {
-      //     // Comparar los campos que pueden haber cambiado y actualizarlos si es necesario
-      //     if (existingProductInDb.availableUnit !== refProduct?.availableUnit ||
-      //       existingProductInDb.referencePrice !== refProduct?.referencePrice ||
-      //       existingProductInDb.promoDisccount !== refProduct?.promoDisccount) {
-      //       existingProductInDb.availableUnit = refProduct?.availableUnit;
-      //       existingProductInDb.referencePrice = refProduct?.referencePrice;
-      //       existingProductInDb.promoDisccount = refProduct?.promoDisccount;
-      //       await this.productRepository.save(existingProductInDb);
-      //       productsToSave.push(existingProductInDb);
-      //     }
-      //   }
-      // } else {
-      // Si el producto no existe, guardarlo como nuevo
-      // const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
-      // refProductsToSave.push(savedRefProduct);
-      // // }
       if (refProductExists) {
-        console.log(`Ref product with reference code ${refProduct.referenceCode} is already registered`);
-      } else {
-        const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
+        const fieldsToUpdate = ['name', 'referenceCode', 'shortDescription', 'description', 'mainCategory', 'tagCategory', 'keywords', 'large', 'width', 'height', 'weight', 'importedNational', 'markedDesignArea', 'supplier', 'personalizableMarking'];
 
-        refProductsToSave.push(savedRefProduct);
+        for (const field of fieldsToUpdate) {
+          if (refProduct[field] !== undefined && refProductExists[field] !== refProduct[field]) {
+            refProductExists[field] = refProduct[field];
+            refProductCodes.push(refProductExists.referenceCode);
+          }
+        }
+
+        if (refProductCodes.length > 0) {
+          await this.refProductRepository.save(refProductExists);
+
+        } else {
+          const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
+          refProductsToSave.push(savedRefProduct);
+        }
       }
-    }
 
-    //* ---------- LOAD PRODUCTS ----------*//
-    for (const product of productsToSave) {
-      const refProduct = await this.refProductRepository.findOne({
-        where: {
-          referenceCode: product.familia,
-        },
-      });
+      //* ---------- LOAD PRODUCTS ----------*//
+      for (const product of productsToSave) {
+        const refProduct = await this.refProductRepository.findOne({
+          where: {
+            referenceCode: product.familia,
+          },
+        });
 
-      if (!refProduct)
-        throw new NotFoundException(`Ref product for product with familia ${product.familia} not found`);
+        if (!refProduct)
+          throw new NotFoundException(`Ref product for product with familia ${product.familia} not found`);
 
-      const productColor: string = product?.color?.toLowerCase() || '';
+        const productColor: string = product?.color?.toLowerCase() || '';
 
-      const color: Color = await this.colorRepository
-        .createQueryBuilder('color')
-        .where('LOWER(color.name) =:productColor', { productColor })
-        .getOne();
+        const color: Color = await this.colorRepository
+          .createQueryBuilder('color')
+          .where('LOWER(color.name) =:productColor', { productColor })
+          .getOne();
 
-      const colors: Color[] = [];
+        const colors: Color[] = [];
 
-      if (color) {
-        color.refProductId = refProduct?.id;
+        if (color) {
+          color.refProductId = refProduct?.id;
 
-        const savedColor: Color = await this.colorRepository.save(color);
+          const savedColor: Color = await this.colorRepository.save(color);
+        };
+
+        let tagSku: string = await this.generateUniqueTagSku();
+
+        const newProduct = {
+          tagSku,
+          supplierSku: product?.supplierSku,
+          apiCode: product?.apiCode,
+          variantReferences: [],
+          large: +product?.large || 0,
+          width: +product?.width || 0,
+          height: +product?.height || 0,
+          weight: +product?.weight || 0,
+          colors,
+          referencePrice: product.referencePrice,
+          // promoDisccount: parseFloat(product.material.descuento.replace('-', '')),
+          promoDisccount: product?.promoDisccount,
+          availableUnit: product?.inventario,
+          refProduct,
+        };
+
+        const productExists = productsInDb.find((product) => product.apiCode == product.apiCode);
+
+        if (productExists) {
+          const fieldsToUpdate = ['name', 'referenceCode', 'shortDescription', 'description', 'mainCategory', 'tagCategory', 'keywords', 'large', 'width', 'height', 'weight', 'importedNational', 'markedDesignArea', 'supplier', 'personalizableMarking'];
+
+          const refProductCodes: string[] = [];
+          const refProductCodesString: string = refProductCodes.join(', ');
+
+          for (const field of fieldsToUpdate) {
+            if (refProduct[field] !== undefined && productExists[field] !== refProduct[field]) {
+              productExists[field] = refProduct[field];
+              updatedProductsCode.push(productExists.apiCode);
+            }
+          }
+
+          if (refProductCodes.length > 0) {
+            await this.productRepository.save(productExists);
+          } else {
+            const createdProduct: Product = this.productRepository.create(newProduct);
+            const savedProduct: Product = await this.productRepository.save(createdProduct);
+          }
+        }
       };
-
-      let tagSku: string = await this.generateUniqueTagSku();
-
-      const newProduct = {
-        tagSku,
-        supplierSku: product?.supplierSku,
-        apiCode: product?.apiCode,
-        variantReferences: [],
-        large: +product?.large || 0,
-        width: +product?.width || 0,
-        height: +product?.height || 0,
-        weight: +product?.weight || 0,
-        colors,
-        referencePrice: product.referencePrice,
-        // promoDisccount: parseFloat(product.material.descuento.replace('-', '')),
-        promoDisccount: product?.promoDisccount,
-        availableUnit: product?.inventario,
-        refProduct,
-      };
-
-      const createdProduct: Product = this.productRepository.create(newProduct);
-
-      const savedProduct: Product = await this.productRepository.save(createdProduct);
     }
 
     if (refProductsToSave.length === 0 && productsToSave.length === 0)
@@ -576,29 +589,32 @@ export class ProductsService {
     const productCodes: string[] = productsToSave.map(product => product.apiCode);
     const productCodesString: string = productCodes.join(', ');
 
-    try {
-      // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASSWORD,
-        },
-      });
+    // try {
+    //   // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
+    //   const transporter = nodemailer.createTransport({
+    //     service: 'gmail',
+    //     auth: {
+    //       user: process.env.EMAIL_USER,
+    //       pass: process.env.EMAIL_PASSWORD,
+    //     },
+    //   });
 
-      await transporter.sendMail({
-        from: this.emailSenderConfig.transport.from,
-        to: 'yeison.descargas@gmail.com',
-        subject: 'Productos nuevos y/o actualizados',
-        text: `
-          Productos nuevos y/o actualizados:
-          ${productCodesString}
-          `,
-      });
-    } catch (error) {
-      console.log('Failed to send the email', error);
-      throw new InternalServerErrorException(`Internal server error`);
-    }
+    //   await transporter.sendMail({
+    //     from: this.emailSenderConfig.transport.from,
+    //     to: 'yeison.descargas@gmail.com',
+    //     subject: 'Productos y referencias nuevos y/o actualizados',
+    //     text: `
+    //       Productos nuevos y/o actualizados:
+    //       ${productCodesString}
+
+    //       Referencias nuevas y/o actualizadas:
+    //       ${refProductCodesString}
+    //       `,
+    //   });
+    // } catch (error) {
+    //   console.log('Failed to send the email', error);
+    //   throw new InternalServerErrorException(`Internal server error`);
+    // }
 
     return {
       refProductsToSave,
