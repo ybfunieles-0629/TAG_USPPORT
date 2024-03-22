@@ -293,11 +293,15 @@ export class RefProductsService {
         const initialValue: number = product.referencePrice;
 
         let changingValue: number = initialValue;
+       
+
 
         for (let i = 0; i < staticQuantities.length; i++) {
           let prices = {
             quantity: staticQuantities[i],
             value: changingValue,
+            valueConIva: 0,
+            valueSinIva: 0,
             totalValue: 0,
             transportPrice: 0,
           };
@@ -755,6 +759,8 @@ export class RefProductsService {
 
 
           prices.totalValue = value;
+          prices.valueSinIva = SubtotalPrecioVenta;
+          prices.valueConIva = PrecioVentaTotal;
           burnPriceTable.push(prices);
           console.log(value)
 
