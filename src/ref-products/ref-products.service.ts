@@ -227,16 +227,16 @@ export class RefProductsService {
 
     let staticQuantities: number[];
     if (tipo) {
-      // staticQuantities = [
-      //   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
-      //   150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
-      //   1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
-      //   7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
-      //   100000, 200000,
-      // ];
       staticQuantities = [
-        1, 2,
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
+        150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
+        1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
+        7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
+        100000, 200000,
       ];
+      // staticQuantities = [
+      //   1, 2,
+      // ];
     } else {
       staticQuantities = [1];
     }
@@ -255,7 +255,7 @@ export class RefProductsService {
 
     let clientType: string = '';
 
-    //* SE DEBE VERIFICAR SI EL USUARIO ES COORPORATIVO O QUÉ
+    // SE DEBE VERIFICAR SI EL USUARIO ES COORPORATIVO O QUÉ
     if (clientUser) {
       if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 1)
         clientType = 'cliente corporativo secundario';
@@ -293,7 +293,6 @@ export class RefProductsService {
         const initialValue: number = product.referencePrice;
 
         let changingValue: number = initialValue;
-        console.log(changingValue)
 
         for (let i = 0; i < staticQuantities.length; i++) {
           let prices = {
@@ -303,18 +302,12 @@ export class RefProductsService {
             transportPrice: 0,
           };
 
-          // console.log(changingValue)
+          console.log("inicio");
 
+          const cantidadProductoinicial = staticQuantities[i];
+          console.log(cantidadProductoinicial)
 
-          // const percentageDiscount: number = 0.01;
-
-          // let value: number = changingValue * (1 - percentageDiscount);
-          // console.log(value)
-
-          // value = Math.round(value);
-
-          // changingValue = value;
-          let value:number = changingValue;
+          let value: number = changingValue;
           console.log(value)
 
           //* SI EL PRODUCTO NO TIENE UN PRECIO NETO
@@ -328,7 +321,7 @@ export class RefProductsService {
                 if (listPrice.minimun >= i && listPrice.nextMinValue == 1 && listPrice.maximum <= i || listPrice.minimun >= i && listPrice.nextMinValue == 0) {
                   //* SI APLICA PARA TABLA DE PRECIOS DE PROVEEDOR
                   value += listPrice.price;
-          console.log(value)
+                  console.log(value)
 
                   return;
                 };
@@ -362,7 +355,7 @@ export class RefProductsService {
                       if (discountItem.entryDisccount != undefined || discountItem.entryDisccount != null || discountItem.entryDisccount > 0) {
                         const discount: number = (discountItem.entryDisccount / 100) * value;
                         value -= discount;
-          console.log(value)
+                        console.log(value)
 
                         return;
                       };
@@ -371,7 +364,7 @@ export class RefProductsService {
                         if (listDiscount.minQuantity >= i && listDiscount.nextMinValue == 1 && listDiscount.maxQuantity <= i || listDiscount.minQuantity >= i && listDiscount.nextMinValue == 0) {
                           const discount: number = (listDiscount.disccountValue / 100) * value;
                           value -= discount;
-          console.log(value)
+                          console.log(value)
 
                           return;
                         };
@@ -387,7 +380,7 @@ export class RefProductsService {
                         if (discountItem.entryDisccount != undefined || discountItem.entryDisccount != null || discountItem.entryDisccount > 0) {
                           const discount: number = (discountItem.entryDisccount / 100) * value;
                           value -= discount;
-          console.log(value)
+                          console.log(value)
 
                           return;
                         };
@@ -396,7 +389,7 @@ export class RefProductsService {
                           if (listDiscount.minQuantity >= i && listDiscount.nextMinValue == 1 && listDiscount.maxQuantity <= i || listDiscount.minQuantity >= i && listDiscount.nextMinValue == 0) {
                             const discount: number = (listDiscount.disccountValue / 100) * value;
                             value -= discount;
-          console.log(value)
+                            console.log(value)
 
                             return;
                           };
@@ -409,140 +402,72 @@ export class RefProductsService {
             };
           }
 
-          // //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
-          if (clientSended) {
-            const parsedMargin: number = +margin;
-            
-            if (parsedMargin > 0) {
-              const marginValueResult: number = (margin / 100) * value;
-              value += marginValueResult;
 
-              //   //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
-              const profitMargin: number = 0;
+          //******************************************************************************************************** */
+          //******************************************************************************************************** */
 
-              const paymentDays = [
-                {
-                  day: 1,
-                  percentage: 0.03,
-                },
-                {
-                  day: 15,
-                  percentage: 0.03,
-                },
-                {
-                  day: 30,
-                  percentage: 0.03,
-                },
-                {
-                  day: 45,
-                  percentage: 0.04,
-                },
-                {
-                  day: 60,
-                  percentage: 0.06,
-                },
-                {
-                  day: 90,
-                  percentage: 0.09,
-                },
-              ];
+          // COSTO BRUTO DE PRODUCTO === VARIABLE GLOBAL
+          const CostoBrutoProducto = value;
 
-              //* SI EL CLIENTE ES SECUNDARIO
-              if (clientType == 'cliente corporativo secundario') {
-                //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
-                const marginProfit: number = mainClient.margin || 0;
-                const paymentTerms: number = mainClient.paymentTerms || 0;
 
-                let percentageDiscount: number = 0;
 
-                paymentDays.forEach(paymentDay => {
-                  if (paymentDay.day == paymentTerms) {
-                    percentageDiscount = paymentDay.percentage;
-                  };
-                });
-
-                let result: number = value * (1 - percentageDiscount);
-                value += Math.round(result);
-          console.log(value)
-
-              };
-
-              //* SI EL CLIENTE ES PRINCIPAL
-              if (clientType == 'cliente corporativo principal') {
-                const margin: number = clientSended.margin || 0;
-                const paymentTerms: number = clientSended.paymentTerms || 0;
-
-                let percentageDiscount: number = 0;
-
-                paymentDays.forEach(paymentDay => {
-                  if (paymentDay.day == paymentTerms) {
-                    percentageDiscount = paymentDay.percentage;
-                  };
-                });
-
-                let result: number = value * (1 - percentageDiscount);
-                value += Math.round(result);
-          console.log(value)
-
-              };
-
-              const marginPercentage: number = +margin;
-              const finalMarginValue: number = (marginPercentage / 100) * value;
-
-              value += finalMarginValue;
-          console.log(value)
-
-            };
-
-            //* IVA
-            const iva: number = (product.iva / 100) * value;
-            value += iva;
-          console.log(value)
-
-          };
-
-          // //* APLICAR IVA
+          let IvaPrimera = 0;
+          // //* APLICAR IVA   **************************************************************
           if (product.iva > 0 || product.iva != undefined) {
-            const iva: number = (product.iva / 100) * value;
-
-            value += iva;
-          console.log(value)
-
+            IvaPrimera = (product.iva / 100) * value;
+            value += IvaPrimera;
+            console.log(value)
           };
 
-          // //* VERIFICAR SI ES IMPORTADO NACIONAL
-          if (product.importedNational.toLowerCase() == 'importado') {
-            const importationFee: number = (systemConfig.importationFee / 100) * value;
-
-            value += importationFee;
-          console.log(value)
-
-          };
-
-          // //* VERIFICAR SI TIENE FEE DE IMPREVISTOS
-          if (product.unforeseenFee > 0) {
-            const unforeseenFee: number = (product.unforeseenFee / 100) * value;
-
-            value += unforeseenFee;
-          console.log(value)
-
-          } else {
-            const unforeseenFee: number = systemConfig.unforeseenFee;
-            const unforeseenFeePercentage: number = (unforeseenFee / 100) * value;
-            value += unforeseenFeePercentage;
-          console.log(value)
-
+          if (product.iva == 0) {
+            IvaPrimera = (19 / 100) * value;
+            value += IvaPrimera;
+            console.log(value)
           }
 
-          // //TODO: Validar calculos de ganacias por periodos y politicas de tienpos de entrega
-          // //TODO: Después del margen del periodo validar del comercial
-          // //* IDENTIFICAR PORCENTAJE DE ANTICIPIO DE PROVEEDOR
-          const advancePercentage: number = product?.refProduct?.supplier?.advancePercentage || 0;
-          const advancePercentageValue: number = (advancePercentage / 100) * value;
-          // value += advancePercentageValue;
-          console.log(advancePercentage)
+          //TOTAL COSTO UNITARIO DEL PRODUCTO === VARIABLE GLOBAL
+          let CostoTotalUnitario = value;
+          CostoTotalUnitario = Math.round(CostoTotalUnitario);
 
-          // //* CALCULAR LA CANTIDAD DE CAJAS PARA LAS UNIDADES COTIZADAS
+          console.log(CostoTotalUnitario);
+
+
+          let Imprevistos = 0;
+          // //* VERIFICAR SI TIENE FEE DE IMPREVISTOS ************************************* CostoBrutoProducto
+          if (product.unforeseenFee > 0) {
+            const unforeseenFee: number = (product.unforeseenFee / 100) * CostoBrutoProducto;
+            Imprevistos = unforeseenFee ;
+            console.log(Imprevistos) 
+          } else {
+            const unforeseenFee: number = systemConfig.unforeseenFee;
+            const unforeseenFeePercentage: number = (unforeseenFee / 100) * CostoBrutoProducto;
+            Imprevistos = unforeseenFeePercentage;
+            console.log(Imprevistos)
+          }
+
+
+
+          // SUBTOTAL === VARIABLE GLOBAL
+          let Subtotal = cantidadProductoinicial * (CostoBrutoProducto + Imprevistos);
+          Subtotal = Math.round(Subtotal);
+          console.log(Subtotal)
+
+
+          let IvaSegunda = 0;
+          // //* APLICAR IVA   **************************************************************
+          if (product.iva > 0 || product.iva != undefined) {
+            IvaSegunda = (product.iva / 100) * Subtotal;
+            console.log(value)
+          };
+          if (product.iva == 0) {
+            IvaSegunda = (19 / 100) * Subtotal;
+            console.log(IvaSegunda)
+          }
+
+
+
+          // TRASPORTE CALCULO DE CAJAS ***************************************************
+          // CALCULAR LA CANTIDAD DE CAJAS PARA LAS UNIDADES COTIZADAS
           const packing: Packing = product.packings[0] || undefined;
           const packingUnities: number = product.packings ? product?.packings[0]?.unities : product?.refProduct?.packings[0]?.unities || 0;
 
@@ -563,7 +488,31 @@ export class RefProductsService {
             packingWeight = (packing?.smallPackingWeight * boxesQuantity) || 0;
           }
 
-          // //* IDENTIFICAR TIEMPO DE ENTREGA ACORDE AL PRODUCTO
+
+          // CALCULAR EL COSTO DE TRANSPORTE Y ENTREGA DE LOS PRODUCTOS (ESTA INFORMACIÓN VIENE DEL API DE FEDEX)
+          const localTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
+            ? localTransportPrices.sort((a, b) => {
+              const diffA = Math.abs(a.volume - totalPackingVolume);
+              const diffB = Math.abs(b.volume - totalPackingVolume);
+              return diffA - diffB;
+            })[0]
+            : undefined;
+
+          const { origin: transportOrigin, destination: transportDestination, price: transportPrice, volume: transportVolume } = localTransportPrice || { origin: '', destination: '', price: 0, volume: 0 };
+          console.log(transportPrice)
+
+          prices.transportPrice = transportPrice;
+
+
+
+          //TOTAL DESEMBOLSO COMPRA DE PRODUCTO === VARIABLE GLOBAL
+          let TotalDesembolsoCompraProducto = Subtotal + IvaSegunda + transportPrice
+          TotalDesembolsoCompraProducto = Math.round(TotalDesembolsoCompraProducto);
+          console.log(TotalDesembolsoCompraProducto)
+
+
+
+          // DIAS DE ENTREGA O PRODUCCIÓN 
           const availableUnits: number = product?.availableUnit || 0;
           let deliveryTimeToSave: number = 0;
 
@@ -577,77 +526,233 @@ export class RefProductsService {
             deliveryTimeToSave = product?.refProduct?.productInventoryLeadTime || 0;
           };
 
-          //* CALCULAR COSTOS FINANCIEROS DEL PERIODO DE PRODUCCIÓN
+
+          // % ADELANTO EN PRODUCCIÓN 
+          const advancePercentage: number = product?.refProduct?.supplier?.advancePercentage || 0;
+          const advancePercentageValue: number = (advancePercentage / 100) * value;
+          console.log(advancePercentage)
+
+
+          // FINANCIACIÓN 
           const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage) || 0;
           console.log(supplierFinancingPercentage)
-          const financingCost: number = ((value - advancePercentageValue));
-          console.log(financingCost)
-          const supplierFinancingPercentageValue: number = (supplierFinancingPercentage / 100) * financingCost;
-          console.log(supplierFinancingPercentageValue)
-          const valueToAdd: number = (value * supplierFinancingPercentage) * deliveryTimeToSave;
+
           console.log(deliveryTimeToSave)
-          console.log(valueToAdd)
-          
-          value += valueToAdd;
-          console.log(value)
+          //GASTOS FINANCIEROS PRE-ENTREGA === VARIABLE GLOBAL 
+          const GastoFinancieroPreentrega = (TotalDesembolsoCompraProducto * advancePercentage) * ((supplierFinancingPercentage / 30) * deliveryTimeToSave)
+          console.log(GastoFinancieroPreentrega)
 
-          //* CALCULAR EL COSTO DE TRANSPORTE Y ENTREGA DE LOS PRODUCTOS (ESTA INFORMACIÓN VIENE DEL API DE FEDEX)
-          const localTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
-            ? localTransportPrices.sort((a, b) => {
-              const diffA = Math.abs(a.volume - totalPackingVolume);
-              const diffB = Math.abs(b.volume - totalPackingVolume);
-              return diffA - diffB;
-            })[0]
-            : undefined;
 
-          const { origin: transportOrigin, destination: transportDestination, price: transportPrice, volume: transportVolume } = localTransportPrice || { origin: '', destination: '', price: 0, volume: 0 };
-          console.log(transportPrice)
 
-          value += transportPrice;
-          console.log(value)
+          // TOTAL DESEMBOLSO === VARIABLE GLOBAL
+        
+          const TotalDesembolso = TotalDesembolsoCompraProducto + GastoFinancieroPreentrega;
+          console.log(TotalDesembolso)
 
-          prices.transportPrice = transportPrice;
+
 
           //* CALCULAR EL IMPUESTO 4 X 1000
-          const fourPercentage = (value * 0.004);
-          value += fourPercentage;
-          console.log(value)
+          const fourPercentage = (TotalDesembolso * 0.004);
+          let CuatroForMil = fourPercentage;
+          CuatroForMil = Math.round(CuatroForMil);
 
-          //* CALCULAR EL COSTO DE LA OPERACIÓN (YA HECHO)
+          console.log(CuatroForMil)
 
-          //* ADICIONAR EL % DE MARGEN DE GANANCIA SOBRE EL PROVEEDOR
-          const profitMargin: number = product?.refProduct?.supplier?.profitMargin || 0;
-          const profitMarginPercentage: number = (profitMargin / 100) * value;
-          value += profitMarginPercentage;
-          console.log(value)
 
-          //* ADICIONAR EL % DE MARGEN DE GANANCIA DEL PRODUCTO
+
+          //SUBTOTAL ANTES DE IVA (TABLA QUEMADA COSTO) === VARIABLE GLOBAL 
+          let SubTotalAntesDeIva = transportPrice + Subtotal + GastoFinancieroPreentrega + CuatroForMil;
+          SubTotalAntesDeIva = Math.round(SubTotalAntesDeIva);
+          console.log(SubTotalAntesDeIva)
+
+
+          // TOTAL COSTO DE PRODUCTO === VARIABLE GLOBAL
+          let TotalCostoDelProducto = SubTotalAntesDeIva + IvaSegunda;
+          TotalCostoDelProducto = Math.round(TotalCostoDelProducto);
+          console.log(TotalCostoDelProducto)
+
+
+
+          // MARGEN DE LA CATEGORIA
           const mainCategory: CategoryTag = await this.categoryTagRepository.findOne({
             where: {
               id: product?.refProduct?.tagCategory,
             },
           });
 
-          if (mainCategory) {
-            const categoryMarginValue: number = (+mainCategory.categoryMargin / 100) * value;
-            value += categoryMarginValue;
-          console.log(value)
+
+          //* MARGEN DE GANANCIA DEL PROVEEDOR
+          const profitMargin: number = product?.refProduct?.supplier?.profitMargin || 0;
+
+
+          // PRECIO DE VENTA SIN IVA (TABLA QUEMADA) === VARIABLE GLOBAL 
+          const sumaProcentajes = (1 + (+mainCategory.categoryMargin + profitMargin) / 100)
+          let PrecioVentaSinIva = (SubTotalAntesDeIva * sumaProcentajes) ;
+
+          //* REDONDEANDO DECIMALES
+          PrecioVentaSinIva = Math.round(PrecioVentaSinIva);
+          console.log(PrecioVentaSinIva)
+
+
+
+
+          let parsedMargin: number =0;
+          let MargenFinanciacion: number =0;
+
+          // //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
+          if (clientSended) {
+            parsedMargin = +margin;
+            console.log(parsedMargin)
+            
+
+            //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
+            const profitMargin: number = 0;
+            const paymentDays = [
+              {
+                day: 1,
+                percentage: 0.03,
+              },
+              {
+                day: 15,
+                percentage: 0.03,
+              },
+              {
+                day: 30,
+                percentage: 0.03,
+              },
+              {
+                day: 45,
+                percentage: 0.04,
+              },
+              {
+                day: 60,
+                percentage: 0.06,
+              },
+              {
+                day: 90,
+                percentage: 0.09,
+              },
+            ];
+
+
+
+            //* SI EL CLIENTE ES SECUNDARIO
+            if (clientType == 'cliente corporativo secundario') {
+              //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
+              const marginProfit: number = mainClient.margin || 0;
+              const paymentTerms: number = mainClient.paymentTerms || 0;
+
+              let percentageDiscount: number = 0;
+
+              paymentDays.forEach(paymentDay => {
+                if (paymentDay.day == paymentTerms) {
+                  percentageDiscount = paymentDay.percentage;
+                };
+              });
+
+              MargenFinanciacion = percentageDiscount;
+              MargenFinanciacion = Math.round(MargenFinanciacion);
+              console.log(MargenFinanciacion)
+            };
+
+            //* SI EL CLIENTE ES PRINCIPAL
+            if (clientType == 'cliente corporativo principal') {
+              const margin: number = clientSended.margin || 0;
+              const paymentTerms: number = clientSended.paymentTerms || 0;
+
+              let percentageDiscount: number = 0;
+
+              paymentDays.forEach(paymentDay => {
+                if (paymentDay.day == paymentTerms) {
+                  percentageDiscount = paymentDay.percentage;
+                };
+              });
+
+              MargenFinanciacion = percentageDiscount;
+              MargenFinanciacion = Math.round(MargenFinanciacion);
+              console.log(MargenFinanciacion)
+
+            };
+
+
+             //* SI EL CLIENTE ES PRINCIPAL
+             if (clientType != 'cliente corporativo principal' && clientType != 'cliente corporativo secundario') {
+              MargenFinanciacion = 0;
+            };
+
+            console.log(MargenFinanciacion)
 
           };
 
-          //* PRECIO TOTAL ANTES DEL IVA (YA HECHO)
-          const productIvaValue: number = (product.iva / 100) * value;
-          value += productIvaValue;
-          console.log(value)
 
-          //* CALCULAR EL PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
-          value = Math.round(value);
-          console.log(value)
-   
-          //* IVA ADICIONAL   
-          const additionalProductIvaValue: number = (product.iva / 100) * value;
-          value += additionalProductIvaValue;
-          console.log(value)
+
+
+
+          // TOTAL CUADRO DERECHO
+          const sumaProcentajesDos = (1+(parsedMargin+MargenFinanciacion) / 100)
+          let TotalCuadroDerecho = (PrecioVentaSinIva * sumaProcentajesDos) ;
+          
+          TotalCuadroDerecho = Math.round(TotalCuadroDerecho);
+
+          console.log(TotalCuadroDerecho)
+
+
+
+          // FEE DE LA MARCA DE USUARIO AL INICIAR SEIÓN > ESTO SE APLICA EN EL CARRITO
+          const feeMarca = 0;
+
+
+
+
+          // SUBTOTAL PRECIO DE VENTA (A MOSTRAR) === VARIABLE GLOBAL
+          const sumaFee = (1+(parsedMargin+MargenFinanciacion) / 100) + 0 ;
+          let SubtotalPrecioVenta = PrecioVentaSinIva * sumaFee;
+          SubtotalPrecioVenta = Math.round(SubtotalPrecioVenta);
+
+          console.log(SubtotalPrecioVenta)
+
+
+          
+          // IVA 
+          const ivaProd: number = product.iva;
+          let IvaTercera: number;
+          if (ivaProd > 0) {
+            IvaTercera = (product.iva / 100) * SubtotalPrecioVenta;
+          } else {
+            IvaTercera = (19 / 100) * SubtotalPrecioVenta;
+          }
+          IvaTercera = Math.round(IvaTercera);
+          console.log(IvaTercera)
+
+
+
+          //PRECIO DE VENTA TOTAL (A MOSTRAR)
+          let PrecioVentaTotal = SubtotalPrecioVenta + IvaTercera;
+          PrecioVentaTotal = Math.round(PrecioVentaTotal);
+          console.log(PrecioVentaTotal)
+
+
+
+          // VALORES UNITARIOS
+          const cantidadUnitaria =  staticQuantities[0];
+          const SubtotalPrecioVentaUnitario = SubtotalPrecioVenta/cantidadUnitaria;
+          const IvaTerceraUnitaria = IvaTercera/cantidadUnitaria;
+          const PrecioVentaTotalUnitaria = PrecioVentaTotal/cantidadUnitaria;
+
+          console.log(SubtotalPrecioVentaUnitario)
+          console.log(IvaTerceraUnitaria)
+          console.log(PrecioVentaTotalUnitaria)
+
+
+
+          //******************************************************************************************************** */
+          //******************************************************************************************************** */
+          //******************************************************************************************************** */
+
+
+
+
+
 
           prices.totalValue = value;
           burnPriceTable.push(prices);

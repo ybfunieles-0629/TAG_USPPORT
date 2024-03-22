@@ -197,12 +197,20 @@ export class QuoteDetailsService {
     let productVolume: number = 0;
     let totalVolume: number = 0;
 
+
+
+
+
     //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL MARCADO
     const markingTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
       .createQueryBuilder('localTransportPrice')
       .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
       .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
       .getMany();
+
+
+
+
 
     //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL CLIENTE
     const clientTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
@@ -223,11 +231,17 @@ export class QuoteDetailsService {
     //TODO: UTILIZAR LA API DE FEDEX
     //TODO: UTILIZAR LA API DE FEDEX
 
+
     //* OBTENER LA CONFIGURACIÓN DEL SISTEMA
     const systemConfigDb: SystemConfig[] = await this.systemConfigRepository.find();
     const systemConfig: SystemConfig = systemConfigDb[0];
 
+
+
+
     //* -------------------------- INICIO DE CALCULOS -------------------------- *//
+
+
     //* CALCULAR EL VOLUMEN DEL PRODUCTO
     productVolume = (product?.height * product?.weight * product?.large) || 0;
 
@@ -236,10 +250,14 @@ export class QuoteDetailsService {
     const clientUser: User = cartQuote?.client?.user;
     let clientType: string = '';
 
-    //* CANTIDAD QUEMADA EN QUOTE DETAIL
+    //* CANTIDAD QUEMADA EN QUOTE DETAIL 
     const burnQuantity: number = newQuoteDetail?.unitPrice || 0;
     totalCost += burnQuantity;
     newQuoteDetail.transportTotalPrice = 0;
+
+
+    let TotalMuestra = 0;
+    let TransportPriceSample =0;
 
     //* SE SOLICITA MUESTRA
     if (hasSample) {
@@ -251,23 +269,47 @@ export class QuoteDetailsService {
       // totalCost += samplePrice;
 
       newQuoteDetail.hasSample = true;
-
+      // Preguntamos si la muestra es gratis segun el producto
       const productHasFreeSample: boolean = product?.freeSample == 1 ? true : false;
-
       newQuoteDetail.sampleValue = 0;
 
       if (!productHasFreeSample) {
+        // VALOR MUESTRA
         const samplePrice: number = product?.samplePrice || 0;
-
+        
         if (samplePrice <= 0) {
           const referencePrice: number = product?.referencePrice || 0;
           totalPrice += referencePrice;
+          console.log(totalPrice)
           newQuoteDetail.sampleValue = referencePrice;
         };
 
         totalPrice += samplePrice;
         newQuoteDetail.sampleValue = samplePrice;
 
+
+
+        // IVA MUESTRA
+        let IvaPrimera = 0;
+        if (product?.iva > 0 || product.iva != undefined) {
+          IvaPrimera = (product.iva / 100) * totalPrice;
+          totalPrice += IvaPrimera;
+          console.log(totalPrice)
+        };
+
+        if (product.iva == 0) {
+          IvaPrimera = (19 / 100) * totalPrice;
+          totalPrice += IvaPrimera;
+          console.log(totalPrice)
+        }
+
+        // TOTAL MUESTRA 
+        TotalMuestra = totalPrice;
+        console.log(TotalMuestra)
+
+
+        // TRANSPORTE MUESTRA
+        
         if (newQuoteDetail?.cartQuote?.destinationCity?.toLowerCase() == 'bogota') {
           const clientClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
             ? markingTransportPrices.sort((a, b) => {
@@ -280,18 +322,45 @@ export class QuoteDetailsService {
           const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
 
           totalPrice += clientTransportPrice;
+          console.log(totalPrice)
           newQuoteDetail.sampleTransportValue += clientTransportPrice;
           newQuoteDetail.transportTotalPrice = 0;
           newQuoteDetail.transportTotalPrice += clientTransportPrice || 0;
           newQuoteDetail.sampleValue += clientTransportPrice || 0;
+          TransportPriceSample = clientTransportPrice;
+          console.log(TransportPriceSample)
+          console.log(clientTransportPrice)
         } else {
           //TODO: FEDEX
+          TransportPriceSample = 20000;
           newQuoteDetail.transportTotalPrice += 20000;
+          console.log(TransportPriceSample)
         }
       };
+
+
+
+
+      // TOTAL GASTOS MUESTRA
+      const TotalGastoMuestra = TotalMuestra + TransportPriceSample;
+      console.log(TotalGastoMuestra);
+
+
+      // CUATRO POR MIL A LA MUETSRA
+      const ValueForMil: number = TotalGastoMuestra * 0.004 || 0;
+      console.log(ValueForMil)
+
+
+      // COSTO TOTAL MUESTRA
+      const CostoTotalMuestra = TotalGastoMuestra + ValueForMil;
+      console.log(CostoTotalMuestra);
     } else {
       newQuoteDetail.hasSample = false;
     };
+
+
+
+    
 
     //* VERIFICAR SI EL PRODUCTO TIENE EMPAQUE
     const packing: Packing = product.packings.length > 0 ? product.packings[0] : product?.refProduct?.packings[0] || undefined;
@@ -327,6 +396,9 @@ export class QuoteDetailsService {
       : undefined;
 
     const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
+
+
+
 
     //* COTIZAR SERVICIO DE MARCACIÓN
     const quoteDetailRefProduct: RefProduct = product.refProduct;
