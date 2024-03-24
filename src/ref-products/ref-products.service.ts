@@ -586,13 +586,19 @@ export class RefProductsService {
 
 
           // PRECIO DE VENTA SIN IVA (TABLA QUEMADA) === VARIABLE GLOBAL 
-          const sumaProcentajes = (1 + (+mainCategory.categoryMargin + profitMargin) / 100)
-          let PrecioVentaSinIva = (SubTotalAntesDeIva * sumaProcentajes) ;
+          if (mainCategory) {
+            const sumaProcentajes = (1 + (+mainCategory.categoryMargin + profitMargin) / 100)
+            let PrecioVentaSinIva = (SubTotalAntesDeIva * sumaProcentajes) ;
 
-          //* REDONDEANDO DECIMALES
-          PrecioVentaSinIva = Math.round(PrecioVentaSinIva);
-          console.log(PrecioVentaSinIva)
+            //* REDONDEANDO DECIMALES
+            PrecioVentaSinIva = Math.round(PrecioVentaSinIva);
+            console.log(PrecioVentaSinIva)
+          };
 
+
+
+          // https://e-bulky.net/api/ref-products/0d27f5fb-f4b1-40db-859c-46d607079bf5?margin=10
+          // https://e-bulky.net/api/ref-products/filter?limit=5&offset=0&margin=10
 
 
 
