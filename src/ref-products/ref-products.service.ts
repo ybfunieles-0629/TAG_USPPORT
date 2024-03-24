@@ -586,9 +586,10 @@ export class RefProductsService {
 
 
           // PRECIO DE VENTA SIN IVA (TABLA QUEMADA) === VARIABLE GLOBAL 
+          let PrecioVentaSinIva = 0;
           if (mainCategory) {
             const sumaProcentajes = (1 + (+mainCategory.categoryMargin + profitMargin) / 100)
-            let PrecioVentaSinIva = (SubTotalAntesDeIva * sumaProcentajes) ;
+            PrecioVentaSinIva = (SubTotalAntesDeIva * sumaProcentajes) ;
 
             //* REDONDEANDO DECIMALES
             PrecioVentaSinIva = Math.round(PrecioVentaSinIva);
