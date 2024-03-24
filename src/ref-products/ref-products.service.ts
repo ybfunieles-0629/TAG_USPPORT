@@ -1728,18 +1728,21 @@ export class RefProductsService {
 
     if (filterRefProductsDto.keywords) {
       const searchKeywords: string = filterRefProductsDto.keywords.toLowerCase();
+      console.log(searchKeywords)
       const keywordsArray: string[] = searchKeywords.split(' ');
 
       if (refProductsToShow.length > 0) {
         refProductsToShow = refProductsToShow.filter((refProduct) => {
           const productKeywords: string = (refProduct.keywords || '').toLowerCase();
           const productName: string = (refProduct.name || '').toLowerCase();
+          const productCodeApiName: string = (refProduct.referenceCode || '').toLowerCase();
           const productDescription: string = (refProduct.description || '').toLowerCase();
           const productShortDescription: string = (refProduct.shortDescription || '').toLowerCase();
 
           return keywordsArray.some(keyword =>
             productKeywords.includes(keyword) ||
             productName.includes(keyword) ||
+            productCodeApiName.includes(keyword) ||
             productDescription.includes(keyword) ||
             productShortDescription.includes(keyword)
           );
