@@ -518,16 +518,15 @@ export class StatisticsService {
     const fechaFin = new Date(year, month, 0, 23, 59, 59, 999); // Fin del mes seleccionado
 
 
-      // Inicializar variables del reporte
-      let montoTotalNoFacturado = 0;
-      let montoTotalVencido = 0;
-      let diasVencimiento = [8, 15, 30, 45, 60];
-      const ordenesVencidasPorDias = {};
+    let montoTotalNoFacturado = 0;
+    let montoTotalVencido = 0;
+    let diasVencimiento = [8, 15, 30, 45, 60];
+    const ordenesVencidasPorDias = {};
 
 
 
 
-      
+
     console.log(fechaFin)
     // Buscar todos los clientes corporativos
     const clientesCorporativos = await this.userRepository
@@ -583,6 +582,10 @@ export class StatisticsService {
     };
 
     ordenesCorporativas.forEach(orden => {
+
+      montoTotalNoFacturado += orden.value;
+
+
       if (orden.state.name.toLowerCase().trim() === 'factura en mora') {
           console.log(fechaFin);
           console.log(fechaFin.getTime());
@@ -612,28 +615,8 @@ export class StatisticsService {
   });
   
 
-    //   ordenesCorporativas.forEach(orden => {
-    //     if (orden.state.name.toLowerCase().trim() === 'factura en mora') {
-    //         // Verificar si orden.invoiceDueDate es una instancia de Date
-    //         if (orden.invoiceDueDate instanceof Date) {
-    //             const diasVencidos = Math.ceil((fechaFin.getTime() - orden.invoiceDueDate.getTime()) / (1000 * 3600 * 24));
-    //             console.log(diasVencidos);
-    //             let categoria = '60+';
-    //             for (let dias of diasVencimiento) {
-    //                 if (diasVencidos <= dias) {
-    //                     categoria = dias.toString();
-    //                     break;
-    //                 }
-    //             }
-    //             TotalordenesVencidasPorDiasAcomuladas[categoria]++;
-    //         } else {
-    //             console.log("La fecha de vencimiento de la factura no es una instancia válida de Date.");
-    //         }
-    //     }
-    // });
 
-
-    console.log(TotalordenesVencidasPorDiasAcomuladas)
+    console.log(montoTotalNoFacturado)
 
 
 
@@ -684,7 +667,8 @@ export class StatisticsService {
       totalOrdenesVencidasPorDias,
       totalOrdenesVencidas,
       totalOrdenes,
-      TotalordenesVencidasPorDiasAcomuladas
+      TotalordenesVencidasPorDiasAcomuladas,
+      montoTotalNoFacturado
     };
   }
 
