@@ -69,6 +69,23 @@ export class RefProductsController {
     return this.refProductsService.findOne(id, margin, clientId);
   }
 
+
+
+
+
+  /////// Nuevo Metodo
+  @Get('/one/:id')
+  findOneProduct(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('margin') margin: number,
+    @Query('clientId') clientId: string,
+    @Query('cantidadEnviada') cantidadEnviada: number,
+
+  ) {
+    return this.refProductsService.findOneOne(id, margin, clientId, cantidadEnviada);
+  }
+
+
   @Patch(':id')
   @UseGuards(AuthGuard())
   update(
