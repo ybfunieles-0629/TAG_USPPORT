@@ -745,77 +745,67 @@ export class QuoteDetailsService {
     let productVolume: number = 0;
     let totalVolume: number = 0;
 
-    //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL MARCADO
-    const markingTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
-      .createQueryBuilder('localTransportPrice')
-      .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
-      .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
-      .getMany();
 
-    //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL CLIENTE
-    const clientTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
-      .createQueryBuilder('localTransportPrice')
-      .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
-      .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: cartQuote.destinationCity.toLowerCase().trim() })
-      .getMany();
 
-    //TODO: UTILIZAR LA API DE FEDEX
-    //TODO: UTILIZAR LA API DE FEDEX
-    //TODO: UTILIZAR LA API DE FEDEX
-    //TODO: UTILIZAR LA API DE FEDEX
-    //TODO: UTILIZAR LA API DE FEDEX
-    //TODO: UTILIZAR LA API DE FEDEX
-    //TODO: UTILIZAR LA API DE FEDEX
-    //TODO: UTILIZAR LA API DE FEDEX
-    //TODO: UTILIZAR LA API DE FEDEX
-    //TODO: UTILIZAR LA API DE FEDEX
-    //TODO: UTILIZAR LA API DE FEDEX
 
-    //* OBTENER LA CONFIGURACIÓN DEL SISTEMA
-    const systemConfigDb: SystemConfig[] = await this.systemConfigRepository.find();
-    const systemConfig: SystemConfig = systemConfigDb[0];
 
-    //* -------------------------- INICIO DE CALCULOS -------------------------- *//
-    //* CALCULAR EL VOLUMEN DEL PRODUCTO
-    productVolume = (product?.height * product?.weight * product?.large) || 0;
-
-    //* DATOS DEL CLIENTE
-    const cartQuoteClient: Client = cartQuote?.client;
-    const clientUser: User = cartQuote?.client?.user;
-    let clientType: string = '';
-
-    //* CANTIDAD QUEMADA EN QUOTE DETAIL
-    const burnQuantity: number = newQuoteDetail?.unitPrice || 0;
-    totalCost += burnQuantity;
-    newQuoteDetail.transportTotalPrice = 0;
 
     //* SE SOLICITA MUESTRA
-    if (hasSample) {
-      //* CALCULAR EL PRECIO DE LA MUESTRA
-      // let samplePrice: number = await this.calculateSamplePrice(newQuoteDetail, systemConfig, quantity) || 0;
-      // newQuoteDetail.sampleValue = samplePrice;
-      // totalPrice += samplePrice;
+    let ValorMuestraIndividual = 0;
+    let TotalMuestra = 0;
+    let TransporteMuestra = 0;
+    let TotalGastoMuestra = 0;
+    let CuatroPorMilMuestra = 0;
+    let CostoTotalMuestra = 0
 
-      // totalCost += samplePrice;
+    if (hasSample) {
+
+      //* CALCULAR EL PRECIO DE LA MUESTRA
 
       newQuoteDetail.hasSample = true;
-
       const productHasFreeSample: boolean = product?.freeSample == 1 ? true : false;
-
       newQuoteDetail.sampleValue = 0;
 
       if (!productHasFreeSample) {
         const samplePrice: number = product?.samplePrice || 0;
-
+        ValorMuestraIndividual = samplePrice;
         if (samplePrice <= 0) {
           const referencePrice: number = product?.referencePrice || 0;
           totalPrice += referencePrice;
           newQuoteDetail.sampleValue = referencePrice;
+          ValorMuestraIndividual = referencePrice;
+        };
+        console.log(ValorMuestraIndividual)
+
+
+
+        // IVA A LA MUESTRA
+
+        let IvaMuestra = 0;
+        if (product.iva > 0 || product.iva != undefined) {
+          IvaMuestra = (product.iva / 100) * ValorMuestraIndividual;
+          totalPrice += IvaMuestra;
+          // console.log(totalPrice)
         };
 
-        totalPrice += samplePrice;
-        newQuoteDetail.sampleValue = samplePrice;
+        if (product.iva == 0) {
+          IvaMuestra = (19 / 100) * ValorMuestraIndividual;
+          totalPrice += IvaMuestra;
+          // console.log(totalPrice)
+        }
+        console.log(IvaMuestra)
 
+
+        // TOTAL MUESTRA
+        TotalMuestra = ValorMuestraIndividual + IvaMuestra;
+        console.log(TotalMuestra)
+
+
+        // totalPrice += samplePrice;
+        newQuoteDetail.sampleValue = ValorMuestraIndividual;
+
+
+        // Transporte de la Muestra
         if (newQuoteDetail?.cartQuote?.destinationCity?.toLowerCase() == 'bogota') {
           const clientClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
             ? markingTransportPrices.sort((a, b) => {
@@ -832,14 +822,81 @@ export class QuoteDetailsService {
           newQuoteDetail.transportTotalPrice = 0;
           newQuoteDetail.transportTotalPrice += clientTransportPrice || 0;
           newQuoteDetail.sampleValue += clientTransportPrice || 0;
+
+
+          TransporteMuestra = clientTransportPrice;
+
         } else {
           //TODO: FEDEX
           newQuoteDetail.transportTotalPrice += 20000;
+          TransporteMuestra = clientTransportPrice;
         }
+
+        console.log(TransporteMuestra)
+
+        // TOTAL GASTOS MUESTRA
+
+        TotalGastoMuestra = TotalMuestra + TransporteMuestra;
+
+
+        // CUATRO POR MIL MUESTRA 
+        CuatroPorMilMuestra = TotalGastoMuestra * 0.004 || 0;
+        newQuoteDetail.transportServices4x1000 = CuatroPorMilMuestra;
+        console.log(CuatroPorMilMuestra)
+
+
+        // COSTO TOTAL MUESTRA
+        CostoTotalMuestra = TotalGastoMuestra + CuatroPorMilMuestra;
+        console.log(CostoTotalMuestra)
       };
     } else {
       newQuoteDetail.hasSample = false;
     };
+
+
+
+
+    // COSTO TRANSPORTE DE ENTREGA
+
+
+    //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL MARCADO
+    const markingTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
+      .createQueryBuilder('localTransportPrice')
+      .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
+      .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
+      .getMany();
+
+    //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL CLIENTE
+    const clientTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
+      .createQueryBuilder('localTransportPrice')
+      .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
+      .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: cartQuote.destinationCity.toLowerCase().trim() })
+      .getMany();
+
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+
+    //* OBTENER LA CONFIGURACIÓN DEL SISTEMA
+    const systemConfigDb: SystemConfig[] = await this.systemConfigRepository.find();
+    const systemConfig: SystemConfig = systemConfigDb[0];
+
+
+
+    //* -------------------------- INICIO DE CALCULOS -------------------------- *//
+    //* CALCULAR EL VOLUMEN DEL PRODUCTO
+    productVolume = (product?.height * product?.weight * product?.large) || 0;
+
+    //* DATOS DEL CLIENTE
+    const cartQuoteClient: Client = cartQuote?.client;
+    const clientUser: User = cartQuote?.client?.user;
+    let clientType: string = '';
+
+    //* CANTIDAD QUEMADA EN QUOTE DETAIL
+    const burnQuantity: number = newQuoteDetail?.unitPrice || 0;
+    totalCost += burnQuantity;
+    newQuoteDetail.transportTotalPrice = 0;
+
+
 
     //* VERIFICAR SI EL PRODUCTO TIENE EMPAQUE
     const packing: Packing = product.packings.length > 0 ? product.packings[0] : product?.refProduct?.packings[0] || undefined;
@@ -958,6 +1015,16 @@ export class QuoteDetailsService {
 
 
 
+
+
+
+
+
+
+
+
+
+
     // //* ADICIONAR EL % DE MARGEN DE GANANCIA DE CLIENTE
     // if (clientType == 'cliente corporativo secundario') {
     //   //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
@@ -1020,7 +1087,7 @@ export class QuoteDetailsService {
 
 
 
-    
+
 
     //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
     const profitMargin: number = 0;
