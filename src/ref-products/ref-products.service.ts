@@ -2195,6 +2195,7 @@ export class RefProductsService {
         'supplier.user',
         'variantReferences',
       ],
+     
     });
 
     if (!refProduct)
