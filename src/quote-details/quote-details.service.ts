@@ -853,7 +853,7 @@ export class QuoteDetailsService {
         } else {
           //TODO: FEDEX
           newQuoteDetail.transportTotalPrice += 20000;
-          TransporteMuestra = clientTransportPrice;
+          TransporteMuestra = 2000;
         }
 
         console.log(TransporteMuestra)
