@@ -950,55 +950,77 @@ export class QuoteDetailsService {
     totalCost += value4x1000;
     newQuoteDetail.transportServices4x1000 = value4x1000;
 
-    //* ADICIONAR EL % DE MARGEN DE GANANCIA DE CLIENTE
-    if (clientType == 'cliente corporativo secundario') {
-      //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
-      const mainClient: Client = await this.clientRepository
-        .createQueryBuilder('client')
-        .leftJoinAndSelect('client.user', 'clientUser')
-        .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
-        .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
-        .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
-        .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
-        .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
-        .getOne();
 
-      totalPrice += mainClient?.margin;
-    };
 
-    totalPrice += cartQuote?.client?.margin || 0;
 
-    //* SE DEBE ADICIONAR UN FEE ADICIONAL AL USUARIO DENTRO DEL CLIENTE
-    if (clientUser) {
-      if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 1)
-        clientType = 'cliente corporativo secundario';
-      else if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 0)
-        clientType = 'cliente corporativo principal';
-    };
 
-    if (clientType.toLowerCase() == 'cliente corporativo secundario' || clientType.toLowerCase() == 'cliente corporativo principal') {
-      const brandId = cartQuote.brandId;
 
-      if (brandId != '') {
-        const cartQuoteBrand: Brand = await this.brandRepository.findOne({
-          where: {
-            id: brandId,
-          },
-        });
 
-        if (!cartQuoteBrand)
-          throw new NotFoundException(`Brand with id ${brandId} not found`);
 
-        if (cartQuote.client.user.brands.some(brand => brand.id == cartQuoteBrand.id)) {
-          const fee: number = (+cartQuoteBrand.fee / 100) * totalPrice || 0;
 
-          totalPrice += fee;
-          totalCost += fee;
-          newQuoteDetail.aditionalClientFee = fee;
-          cartQuote.fee = fee;
-        };
-      };
-    };
+    // //* ADICIONAR EL % DE MARGEN DE GANANCIA DE CLIENTE
+    // if (clientType == 'cliente corporativo secundario') {
+    //   //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
+    //   const mainClient: Client = await this.clientRepository
+    //     .createQueryBuilder('client')
+    //     .leftJoinAndSelect('client.user', 'clientUser')
+    //     .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
+    //     .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
+    //     .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
+    //     .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
+    //     .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
+    //     .getOne();
+
+    //   totalPrice += mainClient?.margin;
+    // };
+
+    // totalPrice += cartQuote?.client?.margin || 0;
+
+    // //* SE DEBE ADICIONAR UN FEE ADICIONAL AL USUARIO DENTRO DEL CLIENTE
+    // if (clientUser) {
+    //   if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 1)
+    //     clientType = 'cliente corporativo secundario';
+    //   else if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 0)
+    //     clientType = 'cliente corporativo principal';
+    // };
+
+    // if (clientType.toLowerCase() == 'cliente corporativo secundario' || clientType.toLowerCase() == 'cliente corporativo principal') {
+    //   const brandId = cartQuote.brandId;
+
+    //   if (brandId != '') {
+    //     const cartQuoteBrand: Brand = await this.brandRepository.findOne({
+    //       where: {
+    //         id: brandId,
+    //       },
+    //     });
+
+    //     if (!cartQuoteBrand)
+    //       throw new NotFoundException(`Brand with id ${brandId} not found`);
+
+    //     if (cartQuote.client.user.brands.some(brand => brand.id == cartQuoteBrand.id)) {
+    //       const fee: number = (+cartQuoteBrand.fee / 100) * totalPrice || 0;
+
+    //       totalPrice += fee;
+    //       totalCost += fee;
+    //       newQuoteDetail.aditionalClientFee = fee;
+    //       cartQuote.fee = fee;
+    //     };
+    //   };
+    // };
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 
     //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
     const profitMargin: number = 0;
