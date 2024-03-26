@@ -747,6 +747,30 @@ export class QuoteDetailsService {
 
 
 
+  
+
+    // DATOS A FURUTO PARA CALCULAR TRANSPORTES
+    //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL MARCADO
+    const markingTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
+      .createQueryBuilder('localTransportPrice')
+      .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
+      .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
+      .getMany();
+
+    //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL CLIENTE
+    const clientTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
+      .createQueryBuilder('localTransportPrice')
+      .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
+      .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: cartQuote.destinationCity.toLowerCase().trim() })
+      .getMany();
+
+    //TODO: UTILIZAR LA API DE FEDEX
+    //TODO: UTILIZAR LA API DE FEDEX
+
+    //* OBTENER LA CONFIGURACIÓN DEL SISTEMA
+    const systemConfigDb: SystemConfig[] = await this.systemConfigRepository.find();
+    const systemConfig: SystemConfig = systemConfigDb[0];
+
 
 
 
@@ -855,30 +879,6 @@ export class QuoteDetailsService {
 
 
 
-
-    // COSTO TRANSPORTE DE ENTREGA
-
-
-    //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL MARCADO
-    const markingTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
-      .createQueryBuilder('localTransportPrice')
-      .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
-      .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
-      .getMany();
-
-    //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL CLIENTE
-    const clientTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
-      .createQueryBuilder('localTransportPrice')
-      .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
-      .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: cartQuote.destinationCity.toLowerCase().trim() })
-      .getMany();
-
-    //TODO: UTILIZAR LA API DE FEDEX
-    //TODO: UTILIZAR LA API DE FEDEX
-
-    //* OBTENER LA CONFIGURACIÓN DEL SISTEMA
-    const systemConfigDb: SystemConfig[] = await this.systemConfigRepository.find();
-    const systemConfig: SystemConfig = systemConfigDb[0];
 
 
 
