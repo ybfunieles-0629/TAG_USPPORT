@@ -847,7 +847,6 @@ export class QuoteDetailsService {
           newQuoteDetail.transportTotalPrice += clientTransportPrice || 0;
           newQuoteDetail.sampleValue += clientTransportPrice || 0;
 
-
           TransporteMuestra = clientTransportPrice;
 
         } else {
@@ -858,8 +857,8 @@ export class QuoteDetailsService {
 
         console.log(TransporteMuestra)
 
-        // TOTAL GASTOS MUESTRA
 
+        // TOTAL GASTOS MUESTRA
         TotalGastoMuestra = TotalMuestra + TransporteMuestra;
 
 
