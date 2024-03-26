@@ -757,7 +757,6 @@ export class QuoteDetailsService {
     let TotalGastoMuestra = 0;
     let CuatroPorMilMuestra = 0;
     let CostoTotalMuestra = 0
-    let clientClosestTransport: LocalTransportPrice | undefined;
 
     if (hasSample) {
 
@@ -808,7 +807,7 @@ export class QuoteDetailsService {
 
         // Transporte de la Muestra
         if (newQuoteDetail?.cartQuote?.destinationCity?.toLowerCase() == 'bogota') {
-          clientClosestTransport = markingTransportPrices.length > 0
+          const clientClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
             ? markingTransportPrices.sort((a, b) => {
               const diffA = Math.abs(a.volume - totalVolume);
               const diffB = Math.abs(b.volume - totalVolume);
