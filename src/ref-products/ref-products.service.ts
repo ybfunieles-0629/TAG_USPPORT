@@ -436,8 +436,8 @@ export class RefProductsService {
           // //* VERIFICAR SI TIENE FEE DE IMPREVISTOS ************************************* CostoBrutoProducto
           if (product.unforeseenFee > 0) {
             const unforeseenFee: number = (product.unforeseenFee / 100) * CostoBrutoProducto;
-            Imprevistos = unforeseenFee ;
-            console.log(Imprevistos) 
+            Imprevistos = unforeseenFee;
+            console.log(Imprevistos)
           } else {
             const unforeseenFee: number = systemConfig.unforeseenFee;
             const unforeseenFeePercentage: number = (unforeseenFee / 100) * CostoBrutoProducto;
@@ -545,7 +545,7 @@ export class RefProductsService {
 
 
           // TOTAL DESEMBOLSO === VARIABLE GLOBAL
-        
+
           const TotalDesembolso = TotalDesembolsoCompraProducto + GastoFinancieroPreentrega;
           console.log(TotalDesembolso)
 
@@ -587,7 +587,7 @@ export class RefProductsService {
 
           // PRECIO DE VENTA SIN IVA (TABLA QUEMADA) === VARIABLE GLOBAL 
           const sumaProcentajes = (1 + (+mainCategory.categoryMargin + profitMargin) / 100)
-          let PrecioVentaSinIva = (SubTotalAntesDeIva * sumaProcentajes) ;
+          let PrecioVentaSinIva = (SubTotalAntesDeIva * sumaProcentajes);
 
           //* REDONDEANDO DECIMALES
           PrecioVentaSinIva = Math.round(PrecioVentaSinIva);
@@ -596,14 +596,14 @@ export class RefProductsService {
 
 
 
-          let parsedMargin: number =0;
-          let MargenFinanciacion: number =0;
+          let parsedMargin: number = 0;
+          let MargenFinanciacion: number = 0;
 
           // //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
           if (clientSended) {
             parsedMargin = +margin;
             console.log(parsedMargin)
-            
+
 
             //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
             const profitMargin: number = 0;
@@ -675,8 +675,8 @@ export class RefProductsService {
             };
 
 
-             //* SI EL CLIENTE ES PRINCIPAL
-             if (clientType != 'cliente corporativo principal' && clientType != 'cliente corporativo secundario') {
+            //* SI EL CLIENTE ES PRINCIPAL
+            if (clientType != 'cliente corporativo principal' && clientType != 'cliente corporativo secundario') {
               MargenFinanciacion = 0;
             };
 
@@ -689,9 +689,9 @@ export class RefProductsService {
 
 
           // TOTAL CUADRO DERECHO
-          const sumaProcentajesDos = (1+(parsedMargin+MargenFinanciacion) / 100)
-          let TotalCuadroDerecho = (PrecioVentaSinIva * sumaProcentajesDos) ;
-          
+          const sumaProcentajesDos = (1 + (parsedMargin + MargenFinanciacion) / 100)
+          let TotalCuadroDerecho = (PrecioVentaSinIva * sumaProcentajesDos);
+
           TotalCuadroDerecho = Math.round(TotalCuadroDerecho);
 
           console.log(TotalCuadroDerecho)
@@ -705,14 +705,14 @@ export class RefProductsService {
 
 
           // SUBTOTAL PRECIO DE VENTA (A MOSTRAR) === VARIABLE GLOBAL
-          const sumaFee = (1+(parsedMargin+MargenFinanciacion) / 100) + 0 ;
+          const sumaFee = (1 + (parsedMargin + MargenFinanciacion) / 100) + 0;
           let SubtotalPrecioVenta = PrecioVentaSinIva * sumaFee;
           SubtotalPrecioVenta = Math.round(SubtotalPrecioVenta);
 
           console.log(SubtotalPrecioVenta)
 
 
-          
+
           // IVA 
           const ivaProd: number = product.iva;
           let IvaTercera: number;
@@ -734,10 +734,10 @@ export class RefProductsService {
 
 
           // VALORES UNITARIOS
-          const cantidadUnitaria =  staticQuantities[0];
-          const SubtotalPrecioVentaUnitario = SubtotalPrecioVenta/cantidadUnitaria;
-          const IvaTerceraUnitaria = IvaTercera/cantidadUnitaria;
-          const PrecioVentaTotalUnitaria = PrecioVentaTotal/cantidadUnitaria;
+          const cantidadUnitaria = staticQuantities[0];
+          const SubtotalPrecioVentaUnitario = SubtotalPrecioVenta / cantidadUnitaria;
+          const IvaTerceraUnitaria = IvaTercera / cantidadUnitaria;
+          const PrecioVentaTotalUnitaria = PrecioVentaTotal / cantidadUnitaria;
 
           console.log(SubtotalPrecioVentaUnitario)
           console.log(IvaTerceraUnitaria)
@@ -1188,20 +1188,19 @@ export class RefProductsService {
           .andWhere('refProduct.width > :width', { width: 0 })
           .andWhere('refProduct.large > :large', { large: 0 })
           .leftJoinAndSelect('refProduct.images', 'images')
-          .where('refProduct.tagCategory = :categoryTagId', { categoryTagId })
-          .orWhere('refProduct.mainCategory = :categoryTagId', { categoryTagId })
+          .andWhere('refProduct.tagCategory = :categoryTagId', { categoryTagId: categoryTagId })
+          .orWhere('refProduct.mainCategory = :categoryTagId', { categoryTagId: categoryTagId })
           .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
           .leftJoinAndSelect('refProduct.colors', 'refProductColors')
-          .orWhere('categorySuppliers.id =:categoryTagId', { categoryTagId })
           .leftJoinAndSelect('refProduct.categoryTags', 'categoryTags')
-          .orWhere('categoryTags.id =:categoryTagId', { categoryTagId })
+          .orWhere('(categoryTags.id = :categoryTagId = :categoryTagId)', { categoryTagId: categoryTagId })
           .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
           .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
           .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
           .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
           .leftJoinAndSelect('refProduct.packings', 'packings')
           .leftJoinAndSelect('refProduct.products', 'products')
-          .where('products.weight > :weight', { weight: 0 })
+          .andWhere('products.weight > :weight', { weight: 0 })
           .andWhere('products.height > :height', { height: 0 })
           .andWhere('products.width > :width', { width: 0 })
           .andWhere('products.large > :large', { large: 0 })

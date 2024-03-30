@@ -72,20 +72,32 @@ export class DisccountService {
     };
   }
 
-  async findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto, user: User) {
     const count: number = await this.disccountRepository.count();
-    
+
     const { limit = count, offset = 0 } = paginationDto;
 
-    const results: Disccount[] = await this.disccountRepository.find({
-      take: limit,
-      skip: offset,
-      relations: [
-        'disccounts',
-        'supplier',
-        'supplier.user',
-      ],
-    });
+    let results: Disccount[] = [];
+
+    if (user.roles.some((role) => role.name.toLowerCase().trim() == 'proveedor')) {
+      results = await this.disccountRepository
+        .createQueryBuilder('disccount')
+        .leftJoinAndSelect('disccounts.supplier', 'supplier')
+        .where('supplier.id =:supplierId', { supplierId: user.supplier.id })
+        .leftJoinAndSelect('supplier.user', 'user')
+        .leftJoinAndSelect('disccount.disccounts', 'disccounts')
+        .getMany();
+    } else {
+      results = await this.disccountRepository.find({
+        take: limit,
+        skip: offset,
+        relations: [
+          'disccounts',
+          'supplier',
+          'supplier.user',
+        ],
+      });
+    }
 
     return {
       count,

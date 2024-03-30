@@ -521,11 +521,12 @@ export class StatisticsService {
       })
       .getMany();
 
-    // Buscar todas las órdenes en producción para clientes no corporativos
+    // Buscar todas las órdenes no corporativas dentro del rango de fechas seleccionado
     const ordenesNoCorporativas = await this.purchaseOrderRepository
       .createQueryBuilder('order')
-      .where('order.clientUser NOT IN (:...ids)', { ids: idsClientesCorporativos })
-      .andWhere('order.state = :state', { state: 'ORDEN DE COMPRA EN PRODUCCIÓN' })
+      .where('order.clientUser IS NULL')
+      .leftJoinAndSelect('order.state', 'state')
+      .andWhere('state.name = :state', { state: 'ORDEN DE COMPRA EN PRODUCCIÓN' })
       .andWhere('order.creationDate BETWEEN :startDate AND :endDate', {
         startDate: fechaInicio,
         endDate: fechaFin,
@@ -555,9 +556,9 @@ export class StatisticsService {
       }
     });
 
-    // Recorrer las órdenes no corporativas en producción
+    // Recorrer las órdenes no corporativas dentro del rango de fechas
     ordenesNoCorporativas.forEach(orden => {
-      // Para órdenes no facturadas, sumar al monto total no facturado
+      // Para órdenes en producción y no facturadas, sumar al monto total no facturado
       if (!orden.invoiceDueDate) {
         montoTotalNoFacturado += orden.value;
       }

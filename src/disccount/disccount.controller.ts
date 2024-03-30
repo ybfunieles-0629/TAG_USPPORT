@@ -25,8 +25,9 @@ export class DisccountController {
   @UseGuards(AuthGuard())
   findAll(
     @Query() paginationDto: PaginationDto,
+    @GetUser() user: User,
   ) {
-    return this.disccountService.findAll(paginationDto);
+    return this.disccountService.findAll(paginationDto, user);
   }
 
   @Get(':id')
