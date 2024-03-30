@@ -297,6 +297,8 @@ export class RefProductsService {
         for (let i = 0; i < staticQuantities.length; i++) {
           let prices = {
             quantity: staticQuantities[i],
+            valueSinIva: 0,
+            valueConIva: 0,
             value: changingValue,
             totalValue: 0,
             transportPrice: 0,
@@ -586,13 +588,20 @@ export class RefProductsService {
 
 
           // PRECIO DE VENTA SIN IVA (TABLA QUEMADA) === VARIABLE GLOBAL 
-          const sumaProcentajes = (1 + (+mainCategory.categoryMargin + profitMargin) / 100)
-          let PrecioVentaSinIva = (SubTotalAntesDeIva * sumaProcentajes);
+          let PrecioVentaSinIva = 0;
+          if (mainCategory) {
+            const sumaProcentajes = (1 + (+mainCategory.categoryMargin + profitMargin) / 100)
+            PrecioVentaSinIva = (SubTotalAntesDeIva * sumaProcentajes) ;
 
-          //* REDONDEANDO DECIMALES
-          PrecioVentaSinIva = Math.round(PrecioVentaSinIva);
-          console.log(PrecioVentaSinIva)
+            //* REDONDEANDO DECIMALES
+            PrecioVentaSinIva = Math.round(PrecioVentaSinIva);
+            console.log(PrecioVentaSinIva)
+          };
 
+
+
+          // https://e-bulky.net/api/ref-products/0d27f5fb-f4b1-40db-859c-46d607079bf5?margin=10
+          // https://e-bulky.net/api/ref-products/filter?limit=5&offset=0&margin=10
 
 
 
@@ -751,10 +760,8 @@ export class RefProductsService {
 
 
 
-          // prices.valueSinIva = SubtotalPrecioVenta;
-          // prices.valueConIva = PrecioVentaTotal;
-
-
+          prices.valueSinIva = SubtotalPrecioVenta;
+          prices.valueConIva = PrecioVentaTotal;
           prices.totalValue = SubtotalPrecioVenta;
           burnPriceTable.push(prices);
           console.log(value)
@@ -1720,18 +1727,21 @@ export class RefProductsService {
 
     if (filterRefProductsDto.keywords) {
       const searchKeywords: string = filterRefProductsDto.keywords.toLowerCase();
+      console.log(searchKeywords)
       const keywordsArray: string[] = searchKeywords.split(' ');
 
       if (refProductsToShow.length > 0) {
         refProductsToShow = refProductsToShow.filter((refProduct) => {
           const productKeywords: string = (refProduct.keywords || '').toLowerCase();
           const productName: string = (refProduct.name || '').toLowerCase();
+          const productCodeApiName: string = (refProduct.referenceCode || '').toLowerCase();
           const productDescription: string = (refProduct.description || '').toLowerCase();
           const productShortDescription: string = (refProduct.shortDescription || '').toLowerCase();
 
           return keywordsArray.some(keyword =>
             productKeywords.includes(keyword) ||
             productName.includes(keyword) ||
+            productCodeApiName.includes(keyword) ||
             productDescription.includes(keyword) ||
             productShortDescription.includes(keyword)
           );
@@ -2113,4 +2123,665 @@ export class RefProductsService {
 
     throw new InternalServerErrorException('Unexpected error, check server logs');
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  async findOneOne(id: string, margin: number, clientId: string, cantidadEnviada:number) {
+    const refProduct: RefProduct = await this.refProductRepository.findOne({
+      where: {
+        id,
+      },
+      relations: [
+        'images',
+        'colors',
+        'categorySuppliers',
+        'categoryTags',
+        'deliveryTimes',
+        'markingServiceProperty',
+        'markingServiceProperty.externalSubTechnique',
+        'markingServiceProperty.externalSubTechnique.marking',
+        'packings',
+        'products',
+        'products.images',
+        'products.disccounts',
+        'products.refProduct',
+        'products.refProduct.deliveryTimes',
+        'products.refProduct.supplier',
+        'products.refProduct.supplier.disccounts',
+        'products.colors',
+        'products.variantReferences',
+        'products.packings',
+        'products.supplierPrices',
+        'products.supplierPrices.product',
+        'products.supplierPrices.listPrices',
+        'products.markingServiceProperties',
+        'products.markingServiceProperties.images',
+        'products.markingServiceProperties.externalSubTechnique',
+        'products.markingServiceProperties.externalSubTechnique.marking',
+        'supplier',
+        'supplier.user',
+        'variantReferences',
+      ],
+     
+    });
+
+    if (!refProduct)
+      throw new NotFoundException(`Ref product with id ${id} not found`);
+
+    const refProducts: RefProduct[] = [];
+
+    refProducts.push(refProduct);
+
+    const finalResults = refProducts.length > 0 ? await this.calculationsOne(refProducts, margin, clientId, cantidadEnviada ) : [];
+
+    const finalFinalResults = await Promise.all(finalResults.map(async (refProduct) => {
+      const tagCategory: CategoryTag = await this.categoryTagRepository.findOne({
+        where: {
+          id: refProduct.tagCategory,
+        },
+      });
+
+      return {
+        ...refProduct,
+        tagCategory
+      }
+    }));
+
+    return {
+      finalResults: finalFinalResults
+    };
+  }
+
+
+
+
+
+
+
+
+
+  // Metodo para buscar una cantidad diferente
+  async calculationsOne(results: RefProduct[], margin: number, clientId: string, cantidadEnviada = 0) {
+
+    let staticQuantities: number[]  = [cantidadEnviada];
+      
+
+    const clientSended: Client = await this.clientRepository.findOne({
+      where: {
+        id: clientId,
+      },
+      relations: [
+        'user',
+        'user.company',
+      ],
+    });
+
+    const clientUser: User = clientSended?.user;
+
+    let clientType: string = '';
+
+    // SE DEBE VERIFICAR SI EL USUARIO ES COORPORATIVO O QUÉ
+    if (clientUser) {
+      if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 1)
+        clientType = 'cliente corporativo secundario';
+      else if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 0)
+        clientType = 'cliente corporativo principal';
+    };
+
+    let mainClient: Client;
+
+    if (clientType == 'cliente corporativo secundario') {
+      mainClient = await this.clientRepository
+        .createQueryBuilder('client')
+        .leftJoinAndSelect('client.user', 'clientUser')
+        .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
+        .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
+        .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
+        .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
+        .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
+        .getOne();
+    }
+
+    const systemConfigs: SystemConfig[] = await this.systemConfigRepository.find();
+    const systemConfig: SystemConfig = systemConfigs[0];
+
+    const localTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
+      .createQueryBuilder('localTransportPrice')
+      .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
+      .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
+      .getMany();
+
+    const finalResults = await Promise.all(results.map(async (result) => {
+      const modifiedProducts = await Promise.all(result.products.map(async (product) => {
+        const burnPriceTable = [];
+
+        const initialValue: number = product.referencePrice;
+
+        let changingValue: number = initialValue;
+
+        for (let i = 0; i < staticQuantities.length; i++) {
+          let prices = {
+            quantity: staticQuantities[i],
+            value: changingValue,
+            valueSinIva: 0,
+            valueConIva: 0,
+            totalValue: 0,
+            transportPrice: 0,
+          };
+
+          console.log("inicio");
+
+          const cantidadProductoinicial = staticQuantities[i];
+          console.log(cantidadProductoinicial)
+
+          let value: number = changingValue;
+          console.log(value)
+
+          //* SI EL PRODUCTO NO TIENE UN PRECIO NETO
+          if (product.hasNetPrice == 0) {
+            //* SI EL PRODUCTO TIENE UN PRECIO PROVEEDOR ASOCIADO
+            if (product.supplierPrices.length > 0) {
+              const supplierPrice: SupplierPrice = product.supplierPrices[0];
+
+              //* RECORRO LA LISTA DE PRECIOS DEL PRECIO DEL PROVEEDOR
+              supplierPrice.listPrices.forEach((listPrice: ListPrice) => {
+                if (listPrice.minimun >= i && listPrice.nextMinValue == 1 && listPrice.maximum <= i || listPrice.minimun >= i && listPrice.nextMinValue == 0) {
+                  //* SI APLICA PARA TABLA DE PRECIOS DE PROVEEDOR
+                  value += listPrice.price;
+                  console.log(value)
+
+                  return;
+                };
+              });
+            } else {
+
+              //* SI LO ENCUENTRA LO AÑADE, SINO LE PONE UN 0 Y NO AÑADE NADA
+              const entryDiscount: number = product.entryDiscount || 0;
+              const entryDiscountValue: number = (entryDiscount / 100) * value || 0;
+              value -= entryDiscountValue;
+              console.log(value)
+
+              //* BUSCO DESCUENTO PROMO
+              const promoDiscount: number = product.promoDisccount || 0;
+              const promoDiscountPercentage: number = (promoDiscount / 100) * value || 0;
+              console.log(promoDiscount)
+
+              value -= promoDiscountPercentage;
+              console.log(value)
+
+
+
+              // //* APLICAR DESCUENTO POR MONTO
+              if (product?.refProduct?.supplier?.disccounts != undefined) {
+                if (product?.refProduct?.supplier?.disccounts?.length > 0) {
+                  product?.refProduct?.supplier?.disccounts?.forEach((discountItem: Disccount) => {
+
+                    //* SI EL DESCUENTO ES DE TIPO MONTO
+                    if (discountItem.disccountType.toLowerCase() == 'descuento de monto') {
+                      //* SI EL DESCUENTO TIENE DESCUENTO DE ENTRADA
+                      if (discountItem.entryDisccount != undefined || discountItem.entryDisccount != null || discountItem.entryDisccount > 0) {
+                        const discount: number = (discountItem.entryDisccount / 100) * value;
+                        value -= discount;
+                        console.log(value)
+
+                        return;
+                      };
+
+                      discountItem?.disccounts?.forEach((listDiscount: Disccounts) => {
+                        if (listDiscount.minQuantity >= i && listDiscount.nextMinValue == 1 && listDiscount.maxQuantity <= i || listDiscount.minQuantity >= i && listDiscount.nextMinValue == 0) {
+                          const discount: number = (listDiscount.disccountValue / 100) * value;
+                          value -= discount;
+                          console.log(value)
+
+                          return;
+                        };
+                      });
+                    };
+                  });
+                } else {
+                  if (product?.refProduct?.supplier?.disccounts != undefined) {
+                    product?.refProduct?.supplier?.disccounts?.forEach((discountItem: Disccount) => {
+                      //* SI EL DESCUENTO ES DE TIPO MONTO
+                      if (discountItem.disccountType.toLowerCase() == 'descuento por cantidad') {
+                        //* SI EL DESCUENTO TIENE DESCUENTO DE ENTRADA
+                        if (discountItem.entryDisccount != undefined || discountItem.entryDisccount != null || discountItem.entryDisccount > 0) {
+                          const discount: number = (discountItem.entryDisccount / 100) * value;
+                          value -= discount;
+                          console.log(value)
+
+                          return;
+                        };
+
+                        discountItem?.disccounts?.forEach((listDiscount: Disccounts) => {
+                          if (listDiscount.minQuantity >= i && listDiscount.nextMinValue == 1 && listDiscount.maxQuantity <= i || listDiscount.minQuantity >= i && listDiscount.nextMinValue == 0) {
+                            const discount: number = (listDiscount.disccountValue / 100) * value;
+                            value -= discount;
+                            console.log(value)
+
+                            return;
+                          };
+                        });
+                      };
+                    });
+                  };
+                };
+              };
+            };
+          }
+
+
+          //******************************************************************************************************** */
+          //******************************************************************************************************** */
+
+          // COSTO BRUTO DE PRODUCTO === VARIABLE GLOBAL
+          const CostoBrutoProducto = value;
+
+
+
+          let IvaPrimera = 0;
+          // //* APLICAR IVA   **************************************************************
+          if (product.iva > 0 || product.iva != undefined) {
+            IvaPrimera = (product.iva / 100) * value;
+            value += IvaPrimera;
+            console.log(value)
+          };
+
+          if (product.iva == 0) {
+            IvaPrimera = (19 / 100) * value;
+            value += IvaPrimera;
+            console.log(value)
+          }
+
+          //TOTAL COSTO UNITARIO DEL PRODUCTO === VARIABLE GLOBAL
+          let CostoTotalUnitario = value;
+          CostoTotalUnitario = Math.round(CostoTotalUnitario);
+
+          console.log(CostoTotalUnitario);
+
+
+          let Imprevistos = 0;
+          // //* VERIFICAR SI TIENE FEE DE IMPREVISTOS ************************************* CostoBrutoProducto
+          if (product.unforeseenFee > 0) {
+            const unforeseenFee: number = (product.unforeseenFee / 100) * CostoBrutoProducto;
+            Imprevistos = unforeseenFee ;
+            console.log(Imprevistos) 
+          } else {
+            const unforeseenFee: number = systemConfig.unforeseenFee;
+            const unforeseenFeePercentage: number = (unforeseenFee / 100) * CostoBrutoProducto;
+            Imprevistos = unforeseenFeePercentage;
+            console.log(Imprevistos)
+          }
+
+
+
+          // SUBTOTAL === VARIABLE GLOBAL
+          let Subtotal = cantidadProductoinicial * (CostoBrutoProducto + Imprevistos);
+          Subtotal = Math.round(Subtotal);
+          console.log(Subtotal)
+
+
+          let IvaSegunda = 0;
+          // //* APLICAR IVA   **************************************************************
+          if (product.iva > 0 || product.iva != undefined) {
+            IvaSegunda = (product.iva / 100) * Subtotal;
+            console.log(value)
+          };
+          if (product.iva == 0) {
+            IvaSegunda = (19 / 100) * Subtotal;
+            console.log(IvaSegunda)
+          }
+
+
+
+          // TRASPORTE CALCULO DE CAJAS ***************************************************
+          // CALCULAR LA CANTIDAD DE CAJAS PARA LAS UNIDADES COTIZADAS
+          const packing: Packing = product.packings[0] || undefined;
+          const packingUnities: number = product.packings ? product?.packings[0]?.unities : product?.refProduct?.packings[0]?.unities || 0;
+
+          let totalPackingVolume: number = 0;
+          let packingWeight: number = 0;
+
+          if (packingUnities > 0 && packingUnities != undefined) {
+            let boxesQuantity: number = (i / packingUnities);
+
+            boxesQuantity = Math.round(boxesQuantity) + 1;
+
+            //   //* CALCULAR EL VOLUMEN DEL PAQUETE
+            const packingVolume: number = (packing?.height * packing?.width * packing?.large) || 0;
+            const totalVolume: number = (packingVolume * boxesQuantity) || 0;
+            totalPackingVolume = totalVolume || 0;
+
+            //   //* CALCULAR EL PESO DEL PAQUETE
+            packingWeight = (packing?.smallPackingWeight * boxesQuantity) || 0;
+          }
+
+
+          // CALCULAR EL COSTO DE TRANSPORTE Y ENTREGA DE LOS PRODUCTOS (ESTA INFORMACIÓN VIENE DEL API DE FEDEX)
+          const localTransportPrice: LocalTransportPrice | undefined = localTransportPrices.length > 0
+            ? localTransportPrices.sort((a, b) => {
+              const diffA = Math.abs(a.volume - totalPackingVolume);
+              const diffB = Math.abs(b.volume - totalPackingVolume);
+              return diffA - diffB;
+            })[0]
+            : undefined;
+
+          const { origin: transportOrigin, destination: transportDestination, price: transportPrice, volume: transportVolume } = localTransportPrice || { origin: '', destination: '', price: 0, volume: 0 };
+          console.log(transportPrice)
+
+          prices.transportPrice = transportPrice;
+
+
+
+          //TOTAL DESEMBOLSO COMPRA DE PRODUCTO === VARIABLE GLOBAL
+          let TotalDesembolsoCompraProducto = Subtotal + IvaSegunda + transportPrice
+          TotalDesembolsoCompraProducto = Math.round(TotalDesembolsoCompraProducto);
+          console.log(TotalDesembolsoCompraProducto)
+
+
+
+          // DIAS DE ENTREGA O PRODUCCIÓN 
+          const availableUnits: number = product?.availableUnit || 0;
+          let deliveryTimeToSave: number = 0;
+
+          if (i > availableUnits) {
+            product.refProduct.deliveryTimes.forEach((deliveryTime: DeliveryTime) => {
+              if (deliveryTime?.minimum >= i && deliveryTime?.minimumAdvanceValue == 1 && deliveryTime?.maximum <= i || deliveryTime?.minimum >= i && deliveryTime?.minimumAdvanceValue == 0) {
+                deliveryTimeToSave = deliveryTime?.timeInDays || 0;
+              }
+            });
+          } else if (availableUnits > 0 && i < availableUnits) {
+            deliveryTimeToSave = product?.refProduct?.productInventoryLeadTime || 0;
+          };
+
+
+          // % ADELANTO EN PRODUCCIÓN 
+          const advancePercentage: number = product?.refProduct?.supplier?.advancePercentage || 0;
+          const advancePercentageValue: number = (advancePercentage / 100) * value;
+          console.log(advancePercentage)
+
+
+          // FINANCIACIÓN 
+          const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage) || 0;
+          console.log(supplierFinancingPercentage)
+
+          console.log(deliveryTimeToSave)
+          //GASTOS FINANCIEROS PRE-ENTREGA === VARIABLE GLOBAL 
+          const GastoFinancieroPreentrega = (TotalDesembolsoCompraProducto * advancePercentage) * ((supplierFinancingPercentage / 30) * deliveryTimeToSave)
+          console.log(GastoFinancieroPreentrega)
+
+
+
+          // TOTAL DESEMBOLSO === VARIABLE GLOBAL
+        
+          const TotalDesembolso = TotalDesembolsoCompraProducto + GastoFinancieroPreentrega;
+          console.log(TotalDesembolso)
+
+
+
+          //* CALCULAR EL IMPUESTO 4 X 1000
+          const fourPercentage = (TotalDesembolso * 0.004);
+          let CuatroForMil = fourPercentage;
+          CuatroForMil = Math.round(CuatroForMil);
+
+          console.log(CuatroForMil)
+
+
+
+          //SUBTOTAL ANTES DE IVA (TABLA QUEMADA COSTO) === VARIABLE GLOBAL 
+          let SubTotalAntesDeIva = transportPrice + Subtotal + GastoFinancieroPreentrega + CuatroForMil;
+          SubTotalAntesDeIva = Math.round(SubTotalAntesDeIva);
+          console.log(SubTotalAntesDeIva)
+
+
+          // TOTAL COSTO DE PRODUCTO === VARIABLE GLOBAL
+          let TotalCostoDelProducto = SubTotalAntesDeIva + IvaSegunda;
+          TotalCostoDelProducto = Math.round(TotalCostoDelProducto);
+          console.log(TotalCostoDelProducto)
+
+
+
+          // MARGEN DE LA CATEGORIA
+          const mainCategory: CategoryTag = await this.categoryTagRepository.findOne({
+            where: {
+              id: product?.refProduct?.tagCategory,
+            },
+          });
+
+
+          //* MARGEN DE GANANCIA DEL PROVEEDOR
+          const profitMargin: number = product?.refProduct?.supplier?.profitMargin || 0;
+
+
+          // PRECIO DE VENTA SIN IVA (TABLA QUEMADA) === VARIABLE GLOBAL 
+          let PrecioVentaSinIva = 0;
+          if (mainCategory) {
+            const sumaProcentajes = (1 + (+mainCategory.categoryMargin + profitMargin) / 100)
+            PrecioVentaSinIva = (SubTotalAntesDeIva * sumaProcentajes) ;
+
+            //* REDONDEANDO DECIMALES
+            PrecioVentaSinIva = Math.round(PrecioVentaSinIva);
+            console.log(PrecioVentaSinIva)
+          };
+
+
+
+          // https://e-bulky.net/api/ref-products/0d27f5fb-f4b1-40db-859c-46d607079bf5?margin=10
+          // https://e-bulky.net/api/ref-products/filter?limit=5&offset=0&margin=10
+
+
+
+          let parsedMargin: number =0;
+          let MargenFinanciacion: number =0;
+
+          // //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
+          if (clientSended) {
+            parsedMargin = +margin;
+            console.log(parsedMargin)
+            
+
+            //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
+            const profitMargin: number = 0;
+            const paymentDays = [
+              {
+                day: 1,
+                percentage: 0.03,
+              },
+              {
+                day: 15,
+                percentage: 0.03,
+              },
+              {
+                day: 30,
+                percentage: 0.03,
+              },
+              {
+                day: 45,
+                percentage: 0.04,
+              },
+              {
+                day: 60,
+                percentage: 0.06,
+              },
+              {
+                day: 90,
+                percentage: 0.09,
+              },
+            ];
+
+
+
+            //* SI EL CLIENTE ES SECUNDARIO
+            if (clientType == 'cliente corporativo secundario') {
+              //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
+              const marginProfit: number = mainClient.margin || 0;
+              const paymentTerms: number = mainClient.paymentTerms || 0;
+
+              let percentageDiscount: number = 0;
+
+              paymentDays.forEach(paymentDay => {
+                if (paymentDay.day == paymentTerms) {
+                  percentageDiscount = paymentDay.percentage;
+                };
+              });
+
+              MargenFinanciacion = percentageDiscount;
+              MargenFinanciacion = Math.round(MargenFinanciacion);
+              console.log(MargenFinanciacion)
+            };
+
+            //* SI EL CLIENTE ES PRINCIPAL
+            if (clientType == 'cliente corporativo principal') {
+              const margin: number = clientSended.margin || 0;
+              const paymentTerms: number = clientSended.paymentTerms || 0;
+
+              let percentageDiscount: number = 0;
+
+              paymentDays.forEach(paymentDay => {
+                if (paymentDay.day == paymentTerms) {
+                  percentageDiscount = paymentDay.percentage;
+                };
+              });
+
+              MargenFinanciacion = percentageDiscount;
+              MargenFinanciacion = Math.round(MargenFinanciacion);
+              console.log(MargenFinanciacion)
+
+            };
+
+
+             //* SI EL CLIENTE ES PRINCIPAL
+             if (clientType != 'cliente corporativo principal' && clientType != 'cliente corporativo secundario') {
+              MargenFinanciacion = 0;
+            };
+
+            console.log(MargenFinanciacion)
+
+          };
+
+
+
+
+
+          // TOTAL CUADRO DERECHO
+          const sumaProcentajesDos = (1+(parsedMargin+MargenFinanciacion) / 100)
+          let TotalCuadroDerecho = (PrecioVentaSinIva * sumaProcentajesDos) ;
+          
+          TotalCuadroDerecho = Math.round(TotalCuadroDerecho);
+
+          console.log(TotalCuadroDerecho)
+
+
+
+          // FEE DE LA MARCA DE USUARIO AL INICIAR SEIÓN > ESTO SE APLICA EN EL CARRITO
+          const feeMarca = 0;
+
+
+
+
+          // SUBTOTAL PRECIO DE VENTA (A MOSTRAR) === VARIABLE GLOBAL
+          const sumaFee = (1+(parsedMargin+MargenFinanciacion) / 100) + 0 ;
+          let SubtotalPrecioVenta = PrecioVentaSinIva * sumaFee;
+          SubtotalPrecioVenta = Math.round(SubtotalPrecioVenta);
+
+          console.log(SubtotalPrecioVenta)
+
+
+          
+          // IVA 
+          const ivaProd: number = product.iva;
+          let IvaTercera: number;
+          if (ivaProd > 0) {
+            IvaTercera = (product.iva / 100) * SubtotalPrecioVenta;
+          } else {
+            IvaTercera = (19 / 100) * SubtotalPrecioVenta;
+          }
+          IvaTercera = Math.round(IvaTercera);
+          console.log(IvaTercera)
+
+
+
+          //PRECIO DE VENTA TOTAL (A MOSTRAR)
+          let PrecioVentaTotal = SubtotalPrecioVenta + IvaTercera;
+          PrecioVentaTotal = Math.round(PrecioVentaTotal);
+          console.log(PrecioVentaTotal)
+
+
+
+          // VALORES UNITARIOS
+          const cantidadUnitaria =  staticQuantities[0];
+          const SubtotalPrecioVentaUnitario = SubtotalPrecioVenta/cantidadUnitaria;
+          const IvaTerceraUnitaria = IvaTercera/cantidadUnitaria;
+          const PrecioVentaTotalUnitaria = PrecioVentaTotal/cantidadUnitaria;
+
+          console.log(SubtotalPrecioVentaUnitario)
+          console.log(IvaTerceraUnitaria)
+          console.log(PrecioVentaTotalUnitaria)
+
+
+
+          //******************************************************************************************************** */
+          //******************************************************************************************************** */
+          //******************************************************************************************************** */
+
+
+
+          prices.valueSinIva = SubtotalPrecioVenta;
+          prices.valueConIva = PrecioVentaTotal;
+
+
+          prices.totalValue = SubtotalPrecioVenta;
+          burnPriceTable.push(prices);
+          console.log(value)
+
+        }
+
+        return { ...product, burnPriceTable };
+      }));
+
+      const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
+        where: {
+          id: result.mainCategory,
+        },
+      });
+
+      if (!categorySupplier)
+        throw new NotFoundException(`Category supplier with id ${result.mainCategory} not found`);
+
+      return { ...result, isPending: 1, products: modifiedProducts, mainCategory: categorySupplier };
+    }));
+
+    return finalResults;
+  };
 }

@@ -396,6 +396,10 @@ export class StatisticsService {
     return sortedCategoryReports;
   }
 
+
+
+
+
   async getCommercialQualificationStatsByMonth(year: number, commercial?: string): Promise<any> {
     const startDate = new Date(year, 0, 1); // Primer día del año
     const endDate = new Date(year, 11, 31, 23, 59, 59, 999); // Último día del año
@@ -443,6 +447,22 @@ export class StatisticsService {
 
     return statsByMonth;
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   async getOrderRatingStatsByMonth(year: number, client?: string): Promise<any> {
     const startDate = new Date(year, 0, 1); // Primer día del año
@@ -496,48 +516,109 @@ export class StatisticsService {
     return statsByMonth;
   };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   async getCashFlowReport(year: number, month: number): Promise<any> {
     const fechaInicio = new Date(year, month - 1, 1); // Inicio del mes seleccionado
     const fechaFin = new Date(year, month, 0, 23, 59, 59, 999); // Fin del mes seleccionado
+
+
+    let montoTotalNoFacturado = 0;
+    let montoTotalVencido = 0;
+    let diasVencimiento = [8, 15, 30, 45, 60];
+    const ordenesVencidasPorDias = {};
+
 
     // Buscar todos los clientes corporativos
     const clientesCorporativos = await this.userRepository
       .createQueryBuilder('user')
       .where('user.isCoorporative = :value', { value: 1 })
       .leftJoinAndSelect('user.client', 'client')
-      .where('client.id IS NOT NULL')
+      .andWhere('client.id IS NOT NULL') // Corregido para usar andWhere en lugar de where
       .getMany();
 
     // Obtener los IDs de los clientes corporativos
     const idsClientesCorporativos = clientesCorporativos.map(cliente => cliente.id);
 
+
+    // Buscar las órdenes asociadas con clientes corporativos y facturadas dentro del mes seleccionado
+    const fechaInicioFormatted = fechaInicio.toISOString().slice(0, 10); // 'YYYY-MM-DD'
+    const fechaFinFormatted = fechaFin.toISOString().slice(0, 10); // 'YYYY-MM-DD'
+
     // Buscar las órdenes asociadas con clientes corporativos y facturadas dentro del mes seleccionado
     const ordenesCorporativas = await this.purchaseOrderRepository
       .createQueryBuilder('order')
+      .leftJoinAndSelect('order.state', 'state') // Cargar la relación con el estado
       .where('order.clientUser IN (:...ids)', { ids: idsClientesCorporativos })
-      .andWhere('order.invoiceDueDate BETWEEN :startDate AND :endDate', {
-        startDate: fechaInicio,
-        endDate: fechaFin,
-      })
+      // .andWhere('DATE(order.invoiceDueDate) BETWEEN :startDate AND :endDate', {
+      //   startDate: fechaInicioFormatted,
+      //   endDate: fechaFinFormatted,
+      // })
       .getMany();
 
-    // Buscar todas las órdenes no corporativas dentro del rango de fechas seleccionado
+
+    // Buscar todas las órdenes en producción para clientes no corporativos
     const ordenesNoCorporativas = await this.purchaseOrderRepository
       .createQueryBuilder('order')
-      .where('order.clientUser IS NULL')
-      .leftJoinAndSelect('order.state', 'state')
-      .andWhere('state.name = :state', { state: 'ORDEN DE COMPRA EN PRODUCCIÓN' })
-      .andWhere('order.creationDate BETWEEN :startDate AND :endDate', {
-        startDate: fechaInicio,
-        endDate: fechaFin,
-      })
+      .leftJoinAndSelect('order.state', 'state') // Cargar la relación con el estado
+      .where('order.clientUser NOT IN (:...ids)', { ids: idsClientesCorporativos })
+      .andWhere('order.stateId = :state', { state: 'b7fded6c-ac99-48b8-b66b-30d3d8550cff' })
+      // .andWhere('order.creationDate BETWEEN :startDate AND :endDate', {
+      //   startDate: fechaInicio,
+      //   endDate: fechaFin,
+      // })
       .getMany();
 
-    // Inicializar variables del reporte
-    let montoTotalNoFacturado = 0;
-    let montoTotalVencido = 0;
-    const diasVencimiento = [8, 15, 30, 45, 60];
-    const ordenesVencidasPorDias = {};
+
+    // Inicializar el contador de órdenes vencidas por días con ceros para cada categoría
+    let TotalordenesVencidasPorDiasAcomuladas = {
+      '8': 0,
+      '15': 0,
+      '30': 0,
+      '45': 0,
+      '60': 0,
+      '60+': 0
+    };
+
+    ordenesCorporativas.forEach(orden => {
+      montoTotalNoFacturado += orden.value;
+      if (orden.state.name.toLowerCase().trim() === 'factura en mora') {
+        // Convertir orden.invoiceDueDate en un objeto Date
+        const invoiceDueDate = new Date(orden.invoiceDueDate);
+        // Verificar si la conversión fue exitosa antes de llamar a getTime()
+        if (!isNaN(invoiceDueDate.getTime())) {
+          // Aquí puedes usar invoiceDueDate.getTime() sin preocuparte por errores
+          const diasVencidos = Math.ceil((fechaFin.getTime() - invoiceDueDate.getTime()) / (1000 * 3600 * 24));
+          console.log(diasVencidos);
+          let categoria = '60+';
+          for (let dias of diasVencimiento) {
+            if (diasVencidos <= dias) {
+              categoria = dias.toString();
+              break;
+            }
+          }
+          TotalordenesVencidasPorDiasAcomuladas[categoria]++;
+        } else {
+          // Si la conversión falla, imprime un mensaje de error
+        }
+      }
+    });
 
     // Recorrer las órdenes corporativas para calcular totales y órdenes vencidas
     ordenesCorporativas.forEach(orden => {
@@ -547,7 +628,7 @@ export class StatisticsService {
       }
 
       // Para órdenes con facturas vencidas, sumar al monto total vencido y contar los días de vencimiento
-      if (orden.state.name.toLowerCase().trim() === 'vencida') {
+      if (orden.state.name.toLowerCase().trim() === 'FACTURA EN MORA') {
         montoTotalVencido += orden.value;
 
         const diasVencidos = Math.ceil((fechaFin.getTime() - orden.invoiceDueDate.getTime()) / (1000 * 3600 * 24));
@@ -574,74 +655,169 @@ export class StatisticsService {
     const totalOrdenes = ordenesCorporativas.length + ordenesNoCorporativas.length;
 
     return {
-      montoTotalNoFacturado,
+      // ordenesCorporativas,
       montoTotalVencido,
       ordenesVencidasPorDias,
       totalOrdenesVencidasPorDias,
       totalOrdenesVencidas,
       totalOrdenes,
+      TotalordenesVencidasPorDiasAcomuladas,
+      montoTotalNoFacturado
     };
+
   }
 
-  async getPortfolioReport(year: number, month: number): Promise<any> {
-    const fechaInicio = new Date(year, month - 1, 1); // Inicio del mes seleccionado
-    const fechaFin = new Date(year, month, 0, 23, 59, 59, 999); // Fin del mes seleccionado
 
-    // Buscar todas las órdenes en producción
+
+
+
+
+
+
+
+
+
+
+
+
+  // async getPortfolioReport(year: number, month: number): Promise<any> {
+  //   const fechaInicio = new Date(year, month - 1, 1); // Inicio del mes seleccionado
+  //   const fechaFin = new Date(year, month, 0, 23, 59, 59, 999); // Fin del mes seleccionado
+
+  //   // Buscar todas las órdenes en producción
+  //   const ordenesEnProduccion = await this.purchaseOrderRepository.find({
+  //     where: {
+  //       invoiceDueDate: IsNull(), // Órdenes que no tienen factura
+  //       creationDate: Between(fechaInicio, fechaFin),
+  //     },
+  //   });
+
+  //   console.log(ordenesEnProduccion)
+  //   // Obtener el valor total de las órdenes en producción
+  //   const montoTotalEnProduccion = ordenesEnProduccion.reduce((acc, orden) => acc + orden.value, 0);
+
+  //   // Buscar todas las órdenes por facturar
+  //   const ordenesPorFacturar = await this.purchaseOrderRepository.find({
+  //     where: {
+  //       invoiceDueDate: IsNull(), // Órdenes que no tienen factura
+  //     },
+  //   });
+  //   console.log(ordenesPorFacturar)
+
+  //   // Buscar todas las órdenes por pagar
+  //   const ordenesPorPagar = await this.purchaseOrderRepository.find({
+  //     where: {
+  //       invoiceDueDate: Not(IsNull()), // Órdenes que tienen factura
+  //       state: In(['TODOS LOS PEDIDOS ENTREGADOS', 'NOVEDAD EN PEDIDO RECIBIDO POR EL CLIENTE', 'FACTURADA', 'FACTURA ACEPTADA', 'FACTURA EN MORA']),
+  //     },
+  //   });
+
+  //   console.log(ordenesPorPagar)
+  //   // Buscar todas las órdenes en mora
+  //   const ordenesEnMora = await this.purchaseOrderRepository.find({
+  //     where: {
+  //       invoiceDueDate: Not(IsNull()), // Órdenes que tienen factura
+  //       state: {
+  //         name: 'FACTURA EN MORA',
+  //       },
+  //     },
+  //   });
+  //   console.log(ordenesEnMora)
+
+  //   // Buscar todas las órdenes pagadas
+  //   const ordenesPagadas = await this.purchaseOrderRepository.find({
+  //     where: {
+  //       invoiceDueDate: Not(IsNull()), // Órdenes que tienen factura
+  //       state: {
+  //         name: 'FACTURA PAGADA',
+  //       },
+  //     },
+  //   });
+  //   console.log(ordenesPagadas)
+
+    
+  //   // Calcular los totales
+  //   const totalEnProduccion = montoTotalEnProduccion;
+  //   const totalPorFacturar = ordenesPorFacturar.reduce((acc, orden) => acc + orden.value, 0);
+  //   const totalPorPagar = ordenesPorPagar.reduce((acc, orden) => acc + orden.value, 0);
+  //   const totalEnMora = ordenesEnMora.reduce((acc, orden) => acc + orden.value, 0);
+  //   const totalPagadas = ordenesPagadas.reduce((acc, orden) => acc + orden.value, 0);
+
+  //   const total = totalEnProduccion + totalPorFacturar + totalPorPagar + totalEnMora + totalPagadas;
+  //   console.log(total)
+  //   return {
+  //     totalEnProduccion,
+  //     totalPorFacturar,
+  //     totalPorPagar,
+  //     totalEnMora,
+  //     totalPagadas,
+  //     total,
+  //   };
+  // }
+
+  async getPortfolioReport(year: number, month: number): Promise<any> {
+    const fechaInicio = new Date(year, 0, 1); // Inicio del año seleccionado
+    const fechaFin = new Date(year, 11, 31, 23, 59, 59, 999); // Fin del año seleccionado
+  
+    // Buscar todas las órdenes en producción para el año seleccionado
     const ordenesEnProduccion = await this.purchaseOrderRepository.find({
       where: {
         invoiceDueDate: IsNull(), // Órdenes que no tienen factura
         creationDate: Between(fechaInicio, fechaFin),
       },
     });
-
+  
     // Obtener el valor total de las órdenes en producción
     const montoTotalEnProduccion = ordenesEnProduccion.reduce((acc, orden) => acc + orden.value, 0);
-
-    // Buscar todas las órdenes por facturar
+  
+    // Buscar todas las órdenes por facturar para el año seleccionado
     const ordenesPorFacturar = await this.purchaseOrderRepository.find({
       where: {
         invoiceDueDate: IsNull(), // Órdenes que no tienen factura
+        creationDate: Between(fechaInicio, fechaFin),
       },
     });
-
-    // Buscar todas las órdenes por pagar
+  
+    // Buscar todas las órdenes por pagar para el año seleccionado
     const ordenesPorPagar = await this.purchaseOrderRepository.find({
       where: {
         invoiceDueDate: Not(IsNull()), // Órdenes que tienen factura
         state: In(['TODOS LOS PEDIDOS ENTREGADOS', 'NOVEDAD EN PEDIDO RECIBIDO POR EL CLIENTE', 'FACTURADA', 'FACTURA ACEPTADA', 'FACTURA EN MORA']),
+        creationDate: Between(fechaInicio, fechaFin),
       },
     });
-
-    // Buscar todas las órdenes en mora
+  
+    // Buscar todas las órdenes en mora para el año seleccionado
     const ordenesEnMora = await this.purchaseOrderRepository.find({
       where: {
         invoiceDueDate: Not(IsNull()), // Órdenes que tienen factura
         state: {
           name: 'FACTURA EN MORA',
         },
+        creationDate: Between(fechaInicio, fechaFin),
       },
     });
-
-    // Buscar todas las órdenes pagadas
+  
+    // Buscar todas las órdenes pagadas para el año seleccionado
     const ordenesPagadas = await this.purchaseOrderRepository.find({
       where: {
         invoiceDueDate: Not(IsNull()), // Órdenes que tienen factura
         state: {
           name: 'FACTURA PAGADA',
         },
+        creationDate: Between(fechaInicio, fechaFin),
       },
     });
-
+  
     // Calcular los totales
     const totalEnProduccion = montoTotalEnProduccion;
     const totalPorFacturar = ordenesPorFacturar.reduce((acc, orden) => acc + orden.value, 0);
     const totalPorPagar = ordenesPorPagar.reduce((acc, orden) => acc + orden.value, 0);
     const totalEnMora = ordenesEnMora.reduce((acc, orden) => acc + orden.value, 0);
     const totalPagadas = ordenesPagadas.reduce((acc, orden) => acc + orden.value, 0);
-
+  
     const total = totalEnProduccion + totalPorFacturar + totalPorPagar + totalEnMora + totalPagadas;
-
+  
     return {
       totalEnProduccion,
       totalPorFacturar,
@@ -651,4 +827,5 @@ export class StatisticsService {
       total,
     };
   }
+  
 }

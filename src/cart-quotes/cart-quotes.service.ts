@@ -790,10 +790,10 @@ export class CartQuotesService {
         clientOrderNumber: uuidv4(),
         approvalDate: cartQuote.updatedAt,
         creationDate: cartQuote.createdAt,
-        paymentDate: new Date(),
+        // paymentDate: new Date(),
         userApproval: cartQuote.updatedBy,
-        invoiceIssueDate: new Date(),
-        invoiceDueDate: new Date(),
+        // invoiceIssueDate: new Date(),
+        // invoiceDueDate: new Date(),
         financingCost: cartQuote.quoteDetails.reduce((sum, quoteDetail) => sum + quoteDetail.totalValue, 0),
         feeCost: cartQuote.quoteDetails.reduce((sum, quoteDetail) => sum + quoteDetail.aditionalClientFee, 0),
         businessUtility: cartQuote.quoteDetails.reduce((sum, quoteDetail) => sum + quoteDetail.businessUtility, 0),
@@ -837,4 +837,8 @@ export class CartQuotesService {
       cartQuote
     };
   }
+
+
+
+
 }
