@@ -3,13 +3,17 @@ import { IsInt, IsOptional, IsString, IsUUID } from 'class-validator';
 export class CreateSupplierPurchaseOrderDto {
   @IsOptional()
   @IsString()
-  cost: number;
+  cost?: number;
+
+  @IsString()
+  @IsOptional()
+  orderCode?: string;
 
   @IsString()
   state: string;
 
   @IsOptional()
-  @IsInt()
+  @IsString()
   amount?: number;
   
   @IsOptional()
