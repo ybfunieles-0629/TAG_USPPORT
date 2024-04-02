@@ -13,6 +13,15 @@ export class CreateQuoteDetailDto {
 
   @IsInt()
   @IsOptional()
+  totalCostoProduccion: number;
+
+  @IsInt()
+  @IsOptional()
+  totalCostoProduccionSinIva: number;
+  
+
+  @IsInt()
+  @IsOptional()
   iva: number;
 
   @IsInt()

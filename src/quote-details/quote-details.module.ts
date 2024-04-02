@@ -14,6 +14,7 @@ import { LocalTransportPricesModule } from '../local-transport-prices/local-tran
 import { BrandsModule } from '../brands/brands.module';
 import { ClientsModule } from '../clients/clients.module';
 import { CategorySuppliersModule } from '../category-suppliers/category-suppliers.module';
+import { CategoryTagModule } from 'src/category-tag/category-tag.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { CategorySuppliersModule } from '../category-suppliers/category-supplier
     forwardRef(() => BrandsModule),
     forwardRef(() => CartQuotesModule),
     CategorySuppliersModule,
+    CategoryTagModule,
     forwardRef(() => ClientsModule),
     forwardRef(() => LocalTransportPricesModule),
     MarkingServicesModule,
