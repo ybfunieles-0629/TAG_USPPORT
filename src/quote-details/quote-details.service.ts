@@ -1675,7 +1675,7 @@ export class QuoteDetailsService {
     newQuoteDetail.totalValue = TotalVenta;
 
 
-
+{}
 
     // UTILIDADES FINALES
 

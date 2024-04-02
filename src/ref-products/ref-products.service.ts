@@ -232,7 +232,7 @@ export class RefProductsService {
 
 
 
-  
+
   async calculations(results: RefProduct[], margin: number, clientId: string, tipo = false) {
 
     let staticQuantities: number[];
@@ -2745,7 +2745,7 @@ export class RefProductsService {
 
              //* SI EL CLIENTE ES PRINCIPAL
              if (clientType != 'cliente corporativo principal' && clientType != 'cliente corporativo secundario') {
-              MargenFinanciacion = 0;
+              MargenFinanciacion = systemConfig.noCorporativeClientsMargin;
             };
 
             console.log(MargenFinanciacion)
@@ -2757,12 +2757,18 @@ export class RefProductsService {
 
 
           // TOTAL CUADRO DERECHO
-          const sumaProcentajesDos = (1+(parsedMargin+MargenFinanciacion) / 100)
-          let TotalCuadroDerecho = (PrecioVentaSinIva * sumaProcentajesDos) ;
-          
-          TotalCuadroDerecho = Math.round(TotalCuadroDerecho);
 
-          console.log(TotalCuadroDerecho)
+
+
+          let dataMargin = parsedMargin / 100; 
+          let dataFinanciacion = MargenFinanciacion / 100;
+      
+          const F5 = PrecioVentaSinIva;
+          const F6 = dataMargin;
+          const F7 = dataFinanciacion;
+
+          const TotalCuadroDerecho = F5 * (1 + F6 + F7);
+          console.log(TotalCuadroDerecho); 
 
 
 
@@ -2777,6 +2783,7 @@ export class RefProductsService {
           let SubtotalPrecioVenta = PrecioVentaSinIva * sumaFee;
           SubtotalPrecioVenta = Math.round(SubtotalPrecioVenta);
 
+          console.log()
           console.log(SubtotalPrecioVenta)
 
 
