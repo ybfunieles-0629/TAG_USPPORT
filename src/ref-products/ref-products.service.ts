@@ -553,11 +553,13 @@ export class RefProductsService {
           console.log(advancePercentage)
 
 
-          // FINANCIACIÓN 
+          // FINANCIACIÓN ===>>> ES EL DEL PROVEEDOR 
           const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage) || 0;
           console.log(supplierFinancingPercentage)
 
           console.log(deliveryTimeToSave)
+
+
           //GASTOS FINANCIEROS PRE-ENTREGA === VARIABLE GLOBAL 
           let dataadvancePercentage = advancePercentage / 100;
           let datasupplierFinancingPercentage =  supplierFinancingPercentage / 100;
