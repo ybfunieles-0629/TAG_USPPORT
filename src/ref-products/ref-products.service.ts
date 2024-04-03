@@ -237,12 +237,16 @@ export class RefProductsService {
 
     let staticQuantities: number[];
     if (tipo) {
-      staticQuantities = [
-        1, 
-      ];
       // staticQuantities = [
-      //   1, 2,
+      //   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
+      //   150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
+      //   1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
+      //   7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
+      //   100000, 200000,
       // ];
+      staticQuantities = [
+        1, 2,
+      ];
     } else {
       staticQuantities = [1];
     }
@@ -314,8 +318,8 @@ export class RefProductsService {
 
           console.log("inicio");
 
-          const cantidadProductoinicial = staticQuantities[i];
-          console.log(cantidadProductoinicial)
+          let cantidadProductoinicial = staticQuantities[i];
+          
 
           let value: number = changingValue;
           console.log(value)
@@ -332,13 +336,14 @@ export class RefProductsService {
                   //* SI APLICA PARA TABLA DE PRECIOS DE PROVEEDOR
                   value += listPrice.price;
                   console.log(value)
-                  console.log()
+
                   return;
                 };
               });
+              console.log()
             } else {
 
-              //* SI LO ENCUENTRA LO AÑADE, SINO LE PONE UN 0 Y NO AÑADE NADA
+              //* AGREGAR DESCUENTO DE ENTRADA
               const entryDiscount: number = product.entryDiscount || 0;
               const entryDiscountValue: number = (entryDiscount / 100) * value || 0;
               value -= entryDiscountValue;
@@ -418,7 +423,7 @@ export class RefProductsService {
 
           // COSTO BRUTO DE PRODUCTO === VARIABLE GLOBAL
           const CostoBrutoProducto = value;
-
+          console.log(CostoBrutoProducto)
 
 
           let IvaPrimera = 0;
@@ -458,6 +463,11 @@ export class RefProductsService {
 
 
           // SUBTOTAL === VARIABLE GLOBAL
+
+          console.log(CostoBrutoProducto)
+          console.log(Imprevistos)
+          console.log(cantidadProductoinicial)
+
           let Subtotal = cantidadProductoinicial * (CostoBrutoProducto + Imprevistos);
           Subtotal = Math.round(Subtotal);
           console.log(Subtotal)
@@ -467,7 +477,7 @@ export class RefProductsService {
           // //* APLICAR IVA   **************************************************************
           if (product.iva > 0 || product.iva != undefined) {
             IvaSegunda = (product.iva / 100) * Subtotal;
-            console.log(value)
+            console.log(IvaSegunda)
           };
           if (product.iva == 0) {
             IvaSegunda = (19 / 100) * Subtotal;
@@ -549,9 +559,14 @@ export class RefProductsService {
 
           console.log(deliveryTimeToSave)
           //GASTOS FINANCIEROS PRE-ENTREGA === VARIABLE GLOBAL 
-          const GastoFinancieroPreentrega = (TotalDesembolsoCompraProducto * advancePercentage) * ((supplierFinancingPercentage / 30) * deliveryTimeToSave)
-          console.log(GastoFinancieroPreentrega)
+          let dataadvancePercentage = advancePercentage / 100;
+          let datasupplierFinancingPercentage =  supplierFinancingPercentage / 100;
 
+          let GastoFinancieroPreentrega = (TotalDesembolsoCompraProducto * dataadvancePercentage) * ((datasupplierFinancingPercentage / 30) * deliveryTimeToSave)
+          GastoFinancieroPreentrega = Math.round(GastoFinancieroPreentrega);
+
+          console.log(GastoFinancieroPreentrega)
+ 
 
 
           // TOTAL DESEMBOLSO === VARIABLE GLOBAL
