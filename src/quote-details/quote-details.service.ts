@@ -702,12 +702,15 @@ export class QuoteDetailsService {
 
     //* ------------- CALCULOS ------------- *//
     const quantity: number = newQuoteDetail.quantities || 0;
-    let totalPrice: number = newQuoteDetail.unitPrice * quantity || 0;
+    let totalPrice: number = newQuoteDetail.unitPrice || 0;
     let totalTransportPrice: number = 0;
     let totalCost: number = 0;
     let productVolume: number = 0;
     let totalVolume: number = 0;
 
+
+    console.log(quantity)
+    console.log(totalPrice)
 
     // DATOS A FUTURO PARA CALCULAR TRANSPORTES
 
@@ -1764,8 +1767,8 @@ export class QuoteDetailsService {
 
     console.log(newQuoteDetail.transportTotalPrice)
 
-    await this.cartQuoteRepository.save(cartQuoteDb);
-    await this.quoteDetailRepository.save(newQuoteDetail);
+    // await this.cartQuoteRepository.save(cartQuoteDb);
+    // await this.quoteDetailRepository.save(newQuoteDetail);
 
     return {
       newQuoteDetail,
