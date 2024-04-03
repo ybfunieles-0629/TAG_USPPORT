@@ -451,8 +451,8 @@ export class RefProductsService {
           // //* VERIFICAR SI TIENE FEE DE IMPREVISTOS ************************************* CostoBrutoProducto
           if (product.unforeseenFee > 0) {
             const unforeseenFee: number = (product.unforeseenFee / 100) * CostoBrutoProducto;
-            Imprevistos = unforeseenFee ;
-            console.log(Imprevistos) 
+            Imprevistos = unforeseenFee;
+            console.log(Imprevistos)
           } else {
             const unforeseenFee: number = systemConfig.unforeseenFee;
             const unforeseenFeePercentage: number = (unforeseenFee / 100) * CostoBrutoProducto;
@@ -570,7 +570,7 @@ export class RefProductsService {
 
 
           // TOTAL DESEMBOLSO === VARIABLE GLOBAL
-        
+
           const TotalDesembolso = TotalDesembolsoCompraProducto + GastoFinancieroPreentrega;
           console.log(TotalDesembolso)
 
@@ -628,14 +628,14 @@ export class RefProductsService {
 
 
 
-          let parsedMargin: number =0;
-          let MargenFinanciacion: number =0;
+          let parsedMargin: number = 0;
+          let MargenFinanciacion: number = 0;
 
           // //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
           if (clientSended) {
             parsedMargin = +margin;
             console.log(parsedMargin)
-            
+
 
             //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
             const profitMargin: number = 0;
@@ -707,8 +707,8 @@ export class RefProductsService {
             };
 
 
-             //* SI EL CLIENTE ES PRINCIPAL
-             if (clientType != 'cliente corporativo principal' && clientType != 'cliente corporativo secundario') {
+            //* SI EL CLIENTE ES PRINCIPAL
+            if (clientType != 'cliente corporativo principal' && clientType != 'cliente corporativo secundario') {
               MargenFinanciacion = 0;
             };
 
@@ -743,14 +743,14 @@ export class RefProductsService {
 
 
           // SUBTOTAL PRECIO DE VENTA (A MOSTRAR) === VARIABLE GLOBAL
-          const sumaFee = (1+(parsedMargin+MargenFinanciacion) / 100) + 0 ;
+          const sumaFee = (1 + (parsedMargin + MargenFinanciacion) / 100) + 0;
           let SubtotalPrecioVenta = PrecioVentaSinIva * sumaFee;
           SubtotalPrecioVenta = Math.round(SubtotalPrecioVenta);
 
           console.log(SubtotalPrecioVenta)
 
 
-          
+
           // IVA 
           const ivaProd: number = product.iva;
           let IvaTercera: number;
@@ -772,10 +772,10 @@ export class RefProductsService {
 
 
           // VALORES UNITARIOS
-          const cantidadUnitaria =  staticQuantities[0];
-          const SubtotalPrecioVentaUnitario = SubtotalPrecioVenta/cantidadUnitaria;
-          const IvaTerceraUnitaria = IvaTercera/cantidadUnitaria;
-          const PrecioVentaTotalUnitaria = PrecioVentaTotal/cantidadUnitaria;
+          const cantidadUnitaria = staticQuantities[0];
+          const SubtotalPrecioVentaUnitario = SubtotalPrecioVenta / cantidadUnitaria;
+          const IvaTerceraUnitaria = IvaTercera / cantidadUnitaria;
+          const PrecioVentaTotalUnitaria = PrecioVentaTotal / cantidadUnitaria;
 
           console.log(SubtotalPrecioVentaUnitario)
           console.log(IvaTerceraUnitaria)
