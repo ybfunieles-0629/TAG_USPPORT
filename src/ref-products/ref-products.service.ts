@@ -2617,8 +2617,17 @@ export class RefProductsService {
 
           console.log(deliveryTimeToSave)
           //GASTOS FINANCIEROS PRE-ENTREGA === VARIABLE GLOBAL 
-          const GastoFinancieroPreentrega = (TotalDesembolsoCompraProducto * advancePercentage) * ((supplierFinancingPercentage / 30) * deliveryTimeToSave)
+
+          let dataadvancePercentage = advancePercentage / 100;
+          let datasupplierFinancingPercentage =  supplierFinancingPercentage / 100;
+
+          let GastoFinancieroPreentrega = (TotalDesembolsoCompraProducto * dataadvancePercentage) * ((datasupplierFinancingPercentage / 30) * deliveryTimeToSave)
+          GastoFinancieroPreentrega = Math.round(GastoFinancieroPreentrega);
+
           console.log(GastoFinancieroPreentrega)
+ 
+          // const GastoFinancieroPreentrega = (TotalDesembolsoCompraProducto * advancePercentage) * ((supplierFinancingPercentage / 30) * deliveryTimeToSave)
+          // console.log(GastoFinancieroPreentrega)
 
 
 
