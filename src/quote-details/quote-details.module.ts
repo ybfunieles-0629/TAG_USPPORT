@@ -15,6 +15,7 @@ import { BrandsModule } from '../brands/brands.module';
 import { ClientsModule } from '../clients/clients.module';
 import { CategorySuppliersModule } from '../category-suppliers/category-suppliers.module';
 import { CategoryTagModule } from 'src/category-tag/category-tag.module';
+import { FinancingCostProfitsModule } from 'src/financing-cost-profits/financing-cost-profits.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CategoryTagModule } from 'src/category-tag/category-tag.module';
     MarkingServicePropertiesModule,
     forwardRef(() => ProductsModule),
     SystemConfigsModule,
+    FinancingCostProfitsModule,
     TypeOrmModule.forFeature([QuoteDetail]),
   ],
   controllers: [QuoteDetailsController],

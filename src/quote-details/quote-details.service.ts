@@ -24,6 +24,7 @@ import { User } from '../users/entities/user.entity';
 import { DeliveryTime } from '../delivery-times/entities/delivery-time.entity';
 import { CategorySupplier } from '../category-suppliers/entities/category-supplier.entity';
 import { CategoryTag } from 'src/category-tag/entities/category-tag.entity';
+import { FinancingCostProfit } from 'src/financing-cost-profits/entities/financing-cost-profit.entity';
 
 @Injectable()
 export class QuoteDetailsService {
@@ -60,6 +61,9 @@ export class QuoteDetailsService {
 
     @InjectRepository(SystemConfig)
     private readonly systemConfigRepository: Repository<SystemConfig>,
+
+    @InjectRepository(FinancingCostProfit)
+    private readonly systemFinancingCostProfit: Repository<FinancingCostProfit>,
   ) { }
 
 
@@ -1150,6 +1154,12 @@ export class QuoteDetailsService {
     };
 
 
+    // nuevo Yeison
+    let financeCostProfist: any = await this.systemFinancingCostProfit.find();
+    console.log(financeCostProfist)
+
+
+
 
     // DIAS DE PAGO DEL CLIENTE CORPOATIV
     let DiasPagoClienteCorporativo = 0;
@@ -1158,37 +1168,56 @@ export class QuoteDetailsService {
     //* MARGEN POR FINANCIACIÓN 
     // const MargenPorFinanciacion: number = 0;
 
-    const paymentDays = [
-      {
-        day: 1,
-        percentage: 0.03,
-      },
-      {
-        day: 15,
-        percentage: 0.03,
-      },
-      {
-        day: 30,
-        percentage: 0.03,
-      },
-      {
-        day: 45,
-        percentage: 0.04,
-      },
-      {
-        day: 60,
-        percentage: 0.06,
-      },
-      {
-        day: 90,
-        percentage: 0.09,
-      },
-    ];
+    let paymentDays:any[]=[];
+    for (const paymentDate of financeCostProfist) {
+      let data = {
+        day: paymentDate.days,
+        percentage: paymentDate.financingPercentage / 100,
+      }
+
+      paymentDays.push(data)
+    }
+
+
+    console.log(paymentDays)
+
+
+    // const paymentDays = [
+    //   {
+    //     day: 1,
+    //     percentage: 0.03,
+    //   },
+    //   {
+    //     day: 15,
+    //     percentage: 0.03,
+    //   },
+    //   {
+    //     day: 30,
+    //     percentage: 0.03,
+    //   },
+    //   {
+    //     day: 45,
+    //     percentage: 0.04,
+    //   },
+    //   {
+    //     day: 60,
+    //     percentage: 0.06,
+    //   },
+    //   {
+    //     day: 90,
+    //     percentage: 0.09,
+    //   },
+    // ];
 
 
 
     // Días de pago de Cliente NO Corporativo
-    DiasPagoClienteCorporativo = systemConfig.generalDeliveryTime || 0;
+    const day60 = paymentDays.find(item => item.day === 1);
+    // Si se encuentra el objeto, obtener su porcentaje, de lo contrario, asignar 0
+    DiasPagoClienteCorporativo = day60 ? day60.day : 0;
+
+
+
     let marginProfit: number = 0;
 
      marginProfit = systemConfig.noCorporativeClientsMargin;
@@ -1251,7 +1280,7 @@ export class QuoteDetailsService {
       totalPrice = Math.round(value);
     };
 
-
+    console.log(DiasPagoClienteCorporativo)
 
 
     let SumaInicial: number = 0;
@@ -1370,6 +1399,8 @@ export class QuoteDetailsService {
     // MARGEN DEL TRANSPORTE (PARAMETRIZACION)
     const marginForTransportServices: number = systemConfig.marginForTransportServices || 0;
 
+
+    console.log(marginForTransportServices)
     // Convertimos los porcentajes a valores decimales
     let maerginTrans = (marginForTransportServices) / 100;
     let marginCli = (MargenCliente) / 100;
@@ -1535,17 +1566,21 @@ export class QuoteDetailsService {
     console.log(TotalIngresosAntesDeIva)
 
 
-
+    console.log(DiasPagoClienteCorporativo)
     // Dias de pago del cliente 
 
     const C23 = createQuoteDetailDto.totalCostoProduccion; // Ttoal costo producción
     const C16 = marginProfit / 100; // 20% Financiacion cliente
     const F62 = DiasPagoClienteCorporativo; // Dias de pago
     const C49 = TotalGastosAdicionales; // Gastos adicionales
-
+ 
     let resultadoCostoFnanciarion = (C23 * (C16 / 30) * (F62 + 15)) + (C49 * (C16 / 30) * (F62 + 15));
     resultadoCostoFnanciarion = Math.round(resultadoCostoFnanciarion);
     console.log(resultadoCostoFnanciarion)
+
+    // hasta aqui todo bien
+    
+
 
 
     // FEE REGISTRADO EN EL CARRITO == FEE SELECCIONADO AL INICIAR SESION
@@ -1678,7 +1713,7 @@ export class QuoteDetailsService {
     newQuoteDetail.totalValue = TotalVenta;
 
 
-{}
+
 
     // UTILIDADES FINALES
 
@@ -1767,8 +1802,8 @@ export class QuoteDetailsService {
 
     console.log(newQuoteDetail.transportTotalPrice)
 
-    // await this.cartQuoteRepository.save(cartQuoteDb);
-    // await this.quoteDetailRepository.save(newQuoteDetail);
+    await this.cartQuoteRepository.save(cartQuoteDb);
+    await this.quoteDetailRepository.save(newQuoteDetail);
 
     return {
       newQuoteDetail,

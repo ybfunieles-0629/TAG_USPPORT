@@ -795,7 +795,9 @@ export class RefProductsService {
           prices.valueConIva = PrecioVentaTotal;
           prices.totalValue = SubtotalPrecioVenta;
           burnPriceTable.push(prices);
-          console.log(value)
+          
+          console.log(prices.totalCostoProduccionSinIva)
+          console.log(prices.totalCostoProduccion)
 
         }
 
