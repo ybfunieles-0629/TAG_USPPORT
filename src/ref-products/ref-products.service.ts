@@ -238,11 +238,7 @@ export class RefProductsService {
     let staticQuantities: number[];
     if (tipo) {
       staticQuantities = [
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
-        150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
-        1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
-        7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
-        100000, 200000,
+        1, 
       ];
       // staticQuantities = [
       //   1, 2,
@@ -336,7 +332,7 @@ export class RefProductsService {
                   //* SI APLICA PARA TABLA DE PRECIOS DE PROVEEDOR
                   value += listPrice.price;
                   console.log(value)
-
+                  console.log()
                   return;
                 };
               });
@@ -710,12 +706,18 @@ export class RefProductsService {
 
 
           // TOTAL CUADRO DERECHO
-          const sumaProcentajesDos = (1+(parsedMargin+MargenFinanciacion) / 100)
-          let TotalCuadroDerecho = (PrecioVentaSinIva * sumaProcentajesDos) ;
-          
-          TotalCuadroDerecho = Math.round(TotalCuadroDerecho);
 
-          console.log(TotalCuadroDerecho)
+          let dataMargin = parsedMargin / 100; 
+          console.log(parsedMargin)
+          let dataFinanciacion = MargenFinanciacion / 100;
+      
+          const F5 = PrecioVentaSinIva;
+          const F6 = dataMargin;
+          const F7 = dataFinanciacion;
+
+          const TotalCuadroDerecho = F5 * (1 + F6 + F7);
+          console.log(TotalCuadroDerecho); 
+
 
 
 
