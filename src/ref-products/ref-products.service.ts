@@ -2486,7 +2486,7 @@ export class RefProductsService {
 
           // COSTO BRUTO DE PRODUCTO === VARIABLE GLOBAL
           const CostoBrutoProducto = value;
-
+          console.log(CostoBrutoProducto)
 
 
           let IvaPrimera = 0;
@@ -2771,7 +2771,7 @@ export class RefProductsService {
 
              //* SI EL CLIENTE ES PRINCIPAL
              if (clientType != 'cliente corporativo principal' && clientType != 'cliente corporativo secundario') {
-              MargenFinanciacion = systemConfig.noCorporativeClientsMargin;
+              MargenFinanciacion = 0;
             };
 
             console.log(MargenFinanciacion)
