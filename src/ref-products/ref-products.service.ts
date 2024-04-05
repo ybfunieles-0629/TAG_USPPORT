@@ -25,6 +25,9 @@ import { User } from '../users/entities/user.entity';
 import { Color } from '../colors/entities/color.entity';
 import { Role } from '../roles/entities/role.entity';
 import { Client } from '../clients/entities/client.entity';
+import { FinancingCostProfit } from 'src/financing-cost-profits/entities/financing-cost-profit.entity';
+
+
 
 @Injectable()
 export class RefProductsService {
@@ -66,6 +69,14 @@ export class RefProductsService {
 
     @InjectRepository(VariantReference)
     private readonly variantReferenceRepository: Repository<VariantReference>,
+
+    
+    @InjectRepository(FinancingCostProfit)
+    private readonly systemFinancingCostProfit: Repository<FinancingCostProfit>,
+
+
+
+
   ) { }
 
   async create(createRefProductDto: CreateRefProductDto, user: User) {
@@ -644,34 +655,69 @@ export class RefProductsService {
             console.log(parsedMargin)
 
 
+
+
+            // ==========================================
+
+
+              // nuevo Yeison
+              let financeCostProfist: any = await this.systemFinancingCostProfit.find();
+              console.log(financeCostProfist)
+
+
+              //* MARGEN POR FINANCIACIÓN 
+              // const MargenPorFinanciacion: number = 0;
+
+              let paymentDays:any[]=[];
+              for (const paymentDate of financeCostProfist) {
+                let data = {
+                  day: paymentDate.days,
+                  percentage: paymentDate.financingPercentage / 100,
+                }
+
+                paymentDays.push(data)
+              }
+
+
+              console.log(paymentDays)
+
+
+            //==============================================
+
+
+
+
+
+
+
             //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
             const profitMargin: number = 0;
-            const paymentDays = [
-              {
-                day: 1,
-                percentage: 0.03,
-              },
-              {
-                day: 15,
-                percentage: 0.03,
-              },
-              {
-                day: 30,
-                percentage: 0.03,
-              },
-              {
-                day: 45,
-                percentage: 0.04,
-              },
-              {
-                day: 60,
-                percentage: 0.06,
-              },
-              {
-                day: 90,
-                percentage: 0.09,
-              },
-            ];
+            // const paymentDays = [
+            //   {
+            //     day: 1,
+            //     percentage: 0.03,
+            //   },
+            //   {
+            //     day: 15,
+            //     percentage: 0.03,
+            //   },
+            //   {
+            //     day: 30,
+            //     percentage: 0.03,
+            //   },
+            //   {
+            //     day: 45,
+            //     percentage: 0.04,
+            //   },
+            //   {
+            //     day: 60,
+            //     percentage: 0.06,
+            //   },
+            //   {
+            //     day: 90,
+            //     percentage: 0.09,
+            //   },
+            // ];
 
 
 
@@ -2727,33 +2773,61 @@ export class RefProductsService {
 
             //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
             const profitMargin: number = 0;
-            const paymentDays = [
-              {
-                day: 1,
-                percentage: 0.03,
-              },
-              {
-                day: 15,
-                percentage: 0.03,
-              },
-              {
-                day: 30,
-                percentage: 0.03,
-              },
-              {
-                day: 45,
-                percentage: 0.04,
-              },
-              {
-                day: 60,
-                percentage: 0.06,
-              },
-              {
-                day: 90,
-                percentage: 0.09,
-              },
-            ];
+            // const paymentDays = [
+            //   {
+            //     day: 1,
+            //     percentage: 0.03,
+            //   },
+            //   {
+            //     day: 15,
+            //     percentage: 0.03,
+            //   },
+            //   {
+            //     day: 30,
+            //     percentage: 0.03,
+            //   },
+            //   {
+            //     day: 45,
+            //     percentage: 0.04,
+            //   },
+            //   {
+            //     day: 60,
+            //     percentage: 0.06,
+            //   },
+            //   {
+            //     day: 90,
+            //     percentage: 0.09,
+            //   },
+            // ];
 
+
+            
+              // nuevo Yeison
+              let financeCostProfist: any = await this.systemFinancingCostProfit.find();
+              console.log(financeCostProfist)
+
+
+              
+//=========================================================
+
+              //* MARGEN POR FINANCIACIÓN 
+              // const MargenPorFinanciacion: number = 0;
+
+              let paymentDays:any[]=[];
+              for (const paymentDate of financeCostProfist) {
+                let data = {
+                  day: paymentDate.days,
+                  percentage: paymentDate.financingPercentage / 100,
+                }
+
+                paymentDays.push(data)
+              }
+
+
+              console.log(paymentDays)
+
+
+//=========================================================
 
 
             //* SI EL CLIENTE ES SECUNDARIO

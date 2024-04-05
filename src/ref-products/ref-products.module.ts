@@ -16,6 +16,7 @@ import { SystemConfigsModule } from '../system-configs/system-configs.module';
 import { LocalTransportPricesModule } from '../local-transport-prices/local-transport-prices.module';
 import { ColorsModule } from '../colors/colors.module';
 import { ClientsModule } from '../clients/clients.module';
+import { FinancingCostProfitsModule } from 'src/financing-cost-profits/financing-cost-profits.module';
 
 @Module({
   imports: [
@@ -30,6 +31,8 @@ import { ClientsModule } from '../clients/clients.module';
     MarkingServicePropertiesModule,
     UsersModule,
     VariantReferenceModule,
+    FinancingCostProfitsModule,
+
     forwardRef(() => LocalTransportPricesModule),
     TypeOrmModule.forFeature([RefProduct]),
   ],
