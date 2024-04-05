@@ -1803,8 +1803,8 @@ export class QuoteDetailsService {
 
     console.log(newQuoteDetail.transportTotalPrice)
 
-    await this.cartQuoteRepository.save(cartQuoteDb);
-    await this.quoteDetailRepository.save(newQuoteDetail);
+    // await this.cartQuoteRepository.save(cartQuoteDb);
+    // await this.quoteDetailRepository.save(newQuoteDetail);
 
     return {
       newQuoteDetail,

@@ -237,16 +237,16 @@ export class RefProductsService {
 
     let staticQuantities: number[];
     if (tipo) {
-      staticQuantities = [
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
-        150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
-        1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
-        7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
-        100000, 200000,
-      ];
       // staticQuantities = [
-      //   1, 2,
+      //   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
+      //   150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
+      //   1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
+      //   7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
+      //   100000, 200000,
       // ];
+      staticQuantities = [
+        1, 2,
+      ];
     } else {
       staticQuantities = [1];
     }
@@ -309,7 +309,7 @@ export class RefProductsService {
             quantity: staticQuantities[i],
             valueSinIva: 0,
             valueConIva: 0,
-            value: changingValue,
+            value: 0,
             totalCostoProduccionSinIva:0,
             totalCostoProduccion: 0,
             totalValue: 0,
@@ -320,6 +320,11 @@ export class RefProductsService {
 
           let cantidadProductoinicial = staticQuantities[i];
           
+
+
+
+
+
 
           let value: number = changingValue;
           console.log(value)
@@ -775,7 +780,7 @@ export class RefProductsService {
 
           // VALORES UNITARIOS
           const cantidadUnitaria = staticQuantities[0];
-          const SubtotalPrecioVentaUnitario = SubtotalPrecioVenta / cantidadUnitaria;
+          let SubtotalPrecioVentaUnitario = SubtotalPrecioVenta / cantidadUnitaria;
           const IvaTerceraUnitaria = IvaTercera / cantidadUnitaria;
           const PrecioVentaTotalUnitaria = PrecioVentaTotal / cantidadUnitaria;
 
@@ -793,11 +798,29 @@ export class RefProductsService {
           prices.totalCostoProduccion = TotalCostoDelProducto; // yeison
           prices.valueSinIva = SubtotalPrecioVenta;
           prices.valueConIva = PrecioVentaTotal;
-          prices.totalValue = SubtotalPrecioVenta;
+          prices.totalValue = TotalCuadroDerecho;
+          prices.value = SubtotalPrecioVentaUnitario;
+
           burnPriceTable.push(prices);
           
           console.log(prices.totalCostoProduccionSinIva)
           console.log(prices.totalCostoProduccion)
+
+
+
+          
+          // burnPriceTable.push(prices);
+
+          // const percentageDiscount: number = 0.01;
+
+          // let valuDe;
+          // valuDe = SubtotalPrecioVentaUnitario * (1 - percentageDiscount);
+
+          // value = Math.round(valuDe);
+
+          // SubtotalPrecioVentaUnitario = valuDe;
+          // console.log(changingValue)
+
 
         }
 
