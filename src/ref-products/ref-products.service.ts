@@ -2889,13 +2889,9 @@ export class RefProductsService {
           //******************************************************************************************************** */
 
           prices.totalCostoProduccionSinIva = SubTotalAntesDeIva,
-
           prices.totalCostoProduccion = TotalCostoDelProducto;
-
           prices.valueSinIva = SubtotalPrecioVenta;
           prices.valueConIva = PrecioVentaTotal;
-
-
           prices.totalValue = SubtotalPrecioVenta;
           prices.value = SubtotalPrecioVentaUnitario;
 
