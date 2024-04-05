@@ -811,7 +811,7 @@ export class QuoteDetailsService {
           const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
 
           totalPrice += clientTransportPrice;
-          newQuoteDetail.sampleTransportValue += clientTransportPrice;
+          
           // newQuoteDetail.transportTotalPrice = 0;
           // newQuoteDetail.transportTotalPrice += clientTransportPrice || 0;
           // newQuoteDetail.sampleValue += clientTransportPrice || 0;
@@ -826,7 +826,7 @@ export class QuoteDetailsService {
 
         // SUMA CONTONIA DEL TRANSPORTE TOTAL
         ValorTotalDeTransporteGeneral += TransporteMuestra,
-
+        newQuoteDetail.sampleTransportValue = TransporteMuestra;
 
           // TOTAL GASTOS MUESTRA === VARIABLE GLOBAL
           TotalGastoMuestra = TotalMuestra + TransporteMuestra;
@@ -870,7 +870,6 @@ export class QuoteDetailsService {
     const cartQuoteClient: Client = cartQuote?.client;
     const clientUser: User = cartQuote?.client?.user;
     let clientType: string = '';
-
 
     //* PRECIO ESCOGIDO EN EL DETALLE DEL PRODUCTO ANTES DEL CARRITO
     const burnQuantity: number = newQuoteDetail?.unitPrice || 0;
@@ -1661,7 +1660,7 @@ export class QuoteDetailsService {
     console.log(RentabiliadMinimaEsperada);
     newQuoteDetail.profitability = RentabiliadMinimaEsperada;
 
-
+  console.log()
 
     // DESCUENTO SUGERIDO AL COMERCIAL
     const F72 = UtilidadLiquidezFinal;
@@ -1696,7 +1695,7 @@ export class QuoteDetailsService {
     newQuoteDetail.totalAdditionalDiscount = 0;
     newQuoteDetail.subTotalWithDiscount = newQuoteDetail.subTotal || 0;
     newQuoteDetail.totalCost = SubTotalFinalesDeIva; // Subtotal con descuento
-
+    newQuoteDetail.totalValueWithoutIva = newQuoteDetail.subTotal || 0;
 
 
     let IvaSnTotalFinal: number = (19 / 100) * SubTotalFinalesDeIva;
@@ -1758,7 +1757,7 @@ export class QuoteDetailsService {
 
     //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
     
-    newQuoteDetail.totalValueWithoutIva = totalPrice;
+  
 
     //* IVA DE LA VENTA
     // const iva: number = (product.iva / 100) * totalPrice || 0;
@@ -1786,7 +1785,9 @@ export class QuoteDetailsService {
 
     //* CALCULAR DESCUENTO
     // const discount: number = (product.promoDisccount / 100) * totalPrice || 0;
-    newQuoteDetail.discountPercentage = product.promoDisccount;
+
+    newQuoteDetail.discountPercentage = 0; // reutilizar
+
     newQuoteDetail.discount = product.promoDisccount;
     // totalPrice -= discount;
 
@@ -1802,8 +1803,8 @@ export class QuoteDetailsService {
 
     console.log(newQuoteDetail.transportTotalPrice)
 
-    await this.cartQuoteRepository.save(cartQuoteDb);
-    await this.quoteDetailRepository.save(newQuoteDetail);
+    // await this.cartQuoteRepository.save(cartQuoteDb);
+    // await this.quoteDetailRepository.save(newQuoteDetail);
 
     return {
       newQuoteDetail,
@@ -1869,6 +1870,27 @@ export class QuoteDetailsService {
     };
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
   async update(id: string, updateQuoteDetailDto: UpdateQuoteDetailDto, save: number) {
     let saveData: number = 0;
 
@@ -1984,6 +2006,14 @@ export class QuoteDetailsService {
     totalCost += burnQuantity;
     updatedQuoteDetail.transportTotalPrice = 0;
 
+
+
+
+
+
+
+
+    
     //* SE SOLICITA MUESTRA
     if (hasSample) {
       //* CALCULAR EL PRECIO DE LA MUESTRA
