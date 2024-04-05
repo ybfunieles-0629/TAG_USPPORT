@@ -807,7 +807,7 @@ export class RefProductsService {
           console.log(prices.totalCostoProduccion)
 
 
-
+9465419734
           
           // burnPriceTable.push(prices);
 
@@ -2397,7 +2397,7 @@ export class RefProductsService {
         for (let i = 0; i < staticQuantities.length; i++) {
           let prices = {
             quantity: staticQuantities[i],
-            value: changingValue,
+            value: 0,
             valueSinIva: 0,
             valueConIva: 0,
             totalCostoProduccionSinIva:0,
@@ -2885,6 +2885,10 @@ export class RefProductsService {
 
 
           prices.totalValue = SubtotalPrecioVenta;
+          prices.value = SubtotalPrecioVentaUnitario;
+
+
+
           burnPriceTable.push(prices);
           console.log(value)
 
