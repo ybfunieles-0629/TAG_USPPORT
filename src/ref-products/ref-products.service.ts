@@ -70,7 +70,7 @@ export class RefProductsService {
     @InjectRepository(VariantReference)
     private readonly variantReferenceRepository: Repository<VariantReference>,
 
-    
+
     @InjectRepository(FinancingCostProfit)
     private readonly systemFinancingCostProfit: Repository<FinancingCostProfit>,
 
@@ -321,7 +321,7 @@ export class RefProductsService {
             valueSinIva: 0,
             valueConIva: 0,
             value: 0,
-            totalCostoProduccionSinIva:0,
+            totalCostoProduccionSinIva: 0,
             totalCostoProduccion: 0,
             totalValue: 0,
             transportPrice: 0,
@@ -330,7 +330,7 @@ export class RefProductsService {
           console.log("inicio");
 
           let cantidadProductoinicial = staticQuantities[i];
-          
+
 
 
 
@@ -578,13 +578,13 @@ export class RefProductsService {
 
           //GASTOS FINANCIEROS PRE-ENTREGA === VARIABLE GLOBAL 
           let dataadvancePercentage = advancePercentage / 100;
-          let datasupplierFinancingPercentage =  supplierFinancingPercentage / 100;
+          let datasupplierFinancingPercentage = supplierFinancingPercentage / 100;
 
           let GastoFinancieroPreentrega = (TotalDesembolsoCompraProducto * dataadvancePercentage) * ((datasupplierFinancingPercentage / 30) * deliveryTimeToSave)
           GastoFinancieroPreentrega = Math.round(GastoFinancieroPreentrega);
 
           console.log(GastoFinancieroPreentrega)
- 
+
 
 
           // TOTAL DESEMBOLSO === VARIABLE GLOBAL
@@ -632,7 +632,7 @@ export class RefProductsService {
           let PrecioVentaSinIva = 0;
           if (mainCategory) {
             const sumaProcentajes = (1 + (+mainCategory.categoryMargin + profitMargin) / 100)
-            PrecioVentaSinIva = (SubTotalAntesDeIva * sumaProcentajes) ;
+            PrecioVentaSinIva = (SubTotalAntesDeIva * sumaProcentajes);
 
             //* REDONDEANDO DECIMALES
             PrecioVentaSinIva = Math.round(PrecioVentaSinIva);
@@ -660,26 +660,26 @@ export class RefProductsService {
             // ==========================================
 
 
-              // nuevo Yeison
-              let financeCostProfist: any = await this.systemFinancingCostProfit.find();
-              console.log(financeCostProfist)
+            // nuevo Yeison
+            let financeCostProfist: any = await this.systemFinancingCostProfit.find();
+            console.log(financeCostProfist)
 
 
-              //* MARGEN POR FINANCIACIÓN 
-              // const MargenPorFinanciacion: number = 0;
+            //* MARGEN POR FINANCIACIÓN 
+            // const MargenPorFinanciacion: number = 0;
 
-              let paymentDays:any[]=[];
-              for (const paymentDate of financeCostProfist) {
-                let data = {
-                  day: paymentDate.days,
-                  percentage: paymentDate.financingPercentage / 100,
-                }
-
-                paymentDays.push(data)
+            let paymentDays: any[] = [];
+            for (const paymentDate of financeCostProfist) {
+              let data = {
+                day: paymentDate.days,
+                percentage: paymentDate.financingPercentage / 100,
               }
 
+              paymentDays.push(data)
+            }
 
-              console.log(paymentDays)
+
+            console.log(paymentDays)
 
 
             //==============================================
@@ -775,16 +775,16 @@ export class RefProductsService {
 
           // TOTAL CUADRO DERECHO
 
-          let dataMargin = parsedMargin / 100; 
+          let dataMargin = parsedMargin / 100;
           console.log(parsedMargin)
           let dataFinanciacion = MargenFinanciacion / 100;
-      
+
           const F5 = PrecioVentaSinIva;
           const F6 = dataMargin;
           const F7 = dataFinanciacion;
 
           const TotalCuadroDerecho = F5 * (1 + F6 + F7);
-          console.log(TotalCuadroDerecho); 
+          console.log(TotalCuadroDerecho);
 
 
 
@@ -841,20 +841,20 @@ export class RefProductsService {
           //******************************************************************************************************** */
 
           prices.totalCostoProduccionSinIva = SubTotalAntesDeIva,
-          prices.totalCostoProduccion = TotalCostoDelProducto; // yeison
+            prices.totalCostoProduccion = TotalCostoDelProducto; // yeison
           prices.valueSinIva = SubtotalPrecioVenta;
           prices.valueConIva = PrecioVentaTotal;
           prices.totalValue = TotalCuadroDerecho;
           prices.value = SubtotalPrecioVentaUnitario;
 
           burnPriceTable.push(prices);
-          
+
           console.log(prices.totalCostoProduccionSinIva)
           console.log(prices.totalCostoProduccion)
 
 
-9465419734
-          
+          9465419734
+
           // burnPriceTable.push(prices);
 
           // const percentageDiscount: number = 0.01;
@@ -1373,9 +1373,9 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.supplier', 'supplier')
           .leftJoinAndSelect('supplier.user', 'supplierUser')
           .leftJoinAndSelect('refProduct.variantReferences', 'refProductVariantReferences')
-          .getMany();+
+          .getMany(); +
 
-        refProductsToShow.push(...refProducts);
+            refProductsToShow.push(...refProducts);
       }
     }
 
@@ -1901,7 +1901,7 @@ export class RefProductsService {
           .andWhere('refProduct.height > :height', { height: 0 })
           .andWhere('refProduct.width > :width', { width: 0 })
           .andWhere('refProduct.large > :large', { large: 0 })
-          .andWhere('refProduct.referenceCode > :referenceCode', { filterRefProductsDto})
+          .andWhere('refProduct.referenceCode > :referenceCode', { filterRefProductsDto })
           .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
           .leftJoinAndSelect('refProduct.packings', 'packings')
           .leftJoinAndSelect('refProduct.colors', 'refProductColors')
@@ -2305,9 +2305,9 @@ export class RefProductsService {
 
 
 
-  
 
-  async findOneOne(id: string, margin: number, clientId: string, cantidadEnviada:number) {
+
+  async findOneOne(id: string, margin: number, clientId: string, cantidadEnviada: number) {
     const refProduct: RefProduct = await this.refProductRepository.findOne({
       where: {
         id,
@@ -2343,7 +2343,7 @@ export class RefProductsService {
         'supplier.user',
         'variantReferences',
       ],
-     
+
     });
 
     if (!refProduct)
@@ -2353,7 +2353,7 @@ export class RefProductsService {
 
     refProducts.push(refProduct);
 
-    const finalResults = refProducts.length > 0 ? await this.calculationsOne(refProducts, margin, clientId, cantidadEnviada ) : [];
+    const finalResults = refProducts.length > 0 ? await this.calculationsOne(refProducts, margin, clientId, cantidadEnviada) : [];
 
     const finalFinalResults = await Promise.all(finalResults.map(async (refProduct) => {
       const tagCategory: CategoryTag = await this.categoryTagRepository.findOne({
@@ -2384,8 +2384,8 @@ export class RefProductsService {
   // Metodo para buscar una cantidad diferente
   async calculationsOne(results: RefProduct[], margin: number, clientId: string, cantidadEnviada = 0) {
 
-    let staticQuantities: number[]  = [cantidadEnviada];
-      
+    let staticQuantities: number[] = [cantidadEnviada];
+
 
     const clientSended: Client = await this.clientRepository.findOne({
       where: {
@@ -2446,8 +2446,8 @@ export class RefProductsService {
             value: 0,
             valueSinIva: 0,
             valueConIva: 0,
-            totalCostoProduccionSinIva:0,
-            totalCostoProduccion:0,
+            totalCostoProduccionSinIva: 0,
+            totalCostoProduccion: 0,
             totalValue: 0,
             transportPrice: 0,
           };
@@ -2580,14 +2580,14 @@ export class RefProductsService {
           CostoTotalUnitario = Math.round(CostoTotalUnitario);
 
           console.log(CostoTotalUnitario);
-
+          console.log("-")
 
           let Imprevistos = 0;
           // //* VERIFICAR SI TIENE FEE DE IMPREVISTOS ************************************* CostoBrutoProducto
           if (product.unforeseenFee > 0) {
             const unforeseenFee: number = (product.unforeseenFee / 100) * CostoBrutoProducto;
-            Imprevistos = unforeseenFee ;
-            console.log(Imprevistos) 
+            Imprevistos = unforeseenFee;
+            console.log(Imprevistos)
           } else {
             const unforeseenFee: number = systemConfig.unforeseenFee;
             const unforeseenFeePercentage: number = (unforeseenFee / 100) * CostoBrutoProducto;
@@ -2691,20 +2691,20 @@ export class RefProductsService {
           //GASTOS FINANCIEROS PRE-ENTREGA === VARIABLE GLOBAL 
 
           let dataadvancePercentage = advancePercentage / 100;
-          let datasupplierFinancingPercentage =  supplierFinancingPercentage / 100;
+          let datasupplierFinancingPercentage = supplierFinancingPercentage / 100;
 
           let GastoFinancieroPreentrega = (TotalDesembolsoCompraProducto * dataadvancePercentage) * ((datasupplierFinancingPercentage / 30) * deliveryTimeToSave)
           GastoFinancieroPreentrega = Math.round(GastoFinancieroPreentrega);
 
           console.log(GastoFinancieroPreentrega)
- 
+
           // const GastoFinancieroPreentrega = (TotalDesembolsoCompraProducto * advancePercentage) * ((supplierFinancingPercentage / 30) * deliveryTimeToSave)
           // console.log(GastoFinancieroPreentrega)
 
 
 
           // TOTAL DESEMBOLSO === VARIABLE GLOBAL
-        
+
           const TotalDesembolso = TotalDesembolsoCompraProducto + GastoFinancieroPreentrega;
           console.log(TotalDesembolso)
 
@@ -2748,7 +2748,7 @@ export class RefProductsService {
           let PrecioVentaSinIva = 0;
           if (mainCategory) {
             const sumaProcentajes = (1 + (+mainCategory.categoryMargin + profitMargin) / 100)
-            PrecioVentaSinIva = (SubTotalAntesDeIva * sumaProcentajes) ;
+            PrecioVentaSinIva = (SubTotalAntesDeIva * sumaProcentajes);
 
             //* REDONDEANDO DECIMALES
             PrecioVentaSinIva = Math.round(PrecioVentaSinIva);
@@ -2762,72 +2762,47 @@ export class RefProductsService {
 
 
 
-          let parsedMargin: number =0;
-          let MargenFinanciacion: number =0;
+          let parsedMargin: number = 0;
+          let MargenFinanciacion: number = 0;
 
           // //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
           if (clientSended) {
             parsedMargin = +margin;
             console.log(parsedMargin)
-            
+
+
+            let financeCostProfist: any = await this.systemFinancingCostProfit.find();
+            console.log(financeCostProfist)
+
+
+            //* MARGEN POR FINANCIACIÓN 
+            // const MargenPorFinanciacion: number = 0;
+
+            let paymentDays: any[] = [];
+            for (const paymentDate of financeCostProfist) {
+              let data = {
+                day: paymentDate.days,
+                percentage: paymentDate.financingPercentage / 100,
+              }
+
+              paymentDays.push(data)
+            }
+
+
+            console.log(paymentDays)
+
+
+            //=========================================================
+
 
             //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
             const profitMargin: number = 0;
-            // const paymentDays = [
-            //   {
-            //     day: 1,
-            //     percentage: 0.03,
-            //   },
-            //   {
-            //     day: 15,
-            //     percentage: 0.03,
-            //   },
-            //   {
-            //     day: 30,
-            //     percentage: 0.03,
-            //   },
-            //   {
-            //     day: 45,
-            //     percentage: 0.04,
-            //   },
-            //   {
-            //     day: 60,
-            //     percentage: 0.06,
-            //   },
-            //   {
-            //     day: 90,
-            //     percentage: 0.09,
-            //   },
-            // ];
 
 
-            
-              // nuevo Yeison
-              let financeCostProfist: any = await this.systemFinancingCostProfit.find();
-              console.log(financeCostProfist)
 
 
-              
-//=========================================================
 
-              //* MARGEN POR FINANCIACIÓN 
-              // const MargenPorFinanciacion: number = 0;
-
-              let paymentDays:any[]=[];
-              for (const paymentDate of financeCostProfist) {
-                let data = {
-                  day: paymentDate.days,
-                  percentage: paymentDate.financingPercentage / 100,
-                }
-
-                paymentDays.push(data)
-              }
-
-
-              console.log(paymentDays)
-
-
-//=========================================================
+            // =========================================================
 
 
             //* SI EL CLIENTE ES SECUNDARIO
@@ -2869,8 +2844,8 @@ export class RefProductsService {
             };
 
 
-             //* SI EL CLIENTE ES PRINCIPAL
-             if (clientType != 'cliente corporativo principal' && clientType != 'cliente corporativo secundario') {
+            //* SI EL CLIENTE ES PRINCIPAL
+            if (clientType != 'cliente corporativo principal' && clientType != 'cliente corporativo secundario') {
               MargenFinanciacion = 0;
             };
 
@@ -2885,16 +2860,21 @@ export class RefProductsService {
           // TOTAL CUADRO DERECHO
 
 
-
-          let dataMargin = parsedMargin / 100; 
+          let dataMargin = parsedMargin / 100;
+          console.log(parsedMargin)
           let dataFinanciacion = MargenFinanciacion / 100;
-      
+
           const F5 = PrecioVentaSinIva;
           const F6 = dataMargin;
           const F7 = dataFinanciacion;
 
+          console.log(F5)
+          console.log(F6)
+          console.log(F7)
+
           const TotalCuadroDerecho = F5 * (1 + F6 + F7);
-          console.log(TotalCuadroDerecho); 
+          console.log(TotalCuadroDerecho);
+
 
 
 
@@ -2905,7 +2885,7 @@ export class RefProductsService {
 
 
           // SUBTOTAL PRECIO DE VENTA (A MOSTRAR) === VARIABLE GLOBAL
-          const sumaFee = (1+(parsedMargin+MargenFinanciacion) / 100) + 0 ;
+          const sumaFee = (1 + (parsedMargin + MargenFinanciacion) / 100) + 0;
           let SubtotalPrecioVenta = PrecioVentaSinIva * sumaFee;
           SubtotalPrecioVenta = Math.round(SubtotalPrecioVenta);
 
@@ -2913,7 +2893,7 @@ export class RefProductsService {
           console.log(SubtotalPrecioVenta)
 
 
-          
+
           // IVA 
           const ivaProd: number = product.iva;
           let IvaTercera: number;
@@ -2935,10 +2915,10 @@ export class RefProductsService {
 
 
           // VALORES UNITARIOS
-          const cantidadUnitaria =  staticQuantities[0];
-          const SubtotalPrecioVentaUnitario = SubtotalPrecioVenta/cantidadUnitaria;
-          const IvaTerceraUnitaria = IvaTercera/cantidadUnitaria;
-          const PrecioVentaTotalUnitaria = PrecioVentaTotal/cantidadUnitaria;
+          const cantidadUnitaria = staticQuantities[0];
+          const SubtotalPrecioVentaUnitario = SubtotalPrecioVenta / cantidadUnitaria;
+          const IvaTerceraUnitaria = IvaTercera / cantidadUnitaria;
+          const PrecioVentaTotalUnitaria = PrecioVentaTotal / cantidadUnitaria;
 
           console.log(SubtotalPrecioVentaUnitario)
           console.log(IvaTerceraUnitaria)
@@ -2950,7 +2930,7 @@ export class RefProductsService {
           //******************************************************************************************************** */
 
 
-          
+
           // prices.totalCostoProduccionSinIva = SubTotalAntesDeIva,
           // prices.totalCostoProduccion = TotalCostoDelProducto; // yeison
           // prices.valueSinIva = SubtotalPrecioVenta;
@@ -2963,7 +2943,7 @@ export class RefProductsService {
           //******************************************************************************************************** */
 
           prices.totalCostoProduccionSinIva = SubTotalAntesDeIva,
-          prices.totalCostoProduccion = TotalCostoDelProducto;
+            prices.totalCostoProduccion = TotalCostoDelProducto;
           prices.valueSinIva = SubtotalPrecioVenta;
           prices.valueConIva = PrecioVentaTotal;
           prices.totalValue = SubtotalPrecioVenta;
