@@ -248,16 +248,16 @@ export class RefProductsService {
 
     let staticQuantities: number[];
     if (tipo) {
-      staticQuantities = [
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
-        150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
-        1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
-        7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
-        100000, 200000,
-      ];
       // staticQuantities = [
-      //   1, 2,
+      //   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
+      //   150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
+      //   1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
+      //   7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
+      //   100000, 200000,
       // ];
+      staticQuantities = [
+        1, 2,
+      ];
     } else {
       staticQuantities = [1];
     }
@@ -649,12 +649,6 @@ export class RefProductsService {
           let parsedMargin: number = 0;
           let MargenFinanciacion: number = 0;
 
-           // nuevo Yeison
-           let financeCostProfist: any = await this.systemFinancingCostProfit.find();
-           console.log(financeCostProfist)
-
-           
-
           // //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
           if (clientSended) {
             parsedMargin = +margin;
@@ -666,7 +660,9 @@ export class RefProductsService {
             // ==========================================
 
 
-           
+            // nuevo Yeison
+            let financeCostProfist: any = await this.systemFinancingCostProfit.find();
+            console.log(financeCostProfist)
 
 
             //* MARGEN POR FINANCIACIÓN 
@@ -767,11 +763,12 @@ export class RefProductsService {
             //* SI EL CLIENTE ES PRINCIPAL
             if (clientType != 'cliente corporativo principal' && clientType != 'cliente corporativo secundario') {
               // MargenFinanciacion = 0;
-              
-                  // Días de pago de Cliente NO Corporativo
-                  const day60 = paymentDays.find(item => item.day === 1);
-                  // Si se encuentra el objeto, obtener su porcentaje, de lo contrario, asignar 0
-                  MargenFinanciacion = day60 ? day60.financingPercentage : 0;
+
+               // Días de pago de Cliente NO Corporativo
+               const day60 = paymentDays.find(item => item.day === 1);
+               console.log(day60)
+               // Si se encuentra el objeto, obtener su porcentaje, de lo contrario, asignar 0
+               MargenFinanciacion = day60 ? day60.percentage : 0;
             };
 
             console.log(MargenFinanciacion)
@@ -786,7 +783,7 @@ export class RefProductsService {
 
           let dataMargin = parsedMargin / 100;
           console.log(parsedMargin)
-          let dataFinanciacion = MargenFinanciacion / 100;
+          let dataFinanciacion = MargenFinanciacion;
 
           const F5 = PrecioVentaSinIva;
           const F6 = dataMargin;
@@ -2855,7 +2852,12 @@ export class RefProductsService {
 
             //* SI EL CLIENTE ES PRINCIPAL
             if (clientType != 'cliente corporativo principal' && clientType != 'cliente corporativo secundario') {
-              MargenFinanciacion = 0;
+              
+               // Días de pago de Cliente NO Corporativo
+               const day60 = paymentDays.find(item => item.day === 1);
+               console.log(day60)
+               // Si se encuentra el objeto, obtener su porcentaje, de lo contrario, asignar 0
+               MargenFinanciacion = day60 ? day60.percentage : 0;
             };
 
             console.log(MargenFinanciacion)
