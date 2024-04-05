@@ -1137,8 +1137,11 @@ export class QuoteDetailsService {
 
       totalPrice += mainClient?.margin;
       MargenCliente = mainClient?.margin;
+      console.log(MargenCliente)
     } else {
       MargenCliente = 10;
+      console.log(MargenCliente)
+
     };
 
     totalPrice += cartQuote?.client?.margin || 0;
@@ -1343,14 +1346,14 @@ export class QuoteDetailsService {
 
 
     // ======== CALCULO FEE ITERATIVO MUESTRA
-    let calculoMagenes = (1 + (MargenCliente + MargenPorFinanciacion) / 100);
+    let calculoMagenes = (1 + (marginProfit + MargenPorFinanciacion) / 100);
     let feeDecimal = 1 + (feeMarcaCliente / 100);
 
     let valorBase = SubtotalIngresosAdicionales;
 
     let F29 = SubtotalIngresosAdicionales;
-    let F6 = MargenCliente / 100;
-    let F7 = MargenPorFinanciacion / 100;
+    let F6 = marginProfit / 100;
+    let F7 = MargenPorFinanciacion;
     let F8 = feeMarcaCliente / 100;
 
     let primerCalculo = F29 * (1 + F6 + F7) * F8;
@@ -1402,8 +1405,17 @@ export class QuoteDetailsService {
     console.log(marginForTransportServices)
     // Convertimos los porcentajes a valores decimales
     let maerginTrans = (marginForTransportServices) / 100;
-    let marginCli = (MargenCliente) / 100;
-    let marginFian = (MargenPorFinanciacion) / 100;
+    let marginCli = (marginProfit) / 100;
+    let marginFian = (MargenPorFinanciacion);
+
+
+    console.log(marginCli)
+    console.log(marginFian)
+    console.log(maerginTrans)
+    console.log(CostoTotalTransporteDeEntrega)
+    console.log(marginFian)
+
+
 
     let sumaF6F7 = marginCli + marginFian;
     let SubTotalTransporte = CostoTotalTransporteDeEntrega * (1 + (maerginTrans + sumaF6F7));
@@ -1420,8 +1432,8 @@ export class QuoteDetailsService {
 
     // ======== CALCULO FEE ITERATIVO TRANSPORTE 
     let F36 = SubTotalTransporte;
-    F6 = MargenCliente / 100;
-    F7 = MargenPorFinanciacion / 100;
+    F6 = marginProfit / 100;
+    F7 = MargenPorFinanciacion;
     F8 = feeMarcaCliente / 100;
 
     let primerCalculoTransporte = F36 * (1 + F6 + F7) * F8;
@@ -1482,8 +1494,8 @@ export class QuoteDetailsService {
 
     // ======== CALCULO FEE ITERATIVO MARCACION
     let F41 = SubTotalSinFeeMarcacion;
-    F6 = MargenCliente / 100;
-    F7 = MargenPorFinanciacion / 100;
+    F6 = marginProfit / 100;
+    F7 = MargenPorFinanciacion ;
     F8 = feeMarcaCliente / 100;
 
     let primerCalculoMarcacion = F41 * (1 + F6 + F7) * F8;
@@ -1803,8 +1815,8 @@ export class QuoteDetailsService {
 
     console.log(newQuoteDetail.transportTotalPrice)
 
-    await this.cartQuoteRepository.save(cartQuoteDb);
-    await this.quoteDetailRepository.save(newQuoteDetail);
+    // await this.cartQuoteRepository.save(cartQuoteDb);
+    // await this.quoteDetailRepository.save(newQuoteDetail);
 
     return {
       newQuoteDetail,

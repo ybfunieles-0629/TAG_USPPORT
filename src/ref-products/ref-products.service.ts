@@ -649,6 +649,12 @@ export class RefProductsService {
           let parsedMargin: number = 0;
           let MargenFinanciacion: number = 0;
 
+           // nuevo Yeison
+           let financeCostProfist: any = await this.systemFinancingCostProfit.find();
+           console.log(financeCostProfist)
+
+           
+
           // //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
           if (clientSended) {
             parsedMargin = +margin;
@@ -660,9 +666,7 @@ export class RefProductsService {
             // ==========================================
 
 
-            // nuevo Yeison
-            let financeCostProfist: any = await this.systemFinancingCostProfit.find();
-            console.log(financeCostProfist)
+           
 
 
             //* MARGEN POR FINANCIACIÓN 
@@ -762,7 +766,12 @@ export class RefProductsService {
 
             //* SI EL CLIENTE ES PRINCIPAL
             if (clientType != 'cliente corporativo principal' && clientType != 'cliente corporativo secundario') {
-              MargenFinanciacion = 0;
+              // MargenFinanciacion = 0;
+              
+                  // Días de pago de Cliente NO Corporativo
+                  const day60 = paymentDays.find(item => item.day === 1);
+                  // Si se encuentra el objeto, obtener su porcentaje, de lo contrario, asignar 0
+                  MargenFinanciacion = day60 ? day60.financingPercentage : 0;
             };
 
             console.log(MargenFinanciacion)
