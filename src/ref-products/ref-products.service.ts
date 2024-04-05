@@ -248,16 +248,16 @@ export class RefProductsService {
 
     let staticQuantities: number[];
     if (tipo) {
-      // staticQuantities = [
-      //   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
-      //   150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
-      //   1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
-      //   7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
-      //   100000, 200000,
-      // ];
       staticQuantities = [
-        1, 2,
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
+        150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
+        1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
+        7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
+        100000, 200000,
       ];
+      // staticQuantities = [
+      //   1, 2,
+      // ];
     } else {
       staticQuantities = [1];
     }
@@ -2873,7 +2873,7 @@ export class RefProductsService {
 
           let dataMargin = parsedMargin / 100;
           console.log(parsedMargin)
-          let dataFinanciacion = MargenFinanciacion / 100;
+          let dataFinanciacion = MargenFinanciacion;
 
           const F5 = PrecioVentaSinIva;
           const F6 = dataMargin;
@@ -2883,7 +2883,9 @@ export class RefProductsService {
           console.log(F6)
           console.log(F7)
 
-          const TotalCuadroDerecho = F5 * (1 + F6 + F7);
+          let TotalCuadroDerecho = F5 * (1 + F6 + F7);
+          TotalCuadroDerecho = Math.round(TotalCuadroDerecho);
+
           console.log(TotalCuadroDerecho);
 
 
@@ -2946,7 +2948,7 @@ export class RefProductsService {
           // prices.totalCostoProduccion = TotalCostoDelProducto; // yeison
           // prices.valueSinIva = SubtotalPrecioVenta;
           // prices.valueConIva = PrecioVentaTotal;
-          // prices.totalValue = SubtotalPrecioVenta;
+          // prices.totalValue = TotalCuadroDerecho;
           // prices.value = SubtotalPrecioVentaUnitario;
 
 
@@ -2957,7 +2959,7 @@ export class RefProductsService {
             prices.totalCostoProduccion = TotalCostoDelProducto;
           prices.valueSinIva = SubtotalPrecioVenta;
           prices.valueConIva = PrecioVentaTotal;
-          prices.totalValue = SubtotalPrecioVenta;
+          prices.totalValue = TotalCuadroDerecho;
           prices.value = SubtotalPrecioVentaUnitario;
 
 
