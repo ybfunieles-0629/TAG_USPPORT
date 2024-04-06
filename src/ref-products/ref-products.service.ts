@@ -840,14 +840,13 @@ export class RefProductsService {
           console.log(IvaTerceraUnitaria)
           console.log(PrecioVentaTotalUnitaria)
 
-
-
           //******************************************************************************************************** */
           //******************************************************************************************************** */
           //******************************************************************************************************** */
 
+          
           prices.totalCostoProduccionSinIva = SubTotalAntesDeIva,
-            prices.totalCostoProduccion = TotalCostoDelProducto; // yeison
+          prices.totalCostoProduccion = TotalCostoDelProducto; // yeison
           prices.valueSinIva = SubtotalPrecioVenta;
           prices.valueConIva = PrecioVentaTotal;
           prices.totalValue = TotalCuadroDerecho;
@@ -859,7 +858,7 @@ export class RefProductsService {
           console.log(prices.totalCostoProduccion)
 
 
-          9465419734
+          
 
           // burnPriceTable.push(prices);
 
