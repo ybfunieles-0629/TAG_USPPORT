@@ -39,9 +39,12 @@ export class RefProductsController {
 
   @Get('with/offers')
   filterProductsWithDiscount(
-    @Query() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto,
+    @Query('margin') margin: number,
+    @Query('clientId') clientId: string,
+
   ) {
-    return this.refProductsService.filterProductsWithDiscount(paginationDto);
+    return this.refProductsService.filterProductsWithDiscount(paginationDto, margin, clientId);
   }
 
   @Post('filter')

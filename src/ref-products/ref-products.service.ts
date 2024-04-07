@@ -246,18 +246,20 @@ export class RefProductsService {
 
   async calculations(results: RefProduct[], margin: number, clientId: string, tipo = false) {
 
+    console.log(clientId)
+
     let staticQuantities: number[];
     if (tipo) {
-      staticQuantities = [
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
-        150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
-        1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
-        7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
-        100000, 200000,
-      ];
       // staticQuantities = [
-      //   1, 2,
+      //   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
+      //   150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
+      //   1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
+      //   7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
+      //   100000, 200000,
       // ];
+      staticQuantities = [
+        1, 2,
+      ];
     } else {
       staticQuantities = [1];
     }
@@ -272,7 +274,11 @@ export class RefProductsService {
       ],
     });
 
+    console.log(clientSended)
+
     const clientUser: User = clientSended?.user;
+
+    console.log(clientUser)
 
     let clientType: string = '';
 
@@ -332,9 +338,7 @@ export class RefProductsService {
           let cantidadProductoinicial = staticQuantities[i];
 
 
-
-
-
+          console.log()
 
 
           let value: number = changingValue;
@@ -793,7 +797,7 @@ export class RefProductsService {
           console.log(TotalCuadroDerecho);
 
 
-
+          console.log()
 
           // FEE DE LA MARCA DE USUARIO AL INICIAR SEIÓN > ESTO SE APLICA EN EL CARRITO
           const feeMarca = 0;
@@ -844,7 +848,7 @@ export class RefProductsService {
           //******************************************************************************************************** */
           //******************************************************************************************************** */
 
-          
+
           prices.totalCostoProduccionSinIva = SubTotalAntesDeIva,
           prices.totalCostoProduccion = TotalCostoDelProducto; // yeison
           prices.valueSinIva = SubtotalPrecioVenta;
@@ -892,6 +896,18 @@ export class RefProductsService {
 
     return finalResults;
   };
+
+
+
+
+
+
+
+
+
+
+
+
 
   async findAll(paginationDto: PaginationDto) {
     const totalCount = await this.refProductRepository.count();
@@ -1114,8 +1130,13 @@ export class RefProductsService {
     };
   }
 
-  async filterProductsWithDiscount(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0, margin, clientId = '' } = paginationDto;
+  async filterProductsWithDiscount(paginationDto: PaginationDto, margin, clientId: string) {
+    const { limit = 4, offset = 0} = paginationDto;
+
+    console.log(paginationDto)
+
+    console.log(margin)
+    console.log(clientId)
 
     const results: RefProduct[] = await this.refProductRepository
       .createQueryBuilder('refProduct')
@@ -1158,7 +1179,7 @@ export class RefProductsService {
       .skip(offset)
       .getMany();
 
-    const finalResults = results.length > 0 ? await this.calculations(results, margin, clientId, true) : [];
+    const finalResults = results.length > 0 ? await this.calculations(results, margin, clientId, false) : [];
 
     return {
       totalCount: finalResults.length,
