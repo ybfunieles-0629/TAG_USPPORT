@@ -654,77 +654,38 @@ export class RefProductsService {
           let parsedMargin: number = 0;
           let MargenFinanciacion: number = 0;
 
+
+
+
+
+          // nuevo Yeison
+          let financeCostProfist: any = await this.systemFinancingCostProfit.find();
+          console.log(financeCostProfist)
+
+
+          //* MARGEN POR FINANCIACIÓN 
+          // const MargenPorFinanciacion: number = 0;
+
+          let paymentDays: any[] = [];
+          for (const paymentDate of financeCostProfist) {
+            let data = {
+              day: paymentDate.days,
+              percentage: paymentDate.financingPercentage / 100,
+            }
+
+            paymentDays.push(data)
+          }
+
+          console.log(paymentDays)
+
+
           // //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
           if (clientSended) {
             parsedMargin = +margin;
             console.log(parsedMargin)
 
-
-
-
-            // ==========================================
-
-
-            // nuevo Yeison
-            let financeCostProfist: any = await this.systemFinancingCostProfit.find();
-            console.log(financeCostProfist)
-
-
-            //* MARGEN POR FINANCIACIÓN 
-            // const MargenPorFinanciacion: number = 0;
-
-            let paymentDays: any[] = [];
-            for (const paymentDate of financeCostProfist) {
-              let data = {
-                day: paymentDate.days,
-                percentage: paymentDate.financingPercentage / 100,
-              }
-
-              paymentDays.push(data)
-            }
-
-
-            console.log(paymentDays)
-
-
-            //==============================================
-
-
-
-
-
-
-
             //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
             const profitMargin: number = 0;
-            // const paymentDays = [
-            //   {
-            //     day: 1,
-            //     percentage: 0.03,
-            //   },
-            //   {
-            //     day: 15,
-            //     percentage: 0.03,
-            //   },
-            //   {
-            //     day: 30,
-            //     percentage: 0.03,
-            //   },
-            //   {
-            //     day: 45,
-            //     percentage: 0.04,
-            //   },
-            //   {
-            //     day: 60,
-            //     percentage: 0.06,
-            //   },
-            //   {
-            //     day: 90,
-            //     percentage: 0.09,
-            //   },
-            // ];
-
-
 
             //* SI EL CLIENTE ES SECUNDARIO
             if (clientType == 'cliente corporativo secundario') {
@@ -767,18 +728,22 @@ export class RefProductsService {
             if (clientType != 'cliente corporativo principal' && clientType != 'cliente corporativo secundario') {
               // MargenFinanciacion = 0;
 
-               // Días de pago de Cliente NO Corporativo
-               const day60 = paymentDays.find(item => item.day === 1);
-               console.log(day60)
-               // Si se encuentra el objeto, obtener su porcentaje, de lo contrario, asignar 0
-               MargenFinanciacion = day60 ? day60.percentage : 0;
+              // Días de pago de Cliente NO Corporativo
+              const day60 = paymentDays.find(item => item.day === 1);
+              console.log(day60)
+              // Si se encuentra el objeto, obtener su porcentaje, de lo contrario, asignar 0
+              MargenFinanciacion = day60 ? day60.percentage : 0;
             };
 
             console.log(MargenFinanciacion)
 
+          } else {
+            // Días de pago de Cliente NO Corporativo
+            const day60 = paymentDays.find(item => item.day === 1);
+            console.log(day60)
+            // Si se encuentra el objeto, obtener su porcentaje, de lo contrario, asignar 0
+            MargenFinanciacion = day60 ? day60.percentage : 0;
           };
-
-
 
 
 
@@ -849,7 +814,7 @@ export class RefProductsService {
 
 
           prices.totalCostoProduccionSinIva = SubTotalAntesDeIva,
-          prices.totalCostoProduccion = TotalCostoDelProducto; // yeison
+            prices.totalCostoProduccion = TotalCostoDelProducto; // yeison
           prices.valueSinIva = SubtotalPrecioVenta;
           prices.valueConIva = PrecioVentaTotal;
           prices.totalValue = TotalCuadroDerecho;
@@ -861,7 +826,7 @@ export class RefProductsService {
           console.log(prices.totalCostoProduccion)
 
 
-          
+
 
           // burnPriceTable.push(prices);
 
@@ -1130,7 +1095,7 @@ export class RefProductsService {
   }
 
   async filterProductsWithDiscount(paginationDto: PaginationDto, margin, clientId: string) {
-    const { limit = 4, offset = 0} = paginationDto;
+    const { limit = 4, offset = 0 } = paginationDto;
 
     console.log(paginationDto)
 
@@ -2884,10 +2849,10 @@ export class RefProductsService {
 
             //* SI EL CLIENTE ES PRINCIPAL
             if (clientType !== 'cliente corporativo principal' && clientType !== 'cliente corporativo secundario') {
-               const day60 = paymentDays.find(item => item.day === 1);
-               console.log(day60)
+              const day60 = paymentDays.find(item => item.day === 1);
+              console.log(day60)
 
-               MargenFinanciacion = day60 ? day60.percentage : 0;
+              MargenFinanciacion = day60 ? day60.percentage : 0;
             };
 
             console.log(MargenFinanciacion)
