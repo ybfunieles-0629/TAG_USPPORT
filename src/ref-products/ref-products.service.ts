@@ -274,6 +274,7 @@ export class RefProductsService {
       ],
     });
 
+    console.log()
     console.log(clientSended)
 
     const clientUser: User = clientSended?.user;
@@ -740,7 +741,6 @@ export class RefProductsService {
               });
 
               MargenFinanciacion = percentageDiscount;
-              MargenFinanciacion = Math.round(MargenFinanciacion);
               console.log(MargenFinanciacion)
             };
 
@@ -758,7 +758,6 @@ export class RefProductsService {
               });
 
               MargenFinanciacion = percentageDiscount;
-              MargenFinanciacion = Math.round(MargenFinanciacion);
               console.log(MargenFinanciacion)
 
             };
@@ -1296,7 +1295,7 @@ export class RefProductsService {
   };
 
   async filterProducts(filterRefProductsDto: FilterRefProductsDto, paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0, margin, clientId } = paginationDto;
+    const { limit = 1, offset = 0, margin, clientId } = paginationDto;
 
     let refProductsToShow: RefProduct[] = [];
     console.log(filterRefProductsDto)
@@ -2412,6 +2411,7 @@ export class RefProductsService {
 
     let staticQuantities: number[] = [cantidadEnviada];
 
+    console.log(clientId)
 
     const clientSended: Client = await this.clientRepository.findOne({
       where: {
@@ -2423,7 +2423,10 @@ export class RefProductsService {
       ],
     });
 
+    console.log(clientSended)
+
     const clientUser: User = clientSended?.user;
+    console.log(clientUser)
 
     let clientType: string = '';
 
@@ -2448,6 +2451,10 @@ export class RefProductsService {
         .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
         .getOne();
     }
+
+
+    console.log(clientType)
+
 
     const systemConfigs: SystemConfig[] = await this.systemConfigRepository.find();
     const systemConfig: SystemConfig = systemConfigs[0];
@@ -2818,6 +2825,7 @@ export class RefProductsService {
             console.log(paymentDays)
 
 
+
             //=========================================================
 
 
@@ -2846,7 +2854,6 @@ export class RefProductsService {
               });
 
               MargenFinanciacion = percentageDiscount;
-              MargenFinanciacion = Math.round(MargenFinanciacion);
               console.log(MargenFinanciacion)
             };
 
@@ -2855,28 +2862,31 @@ export class RefProductsService {
               const margin: number = clientSended.margin || 0;
               const paymentTerms: number = clientSended.paymentTerms || 0;
 
+              console.log(paymentTerms)
               let percentageDiscount: number = 0;
 
               paymentDays.forEach(paymentDay => {
+                console.log(paymentDay.day)
                 if (paymentDay.day == paymentTerms) {
                   percentageDiscount = paymentDay.percentage;
+                  console.log(percentageDiscount)
                 };
               });
 
+
+              console.log(percentageDiscount)
+
               MargenFinanciacion = percentageDiscount;
-              MargenFinanciacion = Math.round(MargenFinanciacion);
               console.log(MargenFinanciacion)
 
             };
 
 
             //* SI EL CLIENTE ES PRINCIPAL
-            if (clientType != 'cliente corporativo principal' && clientType != 'cliente corporativo secundario') {
-              
-               // Días de pago de Cliente NO Corporativo
+            if (clientType !== 'cliente corporativo principal' && clientType !== 'cliente corporativo secundario') {
                const day60 = paymentDays.find(item => item.day === 1);
                console.log(day60)
-               // Si se encuentra el objeto, obtener su porcentaje, de lo contrario, asignar 0
+
                MargenFinanciacion = day60 ? day60.percentage : 0;
             };
 

@@ -825,7 +825,7 @@ export class QuoteDetailsService {
         }
 
         // SUMA CONTONIA DEL TRANSPORTE TOTAL
-        ValorTotalDeTransporteGeneral += TransporteMuestra,
+        // ValorTotalDeTransporteGeneral += TransporteMuestra,
         newQuoteDetail.sampleTransportValue = TransporteMuestra;
 
           // TOTAL GASTOS MUESTRA === VARIABLE GLOBAL
@@ -930,7 +930,7 @@ export class QuoteDetailsService {
 
 
     // SUMA CONTONIA DEL TRANSPORTE TOTAL
-    ValorTotalDeTransporteGeneral += (CostoTotalTransporteDeEntrega)
+    // ValorTotalDeTransporteGeneral += (CostoTotalTransporteDeEntrega)
 
 
 
@@ -1461,7 +1461,7 @@ export class QuoteDetailsService {
     newQuoteDetail.transportTotalPrice = ValorTotalDeTransporteGeneral;
   
 
-
+    console.log()
 
 
 
@@ -1561,14 +1561,6 @@ export class QuoteDetailsService {
 
 
 
-
-
-
-
-
-
-
-
     // TERCERA PARTE DEL CALCULO RENTABILIDAD FINAL ================================================================>
 
 
@@ -1618,7 +1610,7 @@ export class QuoteDetailsService {
     console.log(ProcentajeUtilidadDeVentasROI)
 
     // RETENCIONES === VARIABLE GLOBAL 
-    let ValueRetenciones = 4.15;
+    let ValueRetenciones = systemConfig.withholdingAtSource / 100;
     console.log(ValueRetenciones)
     console.log(TotalIngresosAntesDeIva)
     let Retenciones = (TotalIngresosAntesDeIva * ValueRetenciones ) / 100;
@@ -1815,8 +1807,8 @@ export class QuoteDetailsService {
 
     console.log(newQuoteDetail.transportTotalPrice)
 
-    await this.cartQuoteRepository.save(cartQuoteDb);
-    await this.quoteDetailRepository.save(newQuoteDetail);
+    // await this.cartQuoteRepository.save(cartQuoteDb);
+    // await this.quoteDetailRepository.save(newQuoteDetail);
 
     return {
       newQuoteDetail,
