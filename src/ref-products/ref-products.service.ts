@@ -250,16 +250,16 @@ export class RefProductsService {
 
     let staticQuantities: number[];
     if (tipo) {
-      staticQuantities = [
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
-        150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
-        1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
-        7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
-        100000, 200000,
-      ];
       // staticQuantities = [
-      //   1, 2,
+      //   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
+      //   150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
+      //   1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
+      //   7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
+      //   100000, 200000,
       // ];
+      staticQuantities = [
+        1, 2,
+      ];
     } else {
       staticQuantities = [1];
     }
@@ -632,6 +632,8 @@ export class RefProductsService {
           //* MARGEN DE GANANCIA DEL PROVEEDOR
           const profitMargin: number = product?.refProduct?.supplier?.profitMargin || 0;
 
+          console.log(mainCategory)
+          console.log(profitMargin)
 
           // PRECIO DE VENTA SIN IVA (TABLA QUEMADA) === VARIABLE GLOBAL 
           let PrecioVentaSinIva = 0;
@@ -677,12 +679,12 @@ export class RefProductsService {
           }
 
           console.log(paymentDays)
-
+          parsedMargin = +margin;
+          console.log(parsedMargin)
 
           // //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
           if (clientSended) {
-            parsedMargin = +margin;
-            console.log(parsedMargin)
+            
 
             //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
             const profitMargin: number = 0;
@@ -744,6 +746,9 @@ export class RefProductsService {
             // Si se encuentra el objeto, obtener su porcentaje, de lo contrario, asignar 0
             MargenFinanciacion = day60 ? day60.percentage : 0;
           };
+
+
+          console.log(MargenFinanciacion);
 
 
 
@@ -2026,6 +2031,18 @@ export class RefProductsService {
     };
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
   async update(id: string, updateRefProductDto: UpdateRefProductDto, user: User) {
     const refProduct = await this.refProductRepository.findOne({
       where: {
@@ -2052,6 +2069,10 @@ export class RefProductsService {
         'variantReferences',
       ],
     });
+
+    console.log(id)
+    console.log(refProduct)
+
 
     if (!refProduct)
       throw new NotFoundException(`Ref product with id ${id} not found`);
@@ -2208,6 +2229,26 @@ export class RefProductsService {
       refProduct
     };
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   async desactivate(id: string) {
     const refProduct: RefProduct = await this.refProductRepository.findOne({

@@ -47,6 +47,20 @@ export class QuoteDetailsController {
     return this.quoteDetailsService.update(id, updateQuoteDetailDto, save);
   }
 
+
+
+  // @Patch('/up/:id')
+  // @UseGuards(AuthGuard())
+  // updateUp(
+  //   @Param('id', ParseUUIDPipe) id: string,
+  //   @Body() updateQuoteDetailDto: CreateQuoteDetailDto,
+  //   @Query('save') save: number,
+  // ) {
+  //   return this.quoteDetailsService.updateUp(id, updateQuoteDetailDto, save, user);
+  // }
+
+
+
   @Patch('/desactivate/:id')
   @UseGuards(AuthGuard())
   desactivate(
@@ -55,6 +69,8 @@ export class QuoteDetailsController {
     return this.quoteDetailsService.desactivate(id);
   }
 
+
+
   @Delete(':id')
   @UseGuards(AuthGuard())
   remove(
@@ -62,4 +78,8 @@ export class QuoteDetailsController {
   ) {
     return this.quoteDetailsService.remove(id);
   }
+
+
+
+
 }
