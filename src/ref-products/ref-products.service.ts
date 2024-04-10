@@ -1286,6 +1286,9 @@ export class RefProductsService {
           ],
         });
 
+        console.log(categoryTagId)
+        console.log(categoryTag)
+
         if (!categoryTag) {
           throw new NotFoundException(`Category tag with id ${categoryTagId} not found`);
         }
@@ -1333,29 +1336,69 @@ export class RefProductsService {
         //   .leftJoinAndSelect('refProduct.variantReferences', 'refProductVariantReferences')
         //   .getMany();
 
+        // const refProducts: RefProduct[] = await this.refProductRepository
+        //   .createQueryBuilder('refProduct')
+        //   .where('refProduct.weight > :weight', { weight: 0 })
+        //   .andWhere('refProduct.height > :height', { height: 0 })
+        //   .andWhere('refProduct.width > :width', { width: 0 })
+        //   .andWhere('refProduct.large > :large', { large: 0 })
+        //   .leftJoinAndSelect('refProduct.images', 'images')
+        //   .andWhere('refProduct.tagCategory = :categoryTagId', { categoryTagId: categoryTagId })
+        //   // .orWhere('refProduct.mainCategory = :categoryTagId', { categoryTagId: categoryTagId })
+        //   .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
+        //   .leftJoinAndSelect('refProduct.colors', 'refProductColors')
+        //   .leftJoinAndSelect('refProduct.categoryTags', 'categoryTags')
+        //   // .orWhere('(categoryTags.id = :categoryTagId = :categoryTagId)', { categoryTagId: categoryTagId })
+        //   .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
+        //   .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
+        //   .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
+        //   .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
+        //   .leftJoinAndSelect('refProduct.packings', 'packings')
+        //   .leftJoinAndSelect('refProduct.products', 'products')
+        //   // .andWhere('products.weight > :weight', { weight: 0 })
+        //   // .andWhere('products.height > :height', { height: 0 })
+        //   // .andWhere('products.width > :width', { width: 0 })
+        //   // .andWhere('products.large > :large', { large: 0 })
+        //   .leftJoinAndSelect('products.colors', 'colors')
+        //   .leftJoinAndSelect('products.supplierPrices', 'supplierPrices')
+        //   .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
+        //   .leftJoinAndSelect('products.variantReferences', 'variantReferences')
+        //   .leftJoinAndSelect('products.refProduct', 'productRefProduct')
+        //   .leftJoinAndSelect('productRefProduct.deliveryTimes', 'productRefProductDeliveryTimes')
+        //   .leftJoinAndSelect('productRefProduct.supplier', 'productRefProductSupplier')
+        //   .leftJoinAndSelect('productRefProductSupplier.disccounts', 'productRefProductSupplierDisccounts')
+        //   .leftJoinAndSelect('products.packings', 'productPackings')
+        //   .leftJoinAndSelect('products.markingServiceProperties', 'productMarkingServiceProperties')
+        //   .leftJoinAndSelect('productMarkingServiceProperties.images', 'productMarkingServicePropertiesImages')
+        //   .leftJoinAndSelect('productMarkingServiceProperties.externalSubTechnique', 'productExternalSubTechnique')
+        //   .leftJoinAndSelect('productExternalSubTechnique.marking', 'productExternalSubTechniqueMarking')
+        //   .leftJoinAndSelect('refProduct.supplier', 'supplier')
+        //   .leftJoinAndSelect('supplier.user', 'supplierUser')
+        //   .leftJoinAndSelect('refProduct.variantReferences', 'refProductVariantReferences')
+        //   .getMany(); +
+
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
-          .where('refProduct.weight > :weight', { weight: 0 })
+          .where('refProduct.tagCategory = :categoryTagId', { categoryTagId: categoryTagId })
+          .andWhere('refProduct.weight > :weight', { weight: 0 })
           .andWhere('refProduct.height > :height', { height: 0 })
           .andWhere('refProduct.width > :width', { width: 0 })
           .andWhere('refProduct.large > :large', { large: 0 })
           .leftJoinAndSelect('refProduct.images', 'images')
-          .andWhere('refProduct.tagCategory = :categoryTagId', { categoryTagId: categoryTagId })
-          .orWhere('refProduct.mainCategory = :categoryTagId', { categoryTagId: categoryTagId })
           .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
           .leftJoinAndSelect('refProduct.colors', 'refProductColors')
           .leftJoinAndSelect('refProduct.categoryTags', 'categoryTags')
-          .orWhere('(categoryTags.id = :categoryTagId = :categoryTagId)', { categoryTagId: categoryTagId })
+          .orWhere('(categoryTags.id = :categoryTagId)', { categoryTagId: categoryTagId })
           .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
           .leftJoinAndSelect('refProduct.markingServiceProperty', 'markingServiceProperty')
           .leftJoinAndSelect('markingServiceProperty.externalSubTechnique', 'externalSubTechnique')
           .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
           .leftJoinAndSelect('refProduct.packings', 'packings')
           .leftJoinAndSelect('refProduct.products', 'products')
-          .andWhere('products.weight > :weight', { weight: 0 })
-          .andWhere('products.height > :height', { height: 0 })
-          .andWhere('products.width > :width', { width: 0 })
-          .andWhere('products.large > :large', { large: 0 })
+          // .andWhere('products.weight > :weight', { weight: 0 })
+          // .andWhere('products.height > :height', { height: 0 })
+          // .andWhere('products.width > :width', { width: 0 })
+          // .andWhere('products.large > :large', { large: 0 })
           .leftJoinAndSelect('products.colors', 'colors')
           .leftJoinAndSelect('products.supplierPrices', 'supplierPrices')
           .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
@@ -1372,7 +1415,7 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.supplier', 'supplier')
           .leftJoinAndSelect('supplier.user', 'supplierUser')
           .leftJoinAndSelect('refProduct.variantReferences', 'refProductVariantReferences')
-          .getMany(); +
+          .getMany();
 
             refProductsToShow.push(...refProducts);
       }
@@ -1943,10 +1986,18 @@ export class RefProductsService {
       }
     }
 
+
+    console.log(refProductsToShow)
+
+
     refProductsToShow = refProductsToShow.filter((refProduct) => refProduct.products.length > 0);
+    console.log(refProductsToShow)
+
 
     const calculatedResults = refProductsToShow?.length > 0 ? await this.calculations(refProductsToShow, margin, clientId) : [];
 
+
+    console.log(calculatedResults)
     const finalResults = await Promise.all(calculatedResults.map(async (result) => {
       const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
         where: {

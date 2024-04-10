@@ -49,15 +49,16 @@ export class QuoteDetailsController {
 
 
 
-  // @Patch('/up/:id')
-  // @UseGuards(AuthGuard())
-  // updateUp(
-  //   @Param('id', ParseUUIDPipe) id: string,
-  //   @Body() updateQuoteDetailDto: CreateQuoteDetailDto,
-  //   @Query('save') save: number,
-  // ) {
-  //   return this.quoteDetailsService.updateUp(id, updateQuoteDetailDto, save, user);
-  // }
+  @Patch('/up/:id')
+  @UseGuards(AuthGuard())
+  updateUp(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateQuoteDetailDto: CreateQuoteDetailDto,
+    @Query('save') save: number,
+    @GetUser() user: User,
+  ) {
+    return this.quoteDetailsService.updateUp(id, updateQuoteDetailDto, save, user);
+  }
 
 
 
