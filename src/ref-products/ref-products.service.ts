@@ -680,7 +680,11 @@ export class RefProductsService {
 
           console.log(paymentDays)
           parsedMargin = +margin;
+          if(parsedMargin < 1 && !clientSended){
+            parsedMargin = systemConfig.noCorporativeClientsMargin;
+          }
           console.log(parsedMargin)
+          console.log()
 
           // //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
           if (clientSended) {
@@ -2804,46 +2808,39 @@ export class RefProductsService {
           let parsedMargin: number = 0;
           let MargenFinanciacion: number = 0;
 
-          // //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
-          if (clientSended) {
-            parsedMargin = +margin;
-            console.log(parsedMargin)
 
+          let financeCostProfist: any = await this.systemFinancingCostProfit.find();
+          console.log(financeCostProfist)
 
-            let financeCostProfist: any = await this.systemFinancingCostProfit.find();
-            console.log(financeCostProfist)
-
-
-            //* MARGEN POR FINANCIACIÓN 
-            // const MargenPorFinanciacion: number = 0;
-
-            let paymentDays: any[] = [];
-            for (const paymentDate of financeCostProfist) {
-              let data = {
-                day: paymentDate.days,
-                percentage: paymentDate.financingPercentage / 100,
-              }
-
-              paymentDays.push(data)
+          let paymentDays: any[] = [];
+          for (const paymentDate of financeCostProfist) {
+            let data = {
+              day: paymentDate.days,
+              percentage: paymentDate.financingPercentage / 100,
             }
 
+            paymentDays.push(data)
+          }
 
-            console.log(paymentDays)
+
+          console.log(paymentDays)
 
 
 
-            //=========================================================
 
+          parsedMargin = +margin;
+          if(parsedMargin < 1 && !clientSended){
+            parsedMargin = systemConfig.noCorporativeClientsMargin;
+          }
+          console.log(parsedMargin)
+          console.log()
+
+
+          // //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
+          if (clientSended) {
 
             //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
             const profitMargin: number = 0;
-
-
-
-
-
-            // =========================================================
-
 
             //* SI EL CLIENTE ES SECUNDARIO
             if (clientType == 'cliente corporativo secundario') {
@@ -2898,7 +2895,14 @@ export class RefProductsService {
 
             console.log(MargenFinanciacion)
 
+          }else {
+            // Días de pago de Cliente NO Corporativo
+            const day60 = paymentDays.find(item => item.day === 1);
+            console.log(day60)
+            // Si se encuentra el objeto, obtener su porcentaje, de lo contrario, asignar 0
+            MargenFinanciacion = day60 ? day60.percentage : 0;
           };
+
 
 
 
