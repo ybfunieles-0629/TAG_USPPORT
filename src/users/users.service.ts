@@ -704,11 +704,23 @@ export class UsersService {
     };
   }
 
+
+
+
+
+
+
+
+
+
+
   async filterUsersByManyRoles(roles: FilterManyByRolesDto, user: User, paginationDto: PaginationDto) {
     let count: number = 0;
 
-    let { limit = count, offset = 0, isAllowed } = paginationDto;
+    console.log(roles)
 
+    let { limit = count, offset = 0, isAllowed } = paginationDto;
+    console.log(isAllowed)
     const usersToShow: User[] = [];
 
     // Verificar si isAllowed está definido en paginationDto
@@ -786,6 +798,8 @@ export class UsersService {
         }
       }
     } else {
+
+      
       if (roles.isCommercial) {
         const commercialWithClients: User[] = await this.userRepository
           .createQueryBuilder('user')
@@ -837,32 +851,41 @@ export class UsersService {
           usersToShow.push(...commercialWithClients);
           count += totalCount;
         } else {
+          console.log(roles.roles)
+          console.log(isAllowed)
+          let data = 0;
+          console.log(data)
           const [users, totalCount] = await this.userRepository
             .createQueryBuilder('user')
-            .where('user.isAllowed =:isAllowed', { isAllowed })
-            .leftJoinAndSelect('user.roles', 'userRoless')
-            .where('userRoless.name IN (:...roles)', { roles: roles.roles })
-            .leftJoinAndSelect('user.brands', 'brands')
-            .leftJoinAndSelect('user.company', 'company')
-            .leftJoinAndSelect('user.privileges', 'privileges')
-            .leftJoinAndSelect('user.permissions', 'permissions')
-            .leftJoinAndSelect('user.admin', 'admin')
-            .leftJoinAndSelect('admin.clients', 'adminClients')
-            .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
-            .leftJoinAndSelect('adminClientsUser.company', 'adminClientsUserCompany')
-            .leftJoinAndSelect('user.client', 'client')
-            .leftJoinAndSelect('client.addresses', 'clientAddresses')
-            .leftJoinAndSelect('user.supplier', 'supplier')
-            .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
+            .where('user.isAllowed = :isAllowed', { isAllowed: data })
+            .leftJoinAndSelect('user.roles', 'userRoles')
+            .where('userRoles.name = :roles', { roles: roles.roles })
+            // .leftJoinAndSelect('user.brands', 'brands')
+            // .leftJoinAndSelect('user.company', 'company')
+            // .leftJoinAndSelect('user.privileges', 'privileges')
+            // .leftJoinAndSelect('user.permissions', 'permissions')
+            // .leftJoinAndSelect('user.admin', 'admin')
+            // .leftJoinAndSelect('admin.clients', 'adminClients')
+            // .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
+            // .leftJoinAndSelect('adminClientsUser.company', 'adminClientsUserCompany')
+            // .leftJoinAndSelect('user.client', 'client')
+            // .leftJoinAndSelect('client.addresses', 'clientAddresses')
+            // .leftJoinAndSelect('user.supplier', 'supplier')
+            // .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
             .take(limit)
             .skip(offset)
             .getManyAndCount();
 
+
           usersToShow.push(...users);
           count += totalCount;
+      
+          console.log(usersToShow)
+
         };
       }
     }
+
 
     const paginatedResults = usersToShow.map((user) => {
       let isAdmin = false;
@@ -877,6 +900,28 @@ export class UsersService {
       users: paginatedResults
     };
   };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   async getSecondaryClient(user: User, paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;

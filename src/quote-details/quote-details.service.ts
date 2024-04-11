@@ -1165,6 +1165,7 @@ export class QuoteDetailsService {
 
     // DIAS DE PAGO DEL CLIENTE CORPOATIV
     let DiasPagoClienteCorporativo = 0;
+    let DiasPagoClienteCorporativoRentabilidad = 0;
 
 
     //* MARGEN POR FINANCIACIÓN 
@@ -1175,6 +1176,7 @@ export class QuoteDetailsService {
       let data = {
         day: paymentDate.days,
         percentage: paymentDate.financingPercentage / 100,
+        rentability: 0
       }
 
       paymentDays.push(data)
@@ -1217,7 +1219,7 @@ export class QuoteDetailsService {
     const day60 = paymentDays.find(item => item.day === 1);
     // Si se encuentra el objeto, obtener su porcentaje, de lo contrario, asignar 0
     DiasPagoClienteCorporativo = day60 ? day60.day : 0;
-
+    // DiasPagoClienteCorporativoRentabilidad = day60 ? day60.financingPercentage : 0;
 
 
     let marginProfit: number = 0;
@@ -3765,7 +3767,7 @@ export class QuoteDetailsService {
       updatedQuoteDetail,
       cartQuoteDb
     };
-  };
+  };b
 
 
 }
