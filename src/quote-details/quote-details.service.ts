@@ -3770,10 +3770,10 @@ export class QuoteDetailsService {
 
     let updatedCartQuote: CartQuote = cartQuoteDb;
 
-    // if (saveData == 1) {
-    //   updatedCartQuote = await this.cartQuoteRepository.save(cartQuoteDb);
-    //   await this.quoteDetailRepository.save(quoteDetail);
-    // }
+    if (saveData == 1) {
+      updatedCartQuote = await this.cartQuoteRepository.save(cartQuoteDb);
+      await this.quoteDetailRepository.save(quoteDetail);
+    }
 
     return {
       updatedQuoteDetail,
