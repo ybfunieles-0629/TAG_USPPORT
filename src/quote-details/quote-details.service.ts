@@ -811,7 +811,7 @@ export class QuoteDetailsService {
           const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
 
           totalPrice += clientTransportPrice;
-          
+
           // newQuoteDetail.transportTotalPrice = 0;
           // newQuoteDetail.transportTotalPrice += clientTransportPrice || 0;
           // newQuoteDetail.sampleValue += clientTransportPrice || 0;
@@ -828,8 +828,8 @@ export class QuoteDetailsService {
         // ValorTotalDeTransporteGeneral += TransporteMuestra,
         newQuoteDetail.sampleTransportValue = TransporteMuestra;
 
-          // TOTAL GASTOS MUESTRA === VARIABLE GLOBAL
-          TotalGastoMuestra = TotalMuestra + TransporteMuestra;
+        // TOTAL GASTOS MUESTRA === VARIABLE GLOBAL
+        TotalGastoMuestra = TotalMuestra + TransporteMuestra;
 
 
         // CUATRO POR MIL MUESTRA 
@@ -963,7 +963,7 @@ export class QuoteDetailsService {
             //* VERIFICAR QUE LA CANTIDAD SE ENCUENTRE ENTRE EL RANGO DEL PRECIO SERVICIO MARCADO
             console.log(quantity)
             // if (markedServicePrice.minRange >= quantity && markedServicePrice.maxRange > quantity) {
-            if (quantity >= markedServicePrice.minRange && quantity <= markedServicePrice.maxRange){
+            if (quantity >= markedServicePrice.minRange && quantity <= markedServicePrice.maxRange) {
 
               console.log(markedServicePrice.unitPrice)
 
@@ -998,7 +998,7 @@ export class QuoteDetailsService {
               totalMarking += markingTransportPrice;
               totalCost += markingTransportPrice;
               newQuoteDetail.markingWithProductSupplierTransport += markingTransportPrice;
-              
+
               ValorTotalDeTransporteGeneral += (markingTransportPrice)
 
 
@@ -1026,47 +1026,47 @@ export class QuoteDetailsService {
 
 
     //* CALCULAR EL IVA
-    
+
     let IvaMarcacion: number = (19 / 100) * SubTotalCostoMarcacion;
     IvaMarcacion = Math.round(IvaMarcacion)
     console.log(IvaMarcacion)
 
 
     // TOTAL COSTO MARCACIÓN
-    
+
     let TotalCostoMarcacion = SubTotalCostoMarcacion + IvaMarcacion;
     TotalCostoMarcacion = Math.round(TotalCostoMarcacion)
     console.log(TotalCostoMarcacion)
 
 
     //* CALCULAR EL 4X1000
-    
+
     let CuatroPorMilMarcacion: number = TotalCostoMarcacion * 0.004 || 0;
     CuatroPorMilMarcacion = Math.round(CuatroPorMilMarcacion)
     console.log(CuatroPorMilMarcacion)
 
     //COSTO TOTAL MARCACIÓN
-    
+
     let CostoTotalMarcacion = TotalCostoMarcacion + CuatroPorMilMarcacion;
     CostoTotalMarcacion = Math.round(CostoTotalMarcacion)
     console.log(CostoTotalMarcacion)
 
 
     // SUBTOTAL
-    
+
     let SubTotal = ValorMuestraIndividual + TransporteMuestra + CuatroPorMilMuestra + CostoTotalTransporteDeEntrega + SubTotalCostoMarcacion + CuatroPorMilMarcacion;
     SubTotal = Math.round(SubTotal)
     console.log(SubTotal)
 
     // IVA SUBTOTAL
-    
+
     let IvaSubtotal = IvaMuestra + IvaMarcacion;
     IvaSubtotal = Math.round(IvaSubtotal)
     console.log(IvaSubtotal)
 
 
     // TOTAL GASTOS DE ADICIONALES
-    
+
     let TotalGastosAdicionales = CostoTotalMuestra + CostoTotalTransporteDeEntrega + CostoTotalMarcacion;
     TotalGastosAdicionales = Math.round(TotalGastosAdicionales)
     console.log(TotalGastosAdicionales)
@@ -1171,7 +1171,7 @@ export class QuoteDetailsService {
     //* MARGEN POR FINANCIACIÓN 
     // const MargenPorFinanciacion: number = 0;
 
-    let paymentDays:any[]=[];
+    let paymentDays: any[] = [];
     for (const paymentDate of financeCostProfist) {
       let data = {
         day: paymentDate.days,
@@ -1219,12 +1219,17 @@ export class QuoteDetailsService {
     const day60 = paymentDays.find(item => item.day === 1);
     // Si se encuentra el objeto, obtener su porcentaje, de lo contrario, asignar 0
     DiasPagoClienteCorporativo = day60 ? day60.day : 0;
-    // DiasPagoClienteCorporativoRentabilidad = day60 ? day60.financingPercentage : 0;
+    DiasPagoClienteCorporativoRentabilidad = day60 ? day60.financingPercentage : 0; //yeison
 
 
     let marginProfit: number = 0;
 
-     marginProfit = systemConfig.noCorporativeClientsMargin;
+    marginProfit = systemConfig.noCorporativeClientsMargin;
+
+
+    // Días de pago de Cliente NO Corporativo
+    console.log(day60)
+    // Si se encuentra el objeto, obtener su porcentaje, de lo contrario, asignar 0
 
 
     //* SI EL CLIENTE ES SECUNDARIO
@@ -1284,6 +1289,8 @@ export class QuoteDetailsService {
       totalPrice = Math.round(value);
     };
 
+ 
+
     console.log(DiasPagoClienteCorporativo)
 
 
@@ -1339,7 +1346,7 @@ export class QuoteDetailsService {
 
 
 
-    
+
 
 
 
@@ -1461,7 +1468,7 @@ export class QuoteDetailsService {
 
     console.log(ValorTotalDeTransporteGeneral)
     newQuoteDetail.transportTotalPrice = ValorTotalDeTransporteGeneral;
-  
+
 
     console.log()
 
@@ -1473,7 +1480,7 @@ export class QuoteDetailsService {
 
     // MARGEN SERVICIO DE MARCACIÓN (PARAMETRIZACIÓN)
     const marginForDialingServices: number = systemConfig.marginForDialingServices || 0;
-    
+
     console.log(SubTotalCostoMarcacion)
     console.log(CuatroPorMilMarcacion)
     console.log(marginForDialingServices)
@@ -1497,7 +1504,7 @@ export class QuoteDetailsService {
     // ======== CALCULO FEE ITERATIVO MARCACION
     let F41 = SubTotalSinFeeMarcacion;
     F6 = marginProfit / 100;
-    F7 = MargenPorFinanciacion ;
+    F7 = MargenPorFinanciacion;
     F8 = feeMarcaCliente / 100;
 
     let primerCalculoMarcacion = F41 * (1 + F6 + F7) * F8;
@@ -1579,13 +1586,13 @@ export class QuoteDetailsService {
     const C16 = systemConfig.supplierFinancingPercentage / 100; // 20% Financiacion cliente
     const F62 = DiasPagoClienteCorporativo; // Dias de pago
     const C49 = TotalGastosAdicionales; // Gastos adicionales
- 
+
     let resultadoCostoFnanciarion = (C23 * (C16 / 30) * (F62 + 15)) + (C49 * (C16 / 30) * (F62 + 15));
     resultadoCostoFnanciarion = Math.round(resultadoCostoFnanciarion);
     console.log(resultadoCostoFnanciarion)
 
     // hasta aqui todo bien
-    
+
 
 
 
@@ -1616,7 +1623,7 @@ export class QuoteDetailsService {
     let ValueRetenciones = systemConfig.withholdingAtSource / 100;
     console.log(ValueRetenciones)
     console.log(TotalIngresosAntesDeIva)
-    let Retenciones = (TotalIngresosAntesDeIva * ValueRetenciones );
+    let Retenciones = (TotalIngresosAntesDeIva * ValueRetenciones);
     Retenciones = Math.round(Retenciones);
     console.log(Retenciones)
 
@@ -1667,7 +1674,7 @@ export class QuoteDetailsService {
     console.log(RentabiliadMinimaEsperada);
     newQuoteDetail.profitability = RentabiliadMinimaEsperada;
 
-  console.log()
+    console.log()
 
     // DESCUENTO SUGERIDO AL COMERCIAL
     const F72 = UtilidadLiquidezFinal;
@@ -1706,7 +1713,7 @@ export class QuoteDetailsService {
 
 
     let IvaSnTotalFinal: number = (19 / 100) * SubTotalFinalesDeIva;
-        IvaSnTotalFinal = Math.round(IvaSnTotalFinal);
+    IvaSnTotalFinal = Math.round(IvaSnTotalFinal);
     console.log(IvaSnTotalFinal);
 
 
@@ -1733,7 +1740,7 @@ export class QuoteDetailsService {
     newQuoteDetail.businessUtility = UtilidadFinalConDescuento;
 
     // % UTILIDAD FINAL CON DESCUENTO
-    let PorcentajeUtilidadFinalConDescuento = (UtilidadFinalConDescuento / (TotalGastoAntesDeIva + Retenciones )) * 100; 
+    let PorcentajeUtilidadFinalConDescuento = (UtilidadFinalConDescuento / (TotalGastoAntesDeIva + Retenciones)) * 100;
     // PorcentajeUtilidadFinalConDescuento = Math.round(PorcentajeUtilidadFinalConDescuento);
 
     console.log(PorcentajeUtilidadFinalConDescuento)
@@ -1763,8 +1770,8 @@ export class QuoteDetailsService {
 
 
     //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
-    
-  
+
+
 
     //* IVA DE LA VENTA
     // const iva: number = (product.iva / 100) * totalPrice || 0;
@@ -1897,7 +1904,7 @@ export class QuoteDetailsService {
 
 
 
-  
+
   async update(id: string, updateQuoteDetailDto: UpdateQuoteDetailDto, save: number) {
     let saveData: number = 0;
 
@@ -2016,7 +2023,7 @@ export class QuoteDetailsService {
 
 
 
-    
+
     //* SE SOLICITA MUESTRA
     if (hasSample) {
       //* CALCULAR EL PRECIO DE LA MUESTRA
@@ -2581,9 +2588,9 @@ export class QuoteDetailsService {
 
 
 
-  
 
-  async updateUp( id: string, updateQuoteDetailDto: CreateQuoteDetailDto, save: number, user: User, ) {
+
+  async updateUp(id: string, updateQuoteDetailDto: CreateQuoteDetailDto, save: number, user: User,) {
     let saveData: number = 0;
 
     if (save) {
@@ -2621,6 +2628,7 @@ export class QuoteDetailsService {
     });
 
 
+    console.log(quoteDetail)
     console.log(quoteDetail.totalValue)
 
     if (!quoteDetail)
@@ -2766,7 +2774,7 @@ export class QuoteDetailsService {
           const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
 
           totalPrice += clientTransportPrice;
-          
+
           // updatedQuoteDetail.transportTotalPrice = 0;
           // updatedQuoteDetail.transportTotalPrice += clientTransportPrice || 0;
           // updatedQuoteDetail.sampleValue += clientTransportPrice || 0;
@@ -2783,8 +2791,8 @@ export class QuoteDetailsService {
         // ValorTotalDeTransporteGeneral += TransporteMuestra,
         updatedQuoteDetail.sampleTransportValue = TransporteMuestra;
 
-          // TOTAL GASTOS MUESTRA === VARIABLE GLOBAL
-          TotalGastoMuestra = TotalMuestra + TransporteMuestra;
+        // TOTAL GASTOS MUESTRA === VARIABLE GLOBAL
+        TotalGastoMuestra = TotalMuestra + TransporteMuestra;
 
 
         // CUATRO POR MIL MUESTRA 
@@ -2918,7 +2926,7 @@ export class QuoteDetailsService {
             //* VERIFICAR QUE LA CANTIDAD SE ENCUENTRE ENTRE EL RANGO DEL PRECIO SERVICIO MARCADO
             console.log(quantity)
             // if (markedServicePrice.minRange >= quantity && markedServicePrice.maxRange > quantity) {
-            if (quantity >= markedServicePrice.minRange && quantity <= markedServicePrice.maxRange){
+            if (quantity >= markedServicePrice.minRange && quantity <= markedServicePrice.maxRange) {
 
               console.log(markedServicePrice.unitPrice)
 
@@ -2953,7 +2961,7 @@ export class QuoteDetailsService {
               totalMarking += markingTransportPrice;
               totalCost += markingTransportPrice;
               updatedQuoteDetail.markingWithProductSupplierTransport += markingTransportPrice;
-              
+
               ValorTotalDeTransporteGeneral += (markingTransportPrice)
 
 
@@ -2981,47 +2989,47 @@ export class QuoteDetailsService {
 
 
     //* CALCULAR EL IVA
-    
+
     let IvaMarcacion: number = (19 / 100) * SubTotalCostoMarcacion;
     IvaMarcacion = Math.round(IvaMarcacion)
     console.log(IvaMarcacion)
 
 
     // TOTAL COSTO MARCACIÓN
-    
+
     let TotalCostoMarcacion = SubTotalCostoMarcacion + IvaMarcacion;
     TotalCostoMarcacion = Math.round(TotalCostoMarcacion)
     console.log(TotalCostoMarcacion)
 
 
     //* CALCULAR EL 4X1000
-    
+
     let CuatroPorMilMarcacion: number = TotalCostoMarcacion * 0.004 || 0;
     CuatroPorMilMarcacion = Math.round(CuatroPorMilMarcacion)
     console.log(CuatroPorMilMarcacion)
 
     //COSTO TOTAL MARCACIÓN
-    
+
     let CostoTotalMarcacion = TotalCostoMarcacion + CuatroPorMilMarcacion;
     CostoTotalMarcacion = Math.round(CostoTotalMarcacion)
     console.log(CostoTotalMarcacion)
 
 
     // SUBTOTAL
-    
+
     let SubTotal = ValorMuestraIndividual + TransporteMuestra + CuatroPorMilMuestra + CostoTotalTransporteDeEntrega + SubTotalCostoMarcacion + CuatroPorMilMarcacion;
     SubTotal = Math.round(SubTotal)
     console.log(SubTotal)
 
     // IVA SUBTOTAL
-    
+
     let IvaSubtotal = IvaMuestra + IvaMarcacion;
     IvaSubtotal = Math.round(IvaSubtotal)
     console.log(IvaSubtotal)
 
 
     // TOTAL GASTOS DE ADICIONALES
-    
+
     let TotalGastosAdicionales = CostoTotalMuestra + CostoTotalTransporteDeEntrega + CostoTotalMarcacion;
     TotalGastosAdicionales = Math.round(TotalGastosAdicionales)
     console.log(TotalGastosAdicionales)
@@ -3125,7 +3133,7 @@ export class QuoteDetailsService {
     //* MARGEN POR FINANCIACIÓN 
     // const MargenPorFinanciacion: number = 0;
 
-    let paymentDays:any[]=[];
+    let paymentDays: any[] = [];
     for (const paymentDate of financeCostProfist) {
       let data = {
         day: paymentDate.days,
@@ -3134,6 +3142,7 @@ export class QuoteDetailsService {
 
       paymentDays.push(data)
     }
+
 
 
     console.log(paymentDays)
@@ -3172,12 +3181,13 @@ export class QuoteDetailsService {
     const day60 = paymentDays.find(item => item.day === 1);
     // Si se encuentra el objeto, obtener su porcentaje, de lo contrario, asignar 0
     DiasPagoClienteCorporativo = day60 ? day60.day : 0;
-
+    MargenPorFinanciacion = day60 ? day60.percentage : 0;
+    console.log(MargenPorFinanciacion)
 
 
     let marginProfit: number = 0;
 
-     marginProfit = systemConfig.noCorporativeClientsMargin;
+    marginProfit = systemConfig.noCorporativeClientsMargin;
 
 
     //* SI EL CLIENTE ES SECUNDARIO
@@ -3292,7 +3302,7 @@ export class QuoteDetailsService {
 
 
 
-    
+
 
 
 
@@ -3414,7 +3424,7 @@ export class QuoteDetailsService {
 
     console.log(ValorTotalDeTransporteGeneral)
     updatedQuoteDetail.transportTotalPrice = ValorTotalDeTransporteGeneral;
-  
+
 
     console.log()
 
@@ -3426,7 +3436,7 @@ export class QuoteDetailsService {
 
     // MARGEN SERVICIO DE MARCACIÓN (PARAMETRIZACIÓN)
     const marginForDialingServices: number = systemConfig.marginForDialingServices || 0;
-    
+
     console.log(SubTotalCostoMarcacion)
     console.log(CuatroPorMilMarcacion)
     console.log(marginForDialingServices)
@@ -3450,7 +3460,7 @@ export class QuoteDetailsService {
     // ======== CALCULO FEE ITERATIVO MARCACION
     let F41 = SubTotalSinFeeMarcacion;
     F6 = marginProfit / 100;
-    F7 = MargenPorFinanciacion ;
+    F7 = MargenPorFinanciacion;
     F8 = feeMarcaCliente / 100;
 
     let primerCalculoMarcacion = F41 * (1 + F6 + F7) * F8;
@@ -3521,6 +3531,8 @@ export class QuoteDetailsService {
 
     // TOTAL INGRESOS ANTES DE IVA
     const TotalIngresosAntesDeIva = updateQuoteDetailDto?.unitPrice + SubTotalFees;
+    console.log(updateQuoteDetailDto?.unitPrice)
+    console.log(SubTotalFees)
     console.log(TotalIngresosAntesDeIva)
 
 
@@ -3533,7 +3545,7 @@ export class QuoteDetailsService {
     // const C16 = marginProfit / 100; // 20% Financiacion cliente
     const F62 = DiasPagoClienteCorporativo; // Dias de pago
     const C49 = TotalGastosAdicionales; // Gastos adicionales
- 
+
 
     console.log(C23)
     console.log(marginProfit)
@@ -3545,7 +3557,7 @@ export class QuoteDetailsService {
     console.log(resultadoCostoFnanciarion)
 
     // hasta aqui todo bien
-    
+
 
 
 
@@ -3576,7 +3588,7 @@ export class QuoteDetailsService {
     let ValueRetenciones = systemConfig.withholdingAtSource / 100;
     console.log(ValueRetenciones)
     console.log(TotalIngresosAntesDeIva)
-    let Retenciones = (TotalIngresosAntesDeIva * ValueRetenciones );
+    let Retenciones = (TotalIngresosAntesDeIva * ValueRetenciones);
     Retenciones = Math.round(Retenciones);
     console.log(Retenciones)
 
@@ -3627,7 +3639,7 @@ export class QuoteDetailsService {
     console.log(RentabiliadMinimaEsperada);
     updatedQuoteDetail.profitability = RentabiliadMinimaEsperada;
 
-  console.log()
+    console.log()
 
     // DESCUENTO SUGERIDO AL COMERCIAL
     const F72 = UtilidadLiquidezFinal;
@@ -3666,7 +3678,7 @@ export class QuoteDetailsService {
 
 
     let IvaSnTotalFinal: number = (19 / 100) * SubTotalFinalesDeIva;
-        IvaSnTotalFinal = Math.round(IvaSnTotalFinal);
+    IvaSnTotalFinal = Math.round(IvaSnTotalFinal);
     console.log(IvaSnTotalFinal);
 
 
@@ -3693,7 +3705,7 @@ export class QuoteDetailsService {
     updatedQuoteDetail.businessUtility = UtilidadFinalConDescuento;
 
     // % UTILIDAD FINAL CON DESCUENTO
-    let PorcentajeUtilidadFinalConDescuento = (UtilidadFinalConDescuento / (TotalGastoAntesDeIva + Retenciones )) * 100; 
+    let PorcentajeUtilidadFinalConDescuento = (UtilidadFinalConDescuento / (TotalGastoAntesDeIva + Retenciones)) * 100;
     // PorcentajeUtilidadFinalConDescuento = Math.round(PorcentajeUtilidadFinalConDescuento);
 
     console.log(PorcentajeUtilidadFinalConDescuento)
@@ -3705,8 +3717,8 @@ export class QuoteDetailsService {
 
 
     //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
-    
-  
+
+
 
     //* IVA DE LA VENTA
     // const iva: number = (product.iva / 100) * totalPrice || 0;
@@ -3758,16 +3770,16 @@ export class QuoteDetailsService {
 
     let updatedCartQuote: CartQuote = cartQuoteDb;
 
-    if (saveData == 1) {
-      updatedCartQuote = await this.cartQuoteRepository.save(cartQuoteDb);
-      await this.quoteDetailRepository.save(quoteDetail);
-    }
+    // if (saveData == 1) {
+    //   updatedCartQuote = await this.cartQuoteRepository.save(cartQuoteDb);
+    //   await this.quoteDetailRepository.save(quoteDetail);
+    // }
 
     return {
       updatedQuoteDetail,
       cartQuoteDb
     };
-  };b
+  }; b
 
 
 }
