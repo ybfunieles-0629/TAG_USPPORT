@@ -12,12 +12,16 @@ export class CreateSupplierPurchaseOrderDto {
   @IsString()
   state: string;
 
+  @IsString()
+  @IsOptional()
+  purchaseDate?: string;
+
   @IsOptional()
   @IsString()
   amount?: number;
   
   @IsOptional()
-  @IsInt()
+  @IsString()
   newBalance?: number;
   
   @IsOptional()
@@ -25,11 +29,10 @@ export class CreateSupplierPurchaseOrderDto {
   expirationDate?: string;
   
   @IsString()
-  @IsUUID()
-  createdBy: string;
+  @IsOptional()
+  createdBy?: string;
 
   @IsOptional()
   @IsString()
-  @IsUUID()
   updatedBy?: string;
 }
