@@ -61,6 +61,11 @@ export class SupplierPurchaseOrder {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Column('date', {
+
+  })
+  purchaseDate: Date;
+
   //* ---- FK ---- *//
   @OneToMany(() => OrderListDetail, (orderListDetail) => orderListDetail.supplierPurchaseOrder)
   orderListDetails: OrderListDetail[];
