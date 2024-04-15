@@ -162,7 +162,7 @@ export class SupplierPurchaseOrdersService {
 
     Object.assign(supplierPurchaseOrder, updatedSupplierPurchaseOrder);
 
-    // await this.supplierPurchaseOrderRepository.save(supplierPurchaseOrder);
+    await this.supplierPurchaseOrderRepository.save(supplierPurchaseOrder);
 
     return {
       supplierPurchaseOrder
