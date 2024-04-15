@@ -116,12 +116,19 @@ export class SupplierPurchaseOrdersService {
       ],
     });
 
+    console.log(supplierPurchaseOrder);
+
     if (!supplierPurchaseOrder)
       throw new NotFoundException(`Supplier purchase order with id ${id} not found`);
 
     const updatedSupplierPurchaseOrder: SupplierPurchaseOrder = plainToClass(SupplierPurchaseOrder, updateSupplierPurchaseOrderDto);
 
     updatedSupplierPurchaseOrder.updatedBy = user.id;
+
+    console.log(updateSupplierPurchaseOrderDto);
+    console.log(file);
+    console.log(user);
+
 
     if (updateSupplierPurchaseOrderDto.state) {
       const state: State = await this.stateRepository.findOne({
@@ -155,7 +162,7 @@ export class SupplierPurchaseOrdersService {
 
     Object.assign(supplierPurchaseOrder, updatedSupplierPurchaseOrder);
 
-    await this.supplierPurchaseOrderRepository.save(supplierPurchaseOrder);
+    // await this.supplierPurchaseOrderRepository.save(supplierPurchaseOrder);
 
     return {
       supplierPurchaseOrder
