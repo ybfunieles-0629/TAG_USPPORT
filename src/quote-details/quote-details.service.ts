@@ -1750,7 +1750,13 @@ export class QuoteDetailsService {
 
 
 
-
+    // Datos a guardar
+    newQuoteDetail.totalGasto = TotalGastoAntesDeIva;
+    newQuoteDetail.totalIngresos = TotalIngresosAntesDeIva;
+    newQuoteDetail.rentabilidadMininaEsperada =RentabiliadMinimaEsperada;
+    newQuoteDetail.descuentoSugerido = resultadoDescuentoSgerido;
+    newQuoteDetail.UtilidadFinal = UtilidadFinalConDescuento;
+    newQuoteDetail.porcentajeUtilidadFinal = PorcentajeUtilidadFinalConDescuento;
 
 
 
@@ -3717,6 +3723,19 @@ export class QuoteDetailsService {
 
 
     //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
+
+
+
+
+    updatedQuoteDetail.totalGasto = TotalGastoAntesDeIva;
+    updatedQuoteDetail.totalIngresos = TotalIngresosAntesDeIva;
+    updatedQuoteDetail.rentabilidadMininaEsperada =RentabiliadMinimaEsperada;
+    updatedQuoteDetail.descuentoSugerido = resultadoDescuentoSgerido;
+    updatedQuoteDetail.UtilidadFinal = UtilidadFinalConDescuento;
+    updatedQuoteDetail.porcentajeUtilidadFinal = PorcentajeUtilidadFinalConDescuento;
+
+
+
 
 
 

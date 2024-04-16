@@ -196,6 +196,39 @@ export class QuoteDetail {
   @UpdateDateColumn()
   updatedAt: Date;
 
+
+
+
+  // New Data
+
+  @Column('float', {
+  })
+  totalGasto: number;
+
+  @Column('float', {
+  })
+  totalIngresos: number;
+
+  @Column('float', {
+  })
+  rentabilidadMininaEsperada: number;
+
+  @Column('float', {
+  })
+  descuentoSugerido: number;
+
+  @Column('float', {
+  })
+  UtilidadFinal: number;
+
+  @Column('float', {
+  })
+  porcentajeUtilidadFinal: number;
+
+
+
+
+
   //* ---- FK ---- *//
   @OneToMany(() => TransportService, (transportService) => transportService.quoteDetail)
   transportServices?: TransportService[];

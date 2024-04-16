@@ -19,7 +19,6 @@ export class CreateQuoteDetailDto {
   @IsOptional()
   totalCostoProduccionSinIva: number;
   
-
   @IsInt()
   @IsOptional()
   iva: number;
@@ -63,4 +62,87 @@ export class CreateQuoteDetailDto {
   @IsString()
   @IsUUID()
   updatedBy?: string;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  @IsOptional()
+  @IsInt()
+  markingTotalPrice?: number;
+  @IsOptional()
+  @IsInt()
+  markingPriceWithIva?: number;
+  @IsOptional()
+  @IsInt()
+  markingPriceWith4x1000?: number;
+  @IsOptional()
+  @IsInt()
+  markingWithProductSupplierTransport?: number;
+  @IsOptional()
+  @IsInt()
+  aditionalClientFee?: number;
+  // @IsOptional()
+  // @IsInt()
+  // discount?: number;
+  @IsOptional()
+  @IsInt()
+  total?: number;
+  @IsOptional()
+  @IsInt()
+  financingCost?: number;
+  @IsOptional()
+  @IsInt()
+  discountPercentage?: number;
+  @IsOptional()
+  @IsInt()
+  businessMarginProfit?: number;
+
+
+
+  @IsOptional()
+  @IsInt()
+  totalGasto?: number;
+  @IsOptional()
+  @IsInt()
+  totalIngresos?: number;
+  @IsOptional()
+  @IsInt()
+  rentabilidadMininaEsperada?: number;
+  @IsOptional()
+  @IsInt()
+  descuentoSugerido?: number;
+  @IsOptional()
+  @IsInt()
+  UtilidadFinal?: number;
+  @IsOptional()
+  @IsInt()
+  porcentajeUtilidadFinal?: number;
+
+
+
+
+
 }
