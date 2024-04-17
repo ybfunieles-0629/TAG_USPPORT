@@ -25,6 +25,7 @@ import { DeliveryTime } from '../delivery-times/entities/delivery-time.entity';
 import { CategorySupplier } from '../category-suppliers/entities/category-supplier.entity';
 import { CategoryTag } from 'src/category-tag/entities/category-tag.entity';
 import { FinancingCostProfit } from 'src/financing-cost-profits/entities/financing-cost-profit.entity';
+import { DiscountQuoteDetailDto } from './dto/discount-price.dto';
 
 @Injectable()
 export class QuoteDetailsService {
@@ -636,6 +637,8 @@ export class QuoteDetailsService {
       ],
     });
 
+    console.log(cartQuote)
+
     if (!cartQuote)
       throw new NotFoundException(`Cart quote with id ${createQuoteDetailDto} not found`);
 
@@ -1140,7 +1143,7 @@ export class QuoteDetailsService {
       console.log(MargenCliente)
     } else {
       MargenCliente = 10;
-      console.log(MargenCliente)
+      console.log(MargenCliente) 
 
     };
 
@@ -1823,8 +1826,8 @@ export class QuoteDetailsService {
 
     console.log(newQuoteDetail.transportTotalPrice)
 
-    await this.cartQuoteRepository.save(cartQuoteDb);
-    await this.quoteDetailRepository.save(newQuoteDetail);
+    // await this.cartQuoteRepository.save(cartQuoteDb);
+    // await this.quoteDetailRepository.save(newQuoteDetail);
 
     return {
       newQuoteDetail,
@@ -3798,7 +3801,139 @@ export class QuoteDetailsService {
       updatedQuoteDetail,
       cartQuoteDb
     };
-  }; b
+  }; 
+
+
+
+
+
+
+
+
+
+  
+  async updateUpDiscountAditional(id: string, updateQuoteDetailDto: DiscountQuoteDetailDto, save: number, user: User,) {
+    let saveData: number = 0;
+
+    if (save) {
+      saveData = save;
+    };
+
+    console.log(updateQuoteDetailDto)
+
+    const quoteDetail: QuoteDetail = await this.quoteDetailRepository.findOne({
+      where: {
+        id,
+      },
+      relations: [
+        'cartQuote',
+        'cartQuote.client',
+        'cartQuote.client.user',
+        'cartQuote.client.user.company',
+        'cartQuote.client.user.brands',
+        'product.packings',
+        'product.refProduct',
+        'product.refProduct.images',
+        'product.refProduct.packings',
+        'product.refProduct.supplier',
+        'product.refProduct.supplier.disccounts',
+        'product.refProduct.supplier.disccounts.disccounts',
+        'markingServices',
+        'markingServices.marking',
+        'markingServices.markingServiceProperty',
+        'markingServices.markingServiceProperty.markedServicePrices',
+      ],
+    });
+
+    if (!quoteDetail)
+      throw new NotFoundException(`Quote detail with id ${id} not found`);
+
+    const updatedQuoteDetail = plainToClass(QuoteDetail, quoteDetail);
+
+    const cartQuoteDb: CartQuote = await this.cartQuoteRepository.findOne({
+      where: {
+        id: quoteDetail.cartQuote.id,
+      }
+    });
+
+    const product: Product = quoteDetail.product;
+    const cartQuote: CartQuote = quoteDetail.cartQuote;
+
+    if (!cartQuoteDb)
+      throw new NotFoundException(`Cart quote with id ${quoteDetail.cartQuote.id} not found`);
+
+    cartQuoteDb.productsQuantity += quoteDetail.quantities || 0;
+
+    console.log(cartQuoteDb.totalPrice)
+    cartQuoteDb.totalPrice -= quoteDetail.totalValue
+    cartQuoteDb.totalPrice += updatedQuoteDetail.total || 0;
+    cartQuoteDb.productsQuantity += updatedQuoteDetail.quantities || 0;
+
+    console.log(cartQuoteDb.totalPrice)
+
+    //* ------------- CALCULOS ------------- *//
+
+    const SubTotalActual = quoteDetail.subTotalWithDiscount;
+    const ingresosTotales = quoteDetail.totalIngresos;
+    const gastosTotales = quoteDetail.totalGasto;
+    const IvaActual = quoteDetail.iva;
+    const TotalActual = quoteDetail.totalValue;
+    const utilidadFinalActual = quoteDetail.UtilidadFinal;
+    const porcentajeUtilidadFinalActual = quoteDetail.porcentajeUtilidadFinal;
+    const descuentoAdicional  =  updateQuoteDetailDto.discount / 100;
+    const retencion = quoteDetail.withholdingAtSourceValue;
+
+    console.log(SubTotalActual)
+    console.log(ingresosTotales)
+    console.log(gastosTotales)
+    console.log(IvaActual)
+    console.log(TotalActual)
+    console.log(utilidadFinalActual)
+    console.log(porcentajeUtilidadFinalActual)
+    console.log(retencion)
+
+    console.log(updateQuoteDetailDto.discount)
+
+    const newAppliDiscount = Math.round(ingresosTotales * descuentoAdicional);
+
+    const newSubTotal = Math.round(SubTotalActual - newAppliDiscount);
+    const newIva = Math.round(newSubTotal * 19 / 100);
+    const newTotal = Math.round(newSubTotal + newIva);
+    const newUtilidadFinal = Math.round(newSubTotal - gastosTotales - retencion);
+    const newPorcentajeUtilidadFinal = (newUtilidadFinal /( gastosTotales + retencion)) * 100;
+
+
+    console.log(newSubTotal)
+    console.log(newAppliDiscount)
+    console.log(newIva)
+    console.log(newTotal)
+    console.log(newUtilidadFinal)
+    console.log(newPorcentajeUtilidadFinal)
+
+
+    updatedQuoteDetail.subTotalWithDiscount = newSubTotal;
+    updatedQuoteDetail.iva = newIva
+    updatedQuoteDetail.totalValue = newTotal
+    updatedQuoteDetail.UtilidadFinal = newUtilidadFinal;
+    updatedQuoteDetail.porcentajeUtilidadFinal = newPorcentajeUtilidadFinal
+    updatedQuoteDetail.additionalDiscount =  updateQuoteDetailDto.discount;
+    updatedQuoteDetail.totalAdditionalDiscount = newAppliDiscount;
+
+
+    Object.assign(quoteDetail, updatedQuoteDetail);
+
+    let updatedCartQuote: CartQuote = cartQuoteDb;
+
+    if (saveData == 1) {
+      updatedCartQuote = await this.cartQuoteRepository.save(cartQuoteDb);
+      await this.quoteDetailRepository.save(quoteDetail);
+    }
+
+    return {
+      updatedQuoteDetail,
+      cartQuoteDb
+    };
+  }; 
 
 
 }

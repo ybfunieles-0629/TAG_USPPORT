@@ -7,6 +7,7 @@ import { UpdateQuoteDetailDto } from './dto/update-quote-detail.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { GetUser } from '../users/decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
+import { DiscountQuoteDetailDto } from './dto/discount-price.dto';
 
 @Controller('quote-details')
 export class QuoteDetailsController {
@@ -79,6 +80,22 @@ export class QuoteDetailsController {
   ) {
     return this.quoteDetailsService.remove(id);
   }
+
+
+
+
+  @Patch('/discount/:id')
+  @UseGuards(AuthGuard())
+  updateUpDiscountAditional(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateQuoteDetailDto: DiscountQuoteDetailDto,
+    @Query('save') save: number,
+    @GetUser() user: User,
+  ) {
+    return this.quoteDetailsService.updateUpDiscountAditional(id, updateQuoteDetailDto, save, user);
+  }
+
+
 
 
 

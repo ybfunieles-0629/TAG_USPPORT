@@ -6,52 +6,52 @@ export class SystemConfig {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('int', {
+  @Column('float', {
 
   })
   generalDeliveryTime: number;
   
-  @Column('int', {
+  @Column('float', {
 
   })
   unforeseenFee: number;
 
-  @Column('int', {
+  @Column('float', {
 
   })
   salesGoal: number;
 
-  @Column('int', {
+  @Column('float', {
 
   })
   noCorporativeClientsMargin: number;
 
-  @Column('int', {
+  @Column('float', {
 
   })
   importationFee: number;
 
-  @Column('int', {
+  @Column('float', {
     
   })
   withholdingAtSource: number;
 
-  @Column('int', {
+  @Column('float', {
 
   })
   supplierFinancingPercentage: number;
 
-  @Column('int', {
+  @Column('float', {
 
   })
   marginForDialingServices: number;
 
-  @Column('int', {
+  @Column('float', {
 
   })
   marginForTransportServices: number;
 
-  @Column('int', {
+  @Column('float', {
 
   })
   maxDiscount: number;

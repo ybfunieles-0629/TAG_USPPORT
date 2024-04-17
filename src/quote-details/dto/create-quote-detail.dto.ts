@@ -64,31 +64,6 @@ export class CreateQuoteDetailDto {
   updatedBy?: string;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   @IsOptional()
   @IsInt()
   markingTotalPrice?: number;
@@ -104,9 +79,7 @@ export class CreateQuoteDetailDto {
   @IsOptional()
   @IsInt()
   aditionalClientFee?: number;
-  // @IsOptional()
-  // @IsInt()
-  // discount?: number;
+
   @IsOptional()
   @IsInt()
   total?: number;
