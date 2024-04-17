@@ -755,7 +755,7 @@ export class CartQuotesService {
           tagProductTotalCost: quoteDetail.totalValue,
           samplePrice: quoteDetail.sampleValue,
           tagMarkingTotalCost: quoteDetail.markingTotalPrice,
-          transportCost: quoteDetail.transportTotalPrice,
+          transportCost: quoteDetail.transportTotalPrice, 
           realTransportCost: quoteDetail.totalPriceWithTransport,
           realMarkingCost: quoteDetail.markingTotalPrice,
           product: quoteDetail.product,

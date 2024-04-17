@@ -97,6 +97,18 @@ export class CartQuote {
   @UpdateDateColumn()
   updatedAt: Date;
 
+
+  @Column('int', {
+
+  })
+  ivaTotal: number;
+
+  @Column('int', {
+
+  })
+  subTotal: number;
+
+
   //* ---- FK ---- *//
   @ManyToOne(() => State, (state) => state.cartQuotes)
   state: State;

@@ -1763,6 +1763,12 @@ export class QuoteDetailsService {
 
 
 
+    cartQuoteDb.ivaTotal += IvaSnTotalFinal;
+    cartQuoteDb.subTotal += SubTotalFinalesDeIva;
+
+
+
+
 
 
 
@@ -1826,37 +1832,14 @@ export class QuoteDetailsService {
 
     console.log(newQuoteDetail.transportTotalPrice)
 
-    // await this.cartQuoteRepository.save(cartQuoteDb);
-    // await this.quoteDetailRepository.save(newQuoteDetail);
+    await this.cartQuoteRepository.save(cartQuoteDb);
+    await this.quoteDetailRepository.save(newQuoteDetail);
 
     return {
       newQuoteDetail,
       cartQuoteDb
     };
   };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -3740,6 +3723,9 @@ export class QuoteDetailsService {
 
 
 
+    cartQuoteDb.ivaTotal += IvaSnTotalFinal;
+    cartQuoteDb.subTotal += SubTotalFinalesDeIva;
+
 
 
     //* IVA DE LA VENTA
@@ -3802,13 +3788,6 @@ export class QuoteDetailsService {
       cartQuoteDb
     };
   }; 
-
-
-
-
-
-
-
 
 
   
@@ -3918,6 +3897,16 @@ export class QuoteDetailsService {
     updatedQuoteDetail.porcentajeUtilidadFinal = newPorcentajeUtilidadFinal
     updatedQuoteDetail.additionalDiscount =  updateQuoteDetailDto.discount;
     updatedQuoteDetail.totalAdditionalDiscount = newAppliDiscount;
+
+
+    cartQuoteDb.ivaTotal += newIva;
+    cartQuoteDb.subTotal += newSubTotal;
+
+
+    cartQuoteDb.totalPrice += newTotal;
+
+    console.log(cartQuoteDb.totalPrice)
+
 
 
     Object.assign(quoteDetail, updatedQuoteDetail);
