@@ -32,4 +32,8 @@ export class PaginationDto {
 
   @IsOptional()
   clientId?: string;
+
+
+  @IsOptional()
+  feeMarca?: number;
 }

@@ -56,6 +56,7 @@ export class RefProductsController {
     return this.refProductsService.filterProducts(filterRefProductsDto, paginationDto);
   }
 
+
   @Get('is/allowed')
   @UseGuards(AuthGuard())
   filterReferencesByIsAllowed(
@@ -64,13 +65,17 @@ export class RefProductsController {
     return this.refProductsService.filterReferencesByIsAllowed(paginationDto);
   }
 
+  
+
   @Get(':id')
   findOne(
     @Param('id', ParseUUIDPipe) id: string,
     @Query('margin') margin: number,
     @Query('clientId') clientId: string,
+    @Query('feeMarca') feeMarca: number,
+
   ) {
-    return this.refProductsService.findOne(id, margin, clientId);
+    return this.refProductsService.findOne(id, margin, clientId, feeMarca);
   }
 
 
@@ -84,9 +89,10 @@ export class RefProductsController {
     @Query('margin') margin: number,
     @Query('clientId') clientId: string,
     @Query('cantidadEnviada') cantidadEnviada: number,
+    @Query('feeMarca') feeMarca: number,
 
   ) {
-    return this.refProductsService.findOneOne(id, margin, clientId, cantidadEnviada);
+    return this.refProductsService.findOneOne(id, margin, clientId, cantidadEnviada, feeMarca);
   }
 
 

@@ -244,22 +244,22 @@ export class RefProductsService {
 
 
 
-  async calculations(results: RefProduct[], margin: number, clientId: string, tipo = false) {
+  async calculations(results: RefProduct[], margin: number, clientId: string, tipo = false, feeMarca = 0) {
 
     console.log(clientId)
 
     let staticQuantities: number[];
     if (tipo) {
-      staticQuantities = [
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
-        150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
-        1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
-        7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
-        100000, 200000,
-      ];
       // staticQuantities = [
-      //   1, 2,
+      //   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,
+      //   150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300,
+      //   1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000,
+      //   7000, 8000, 9000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000,
+      //   100000, 200000,
       // ];
+      staticQuantities = [
+        1, 2,
+      ];
     } else {
       staticQuantities = [1];
     }
@@ -680,7 +680,7 @@ export class RefProductsService {
 
           console.log(paymentDays)
           parsedMargin = +margin;
-          if(parsedMargin < 1 && !clientSended){
+          if (parsedMargin < 1 && !clientSended) {
             parsedMargin = systemConfig.noCorporativeClientsMargin;
           }
           console.log(parsedMargin)
@@ -688,7 +688,7 @@ export class RefProductsService {
 
           // //* ADICIONAR EL MARGEN DE GANANCIA DEL CLIENTE
           if (clientSended) {
-            
+
 
             //* ADICIONAR EL % DE MARGEN DE GANANCIA POR PERIODO Y POLÍTICA DE PAGO DEL CLIENTE
             const profitMargin: number = 0;
@@ -773,17 +773,28 @@ export class RefProductsService {
           console.log()
 
           // FEE DE LA MARCA DE USUARIO AL INICIAR SEIÓN > ESTO SE APLICA EN EL CARRITO
-          const feeMarca = 0;
 
+          // ======== CALCULO FEE ITERATIVO MARCACION
 
+          let F8 = feeMarca / 100;
+
+          let primerCalculoMarcacion = F5 * (1 + F6 + F7) * F8;
+          let segundoCalculoMarcacion = primerCalculoMarcacion * F8;
+          let tercerCalculoMarcacion = segundoCalculoMarcacion * F8;
+          let cuartoCalculoMarcacion = tercerCalculoMarcacion * F8;
+
+          let resultadoMarcacion = primerCalculoMarcacion + segundoCalculoMarcacion + tercerCalculoMarcacion + cuartoCalculoMarcacion;
+          let FeeMarcacionTotalCalculado = resultadoMarcacion;
+          FeeMarcacionTotalCalculado = Math.round(FeeMarcacionTotalCalculado);
+          console.log(FeeMarcacionTotalCalculado)
+          // ======== FIN CALCULO FEE ITERATIVO MARCACION
 
 
           // SUBTOTAL PRECIO DE VENTA (A MOSTRAR) === VARIABLE GLOBAL
-          const sumaFee = (1 + (parsedMargin + MargenFinanciacion) / 100) + 0;
-          let SubtotalPrecioVenta = PrecioVentaSinIva * sumaFee;
+          let DATApARSE = parsedMargin /100;
+          const sumaFee = (1 + (DATApARSE + MargenFinanciacion)) ;
+          let SubtotalPrecioVenta = (PrecioVentaSinIva * sumaFee) + FeeMarcacionTotalCalculado;
           SubtotalPrecioVenta = Math.round(SubtotalPrecioVenta);
-
-          console.log(SubtotalPrecioVenta)
 
 
 
@@ -885,7 +896,7 @@ export class RefProductsService {
   async findAll(paginationDto: PaginationDto) {
     const totalCount = await this.refProductRepository.count();
 
-    const { limit = totalCount, offset = 0, calculations = 0, supplier = 0, dashboard = 1, margin = 0, clientId = '' } = paginationDto;
+    const { limit = totalCount, offset = 0, calculations = 0, supplier = 0, dashboard = 1, margin = 0, clientId = '', feeMarca=0 } = paginationDto;
 
     let user;
 
@@ -1051,7 +1062,7 @@ export class RefProductsService {
     let finalFinalResults = [];
 
     if (calculations == 1) {
-      const calculatedResults = results.length > 0 ? await this.calculations(results, margin, clientId) : [];
+      const calculatedResults = results.length > 0 ? await this.calculations(results, margin, clientId, false, feeMarca) : [];
       finalCalculatedResults = calculatedResults;
     }
 
@@ -1104,7 +1115,7 @@ export class RefProductsService {
   }
 
   async filterProductsWithDiscount(paginationDto: PaginationDto, margin, clientId: string) {
-    const { limit = 4, offset = 0 } = paginationDto;
+    const { limit = 4, offset = 0, feeMarca = 0 } = paginationDto;
 
     console.log(paginationDto)
 
@@ -1152,7 +1163,7 @@ export class RefProductsService {
       .skip(offset)
       .getMany();
 
-    const finalResults = results.length > 0 ? await this.calculations(results, margin, clientId, false) : [];
+    const finalResults = results.length > 0 ? await this.calculations(results, margin, clientId, false, feeMarca) : [];
 
     return {
       totalCount: finalResults.length,
@@ -1160,7 +1171,7 @@ export class RefProductsService {
     };
   };
 
-  async findOne(id: string, margin: number, clientId: string) {
+  async findOne(id: string, margin: number, clientId: string, feeMarca:number) {
     const refProduct: RefProduct = await this.refProductRepository.findOne({
       where: {
         id,
@@ -1205,7 +1216,7 @@ export class RefProductsService {
 
     refProducts.push(refProduct);
 
-    const finalResults = refProducts.length > 0 ? await this.calculations(refProducts, margin, clientId, true) : [];
+    const finalResults = refProducts.length > 0 ? await this.calculations(refProducts, margin, clientId, true, feeMarca) : [];
 
     const finalFinalResults = await Promise.all(finalResults.map(async (refProduct) => {
       const tagCategory: CategoryTag = await this.categoryTagRepository.findOne({
@@ -1417,7 +1428,7 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.variantReferences', 'refProductVariantReferences')
           .getMany();
 
-            refProductsToShow.push(...refProducts);
+        refProductsToShow.push(...refProducts);
       }
     }
 
@@ -2393,7 +2404,7 @@ export class RefProductsService {
 
 
 
-  async findOneOne(id: string, margin: number, clientId: string, cantidadEnviada: number) {
+  async findOneOne(id: string, margin: number, clientId: string, cantidadEnviada: number, feeMarca:number) {
     const refProduct: RefProduct = await this.refProductRepository.findOne({
       where: {
         id,
@@ -2468,7 +2479,7 @@ export class RefProductsService {
 
 
   // Metodo para buscar una cantidad diferente
-  async calculationsOne(results: RefProduct[], margin: number, clientId: string, cantidadEnviada = 0) {
+  async calculationsOne(results: RefProduct[], margin: number, clientId: string, cantidadEnviada = 0, feeMarca = 0) {
 
     let staticQuantities: number[] = [cantidadEnviada];
 
@@ -2880,7 +2891,7 @@ export class RefProductsService {
 
 
           parsedMargin = +margin;
-          if(parsedMargin < 1 && !clientSended){
+          if (parsedMargin < 1 && !clientSended) {
             parsedMargin = systemConfig.noCorporativeClientsMargin;
           }
           console.log(parsedMargin)
@@ -2946,7 +2957,7 @@ export class RefProductsService {
 
             console.log(MargenFinanciacion)
 
-          }else {
+          } else {
             // Días de pago de Cliente NO Corporativo
             const day60 = paymentDays.find(item => item.day === 1);
             console.log(day60)
@@ -2982,19 +2993,31 @@ export class RefProductsService {
 
 
 
-          // FEE DE LA MARCA DE USUARIO AL INICIAR SEIÓN > ESTO SE APLICA EN EL CARRITO
-          const feeMarca = 0;
+               // FEE DE LA MARCA DE USUARIO AL INICIAR SEIÓN > ESTO SE APLICA EN EL CARRITO
 
+          // ======== CALCULO FEE ITERATIVO MARCACION
 
+          let F8 = feeMarca / 100;
+
+          let primerCalculoMarcacion = F5 * (1 + F6 + F7) * F8;
+          let segundoCalculoMarcacion = primerCalculoMarcacion * F8;
+          let tercerCalculoMarcacion = segundoCalculoMarcacion * F8;
+          let cuartoCalculoMarcacion = tercerCalculoMarcacion * F8;
+
+          let resultadoMarcacion = primerCalculoMarcacion + segundoCalculoMarcacion + tercerCalculoMarcacion + cuartoCalculoMarcacion;
+          let FeeMarcacionTotalCalculado = resultadoMarcacion;
+          FeeMarcacionTotalCalculado = Math.round(FeeMarcacionTotalCalculado);
+          console.log(FeeMarcacionTotalCalculado)
+          // ======== FIN CALCULO FEE ITERATIVO MARCACION
 
 
           // SUBTOTAL PRECIO DE VENTA (A MOSTRAR) === VARIABLE GLOBAL
-          const sumaFee = (1 + (parsedMargin + MargenFinanciacion) / 100) + 0;
-          let SubtotalPrecioVenta = PrecioVentaSinIva * sumaFee;
+          let DATApARSE = parsedMargin /100;
+          const sumaFee = (1 + (DATApARSE + MargenFinanciacion)) ;
+          let SubtotalPrecioVenta = (PrecioVentaSinIva * sumaFee) + FeeMarcacionTotalCalculado;
           SubtotalPrecioVenta = Math.round(SubtotalPrecioVenta);
 
-          console.log()
-          console.log(SubtotalPrecioVenta)
+
 
 
 
