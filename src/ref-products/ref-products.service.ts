@@ -1114,13 +1114,15 @@ export class RefProductsService {
     };
   }
 
-  async filterProductsWithDiscount(paginationDto: PaginationDto, margin, clientId: string, feeMarca = 0) {
+  async filterProductsWithDiscount(paginationDto: PaginationDto, margin, clientId: string, feeMarca:number) {
     const { limit = 4, offset = 0 } = paginationDto;
 
     console.log(paginationDto)
 
     console.log(margin)
     console.log(clientId)
+
+    console.log(feeMarca)
 
     const results: RefProduct[] = await this.refProductRepository
       .createQueryBuilder('refProduct')
