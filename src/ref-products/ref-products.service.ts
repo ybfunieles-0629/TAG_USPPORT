@@ -837,7 +837,7 @@ export class RefProductsService {
           prices.totalCostoProduccion = TotalCostoDelProducto; // yeison
           prices.valueSinIva = SubtotalPrecioVenta;
           prices.valueConIva = PrecioVentaTotal;
-          prices.totalValue = PrecioVentaTotal;
+          prices.totalValue = SubtotalPrecioVenta;
           prices.value = SubtotalPrecioVentaUnitario;
 
           burnPriceTable.push(prices);
@@ -3064,7 +3064,7 @@ export class RefProductsService {
           // prices.totalCostoProduccion = TotalCostoDelProducto; // yeison
           // prices.valueSinIva = SubtotalPrecioVenta;
           // prices.valueConIva = PrecioVentaTotal;
-          // prices.totalValue = TotalCuadroDerecho;
+          // prices.totalValue = SubtotalPrecioVenta;
           // prices.value = SubtotalPrecioVentaUnitario;
 
 
@@ -3075,7 +3075,7 @@ export class RefProductsService {
             prices.totalCostoProduccion = TotalCostoDelProducto;
           prices.valueSinIva = SubtotalPrecioVenta;
           prices.valueConIva = PrecioVentaTotal;
-          prices.totalValue = PrecioVentaTotal;
+          prices.totalValue = SubtotalPrecioVenta;
           prices.value = SubtotalPrecioVentaUnitario;
 
 
