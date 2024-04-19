@@ -43,10 +43,13 @@ export class RefProductsController {
     @Query() paginationDto: PaginationDto,
     @Query('margin') margin: number,
     @Query('clientId') clientId: string,
-
+    @Query('feeMarca') feeMarca: number,
   ) {
-    return this.refProductsService.filterProductsWithDiscount(paginationDto, margin, clientId);
+    return this.refProductsService.filterProductsWithDiscount(paginationDto, margin, clientId, feeMarca);
   }
+
+
+
 
   @Post('filter')
   filterRefProducts(
@@ -65,7 +68,7 @@ export class RefProductsController {
     return this.refProductsService.filterReferencesByIsAllowed(paginationDto);
   }
 
-  
+
 
   @Get(':id')
   findOne(

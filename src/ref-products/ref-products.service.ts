@@ -1114,8 +1114,8 @@ export class RefProductsService {
     };
   }
 
-  async filterProductsWithDiscount(paginationDto: PaginationDto, margin, clientId: string) {
-    const { limit = 4, offset = 0, feeMarca = 0 } = paginationDto;
+  async filterProductsWithDiscount(paginationDto: PaginationDto, margin, clientId: string, feeMarca = 0) {
+    const { limit = 4, offset = 0 } = paginationDto;
 
     console.log(paginationDto)
 
@@ -1280,7 +1280,7 @@ export class RefProductsService {
   };
 
   async filterProducts(filterRefProductsDto: FilterRefProductsDto, paginationDto: PaginationDto) {
-    const { limit = 1, offset = 0, margin, clientId } = paginationDto;
+    const { limit = 1, offset = 0, margin, clientId, feeMarca = 0 } = paginationDto;
 
     let refProductsToShow: RefProduct[] = [];
     console.log(filterRefProductsDto)
@@ -2005,7 +2005,7 @@ export class RefProductsService {
     console.log(refProductsToShow)
 
 
-    const calculatedResults = refProductsToShow?.length > 0 ? await this.calculations(refProductsToShow, margin, clientId) : [];
+    const calculatedResults = refProductsToShow?.length > 0 ? await this.calculations(refProductsToShow, margin, clientId, false, feeMarca) : [];
 
 
     console.log(calculatedResults)
