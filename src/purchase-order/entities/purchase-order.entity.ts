@@ -130,6 +130,22 @@ export class PurchaseOrder {
   })
   updatedBy: string;
 
+
+  
+  @Column('int', {
+  })
+  newBalance: number;
+
+  
+  @Column('int', {
+  })
+  costValue: number;
+
+
+  @CreateDateColumn()
+  purchaseDate: Date;
+
+
   @CreateDateColumn()
   createdAt: Date;
 

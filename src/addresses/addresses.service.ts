@@ -19,11 +19,15 @@ export class AddressesService {
   ) { }
 
   async create(createAddressDto: CreateAddressDto, user: User) {
+    console.log(createAddressDto)
+
+
     const newAddress: Address = this.addressRepository.create(createAddressDto);
-
+    console.log(newAddress)
     newAddress.createdBy = user.id;
+    // newAddress.client = createAddressDto.clientId;
 
-    this.addressRepository.save(newAddress);
+    // this.addressRepository.save(newAddress);
 
     return {
       newAddress

@@ -1,6 +1,11 @@
 import { IsString } from 'class-validator';
 
 export class CreateAddressDto {
+
+  
+  @IsString()
+  clientId: string;
+  
   @IsString()
   country: string;
 
@@ -21,4 +26,6 @@ export class CreateAddressDto {
 
   @IsString()
   mainAddress: string;
+
+
 }

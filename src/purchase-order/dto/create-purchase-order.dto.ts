@@ -5,6 +5,8 @@ export class CreatePurchaseOrderDto {
   @IsString()
   tagOrderNumber: string;
 
+
+
   @IsString()
   clientOrderNumber: string;
 
@@ -77,4 +79,21 @@ export class CreatePurchaseOrderDto {
 
   @IsString()
   state: string;
+
+
+
+  
+  @IsOptional()
+  @IsString()
+  newBalance: number;
+
+  
+  @IsOptional()
+  @IsString()
+  costValue: number;
+
+  @IsOptional()
+  @IsString()
+  purchaseDate: Date;
+
 }
