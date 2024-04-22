@@ -37,6 +37,12 @@ export class CreatePurchaseOrderDto {
   @IsString()
   expirationDate: Date;
 
+  @IsOptional()
+  @IsString()
+  purchaseDate: Date;
+
+
+  
   @IsString()
   value: number;
 
@@ -92,8 +98,8 @@ export class CreatePurchaseOrderDto {
   @IsString()
   costValue: number;
 
-  @IsOptional()
-  @IsString()
-  purchaseDate: Date;
+
+
+
 
 }

@@ -142,8 +142,13 @@ export class PurchaseOrder {
   costValue: number;
 
 
-  @CreateDateColumn()
+  
+  @Column('date', {
+  })
   purchaseDate: Date;
+
+
+
 
 
   @CreateDateColumn()

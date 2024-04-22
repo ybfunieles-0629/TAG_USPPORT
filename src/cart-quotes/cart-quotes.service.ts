@@ -582,6 +582,7 @@ export class CartQuotesService {
       relations: [
         'quoteDetails',
         'quoteDetails.product',
+        'quoteDetails.product.refProduct',
         'quoteDetails.markingServices',
         'user',
         'client',
@@ -737,6 +738,16 @@ export class CartQuotesService {
         const orderCode: number = nextOrderNumber;
         const orderCodeClient: number = nextOrderClientNumber;
 
+        // Obtener la fecha actual
+        let fechaActual = new Date();
+        let diaActual = fechaActual.getDate();
+        let newDate = quoteDetail?.product?.refProduct?.productInventoryLeadTime + 5;
+        let diaDespuesSuma = diaActual + newDate;
+        fechaActual.setDate(diaDespuesSuma);
+
+        // Serializar la fecha en formato ISO 8601
+        const fechaActualISO = fechaActual.toISOString();
+
         const orderListDetailData = {
           orderCode,
           orderCodeClient,
@@ -744,7 +755,7 @@ export class CartQuotesService {
           quantities: quoteDetail.quantities,
           productTotalPrice: quoteDetail.totalValue,
           clientTagTransportService: quoteDetail.transportServiceTagClient,
-          estimatedDeliveryDate: Date.now(),
+          estimatedDeliveryDate: fechaActualISO,
           iva: quoteDetail.iva,
           financingCost: quoteDetail.financingCost,
           withholdingAtSourceValue: quoteDetail.withholdingAtSourceValue,
@@ -771,6 +782,8 @@ export class CartQuotesService {
         const orderListDetailCreated: OrderListDetail = await this.orderListDetailRepository.save(orderListDetail);
 
         orderListDetailsCreated.push(orderListDetailCreated);
+
+        console.log(orderListDetailData)
       };
 
       const stateToFind: string = cartQuote.user.isCoorporative ? 'preaprobada' : 'orden de compra realizada';
@@ -811,9 +824,18 @@ export class CartQuotesService {
       purchaseOrder.orderListDetails = orderListDetailsCreated;
 
       purchaseOrderCreated = await this.purchaseOrderRepository.save(purchaseOrder);
+
+      console.log(purchaseOrderData)
+
     };
 
-    await this.cartQuoteRepository.save(cartQuote);
+    // await this.cartQuoteRepository.save(cartQuote);
+
+    
+    if (stateDb.name.toLowerCase() == 'en proceso' || stateDb.name.toLowerCase() == 'rechazada') {
+      console.log(cartQuote?.user?.email);
+    };
+
 
     return {
       cartQuote,

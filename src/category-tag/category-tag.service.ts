@@ -55,7 +55,7 @@ export class CategoryTagService {
     } catch (error) {
       console.log('Failed to send the password recovery email', error);
       throw new InternalServerErrorException(`Internal server error`);
-    }
+    } 
   }
 
   async sendMessage(sendMessageDto: SendMessageDto) { 
@@ -91,6 +91,21 @@ export class CategoryTagService {
     }
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
   async create(createCategoryTagDto: CreateCategoryTagDto, file: Express.Multer.File, user: User) {
     createCategoryTagDto.featured = +createCategoryTagDto.featured;
     createCategoryTagDto.isSeason = +createCategoryTagDto.isSeason;
