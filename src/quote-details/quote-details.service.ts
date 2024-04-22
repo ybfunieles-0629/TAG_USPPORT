@@ -722,7 +722,7 @@ export class QuoteDetailsService {
     // DATOS A FUTURO PARA CALCULAR TRANSPORTES
 
     //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL MARCADO
-    const markingTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
+    let markingTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
       .createQueryBuilder('localTransportPrice')
       .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
       .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
@@ -977,6 +977,7 @@ export class QuoteDetailsService {
               marking = markingService?.marking;
               console.log(totalMarking)
 
+
               //* SI EL SERVICIO DE MARCADO TIENE IVA
               if (marking.iva > 0) {
                 //* CALCULAR EL IVA
@@ -984,35 +985,68 @@ export class QuoteDetailsService {
                 totalMarking += iva;
                 totalCost += iva;
                 newQuoteDetail.markingPriceWithIva = iva;
+                console.log(totalMarking)
 
                 //* CALCULAR EL 4X1000
                 let value4x1000: number = totalMarking * 0.004 || 0;
                 totalMarking += value4x1000;
                 totalCost += value4x1000;
                 newQuoteDetail.markingPriceWith4x1000 = value4x1000;
+                console.log(totalMarking)
+
+              console.log(iva)
+              console.log(newQuoteDetail.markingPriceWithIva)
+              console.log(value4x1000)
+              console.log(newQuoteDetail.markingPriceWith4x1000)
+
               };
 
               //* ADICIONAR EL % DE MARGEN DE GANANCIA POR SERVICIO 
               const marginForDialingServices: number = (systemConfig.marginForDialingServices / 100) * totalMarking || 0;
               totalMarking += marginForDialingServices;
+              console.log(totalMarking)
 
               //* CALCULAR EL COSTO DEL TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL PROVEEDOR
               markingService.markingTransportPrice = markingTransportPrice;
               totalMarking += markingTransportPrice;
               totalCost += markingTransportPrice;
-              newQuoteDetail.markingWithProductSupplierTransport += markingTransportPrice;
+              console.log(totalMarking)
+              console.log(totalCost)
 
-              ValorTotalDeTransporteGeneral += (markingTransportPrice)
+              // ValorTotalDeTransporteGeneral += (markingTransportPrice)
 
 
               //* ADICIONAR EL MARGEN DE GANANCIA POR SERVICIO DE TRANSPORTE
               const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * markingTransportPrice || 0;
+              console.log(supplierFinancingPercentage)
               totalMarking += supplierFinancingPercentage;
+              console.log(totalMarking)
 
               markingService.markingTransportPrice = (markingTransportPrice + supplierFinancingPercentage) || 0;
               markingService.calculatedMarkingPrice = totalMarking;
 
               ValorTotalMarcacion += totalMarking;
+
+
+
+              newQuoteDetail.markingWithProductSupplierTransport = markingTransportPrice;
+
+              console.log(totalMarking)
+              console.log(marking)
+              console.log(newQuoteDetail.markingTotalPrice )
+              console.log(totalCost)
+              console.log(marginForDialingServices)
+              console.log(newQuoteDetail.markingWithProductSupplierTransport)
+              console.log(ValorTotalDeTransporteGeneral)
+              console.log(supplierFinancingPercentage)
+              console.log(markingService.markingTransportPrice)
+
+              console.log( markingService.calculatedMarkingPrice)
+              console.log(ValorTotalMarcacion)
+              console.log(markingService)
+
+
+
               await this.markingServicePropertyRepository.save(markingService);
             };
           };
@@ -1448,6 +1482,8 @@ export class QuoteDetailsService {
     F7 = MargenPorFinanciacion;
     F8 = feeMarcaCliente / 100;
 
+    console.log(F8) 
+
     let primerCalculoTransporte = F36 * (1 + F6 + F7) * F8;
     let segundoCalculoTransporte = primerCalculoTransporte * F8;
     let tercerCalculoTransporte = segundoCalculoTransporte * F8;
@@ -1832,8 +1868,8 @@ export class QuoteDetailsService {
 
     console.log(newQuoteDetail.transportTotalPrice)
 
-    await this.cartQuoteRepository.save(cartQuoteDb);
-    await this.quoteDetailRepository.save(newQuoteDetail);
+    // await this.cartQuoteRepository.save(cartQuoteDb);
+    // await this.quoteDetailRepository.save(newQuoteDetail);
 
     return {
       newQuoteDetail,

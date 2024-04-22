@@ -542,7 +542,7 @@ export class RefProductsService {
           const { origin: transportOrigin, destination: transportDestination, price: transportPrice, volume: transportVolume } = localTransportPrice || { origin: '', destination: '', price: 0, volume: 0 };
           console.log(transportPrice)
 
-          prices.transportPrice = transportPrice;
+          // prices.transportPrice = transportPrice;
 
 
 
@@ -2758,7 +2758,7 @@ export class RefProductsService {
           const { origin: transportOrigin, destination: transportDestination, price: transportPrice, volume: transportVolume } = localTransportPrice || { origin: '', destination: '', price: 0, volume: 0 };
           console.log(transportPrice)
 
-          prices.transportPrice = transportPrice;
+          // prices.transportPrice = transportPrice;
 
 
 
