@@ -829,7 +829,7 @@ export class CartQuotesService {
 
     };
 
-    // await this.cartQuoteRepository.save(cartQuote);
+    await this.cartQuoteRepository.save(cartQuote);
 
     
     if (stateDb.name.toLowerCase() == 'en proceso' || stateDb.name.toLowerCase() == 'rechazada') {
