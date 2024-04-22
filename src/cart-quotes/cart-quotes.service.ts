@@ -830,7 +830,7 @@ export class CartQuotesService {
     };
 
     await this.cartQuoteRepository.save(cartQuote);
-
+    console.log()
     
     if (stateDb.name.toLowerCase() == 'en proceso' || stateDb.name.toLowerCase() == 'rechazada') {
       console.log(cartQuote?.user?.email);
