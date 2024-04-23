@@ -139,7 +139,7 @@ export class PurchaseOrderService {
         results.push(...result);
 
         count += results.length;
-      }
+      } 
     } else if (user.roles.some((role) => role.name.toLowerCase().trim() == 'cliente')) {
       results = await this.purchaseOrderRepository
         .createQueryBuilder('purchase')
@@ -176,11 +176,10 @@ export class PurchaseOrderService {
         .leftJoinAndSelect('refProductSupplier.user', 'refProductSupplierUser')
         .leftJoinAndSelect('purchase.state', 'purchaseState')
         .leftJoinAndSelect('purchase.commercialQualification', 'commercialQualification')
-        // .skip(offset)
-        // .take(limit)
+        .skip(offset)
+        .take(limit)
         .getMany();
 
-      count = results.length;
       console.log(count)
     };   
 
@@ -210,7 +209,7 @@ export class PurchaseOrderService {
     );
 
     return {
-      count2,
+      count,
       finalResults
     };
   }
