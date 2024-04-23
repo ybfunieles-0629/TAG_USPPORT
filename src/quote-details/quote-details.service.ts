@@ -1028,25 +1028,7 @@ export class QuoteDetailsService {
 
               ValorTotalMarcacion += totalMarking;
 
-
-
               newQuoteDetail.markingWithProductSupplierTransport = markingTransportPrice;
-
-              console.log(totalMarking)
-              console.log(marking)
-              console.log(newQuoteDetail.markingTotalPrice)
-              console.log(totalCost)
-              console.log(marginForDialingServices)
-              console.log(newQuoteDetail.markingWithProductSupplierTransport)
-              console.log(ValorTotalDeTransporteGeneral)
-              console.log(supplierFinancingPercentage)
-              console.log(markingService.markingTransportPrice)
-
-              console.log(markingService.calculatedMarkingPrice)
-              console.log(ValorTotalMarcacion)
-              console.log(markingService)
-
-
 
               await this.markingServicePropertyRepository.save(markingService);
             };
@@ -1500,7 +1482,6 @@ export class QuoteDetailsService {
     FeeTransporteTotalCalculado = Math.round(FeeTransporteTotalCalculado);
     console.log(FeeTransporteTotalCalculado)
     // ======== FIN CALCULO FEE ITERATIVO TRANSPORTE
-
 
 
     // SUBTOTAL PRECIO TRANSPORTE DE ENTREGA
