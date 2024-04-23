@@ -176,8 +176,8 @@ export class PurchaseOrderService {
         .leftJoinAndSelect('refProductSupplier.user', 'refProductSupplierUser')
         .leftJoinAndSelect('purchase.state', 'purchaseState')
         .leftJoinAndSelect('purchase.commercialQualification', 'commercialQualification')
-        .skip(offset)
-        .take(limit)
+        // .skip(offset)
+        // .take(limit)
         .getMany();
 
       count = results.length;
