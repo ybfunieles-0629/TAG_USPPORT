@@ -104,13 +104,15 @@ export class PurchaseOrderService {
   }
 
   async findAll(paginationDto: PaginationDto, user: User) {
-    let count: number = 0;
-    const { limit = 10, offset = 0 } = paginationDto;
+    let count: number = await this.purchaseOrderRepository.count();
+    let count2: number = await this.purchaseOrderRepository.count();
+    console.log(count)
+    const { limit = count, offset = 0 } = paginationDto;
     let results: PurchaseOrder[] = [];
+    console.log(user.roles)
 
     if (user.roles.some((role) => role.name.toLowerCase().trim() == 'comercial')) {
       const clientIds: string[] = user.admin.clients.map(client => client.id);
-
       for (const clientId of clientIds) {
         const result = await this.purchaseOrderRepository
           .createQueryBuilder('purchase')
@@ -179,7 +181,8 @@ export class PurchaseOrderService {
         .getMany();
 
       count = results.length;
-    };
+      console.log(count)
+    };   
 
     const finalResults = await Promise.all(
       results.map(async (purchaseOrder: PurchaseOrder) => {
@@ -207,7 +210,7 @@ export class PurchaseOrderService {
     );
 
     return {
-      count,
+      count2,
       finalResults
     };
   }
