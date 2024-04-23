@@ -945,6 +945,7 @@ export class QuoteDetailsService {
 
     // INICIO CALCULO DE SERVICIO DE MARCACIÓN
     let ValorTotalMarcacion = 0;
+    let valorTransporteMarcacion = 0;
 
     const markingServices: MarkingService[] = newQuoteDetail?.markingServices || [];
     console.log(markingServices)
@@ -994,10 +995,10 @@ export class QuoteDetailsService {
                 newQuoteDetail.markingPriceWith4x1000 = value4x1000;
                 console.log(totalMarking)
 
-              console.log(iva)
-              console.log(newQuoteDetail.markingPriceWithIva)
-              console.log(value4x1000)
-              console.log(newQuoteDetail.markingPriceWith4x1000)
+                console.log(iva)
+                console.log(newQuoteDetail.markingPriceWithIva)
+                console.log(value4x1000)
+                console.log(newQuoteDetail.markingPriceWith4x1000)
 
               };
 
@@ -1013,7 +1014,7 @@ export class QuoteDetailsService {
               console.log(totalMarking)
               console.log(totalCost)
 
-              // ValorTotalDeTransporteGeneral += (markingTransportPrice)
+              valorTransporteMarcacion += markingTransportPrice;
 
 
               //* ADICIONAR EL MARGEN DE GANANCIA POR SERVICIO DE TRANSPORTE
@@ -1033,7 +1034,7 @@ export class QuoteDetailsService {
 
               console.log(totalMarking)
               console.log(marking)
-              console.log(newQuoteDetail.markingTotalPrice )
+              console.log(newQuoteDetail.markingTotalPrice)
               console.log(totalCost)
               console.log(marginForDialingServices)
               console.log(newQuoteDetail.markingWithProductSupplierTransport)
@@ -1041,7 +1042,7 @@ export class QuoteDetailsService {
               console.log(supplierFinancingPercentage)
               console.log(markingService.markingTransportPrice)
 
-              console.log( markingService.calculatedMarkingPrice)
+              console.log(markingService.calculatedMarkingPrice)
               console.log(ValorTotalMarcacion)
               console.log(markingService)
 
@@ -1054,6 +1055,10 @@ export class QuoteDetailsService {
       };
     };
 
+
+
+    // COTO TRANSPORTE MARCACIÓN ==== VARIABLE GLOBAL 
+    console.log(valorTransporteMarcacion)
 
 
     //SUBTOTAL COSTO MARCACIÓN
@@ -1071,7 +1076,7 @@ export class QuoteDetailsService {
 
     // TOTAL COSTO MARCACIÓN
 
-    let TotalCostoMarcacion = SubTotalCostoMarcacion + IvaMarcacion;
+    let TotalCostoMarcacion = SubTotalCostoMarcacion + IvaMarcacion + valorTransporteMarcacion;
     TotalCostoMarcacion = Math.round(TotalCostoMarcacion)
     console.log(TotalCostoMarcacion)
 
@@ -1177,7 +1182,7 @@ export class QuoteDetailsService {
       console.log(MargenCliente)
     } else {
       MargenCliente = 10;
-      console.log(MargenCliente) 
+      console.log(MargenCliente)
 
     };
 
@@ -1326,7 +1331,7 @@ export class QuoteDetailsService {
       totalPrice = Math.round(value);
     };
 
- 
+
 
     console.log(DiasPagoClienteCorporativo)
 
@@ -1462,9 +1467,10 @@ export class QuoteDetailsService {
     console.log(marginFian)
 
 
+    let alculoSubTotalInicial = valorTransporteMarcacion + SubTotalCostoMarcacion + CuatroPorMilMarcacion;
 
     let sumaF6F7 = marginCli + marginFian;
-    let SubTotalTransporte = CostoTotalTransporteDeEntrega * (1 + (maerginTrans + sumaF6F7));
+    let SubTotalTransporte = alculoSubTotalInicial * (1 + (maerginTrans + sumaF6F7));
 
     // SUBTOTAL TRANSPORTE
     SubTotalTransporte = (Math.ceil(SubTotalTransporte));
@@ -1482,7 +1488,7 @@ export class QuoteDetailsService {
     F7 = MargenPorFinanciacion;
     F8 = feeMarcaCliente / 100;
 
-    console.log(F8) 
+    console.log(F8)
 
     let primerCalculoTransporte = F36 * (1 + F6 + F7) * F8;
     let segundoCalculoTransporte = primerCalculoTransporte * F8;
@@ -1497,19 +1503,27 @@ export class QuoteDetailsService {
 
 
 
-    // TOTAL PRECIO TRANSPORTE DE ENTREGA
+    // SUBTOTAL PRECIO TRANSPORTE DE ENTREGA
     const TotalPrecioTransporteDeEntrega = SubTotalTransporte + FeeTransporteTotalCalculado;
     console.log(TotalPrecioTransporteDeEntrega)
 
 
+    //* CALCULAR EL IVA DEL TRANSPORTE
+    let IvaSubTotalTransporte: number = (19 / 100) * SubTotalTransporte;
+    IvaSubTotalTransporte = Math.round(IvaSubTotalTransporte);
+    console.log(IvaSubTotalTransporte)
+
+    // TOTAL PRECIO TRANSPORTE DE ENTREGA
+    let transporteConIva = TotalPrecioTransporteDeEntrega + IvaSubTotalTransporte;
+    console.log(transporteConIva)
+
     // SUMA CONTONIA DEL TRANSPORTE TOTAL
-    ValorTotalDeTransporteGeneral += (TotalPrecioTransporteDeEntrega)
+    ValorTotalDeTransporteGeneral += (transporteConIva)
 
     console.log(ValorTotalDeTransporteGeneral)
     newQuoteDetail.transportTotalPrice = ValorTotalDeTransporteGeneral;
 
 
-    console.log()
 
 
 
@@ -1530,10 +1544,10 @@ export class QuoteDetailsService {
 
     let marginFDS = marginForDialingServices / 100;
     // Convertir porcentajes a valores decimales
-    let F40 = (SubTotalCostoMarcacion);
+    let F40 = (CostoTotalTransporteDeEntrega);
 
     // Evaluar la fórmula
-    let SubTotalSinFeeMarcacion = (SubTotalCostoMarcacion + CuatroPorMilMarcacion) * (1 + (marginFDS + sumaF6F7));
+    let SubTotalSinFeeMarcacion = (CostoTotalTransporteDeEntrega) * (1 + (marginFDS + sumaF6F7));
     console.log(SubTotalSinFeeMarcacion)
 
 
@@ -1561,34 +1575,22 @@ export class QuoteDetailsService {
 
 
     // TOTAL PRECIO MARCACION DE ENTREGA
-    const SubTotalConFeeMarcacion = SubTotalSinFeeMarcacion + FeeMarcacionTotalCalculado;
-    console.log(SubTotalConFeeMarcacion);
-
-    //* IVA FEE MARCACION
-    const IvaFeeMarcacion: number = (19 / 100) * SubTotalConFeeMarcacion || 0;
-
-    // TOTAL PRECIO MARCACION CON IVA
-    const TotalPrecioMarcacionDeEntrega = SubTotalConFeeMarcacion + IvaFeeMarcacion;
+    const TotalPrecioMarcacionDeEntrega = SubTotalSinFeeMarcacion + FeeMarcacionTotalCalculado;
     console.log(TotalPrecioMarcacionDeEntrega);
 
+    //* IVA FEE MARCACION
+    // const IvaFeeMarcacion: number = (19 / 100) * SubTotalConFeeMarcacion || 0;
 
-
-
-
-
-
-
-
-
-
-
+    // // TOTAL PRECIO MARCACION CON IVA
+    // const TotalPrecioMarcacionDeEntrega = SubTotalConFeeMarcacion + IvaFeeMarcacion;
+    // console.log(TotalPrecioMarcacionDeEntrega);
 
 
     // SUB TOTAL TODOS LOS FEE
     console.log(SubTotalFeeMuestra)
     console.log(TotalPrecioTransporteDeEntrega)
-    console.log(SubTotalConFeeMarcacion)
-    let SubTotalFees = SubTotalFeeMuestra + TotalPrecioTransporteDeEntrega + SubTotalConFeeMarcacion;
+    // console.log(SubTotalConFeeMarcacion)
+    let SubTotalFees = SubTotalFeeMuestra + TotalPrecioTransporteDeEntrega + TotalPrecioMarcacionDeEntrega;
     SubTotalFees = Math.round(SubTotalFees);
     console.log(SubTotalFees);
 
@@ -1603,6 +1605,23 @@ export class QuoteDetailsService {
     let TotalIngresosAdicionales = SubTotalFees + IvasTotalFees;
     TotalIngresosAdicionales = Math.round(TotalIngresosAdicionales);
     console.log(TotalIngresosAdicionales);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1640,7 +1659,10 @@ export class QuoteDetailsService {
     const ResultFee = TotalIngresosAntesDeIva * Fee / 100;
     console.log(Fee)
 
-
+    // RESULTADO PORCEENTAJE FEE 
+    let porcentajeFee = (Fee / 100) * TotalIngresosAntesDeIva;
+    porcentajeFee = Math.round(porcentajeFee);
+    console.log(porcentajeFee)
 
     // TOTAL GASTOS ANTES DE IVA === VARIABEL GOBAL 
     const TotalGastoAntesDeIva = SubTotal + createQuoteDetailDto.totalCostoProduccionSinIva + resultadoCostoFnanciarion + ResultFee;
@@ -1792,7 +1814,7 @@ export class QuoteDetailsService {
     // Datos a guardar
     newQuoteDetail.totalGasto = TotalGastoAntesDeIva;
     newQuoteDetail.totalIngresos = TotalIngresosAntesDeIva;
-    newQuoteDetail.rentabilidadMininaEsperada =RentabiliadMinimaEsperada;
+    newQuoteDetail.rentabilidadMininaEsperada = RentabiliadMinimaEsperada;
     newQuoteDetail.descuentoSugerido = resultadoDescuentoSgerido;
     newQuoteDetail.UtilidadFinal = UtilidadFinalConDescuento;
     newQuoteDetail.porcentajeUtilidadFinal = PorcentajeUtilidadFinalConDescuento;
@@ -1868,8 +1890,8 @@ export class QuoteDetailsService {
 
     console.log(newQuoteDetail.transportTotalPrice)
 
-    // await this.cartQuoteRepository.save(cartQuoteDb);
-    // await this.quoteDetailRepository.save(newQuoteDetail);
+    await this.cartQuoteRepository.save(cartQuoteDb);
+    await this.quoteDetailRepository.save(newQuoteDetail);
 
     return {
       newQuoteDetail,
@@ -1887,7 +1909,7 @@ export class QuoteDetailsService {
 
 
 
-  
+
 
 
 
@@ -3760,7 +3782,7 @@ export class QuoteDetailsService {
 
     updatedQuoteDetail.totalGasto = TotalGastoAntesDeIva;
     updatedQuoteDetail.totalIngresos = TotalIngresosAntesDeIva;
-    updatedQuoteDetail.rentabilidadMininaEsperada =RentabiliadMinimaEsperada;
+    updatedQuoteDetail.rentabilidadMininaEsperada = RentabiliadMinimaEsperada;
     updatedQuoteDetail.descuentoSugerido = resultadoDescuentoSgerido;
     updatedQuoteDetail.UtilidadFinal = UtilidadFinalConDescuento;
     updatedQuoteDetail.porcentajeUtilidadFinal = PorcentajeUtilidadFinalConDescuento;
@@ -3832,10 +3854,10 @@ export class QuoteDetailsService {
       updatedQuoteDetail,
       cartQuoteDb
     };
-  }; 
+  };
 
 
-  
+
   async updateUpDiscountAditional(id: string, updateQuoteDetailDto: DiscountQuoteDetailDto, save: number, user: User,) {
     let saveData: number = 0;
 
@@ -3904,7 +3926,7 @@ export class QuoteDetailsService {
     const TotalActual = quoteDetail.totalValue;
     const utilidadFinalActual = quoteDetail.UtilidadFinal;
     const porcentajeUtilidadFinalActual = quoteDetail.porcentajeUtilidadFinal;
-    const descuentoAdicional  =  updateQuoteDetailDto.discount / 100;
+    const descuentoAdicional = updateQuoteDetailDto.discount / 100;
     const retencion = quoteDetail.withholdingAtSourceValue;
 
     console.log(SubTotalActual)
@@ -3924,7 +3946,7 @@ export class QuoteDetailsService {
     const newIva = Math.round(newSubTotal * 19 / 100);
     const newTotal = Math.round(newSubTotal + newIva);
     const newUtilidadFinal = Math.round(newSubTotal - gastosTotales - retencion);
-    const newPorcentajeUtilidadFinal = (newUtilidadFinal /( gastosTotales + retencion)) * 100;
+    const newPorcentajeUtilidadFinal = (newUtilidadFinal / (gastosTotales + retencion)) * 100;
 
 
     console.log(newSubTotal)
@@ -3940,7 +3962,7 @@ export class QuoteDetailsService {
     updatedQuoteDetail.totalValue = newTotal
     updatedQuoteDetail.UtilidadFinal = newUtilidadFinal;
     updatedQuoteDetail.porcentajeUtilidadFinal = newPorcentajeUtilidadFinal
-    updatedQuoteDetail.additionalDiscount =  updateQuoteDetailDto.discount;
+    updatedQuoteDetail.additionalDiscount = updateQuoteDetailDto.discount;
     updatedQuoteDetail.totalAdditionalDiscount = newAppliDiscount;
 
 
@@ -3967,7 +3989,7 @@ export class QuoteDetailsService {
       updatedQuoteDetail,
       cartQuoteDb
     };
-  }; 
+  };
 
 
 }
