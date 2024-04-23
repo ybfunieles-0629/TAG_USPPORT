@@ -211,7 +211,7 @@ export class OrderListDetailsService {
         ],
       });
 
-      count = results.length;
+      // count = results.length;
     }
 
     return {
