@@ -3870,6 +3870,8 @@ export class QuoteDetailsService {
         'product.refProduct.supplier.disccounts',
         'product.refProduct.supplier.disccounts.disccounts',
         'markingServices',
+        'markingServices.logos',
+        'markingServices.externalSubTechnique',
         'markingServices.marking',
         'markingServices.markingServiceProperty',
         'markingServices.markingServiceProperty.markedServicePrices',
@@ -5070,7 +5072,7 @@ export class QuoteDetailsService {
 
 
 
-  
+
 
   async updateUpDiscountAditional(id: string, updateQuoteDetailDto: DiscountQuoteDetailDto, save: number, user: User,) {
     let saveData: number = 0;
