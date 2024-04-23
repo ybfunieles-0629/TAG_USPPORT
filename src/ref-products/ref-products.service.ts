@@ -547,7 +547,7 @@ export class RefProductsService {
 
 
           //TOTAL DESEMBOLSO COMPRA DE PRODUCTO === VARIABLE GLOBAL
-          let TotalDesembolsoCompraProducto = Subtotal + IvaSegunda + transportPrice
+          let TotalDesembolsoCompraProducto = Subtotal + IvaSegunda
           TotalDesembolsoCompraProducto = Math.round(TotalDesembolsoCompraProducto);
           console.log(TotalDesembolsoCompraProducto)
 
@@ -609,7 +609,7 @@ export class RefProductsService {
 
 
           //SUBTOTAL ANTES DE IVA (TABLA QUEMADA COSTO) === VARIABLE GLOBAL 
-          let SubTotalAntesDeIva = transportPrice + Subtotal + GastoFinancieroPreentrega + CuatroForMil;
+          let SubTotalAntesDeIva = Subtotal + GastoFinancieroPreentrega + CuatroForMil;
           SubTotalAntesDeIva = Math.round(SubTotalAntesDeIva);
           console.log(SubTotalAntesDeIva)
 
@@ -2452,7 +2452,7 @@ export class RefProductsService {
 
     refProducts.push(refProduct);
 
-    const finalResults = refProducts.length > 0 ? await this.calculationsOne(refProducts, margin, clientId, cantidadEnviada) : [];
+    const finalResults = refProducts.length > 0 ? await this.calculationsOne(refProducts, margin, clientId, cantidadEnviada, feeMarca) : [];
 
     const finalFinalResults = await Promise.all(finalResults.map(async (refProduct) => {
       const tagCategory: CategoryTag = await this.categoryTagRepository.findOne({
@@ -2481,7 +2481,7 @@ export class RefProductsService {
 
 
   // Metodo para buscar una cantidad diferente
-  async calculationsOne(results: RefProduct[], margin: number, clientId: string, cantidadEnviada = 0, feeMarca = 0) {
+  async calculationsOne(results: RefProduct[], margin: number, clientId: string, cantidadEnviada = 0, feeMarca:number = 0) {
 
     let staticQuantities: number[] = [cantidadEnviada];
 
@@ -2526,6 +2526,7 @@ export class RefProductsService {
         .getOne();
     }
 
+    console.log()
 
     console.log(clientType)
 
@@ -2687,7 +2688,6 @@ export class RefProductsService {
           CostoTotalUnitario = Math.round(CostoTotalUnitario);
 
           console.log(CostoTotalUnitario);
-          console.log("-")
 
           let Imprevistos = 0;
           // //* VERIFICAR SI TIENE FEE DE IMPREVISTOS ************************************* CostoBrutoProducto
@@ -2763,7 +2763,7 @@ export class RefProductsService {
 
 
           //TOTAL DESEMBOLSO COMPRA DE PRODUCTO === VARIABLE GLOBAL
-          let TotalDesembolsoCompraProducto = Subtotal + IvaSegunda + transportPrice
+          let TotalDesembolsoCompraProducto = Subtotal + IvaSegunda;
           TotalDesembolsoCompraProducto = Math.round(TotalDesembolsoCompraProducto);
           console.log(TotalDesembolsoCompraProducto)
 
@@ -2784,6 +2784,7 @@ export class RefProductsService {
           };
 
 
+          console.log(deliveryTimeToSave)
           // % ADELANTO EN PRODUCCIÓN 
           const advancePercentage: number = product?.refProduct?.supplier?.advancePercentage || 0;
           const advancePercentageValue: number = (advancePercentage / 100) * value;
@@ -2827,7 +2828,10 @@ export class RefProductsService {
 
 
           //SUBTOTAL ANTES DE IVA (TABLA QUEMADA COSTO) === VARIABLE GLOBAL 
-          let SubTotalAntesDeIva = transportPrice + Subtotal + GastoFinancieroPreentrega + CuatroForMil;
+          console.log(Subtotal)
+          console.log(GastoFinancieroPreentrega)
+          console.log(CuatroForMil)
+          let SubTotalAntesDeIva = Subtotal + GastoFinancieroPreentrega + CuatroForMil;
           SubTotalAntesDeIva = Math.round(SubTotalAntesDeIva);
           console.log(SubTotalAntesDeIva)
 
@@ -2850,6 +2854,8 @@ export class RefProductsService {
           //* MARGEN DE GANANCIA DEL PROVEEDOR
           const profitMargin: number = product?.refProduct?.supplier?.profitMargin || 0;
 
+          console.log(profitMargin)
+          console.log(mainCategory)
 
           // PRECIO DE VENTA SIN IVA (TABLA QUEMADA) === VARIABLE GLOBAL 
           let PrecioVentaSinIva = 0;
@@ -2993,13 +2999,15 @@ export class RefProductsService {
           console.log(TotalCuadroDerecho);
 
 
+          console.log(MargenFinanciacion)
 
-
-               // FEE DE LA MARCA DE USUARIO AL INICIAR SEIÓN > ESTO SE APLICA EN EL CARRITO
+          // FEE DE LA MARCA DE USUARIO AL INICIAR SEIÓN > ESTO SE APLICA EN EL CARRITO
 
           // ======== CALCULO FEE ITERATIVO MARCACION
 
           let F8 = feeMarca / 100;
+
+          console.log(feeMarca)
 
           let primerCalculoMarcacion = F5 * (1 + F6 + F7) * F8;
           let segundoCalculoMarcacion = primerCalculoMarcacion * F8;
@@ -3020,7 +3028,7 @@ export class RefProductsService {
           SubtotalPrecioVenta = Math.round(SubtotalPrecioVenta);
 
 
-
+          console.log(SubtotalPrecioVenta)
 
 
           // IVA 
