@@ -10,6 +10,11 @@ export class Suscription {
   })
   email: string;
 
+  @Column('varchar', {
+
+  })
+  descripcion: string;
+
   @Column('boolean', {
     default: true,
   })

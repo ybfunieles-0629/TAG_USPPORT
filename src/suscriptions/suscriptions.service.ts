@@ -59,12 +59,18 @@ export class SuscriptionsService {
     };
   };
 
+
+
+
+  
   async update(id: string, updateSuscriptionDto: UpdateSuscriptionDto) {
     const suscription: Suscription = await this.suscriptionRepository.findOne({
       where: {
         id,
       },
     });
+
+    console.log(updateSuscriptionDto)
 
     if (!suscription)
       throw new NotFoundException(`Suscription with id ${id} not found`);
@@ -79,6 +85,10 @@ export class SuscriptionsService {
       suscription
     };
   };
+
+
+
+
 
   async desactivate(id: string) {
     const { suscription } = await this.findOne(id);
