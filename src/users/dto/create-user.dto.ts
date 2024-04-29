@@ -73,4 +73,10 @@ export class CreateUserDto {
   @IsArray()
   @IsString({ each: true })
   privileges?: string[];
+
+  
+  @IsString()
+  @IsOptional()
+  PostalCode?: string;
+
 }

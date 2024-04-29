@@ -46,6 +46,14 @@ export class CartQuote {
   })
   deliveryAddress: string;
 
+
+  
+  @Column('varchar', {
+
+  })
+  PostalCode: string;
+
+
   @Column('int', {
 
   })

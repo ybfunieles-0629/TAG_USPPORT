@@ -18,3 +18,5 @@ import { Logo } from './entities/logo.entity';
   exports: [TypeOrmModule, LogosService],
 })
 export class LogosModule {}
+
+export { LogosService };

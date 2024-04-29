@@ -224,7 +224,11 @@ export class MarkingServicesService {
   async remove(id: string) {
     const { markingService } = await this.findOne(id);
 
-    await this.markingServiceRepository.remove(markingService);
+    console.log(id)
+    console.log(markingService)
+
+
+    // await this.markingServiceRepository.remove(markingService);
 
     return {
       markingService

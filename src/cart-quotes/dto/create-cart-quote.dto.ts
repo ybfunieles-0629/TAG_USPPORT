@@ -52,4 +52,8 @@ export class CreateCartQuoteDto {
   @IsString()
   @IsUUID()
   updatedBy?: string;
+
+  @IsOptional()
+  @IsString()
+  PostalCode: string;
 }

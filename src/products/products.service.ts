@@ -1492,16 +1492,48 @@ export class ProductsService {
 
       await transporter.sendMail({
         from: this.emailSenderConfig.transport.from,
-        to: ['puertodaniela586@gmail.com', 'locarr785@gmail.com', 'yeison.descargas@gmail.com'],
+        to: ['puertodaniela586@gmail.com', 'locarr785@gmail.com', 'zoomm.yeison@gmail.com'],
         subject: 'Solicitud de producto',
         html: `
-          <p>Nombre: ${name}</p>
-          <p>Correo electrónico: ${email}</p>
-          <p>Teléfono: ${phone}</p>
-          <p>Nombre del producto: ${productName}</p>
-          <p>Cantidad: ${quantity}</p>
-          <p>Descripción del producto: ${productDescription}</p>
-          ${image ? '<img src="cid:unique@nodemailer.com" />' : ''}
+
+        <div class="container" style="
+                width: 100%;
+                background-color: #f1f3f5;
+                padding:5em 0">
+                <nav style="width: 100%; height: 6em; background-color: #0a54f2"></nav>
+                <div class="container" style="
+                  background-color: white;
+                  width: 80%;
+                  border-radius: 5px;
+                  position: relative;
+                  top: -50px;
+                  margin: auto;
+                  display: flex;
+                    justify-content: start;
+                    padding: 3em 3em ;
+                    flex-direction: column;
+                    align-items: center;
+                ">
+                    <div class="logo">
+                        <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                    </div>
+                    <hr>
+                    <div class="contenido">
+                    <h1>Solicitud de Producto Nuevo</h1>
+                    <p>Nombre: ${name}</p>
+                    <p>Correo electrónico: ${email}</p>
+                    <p>Teléfono: ${phone}</p>
+                    <p>Nombre del producto: ${productName}</p>
+                    <p>Cantidad: ${quantity}</p>
+                    <p>Descripción del producto: ${productDescription}</p>
+                    ${image ? '<img src="cid:unique@nodemailer.com" />' : ''}
+                    </div>
+
+                </div>
+             
+            </div>
+
+        
         `,
         attachments: attachments
       });

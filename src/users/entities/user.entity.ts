@@ -76,6 +76,16 @@ export class User {
   })
   address: string;
 
+
+
+
+  @Column('varchar', {
+
+  })
+  PostalCode: string;
+
+
+
   @Column('varchar', {
 
   })
