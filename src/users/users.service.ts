@@ -233,13 +233,14 @@ export class UsersService {
         },
       });
 
+      
       if (externalUser) {
         if (newUser.roles.some((role: Role) => role.name.toLowerCase() === 'cliente' || role.name.toLowerCase() === 'proveedor')) {
           await transporter.sendMail({
             from: this.emailSenderConfig.transport.from,
             to: newUser.email,
-            subject: 'Confirmación de cuenta',
-            text: `
+            subject: 'Confirmación de cuenta en E-Bulky.com',
+            html: `
                       <div class="container" style="
                         width: 100%;
                         background-color: #f1f3f5;
@@ -274,13 +275,14 @@ export class UsersService {
                     </div>
                 `,
           });
+
         }
       }else{
         await transporter.sendMail({
           from: this.emailSenderConfig.transport.from,
           to: newUser.email,
-          subject: 'Registro exitoso',
-          text: `
+          subject: 'Registro exitoso en E-Bulky.com',
+          html: `
           <div class="container" style="
               width: 100%;
               background-color: #f1f3f5;
@@ -314,8 +316,7 @@ export class UsersService {
                   <p></p>
                   </div>
               </div>
-          </div>                      
-                      `
+          </div>`
         });
       };
 
@@ -339,6 +340,8 @@ export class UsersService {
       },
     });
 
+    console.log(user)
+
     if (!user)
       throw new NotFoundException(`User with email ${email} not found`);
 
@@ -350,6 +353,57 @@ export class UsersService {
 
     await this.userRepository.save(user);
 
+     // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
+     const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    console.log()
+        await transporter.sendMail({
+          from: this.emailSenderConfig.transport.from,
+          to: user.email,
+          subject: 'Registro exitoso',
+          html: `
+          <div class="container" style="
+              width: 100%;
+              background-color: #f1f3f5;
+              padding:5em 0">
+              <nav style="width: 100%; height: 6em; background-color: #0a54f2"></nav>
+              <div class="container" style="
+                background-color: white;
+                width: 80%;
+                border-radius: 5px;
+                position: relative;
+                top: -50px;
+                margin: auto;
+                display: flex;
+                  justify-content: start;
+                  padding: 3em 3em ;
+                  flex-direction: column;
+                  align-items: center;
+              ">
+                  <div class="logo">
+                      <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                  </div>
+                  <hr>
+                  <div class="contenido">
+                  <h1>¡BIENVENIDO/A!</h1>
+                  <p style="color: #0a54f2">Hola ${user.name}</p>
+                  <p>Su registro ha sido exitoso, para ingresar en la aplicación debe irse al apartado de Iniciar sesión y luego debe dar click en recuperar contraseña</p>
+                  <p>¡Esperamos que encuentres lo que necesitas con nosotros!</p>
+                  </br>
+                  <a style="padding:.7em 2em; background-color: #0a54f2; color:white" target="_black
+                  " href="e-bulky.com">!Ingresa ya!</a>
+                  <p></p>
+                  </div>
+              </div>
+          </div>`
+        });
+        
     return {
       user
     };
@@ -387,14 +441,50 @@ export class UsersService {
         pass: process.env.EMAIL_PASSWORD,
       },
     });
-
-    await transporter.sendMail({
-      from: this.emailSenderConfig.transport.from,
-      to: user.email,
-      subject: 'Confirmación de cuenta',
-      text: `Código de verificación: ${user.registrationCode}`,
-    });
+    
+      await transporter.sendMail({
+        from: this.emailSenderConfig.transport.from,
+        to: user.email,
+        subject: 'Confirmación de cuenta en E-Bulky.com',
+        html: `
+                  <div class="container" style="
+                    width: 100%;
+                    background-color: #f1f3f5;
+                    padding:5em 0">
+                    <nav style="width: 100%; height: 6em; background-color: #0a54f2"></nav>
+                    <div class="container" style="
+                      background-color: white;
+                      width: 80%;
+                      border-radius: 5px;
+                      position: relative;
+                      top: -50px;
+                      margin: auto;
+                      display: flex;
+                        justify-content: start;
+                        padding: 3em 3em ;
+                        flex-direction: column;
+                        align-items: center;
+                    ">
+                        <div class="logo">
+                            <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                        </div>
+                        <hr>
+                        <div class="contenido">
+                        <h1>Verificación de cuenta</h1>
+                        <p>¡Gracias por registrarte en E-Bulky.com! Juntos descubriremos nuevas oportunidades para adquirir lo que necesitas.</p>
+                        <p><small>Para continuar con tu registro y acceder a todos nuestros servicios en línea, solo necesitas ingresar el siguiente código de activación:</small></p>
+                        <h2> ${user.registrationCode}</h2>
+                        </br></br>
+                        <p></p>
+                        </div>
+                    </div>
+                </div>
+            `,
+      });
   };
+
+
+
 
   async login(loginUserDto: LoginUserDto) {
     const { email, password } = loginUserDto;
@@ -536,7 +626,43 @@ export class UsersService {
       }
     });
     const resetUrl = `https://tag-web-16776.web.app/auth/change-password?t=${token}`;
-    const emailText = `Click the following link to reset your password: <a href="${resetUrl}">${resetUrl}</a>`;
+    const emailText = `
+                        <div class="container" style="
+                        width: 100%;
+                        background-color: #f1f3f5;
+                        padding:5em 0">
+                        <nav style="width: 100%; height: 6em; background-color: #0a54f2"></nav>
+                        <div class="container" style="
+                          background-color: white;
+                          width: 80%;
+                          border-radius: 5px;
+                          position: relative;
+                          top: -50px;
+                          margin: auto;
+                          display: flex;
+                            justify-content: start;
+                            padding: 3em 3em ;
+                            flex-direction: column;
+                            align-items: center;
+                        ">
+                            <div class="logo">
+                                <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                            </div>
+                            <hr>
+                            <div class="contenido">
+                            <h1>Recuperación de contraseña!</h1>
+                            <p style="color: #0a54f2">Hola ${user.name}</p>
+
+                            <p>Recibimos tu solicitud para recuperar tu contraeña en E-Bulky y aquí te lo compartimos:</p>
+                            <p>Si deseas establecer una nueva contraseña haz clic en el botón de abajo que te llevará a nuestra sección para establecer tu nueva contraseña. </p>
+                            </br>
+                            <a style="width:2em; height:1em; background-color: #f1f3f5;" target="_black
+                            " href="https://tag-web-16776.web.app/auth/change-password?t=${token}">!Cambiar contraseña!</a>
+                            <p></p>
+                            </div>
+                        </div>
+                    </div>
+            `;
 
     try {
       // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
@@ -554,6 +680,8 @@ export class UsersService {
         subject: 'Password recovery',
         text: emailText,
       });
+
+      
     } catch (error) {
       console.log('Failed to send the password recovery email', error);
       throw new InternalServerErrorException(`Internal server error`);
