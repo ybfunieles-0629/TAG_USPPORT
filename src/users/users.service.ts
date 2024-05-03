@@ -311,7 +311,7 @@ export class UsersService {
                   <p style="color: #0a54f2">Hola ${newUser.email}</p>
                   <p>¡Esperamos que encuentres lo que necesitas con nosotros!</p>
                   </br>
-                  <a style="width:2em; height:1em; background-color: #f1f3f5;" target="_black
+                  <a style="padding: .7em 2em; background: #0a54f2; color:white" target="_black
                   " href="e-bulky.com">!Ingresa ya!</a>
                   <p></p>
                   </div>
@@ -653,10 +653,10 @@ export class UsersService {
                             <h1>Recuperación de contraseña!</h1>
                             <p style="color: #0a54f2">Hola ${user.name}</p>
 
-                            <p>Recibimos tu solicitud para recuperar tu contraeña en E-Bulky y aquí te lo compartimos:</p>
+                            <p>Recibimos tu solicitud para recuperar tu contraseña en E-Bulky y aquí te lo compartimos:</p>
                             <p>Si deseas establecer una nueva contraseña haz clic en el botón de abajo que te llevará a nuestra sección para establecer tu nueva contraseña. </p>
                             </br>
-                            <a style="width:2em; height:1em; background-color: #f1f3f5;" target="_black
+                            <a style="padding: .7em 2em; background: #0a54f2; color:white" target="_black
                             " href="https://tag-web-16776.web.app/auth/change-password?t=${token}">!Cambiar contraseña!</a>
                             <p></p>
                             </div>
