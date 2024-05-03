@@ -677,8 +677,8 @@ export class UsersService {
       await transporter.sendMail({
         from: this.emailSenderConfig.transport.from,
         to: passwordRecovery.email,
-        subject: 'Password recovery',
-        text: emailText,
+        subject: 'Recuperar contraseña en E-Bulky.com',
+        html: emailText,
       });
 
       
