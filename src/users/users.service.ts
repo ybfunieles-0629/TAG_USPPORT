@@ -260,10 +260,10 @@ export class UsersService {
                             align-items: center;
                         ">
                             <div class="logo">
-                                <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                                <img style="width:50%; margin: 2em"  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
                             </div>
                             <hr>
-                            <div class="contenido">
+                            <div class="contenido" style="padding:0.7em 2em">
                             <h1>Verificación de cuenta</h1>
                             <p>¡Gracias por registrarte en E-Bulky.com! Juntos descubriremos nuevas oportunidades para adquirir lo que necesitas.</p>
                             <p><small>Para continuar con tu registro y acceder a todos nuestros servicios en línea, solo necesitas ingresar el siguiente código de activación:</small></p>
@@ -302,10 +302,10 @@ export class UsersService {
                   align-items: center;
               ">
                   <div class="logo">
-                      <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                      <img style="width:50%; margin: 2em"  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
                   </div>
                   <hr>
-                  <div class="contenido">
+                  <div class="contenido" style="padding:0.7em 2em">
                   <h1>¡BIENVENIDO/A!</h1>
                   <p>Su registro ha sido exitoso, para ingresar en la aplicación debe irse al apartado de Iniciar sesión y luego debe dar click en recuperar contraseña</p>
                   <p style="color: #0a54f2">Hola ${newUser.email}</p>
@@ -387,10 +387,10 @@ export class UsersService {
                   align-items: center;
               ">
                   <div class="logo">
-                      <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                      <img style="width:50%; margin: 2em"  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
                   </div>
                   <hr>
-                  <div class="contenido">
+                  <div class="contenido" style="padding:0.7em 2em">
                   <h1>¡BIENVENIDO/A!</h1>
                   <p style="color: #0a54f2">Hola ${user.name}</p>
                   <p>Su registro ha sido exitoso, para ingresar en la aplicación debe irse al apartado de Iniciar sesión y luego debe dar click en recuperar contraseña</p>
@@ -466,10 +466,10 @@ export class UsersService {
                         align-items: center;
                     ">
                         <div class="logo">
-                            <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                            <img style="width:50%; margin: 2em"  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
                         </div>
                         <hr>
-                        <div class="contenido">
+                        <div class="contenido" style="padding:0.7em 2em">
                         <h1>Verificación de cuenta</h1>
                         <p>¡Gracias por registrarte en E-Bulky.com! Juntos descubriremos nuevas oportunidades para adquirir lo que necesitas.</p>
                         <p><small>Para continuar con tu registro y acceder a todos nuestros servicios en línea, solo necesitas ingresar el siguiente código de activación:</small></p>
@@ -646,10 +646,10 @@ export class UsersService {
                             align-items: center;
                         ">
                             <div class="logo">
-                                <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                                <img style="width:50%; margin: 2em"  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
                             </div>
                             <hr>
-                            <div class="contenido">
+                            <div class="contenido" style="padding:0.7em 2em">
                             <h1>Recuperación de contraseña!</h1>
                             <p style="color: #0a54f2">Hola ${user.name}</p>
 
