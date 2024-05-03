@@ -646,7 +646,7 @@ export class UsersService {
                             align-items: center;
                         ">
                             <div class="logo">
-                                <img style="width:50%; margin: 2em"  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                                <img style="width:80%; margin: 2em"  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
                             </div>
                             <hr>
                             <div class="contenido" style="padding:0.7em 2em">
