@@ -239,17 +239,87 @@ export class UsersService {
             from: this.emailSenderConfig.transport.from,
             to: newUser.email,
             subject: 'Confirmación de cuenta',
-            text: `Código de verificación: ${newUser.registrationCode}`,
+            text: `
+                      <div class="container" style="
+                        width: 100%;
+                        background-color: #f1f3f5;
+                        padding:5em 0">
+                        <nav style="width: 100%; height: 6em; background-color: #0a54f2"></nav>
+                        <div class="container" style="
+                          background-color: white;
+                          width: 80%;
+                          border-radius: 5px;
+                          position: relative;
+                          top: -50px;
+                          margin: auto;
+                          display: flex;
+                            justify-content: start;
+                            padding: 3em 3em ;
+                            flex-direction: column;
+                            align-items: center;
+                        ">
+                            <div class="logo">
+                                <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                            </div>
+                            <hr>
+                            <div class="contenido">
+                            <h1>Verificación de cuenta</h1>
+                            <p>¡Gracias por registrarte en E-Bulky.com! Juntos descubriremos nuevas oportunidades para adquirir lo que necesitas.</p>
+                            <p><small>Para continuar con tu registro y acceder a todos nuestros servicios en línea, solo necesitas ingresar el siguiente código de activación:</small></p>
+                            <h2> ${newUser.registrationCode}</h2>
+                            </br></br>
+                            <p></p>
+                            </div>
+                        </div>
+                    </div>
+                `,
           });
         }
+      }else{
+        await transporter.sendMail({
+          from: this.emailSenderConfig.transport.from,
+          to: newUser.email,
+          subject: 'Registro exitoso',
+          text: `
+          <div class="container" style="
+              width: 100%;
+              background-color: #f1f3f5;
+              padding:5em 0">
+              <nav style="width: 100%; height: 6em; background-color: #0a54f2"></nav>
+              <div class="container" style="
+                background-color: white;
+                width: 80%;
+                border-radius: 5px;
+                position: relative;
+                top: -50px;
+                margin: auto;
+                display: flex;
+                  justify-content: start;
+                  padding: 3em 3em ;
+                  flex-direction: column;
+                  align-items: center;
+              ">
+                  <div class="logo">
+                      <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                  </div>
+                  <hr>
+                  <div class="contenido">
+                  <h1>¡BIENVENIDO/A!</h1>
+                  <p>Su registro ha sido exitoso, para ingresar en la aplicación debe irse al apartado de Iniciar sesión y luego debe dar click en recuperar contraseña</p>
+                  <p style="color: #0a54f2">Hola ${newUser.email}</p>
+                  <p>¡Esperamos que encuentres lo que necesitas con nosotros!</p>
+                  </br>
+                  <a style="width:2em; height:1em; background-color: #f1f3f5;" target="_black
+                  " href="e-bulky.com">!Ingresa ya!</a>
+                  <p></p>
+                  </div>
+              </div>
+          </div>                      
+                      `
+        });
       };
 
-      await transporter.sendMail({
-        from: this.emailSenderConfig.transport.from,
-        to: newUser.email,
-        subject: 'Registro exitoso',
-        text: 'Su registro ha sido exitoso, para ingresar en la aplicación debe irse al apartado de Iniciar sesión y luego debe dar click en recuperar contraseña.',
-      });
+      
     } catch (error) {
       console.log('Failed to send the password recovery email', error);
       throw new InternalServerErrorException(`Internal server error`);
