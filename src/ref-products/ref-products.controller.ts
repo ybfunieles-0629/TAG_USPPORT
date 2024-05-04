@@ -30,6 +30,18 @@ export class RefProductsController {
     return this.refProductsService.findAll(paginationDto);
   }
 
+
+  @Get()
+  @UseGuards(AuthGuard())
+  findAllList(
+    @Query() paginationDto: PaginationDto,
+  ) {
+    return this.refProductsService.findAllList(paginationDto);
+  }
+
+
+
+
   @Get('with/supplier/:id')
   filterProductsBySupplier(
     @Param('id', ParseUUIDPipe) id: string,

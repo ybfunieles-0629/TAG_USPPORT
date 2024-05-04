@@ -44,12 +44,26 @@ export class CompaniesService {
       }
     }
 
+    console.log(newCompany)
+    let codeError = "";
+    try {
     const dataResult = await this.companyRepository.save(newCompany);
-
     console.log(dataResult)
-    
+    } catch (error) {
+      console.log(error)
+      console.log(error.driverError.code)
+      codeError = error.driverError.code;
+    }
+
+    let mesaggeData = "Compañia registrada exitosamente";
+    if(codeError == "ER_DUP_ENTRY"){
+      mesaggeData = "Error, la compañia ya existe en la base de datos";
+    }
+
+
     return {
-      newCompany,
+      mesaggeData,
+      newCompany
     };
   }
 
