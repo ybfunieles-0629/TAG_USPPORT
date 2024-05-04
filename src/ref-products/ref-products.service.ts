@@ -314,18 +314,13 @@ export class RefProductsService {
       .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
       .getMany();
 
-      console.log(results)
     const finalResults = await Promise.all(results.map(async (result) => {
       const modifiedProducts = await Promise.all(result.products.map(async (product) => {
         const burnPriceTable = [];
 
-        console.log(product)
-
         const initialValue: number = product.referencePrice;
 
         let changingValue: number = initialValue;
-
-        console.log("Aqui llegó")
 
         for (let i = 0; i < staticQuantities.length; i++) {
           let prices = {
@@ -348,7 +343,7 @@ export class RefProductsService {
 
 
           let value: number = changingValue;
-          console.log(product.hasNetPrice)
+          console.log(value)
 
           //* SI EL PRODUCTO NO TIENE UN PRECIO NETO
           if (product.hasNetPrice == 0) {
@@ -443,7 +438,9 @@ export class RefProductsService {
             };
           }
 
-          console.log("Aqui va")
+
+          //******************************************************************************************************** */
+          //******************************************************************************************************** */
 
           // COSTO BRUTO DE PRODUCTO === VARIABLE GLOBAL
           const CostoBrutoProducto = value;
@@ -498,7 +495,7 @@ export class RefProductsService {
 
 
           let IvaSegunda = 0;
-          //  APLICAR IVA   
+          // //* APLICAR IVA   **************************************************************
           if (product.iva > 0 || product.iva != undefined) {
             IvaSegunda = (product.iva / 100) * Subtotal;
             console.log(IvaSegunda)
@@ -510,7 +507,7 @@ export class RefProductsService {
 
 
 
-          // TRASPORTE CALCULO DE CAJAS 
+          // TRASPORTE CALCULO DE CAJAS ***************************************************
           // CALCULAR LA CANTIDAD DE CAJAS PARA LAS UNIDADES COTIZADAS
           const packing: Packing = product.packings[0] || undefined;
           const packingUnities: number = product.packings ? product?.packings[0]?.unities : product?.refProduct?.packings[0]?.unities || 0;
@@ -878,7 +875,7 @@ export class RefProductsService {
       if (!categorySupplier)
         throw new NotFoundException(`Category supplier with id ${result.mainCategory} not found`);
 
-      return { ...result, isPending: 1, products: "modifiedProducts", mainCategory: categorySupplier };
+      return { ...result, isPending: 1, products: modifiedProducts, mainCategory: categorySupplier };
     }));
 
     return finalResults;
@@ -1125,7 +1122,7 @@ export class RefProductsService {
 
 
 
-
+  
   async filterProductsWithDiscount(paginationDto: PaginationDto, margin, clientId: string, feeMarca:number) {
     const { limit = 4, offset = 0 } = paginationDto;
 
@@ -1177,7 +1174,6 @@ export class RefProductsService {
       .skip(offset)
       .getMany();
 
-      console.log(results)
     const finalResults = results.length > 0 ? await this.calculations(results, margin, clientId, false, feeMarca) : [];
 
     return {

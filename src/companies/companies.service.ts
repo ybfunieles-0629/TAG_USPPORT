@@ -44,12 +44,22 @@ export class CompaniesService {
       }
     }
 
-    await this.companyRepository.save(newCompany);
+    const dataResult = await this.companyRepository.save(newCompany);
 
+    console.log(dataResult)
+    
     return {
       newCompany,
     };
   }
+
+
+
+
+
+
+
+
 
   async findAll(paginationDto: PaginationDto) {
     const count: number = await this.companyRepository.count();
