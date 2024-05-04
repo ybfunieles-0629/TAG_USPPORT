@@ -233,7 +233,7 @@ export class UsersService {
         },
       });
 
-      
+
       if (externalUser) {
         if (newUser.roles.some((role: Role) => role.name.toLowerCase() === 'cliente' || role.name.toLowerCase() === 'proveedor')) {
           await transporter.sendMail({
@@ -277,7 +277,7 @@ export class UsersService {
           });
 
         }
-      }else{
+      } else {
         await transporter.sendMail({
           from: this.emailSenderConfig.transport.from,
           to: newUser.email,
@@ -320,7 +320,7 @@ export class UsersService {
         });
       };
 
-      
+
     } catch (error) {
       console.log('Failed to send the password recovery email', error);
       throw new InternalServerErrorException(`Internal server error`);
@@ -351,10 +351,12 @@ export class UsersService {
       throw new BadRequestException(`Invalid confirmation code`);
     }
 
-    await this.userRepository.save(user);
+    const dataSave = await this.userRepository.save(user);
 
-     // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
-     const transporter = nodemailer.createTransport({
+    if (dataSave) {
+
+    // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
+    const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
@@ -363,11 +365,11 @@ export class UsersService {
     });
 
     console.log()
-        await transporter.sendMail({
-          from: this.emailSenderConfig.transport.from,
-          to: user.email,
-          subject: 'Registro exitoso',
-          html: `
+    await transporter.sendMail({
+      from: this.emailSenderConfig.transport.from,
+      to: user.email,
+      subject: 'Registro exitoso',
+      html: `
           <div class="container" style="
               width: 100%;
               background-color: #f1f3f5;
@@ -402,12 +404,16 @@ export class UsersService {
                   </div>
               </div>
           </div>`
-        });
-        
+    });
+    }
+
     return {
       user
     };
   };
+
+
+
 
   async resendCode(confirmRegistryDto: ConfirmRegistryDto) {
     const email: string = confirmRegistryDto.email;
@@ -441,12 +447,12 @@ export class UsersService {
         pass: process.env.EMAIL_PASSWORD,
       },
     });
-    
-      await transporter.sendMail({
-        from: this.emailSenderConfig.transport.from,
-        to: user.email,
-        subject: 'Confirmación de cuenta en E-Bulky.com',
-        html: `
+
+    await transporter.sendMail({
+      from: this.emailSenderConfig.transport.from,
+      to: user.email,
+      subject: 'Confirmación de cuenta en E-Bulky.com',
+      html: `
                   <div class="container" style="
                     width: 100%;
                     background-color: #f1f3f5;
@@ -480,7 +486,7 @@ export class UsersService {
                     </div>
                 </div>
             `,
-      });
+    });
   };
 
 
@@ -681,7 +687,7 @@ export class UsersService {
         html: emailText,
       });
 
-      
+
     } catch (error) {
       console.log('Failed to send the password recovery email', error);
       throw new InternalServerErrorException(`Internal server error`);
