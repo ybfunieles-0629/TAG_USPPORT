@@ -31,7 +31,7 @@ export class RefProductsController {
   }
 
 
-  @Get()
+  @Get('all')
   @UseGuards(AuthGuard())
   findAllList(
     @Query() paginationDto: PaginationDto,
@@ -75,7 +75,7 @@ export class RefProductsController {
 
 
 
-  
+
   @Get('is/allowed')
   @UseGuards(AuthGuard())
   filterReferencesByIsAllowed(
