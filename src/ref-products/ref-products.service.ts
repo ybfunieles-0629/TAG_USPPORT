@@ -2067,8 +2067,8 @@ export class RefProductsService {
             .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'markingExternalSubTechnique')
             .leftJoinAndSelect('markingExternalSubTechnique.marking', 'markingExternalSubTechniqueMarking')
             .orderBy('product.createdAt', 'DESC')
-            .take(limit)
-            .skip(offset)
+            // .take(limit)
+            // .skip(offset)
             .getMany();
 
           refProductsToShow.push(...refProducts);
