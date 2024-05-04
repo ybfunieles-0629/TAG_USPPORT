@@ -46,13 +46,15 @@ export class CompaniesService {
 
     console.log(newCompany)
     let codeError = "";
+    let codeErrorMessage = "";
     try {
     const dataResult = await this.companyRepository.save(newCompany);
     console.log(dataResult)
     } catch (error) {
       console.log(error)
       console.log(error.driverError.code)
-      codeError = error.driverError.code;
+      codeError = error.driverError.code; 
+      codeErrorMessage = error.driverError.sqlMessage; 
     }
 
     let mesaggeData = "Compañia registrada exitosamente";
@@ -62,7 +64,7 @@ export class CompaniesService {
 
 
     return {
-      mesaggeData,
+      codeErrorMessage,
       newCompany
     };
   }

@@ -50,6 +50,8 @@ export class RefProductsController {
     return this.refProductsService.filterProductsBySupplier(id, paginationDto);
   }
 
+
+
   @Get('with/offers')
   filterProductsWithDiscount(
     @Query() paginationDto: PaginationDto,
@@ -72,6 +74,8 @@ export class RefProductsController {
   }
 
 
+
+  
   @Get('is/allowed')
   @UseGuards(AuthGuard())
   filterReferencesByIsAllowed(

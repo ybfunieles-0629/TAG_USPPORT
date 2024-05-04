@@ -15,7 +15,6 @@ export class Company {
   companyType: string;
 
   @Column('varchar', {
-    unique: true,
   })
   name: string;
 
