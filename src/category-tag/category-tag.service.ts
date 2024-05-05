@@ -74,11 +74,42 @@ export class CategoryTagService {
       await transporter.sendMail({
         from: this.emailSenderConfig.transport.from,
         to: [sendMessageDto.email],
-        subject: 'Nuevo mensaje',
+        subject: 'Solicitud a E-Bulky',
         html: `
-          Nombre completo: ${sendMessageDto.name} <br />
-          Asunto: ${sendMessageDto.subject} <br />
-          Mensaje: ${sendMessageDto.message} <br />
+        <div class="container" style="
+        width: 100%;
+        background-color: #f1f3f5;
+        padding:5em 0">
+        <nav style="width: 100%; height: 6em; background-color: #0a54f2"></nav>
+        <div class="container" style="
+          background-color: white;
+          width: 80%;
+          border-radius: 5px;
+          position: relative;
+          top: -50px;
+          margin: auto;
+          display: flex;
+            justify-content: start;
+            padding: 3em 3em ;
+            flex-direction: column;
+            align-items: center;
+        ">
+            <div class="logo">
+                <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+            </div>
+            <hr>
+            <div class="contenido">
+            <h1> ${sendMessageDto.subject}</h1>
+            <p>Nombre: ${sendMessageDto.name} </p>
+            <p>${sendMessageDto.message} </p>
+            </div>
+
+        </div>
+     
+    </div>
+
+
+
         `,
       });
 

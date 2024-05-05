@@ -669,7 +669,7 @@ export class UsersService {
                         </div>
                     </div>
             `;
-
+ 
     try {
       // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
       const transporter = nodemailer.createTransport({
