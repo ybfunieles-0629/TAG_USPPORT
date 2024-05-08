@@ -1731,7 +1731,7 @@ export class RefProductsService {
           .leftJoinAndSelect('markingExternalSubTechnique.marking', 'markingExternalSubTechniqueMarking')
           .select(['refProduct.id', 'SUM(product.availableUnit) AS totalAvailableUnit'])
           .groupBy('refProduct.id')
-          .having('totalAvailableUnit < :inventory', { inventory })
+          .having('totalAvailableUnit > :inventory', { inventory })
           .take(limit)
             .skip(offset)
             .getMany();
