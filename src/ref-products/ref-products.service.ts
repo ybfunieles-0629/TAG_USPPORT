@@ -1677,13 +1677,14 @@ export class RefProductsService {
     if (filterRefProductsDto.inventory) {
       const inventory: number = filterRefProductsDto.inventory;
 
+      console.log(inventory)
       if (refProductsToShow.length > 0) {
         const filteredRefProducts = refProductsToShow
           .filter((refProduct: RefProduct) => {
             if (
               refProduct.products &&
               refProduct.products.some(
-                (product) => product.availableUnit === inventory
+                (product) => product.availableUnit >= inventory
               )
             ) {
               return true;
@@ -1729,9 +1730,9 @@ export class RefProductsService {
           .leftJoinAndSelect('product.markingServiceProperties', 'markingServiceProperties')
           .leftJoinAndSelect('markingServiceProperties.externalSubTechnique', 'markingExternalSubTechnique')
           .leftJoinAndSelect('markingExternalSubTechnique.marking', 'markingExternalSubTechniqueMarking')
-          .select(['refProduct.id', 'SUM(product.availableUnit) AS totalAvailableUnit'])
+          .select(['refProduct.id', 'product.availableUnit AS totalAvailableUnit'])
           .groupBy('refProduct.id')
-          .having('totalAvailableUnit > :inventory', { inventory })
+          .having('totalAvailableUnit >= :inventory', { inventory })
           .take(limit)
             .skip(offset)
             .getMany();
