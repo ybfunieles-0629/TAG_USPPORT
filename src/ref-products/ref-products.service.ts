@@ -74,9 +74,6 @@ export class RefProductsService {
     @InjectRepository(FinancingCostProfit)
     private readonly systemFinancingCostProfit: Repository<FinancingCostProfit>,
 
-
-
-
   ) { }
 
   async create(createRefProductDto: CreateRefProductDto, user: User) {
@@ -233,16 +230,6 @@ export class RefProductsService {
       newRefProduct
     };
   }
-
-
-
-
-
-
-
-
-
-
 
   async calculations(results: RefProduct[], margin: number, clientId: string, tipo = false, feeMarca = 0) {
 
@@ -881,18 +868,6 @@ export class RefProductsService {
     return finalResults;
   };
 
-
-
-
-
-
-
-
-
-
-
-
-
   async findAll(paginationDto: PaginationDto) {
     const totalCount = await this.refProductRepository.count();
 
@@ -1114,11 +1089,6 @@ export class RefProductsService {
     };
   }
 
-
-
-
-
-  
   async findAllList(paginationDto: PaginationDto) {
     const totalCount = await this.refProductRepository.count();
 
@@ -1252,13 +1222,6 @@ export class RefProductsService {
     };
   }
 
-
-
-
-
-
-
-  
   async filterProductsWithDiscount(paginationDto: PaginationDto, margin, clientId: string, feeMarca:number) {
     const { limit = 4, offset = 0 } = paginationDto;
 
@@ -1280,6 +1243,7 @@ export class RefProductsService {
       .andWhere('product.height > :height', { height: 0 })
       .andWhere('product.width > :width', { width: 0 })
       .andWhere('product.large > :large', { large: 0 })
+      .andWhere('product.promoDisccount > 0')
       .leftJoinAndSelect('refProduct.images', 'refProductImages')
       .leftJoinAndSelect('refProduct.colors', 'refProductColors')
       .leftJoinAndSelect('refProduct.categorySuppliers', 'refProductCategorySuppliers')
@@ -1317,6 +1281,7 @@ export class RefProductsService {
       results: finalResults
     };
   };
+
 
 
 
@@ -1403,18 +1368,6 @@ export class RefProductsService {
     };
   }
 
-
-
-
-
-
-
-
-
-
-
-  
-
   async filterProductsBySupplier(id: string, paginationDto: PaginationDto) {
     let count: number = 0;
     let { limit = count, offset = 0 } = paginationDto;
@@ -1459,21 +1412,10 @@ export class RefProductsService {
   };
 
 
-
-
-
-
-
-
-
-
-
-
   async filterProducts(filterRefProductsDto: FilterRefProductsDto, paginationDto: PaginationDto) {
     const { limit = 1, offset = 0, margin, clientId, feeMarca = 0 } = paginationDto;
 
     let refProductsToShow: RefProduct[] = [];
-    console.log(filterRefProductsDto)
 
 
     if (filterRefProductsDto.categoryTag) {
@@ -1496,7 +1438,7 @@ export class RefProductsService {
 
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
-          .where('refProduct.tagCategory = :categoryTagId', { categoryTagId: categoryTagId })
+          .where('refProduct.tagCategory = :categoryTagId', { categoryTagId })
           .andWhere('refProduct.weight > :weight', { weight: 0 })
           .andWhere('refProduct.height > :height', { height: 0 })
           .andWhere('refProduct.width > :width', { width: 0 })
@@ -1532,12 +1474,16 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.supplier', 'supplier')
           .leftJoinAndSelect('supplier.user', 'supplierUser')
           .leftJoinAndSelect('refProduct.variantReferences', 'refProductVariantReferences')
-          .take(limit)
-            .skip(offset)
+          // .take(limit)
+            // .skip(offset)
             .getMany();
+
+            console.log(refProducts)
 
 
         refProductsToShow.push(...refProducts);
+        console.log(refProductsToShow)
+
       }
     }
 
@@ -1558,6 +1504,7 @@ export class RefProductsService {
             return false;
           });
 
+          console.log(filteredRefProducts)
         refProductsToShow = filteredRefProducts;
       } else {
         const refProducts: RefProduct[] = await this.refProductRepository
@@ -1677,7 +1624,6 @@ export class RefProductsService {
     if (filterRefProductsDto.inventory) {
       const inventory: number = filterRefProductsDto.inventory;
 
-      console.log(inventory)
       if (refProductsToShow.length > 0) {
         const filteredRefProducts = refProductsToShow
           .filter((refProduct: RefProduct) => {
@@ -1935,8 +1881,6 @@ export class RefProductsService {
       }
     };
 
-
-    
     if (filterRefProductsDto.hasDiscount) {
       const hasDiscount: boolean = filterRefProductsDto.hasDiscount;
 
@@ -2136,9 +2080,9 @@ export class RefProductsService {
     }
 
     refProductsToShow = refProductsToShow.filter((refProduct) => refProduct.products.length > 0);
+
     const calculatedResults = refProductsToShow?.length > 0 ? await this.calculations(refProductsToShow, margin, clientId, false, feeMarca) : [];
 
-    console.log(calculatedResults)
     const finalResults = await Promise.all(calculatedResults.map(async (result) => {
       const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
         where: {
@@ -2171,41 +2115,6 @@ export class RefProductsService {
       refProducts: finalRefProducts,
     };
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   async filterReferencesByIsAllowed(paginationDto: PaginationDto) {
@@ -2262,18 +2171,6 @@ export class RefProductsService {
       paginatedRefProducts
     };
   }
-
-
-
-
-
-
-
-
-
-
-
-
 
   async update(id: string, updateRefProductDto: UpdateRefProductDto, user: User) {
     const refProduct = await this.refProductRepository.findOne({
@@ -2461,26 +2358,6 @@ export class RefProductsService {
       refProduct
     };
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   async desactivate(id: string) {
     const refProduct: RefProduct = await this.refProductRepository.findOne({
