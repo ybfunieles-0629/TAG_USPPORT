@@ -66,7 +66,7 @@ export class Address {
 
 
   @Column('varchar', {
-
+    nullable: true, // Esto es opcional dependiendo de tus requisitos
   })
   clientUser: string;
 

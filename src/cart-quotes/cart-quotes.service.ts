@@ -644,7 +644,7 @@ export class CartQuotesService {
 
         await transporter.sendMail({
           from: this.emailSenderConfig.transport.from,
-          to: [commercialUser.email],
+          to: [cartQuote.user.email],
           subject: 'Solicitud de cotización de carrito',
           html: `
               Señor Comercial, el cliente ${user.name} le ha enviado una solicitud de cotización para la compra de productos <br />
@@ -652,6 +652,8 @@ export class CartQuotesService {
               Fecha de realización: ${cartQuote.createdAt} <br />
               `,
         });
+
+
       } catch (error) {
         console.log('Failed to send the email', error);
         throw new InternalServerErrorException(`Internal server error`);
@@ -832,8 +834,78 @@ export class CartQuotesService {
     await this.cartQuoteRepository.save(cartQuote);
     console.log()
     
-    if (stateDb.name.toLowerCase() == 'en proceso' || stateDb.name.toLowerCase() == 'rechazada') {
+    if (stateDb.name.toLowerCase() == 'en proceso') {
       console.log(cartQuote?.user?.email);
+      try {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD,
+          },
+        });
+
+        await transporter.sendMail({
+          from: this.emailSenderConfig.transport.from,
+          to: [cartQuote.user.email],
+          subject: 'Solicitud de cotización de carrito',
+          html: `
+              Señor Comercial, el cliente ${cartQuote?.client?.user?.name} le ha enviado una solicitud de cotización para la compra de productos <br />
+              Información del carrito: ${cartQuote.quoteName} <br />
+              Costo total del carrito: ${cartQuote.totalPrice} <br />
+              Fecha de realización: ${cartQuote.createdAt} <br />
+              `,
+        });
+
+        await transporter.sendMail({
+          from: this.emailSenderConfig.transport.from,
+          to: [cartQuote.client.billingEmail],
+          subject: 'Solicitud de cotización de carrito',
+          html: `
+              Señor ${cartQuote?.client?.user?.name}, confirmamos el envío de la solicitud de cotización para la compra de productos al comercial de E-Bulky.com<br />
+              Información del carrito: ${cartQuote.quoteName} <br />
+              Costo total del carrito: ${cartQuote.totalPrice} <br />
+              Fecha de realización: ${cartQuote.createdAt} <br />
+              `,
+        });
+
+      } catch (error) {
+        console.log('Failed to send the email', error);
+        throw new InternalServerErrorException(`Internal server error`);
+      }
+
+    };
+
+
+    if (stateDb.name.toLowerCase() == 'rechazada') {
+      console.log(cartQuote?.user?.email);
+      try {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD,
+          },
+        });
+
+        await transporter.sendMail({
+          from: this.emailSenderConfig.transport.from,
+          to: [cartQuote.client.billingEmail],
+          subject: 'Solicitud de cotización de carrito',
+          html: `
+              Señor ${cartQuote?.client?.user?.name}, lamentamos informacile el rechazo de la cotización para la compra de productos en E-Bulky.com<br />
+              Información del carrito: ${cartQuote.quoteName} <br />
+              Costo total del carrito: ${cartQuote.totalPrice} <br />
+              Fecha de realización: ${cartQuote.createdAt} <br />
+              Estado: ${cartQuote.state.name} <br />
+              `,
+        });
+
+      } catch (error) {
+        console.log('Failed to send the email', error);
+        throw new InternalServerErrorException(`Internal server error`);
+      }
+
     };
 
 

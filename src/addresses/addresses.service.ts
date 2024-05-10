@@ -57,14 +57,15 @@ export class AddressesService {
 
 
 
-  findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto, id: string) {
     const { limit = 10, offset = 0 } = paginationDto;
-
-    return this.addressRepository.find({
-      take: limit,
-      skip: offset,
-    });
+    const address = await this.addressRepository.find({ where: { clientUser: id } });
+    return address;
   }
+
+
+
+
 
   async findOne(term: string) {
     let address: Address;

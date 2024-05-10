@@ -21,13 +21,20 @@ export class AddressesController {
     return this.addressesService.create(createAddressDto, user);
   }
 
-  @Get()
+
+
+  @Get(':id') // Especificamos que el ID se recibirá como parte de la URL
   @UseGuards(AuthGuard())
   findAll(
+    @Param('id', ParseUUIDPipe) id: string,
     @Query() paginationDto: PaginationDto
   ) {
-    return this.addressesService.findAll(paginationDto);
+    return this.addressesService.findAll(paginationDto, id);
   }
+
+
+
+
 
   @Get(':term')
   @UseGuards(AuthGuard())
