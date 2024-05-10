@@ -1283,26 +1283,6 @@ export class RefProductsService {
   };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   async findOne(id: string, margin: number, clientId: string, feeMarca:number) {
     const refProduct: RefProduct = await this.refProductRepository.findOne({
       where: {
@@ -1487,6 +1467,13 @@ export class RefProductsService {
       }
     }
 
+
+
+
+
+
+
+
     if (filterRefProductsDto.prices) {
       const [minPrice, maxPrice]: number[] = filterRefProductsDto.prices;
 
@@ -1506,6 +1493,7 @@ export class RefProductsService {
 
           console.log(filteredRefProducts)
         refProductsToShow = filteredRefProducts;
+        console.log("aqui entro 1")
       } else {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
@@ -1551,10 +1539,26 @@ export class RefProductsService {
             .skip(offset)
             .getMany();
 
+        console.log("aqui entro 2")
+        console.log(refProducts)
 
         refProductsToShow.push(...refProducts);
       }
     };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     if (filterRefProductsDto.budget) {
       const budget: number = filterRefProductsDto.budget;

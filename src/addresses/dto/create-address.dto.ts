@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsString } from 'class-validator';
 
 export class CreateAddressDto {
 
@@ -27,5 +27,7 @@ export class CreateAddressDto {
   @IsString()
   mainAddress: string;
 
+  @IsNumber()
+  isPrimary: number;
 
 }

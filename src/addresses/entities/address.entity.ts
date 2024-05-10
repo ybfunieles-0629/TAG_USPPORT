@@ -48,6 +48,12 @@ export class Address {
   })
   isActive: boolean;
 
+
+  @Column('int', {
+  })
+  isPrimary: number;
+
+
   @Column('varchar', {
 
   })
@@ -57,6 +63,13 @@ export class Address {
 
   })
   updatedBy: string;
+
+
+  @Column('varchar', {
+
+  })
+  clientUser: string;
+
 
   @CreateDateColumn()
   createdAt: Date;

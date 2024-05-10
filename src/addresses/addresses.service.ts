@@ -18,21 +18,44 @@ export class AddressesService {
     private readonly addressRepository: Repository<Address>,
   ) { }
 
+
+
+
   async create(createAddressDto: CreateAddressDto, user: User) {
     console.log(createAddressDto)
 
-
-    const newAddress: Address = this.addressRepository.create(createAddressDto);
-    console.log(newAddress)
-    newAddress.createdBy = user.id;
-    // newAddress.client = createAddressDto.clientId;
-
+    // const newAddress: Address = this.addressRepository.create(createAddressDto);
+    // console.log(newAddress)
+    // newAddress.createdBy = user.id;
+    // // newAddress.client = createAddressDto.clientId;
     // this.addressRepository.save(newAddress);
 
+    // Crear una nueva instancia de Address con los datos del DTO
+    const newAddress = new Address();
+    newAddress.country = createAddressDto.country;
+    newAddress.city = createAddressDto.city;
+    newAddress.address = createAddressDto.address;
+    newAddress.postalCode = createAddressDto.postalCode;
+    newAddress.gpsLocation = createAddressDto.gpsLocation;
+    newAddress.deliveryAddress = createAddressDto.deliveryAddress;
+    newAddress.isPrimary = createAddressDto.isPrimary;
+    newAddress.mainAddress = createAddressDto.mainAddress;
+    newAddress.clientUser = createAddressDto.clientId; // Asignar clientId a clientUser
+
+    // Asignar el ID del usuario que crea la dirección a la propiedad createdBy de la entidad Address
+    newAddress.createdBy = user.id;
+
+    // Guardar la dirección en la base de datos
+    const savedAddress = await this.addressRepository.save(newAddress);
+    console.log(savedAddress)
     return {
       newAddress
     };
   }
+
+
+
+
 
   findAll(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
