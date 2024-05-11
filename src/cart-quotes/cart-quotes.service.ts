@@ -642,6 +642,9 @@ export class CartQuotesService {
           },
         });
 
+        const formattedDate = new Intl.DateTimeFormat('es-CO', { dateStyle: 'full', timeStyle: 'short' }).format(cartQuote.createdAt);
+        const formattedTotalPrice = cartQuote.totalPrice.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
+
         await transporter.sendMail({
           from: this.emailSenderConfig.transport.from,
           to: [cartQuote.user.email],
@@ -674,8 +677,8 @@ export class CartQuotesService {
                           <p>Señor Comercial, el cliente ${user.name} le ha enviado una solicitud de cotización para la compra de productos </p>
                           <p>Nombre:  ${cartQuote.quoteName} </p>
                           <p>Descripción: ${cartQuote.description} </p>
-                          <p>Valor total: ${cartQuote.totalPrice} </p>
-                          <p>Fecha: ${cartQuote.createdAt} </p>
+                           <p>Valor total: ${formattedTotalPrice} </p>
+                          <p>Fecha: ${formattedDate} </p>
                         </div>
                     </div>
                 </div>
@@ -874,6 +877,10 @@ export class CartQuotesService {
           },
         });
 
+        const formattedDate = new Intl.DateTimeFormat('es-CO', { dateStyle: 'full', timeStyle: 'short' }).format(cartQuote.createdAt);
+        const formattedTotalPrice = cartQuote.totalPrice.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
+
+
         await transporter.sendMail({
           from: this.emailSenderConfig.transport.from,
           to: [cartQuote.user.email],
@@ -906,8 +913,8 @@ export class CartQuotesService {
                           <p>Señor Comercial, el cliente ${cartQuote?.client?.user?.name} le ha enviado una solicitud de cotización para la compra de productos</p>
                           <p>Nombre:  ${cartQuote.quoteName} </p>
                           <p>Descripción: ${cartQuote.description} </p>
-                          <p>Valor total: ${cartQuote.totalPrice} </p>
-                          <p>Fecha: ${cartQuote.createdAt} </p>
+                          <p>Valor total: ${formattedTotalPrice} </p>
+                          <p>Fecha: ${formattedDate} </p>
                         </div>
                     </div>
                 </div>
@@ -946,8 +953,8 @@ export class CartQuotesService {
                           <p> Señor ${cartQuote?.client?.user?.name}, confirmamos el envío de la solicitud de cotización para la compra de productos al comercial de E-Bulky.com</p>
                           <p>Nombre:  ${cartQuote.quoteName} </p>
                           <p>Descripción: ${cartQuote.description} </p>
-                          <p>Valor total: ${cartQuote.totalPrice} </p>
-                          <p>Fecha: ${cartQuote.createdAt} </p>
+                          <p>Valor total: ${formattedTotalPrice} </p>
+                          <p>Fecha: ${formattedDate} </p>
                         </div>
                     </div>
                 </div>
@@ -972,6 +979,10 @@ export class CartQuotesService {
             pass: process.env.EMAIL_PASSWORD,
           },
         });
+
+        const formattedDate = new Intl.DateTimeFormat('es-CO', { dateStyle: 'full', timeStyle: 'short' }).format(cartQuote.createdAt);
+        const formattedTotalPrice = cartQuote.totalPrice.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
+
 
         await transporter.sendMail({
           from: this.emailSenderConfig.transport.from,
@@ -1005,8 +1016,8 @@ export class CartQuotesService {
                           <p>Señor ${cartQuote?.client?.user?.name}, lamento informarle que su solicitud de cotización para la compra de productos ha sido rechazada por el comercial de E-Bulky.com</p>
                           <p>Nombre:  ${cartQuote.quoteName} </p>
                           <p>Descripción: ${cartQuote.description} </p>
-                          <p>Valor total: ${cartQuote.totalPrice} </p>
-                          <p>Fecha: ${cartQuote.createdAt} </p>
+                          <p>Valor total: ${formattedTotalPrice} </p>
+                          <p>Fecha: ${formattedDate} </p>
                           <p>Estado: <h2> ${cartQuote.state.name} </h2></p>
                         </div>
                     </div>
