@@ -1032,6 +1032,69 @@ export class CartQuotesService {
 
     };
 
+    if (stateDb.name.toLowerCase() == 'aprobada') {
+      console.log(cartQuote?.user?.email);
+      try {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD,
+          },
+        });
+
+        const formattedDate = new Intl.DateTimeFormat('es-CO', { dateStyle: 'full', timeStyle: 'short' }).format(cartQuote.createdAt);
+        const formattedTotalPrice = cartQuote.totalPrice.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
+      
+        await transporter.sendMail({
+          from: this.emailSenderConfig.transport.from,
+          to: [cartQuote.client.billingEmail],
+          subject: 'Solicitud de cotización de carrito',
+          html: `
+            <div class="container" style="
+                    width: 100%;
+                    background-color: #f1f3f5;
+                    padding:5em 0">
+                    <nav style="width: 100%; height: 6em; background-color: #0a54f2"></nav>
+                    <div class="container" style="
+                      background-color: white;
+                      width: 80%;
+                      border-radius: 5px;
+                      position: relative;
+                      top: -50px;
+                      margin: auto;
+                      display: flex;
+                        justify-content: start;
+                        padding: 3em 3em ;
+                        flex-direction: column;
+                        align-items: center;
+                    ">
+                        <div class="logo">
+                            <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                        </div>
+                        <hr>
+                        <div class="contenido">
+                          <h1>Solicitud de Aprobación de Cotización</h1>
+                          <p> Señor ${cartQuote?.client?.user?.name}, confirmamos la aprobación de su solicitud de cotización para la compra de productos por el comercial de E-Bulky.com</p>
+                          <p>Nombre:  ${cartQuote.quoteName} </p>
+                          <p>Descripción: ${cartQuote.description} </p>
+                          <p>Valor total: ${formattedTotalPrice} </p>
+                          <p>Fecha: ${formattedDate} </p>
+                          <p>Estado: <h2> ${cartQuote.state.name} </h2></p>
+
+                        </div>
+                    </div>
+                </div>
+            `,
+        });
+
+      } catch (error) {
+        console.log('Failed to send the email', error);
+        throw new InternalServerErrorException(`Internal server error`);
+      }
+
+    };
+
 
     return {
       cartQuote,
