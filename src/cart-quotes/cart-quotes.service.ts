@@ -866,7 +866,7 @@ export class CartQuotesService {
     const cartQuoteResponse = await this.cartQuoteRepository.save(cartQuote);
     console.log()
     
-    if (cartQuoteResponse.cartQuotes.state.name.toLowerCase() == 'en proceso') {
+    if (cartQuote.state.name.toLowerCase() == 'en proceso') {
       console.log(cartQuote?.user?.email);
       try {
         const transporter = nodemailer.createTransport({
@@ -969,7 +969,7 @@ export class CartQuotesService {
     };
 
 
-    if (cartQuoteResponse.cartQuotes.state.name.toLowerCase() == 'rechazada') {
+    if (cartQuote.state.name.toLowerCase() == 'rechazada') {
       console.log(cartQuote?.user?.email);
       try {
         const transporter = nodemailer.createTransport({
@@ -1032,7 +1032,7 @@ export class CartQuotesService {
 
     };
 
-    if (cartQuoteResponse.cartQuotes.state.name.toLowerCase() == 'aprobada') {
+    if (cartQuote.state.name.toLowerCase() == 'aprobada') {
       console.log(cartQuote?.user?.email);
       try {
         const transporter = nodemailer.createTransport({
