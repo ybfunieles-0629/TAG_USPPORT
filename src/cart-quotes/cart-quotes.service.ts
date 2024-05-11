@@ -645,12 +645,41 @@ export class CartQuotesService {
         await transporter.sendMail({
           from: this.emailSenderConfig.transport.from,
           to: [cartQuote.user.email],
-          subject: 'Solicitud de cotización de carrito',
+          subject: 'Solicitud de cotización',
           html: `
-              Señor Comercial, el cliente ${user.name} le ha enviado una solicitud de cotización para la compra de productos <br />
-              Información del carrito: ${cartQuote.quoteName} <br />
-              Fecha de realización: ${cartQuote.createdAt} <br />
-              `,
+            <div class="container" style="
+                    width: 100%;
+                    background-color: #f1f3f5;
+                    padding:5em 0">
+                    <nav style="width: 100%; height: 6em; background-color: #0a54f2"></nav>
+                    <div class="container" style="
+                      background-color: white;
+                      width: 80%;
+                      border-radius: 5px;
+                      position: relative;
+                      top: -50px;
+                      margin: auto;
+                      display: flex;
+                        justify-content: start;
+                        padding: 3em 3em ;
+                        flex-direction: column;
+                        align-items: center;
+                    ">
+                        <div class="logo">
+                            <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                        </div>
+                        <hr>
+                        <div class="contenido">
+                          <h1>Solicitud de Aprobación de Cotización</h1>
+                          <p>Señor Comercial, el cliente ${user.name} le ha enviado una solicitud de cotización para la compra de productos </p>
+                          <p>Nombre:  ${cartQuote.quoteName} </p>
+                          <p>Descripción: ${cartQuote.description} </p>
+                          <p>Valor total: ${cartQuote.totalPrice} </p>
+                          <p>Fecha: ${cartQuote.createdAt} </p>
+                        </div>
+                    </div>
+                </div>
+            `,
         });
 
 
@@ -850,11 +879,39 @@ export class CartQuotesService {
           to: [cartQuote.user.email],
           subject: 'Solicitud de cotización de carrito',
           html: `
-              Señor Comercial, el cliente ${cartQuote?.client?.user?.name} le ha enviado una solicitud de cotización para la compra de productos <br />
-              Información del carrito: ${cartQuote.quoteName} <br />
-              Costo total del carrito: ${cartQuote.totalPrice} <br />
-              Fecha de realización: ${cartQuote.createdAt} <br />
-              `,
+            <div class="container" style="
+                    width: 100%;
+                    background-color: #f1f3f5;
+                    padding:5em 0">
+                    <nav style="width: 100%; height: 6em; background-color: #0a54f2"></nav>
+                    <div class="container" style="
+                      background-color: white;
+                      width: 80%;
+                      border-radius: 5px;
+                      position: relative;
+                      top: -50px;
+                      margin: auto;
+                      display: flex;
+                        justify-content: start;
+                        padding: 3em 3em ;
+                        flex-direction: column;
+                        align-items: center;
+                    ">
+                        <div class="logo">
+                            <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                        </div>
+                        <hr>
+                        <div class="contenido">
+                          <h1>Solicitud de Aprobación de Cotización</h1>
+                          <p>Señor Comercial, el cliente ${cartQuote?.client?.user?.name} le ha enviado una solicitud de cotización para la compra de productos</p>
+                          <p>Nombre:  ${cartQuote.quoteName} </p>
+                          <p>Descripción: ${cartQuote.description} </p>
+                          <p>Valor total: ${cartQuote.totalPrice} </p>
+                          <p>Fecha: ${cartQuote.createdAt} </p>
+                        </div>
+                    </div>
+                </div>
+            `,
         });
 
         await transporter.sendMail({
@@ -862,11 +919,39 @@ export class CartQuotesService {
           to: [cartQuote.client.billingEmail],
           subject: 'Solicitud de cotización de carrito',
           html: `
-              Señor ${cartQuote?.client?.user?.name}, confirmamos el envío de la solicitud de cotización para la compra de productos al comercial de E-Bulky.com<br />
-              Información del carrito: ${cartQuote.quoteName} <br />
-              Costo total del carrito: ${cartQuote.totalPrice} <br />
-              Fecha de realización: ${cartQuote.createdAt} <br />
-              `,
+            <div class="container" style="
+                    width: 100%;
+                    background-color: #f1f3f5;
+                    padding:5em 0">
+                    <nav style="width: 100%; height: 6em; background-color: #0a54f2"></nav>
+                    <div class="container" style="
+                      background-color: white;
+                      width: 80%;
+                      border-radius: 5px;
+                      position: relative;
+                      top: -50px;
+                      margin: auto;
+                      display: flex;
+                        justify-content: start;
+                        padding: 3em 3em ;
+                        flex-direction: column;
+                        align-items: center;
+                    ">
+                        <div class="logo">
+                            <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                        </div>
+                        <hr>
+                        <div class="contenido">
+                          <h1>Solicitud de Aprobación de Cotización</h1>
+                          <p> Señor ${cartQuote?.client?.user?.name}, confirmamos el envío de la solicitud de cotización para la compra de productos al comercial de E-Bulky.com</p>
+                          <p>Nombre:  ${cartQuote.quoteName} </p>
+                          <p>Descripción: ${cartQuote.description} </p>
+                          <p>Valor total: ${cartQuote.totalPrice} </p>
+                          <p>Fecha: ${cartQuote.createdAt} </p>
+                        </div>
+                    </div>
+                </div>
+            `,
         });
 
       } catch (error) {
@@ -891,14 +976,42 @@ export class CartQuotesService {
         await transporter.sendMail({
           from: this.emailSenderConfig.transport.from,
           to: [cartQuote.client.billingEmail],
-          subject: 'Solicitud de cotización de carrito',
+          subject: 'Rechazo a solicitud de cotización',
           html: `
-              Señor ${cartQuote?.client?.user?.name}, lamentamos informacile el rechazo de la cotización para la compra de productos en E-Bulky.com<br />
-              Información del carrito: ${cartQuote.quoteName} <br />
-              Costo total del carrito: ${cartQuote.totalPrice} <br />
-              Fecha de realización: ${cartQuote.createdAt} <br />
-              Estado: ${cartQuote.state.name} <br />
-              `,
+            <div class="container" style="
+                    width: 100%;
+                    background-color: #f1f3f5;
+                    padding:5em 0">
+                    <nav style="width: 100%; height: 6em; background-color: #0a54f2"></nav>
+                    <div class="container" style="
+                      background-color: white;
+                      width: 80%;
+                      border-radius: 5px;
+                      position: relative;
+                      top: -50px;
+                      margin: auto;
+                      display: flex;
+                        justify-content: start;
+                        padding: 3em 3em ;
+                        flex-direction: column;
+                        align-items: center;
+                    ">
+                        <div class="logo">
+                            <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                        </div>
+                        <hr>
+                        <div class="contenido">
+                          <h1>Solicitud de Aprobación de Cotización</h1>
+                          <p>Señor ${cartQuote?.client?.user?.name}, lamento informarle que su solicitud de cotización para la compra de productos ha sido rechazada por el comercial de E-Bulky.com</p>
+                          <p>Nombre:  ${cartQuote.quoteName} </p>
+                          <p>Descripción: ${cartQuote.description} </p>
+                          <p>Valor total: ${cartQuote.totalPrice} </p>
+                          <p>Fecha: ${cartQuote.createdAt} </p>
+                          <p>Estado: <h2> ${cartQuote.state.name} </h2></p>
+                        </div>
+                    </div>
+                </div>
+            `,
         });
 
       } catch (error) {

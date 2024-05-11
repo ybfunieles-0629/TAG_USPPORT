@@ -1836,7 +1836,6 @@ export class ProductsService {
         to: ['puertodaniela586@gmail.com', 'locarr785@gmail.com', 'zoomm.yeison@gmail.com'],
         subject: 'Solicitud de producto',
         html: `
-
         <div class="container" style="
                 width: 100%;
                 background-color: #f1f3f5;
@@ -1869,12 +1868,8 @@ export class ProductsService {
                     <p>Descripción del producto: ${productDescription}</p>
                     ${image ? '<img src="cid:unique@nodemailer.com" />' : ''}
                     </div>
-
                 </div>
-             
             </div>
-
-        
         `,
         attachments: attachments
       });
