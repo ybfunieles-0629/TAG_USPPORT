@@ -284,6 +284,8 @@ export class ProductsService {
     };
   }
 
+
+
   private async loadMarpicoProducts() {
     const apiUrl = 'https://apipromocionales.marpico.co/api/inventarios/materialesAPI';
     const apiKey = 'KZuMI3Fh5yfPSd7bJwqoIicdw2SNtDkhSZKmceR0PsKZzCm1gK81uiW59kL9n76z';
@@ -353,7 +355,7 @@ export class ProductsService {
 
       for (const imagen of item.imagenes) {
         const newImage = {
-          url: imagen.imagen.file,
+          url: imagen.imagen,
         };
 
         const createdImage: Image = this.imageRepository.create(newImage);
@@ -367,7 +369,7 @@ export class ProductsService {
 
       const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
         where: {
-          apiReferenceId: item.subcategoria_1.categoria.jerarquia,
+          apiReferenceId: item.subcategoria_1.jerarquia,
         },
         relations: [
           'categoryTag'
@@ -388,7 +390,7 @@ export class ProductsService {
       if (item.subcategoria_2 != null || item.subcategoria_2 != undefined) {
         const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
           where: {
-            apiReferenceId: item.subcategoria_1.categoria.jerarquia,
+            apiReferenceId: item.subcategoria_1.jerarquia,
           },
           relations: [
             'categoryTag'
@@ -410,7 +412,7 @@ export class ProductsService {
       if (item.subcategoria_3 != null || item.subcategoria_2 != undefined) {
         const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
           where: {
-            apiReferenceId: item.subcategoria_1.categoria.jerarquia,
+            apiReferenceId: item.subcategoria_1.jerarquia,
           },
           relations: [
             'categoryTag'
@@ -430,7 +432,7 @@ export class ProductsService {
       };
 
       if (!categorySupplier)
-        throw new NotFoundException(`Category with id ${item.subcategoria_1.categoria.jerarquia} not found`);
+        throw new NotFoundException(`Category with id ${item.subcategoria_1.jerarquia} not found`);
 
       let newRefProduct = {
         name: item.descripcion_comercial,
@@ -440,9 +442,9 @@ export class ProductsService {
         mainCategory: categorySupplier?.id || '',
         tagCategory: categorySupplier?.categoryTag?.id || '',
         keywords: keyword,
-        large: +item.empaque_largo,
-        width: +item.empaque_ancho,
-        height: +item.empaque_alto,
+        large: +item.medidas_largo,
+        width: +item.medidas_ancho,
+        height: +item.medidas_alto,
         weight: +item.medidas_peso_neto,
         importedNational: 1,
         markedDesignArea: item.area_impresion || '',
@@ -452,6 +454,17 @@ export class ProductsService {
       }
 
       cleanedRefProducts.push(newRefProduct);
+
+      let packageReferences = {
+        unities: +item.empaque_unds_caja,
+        large: +item.empaque_largo,
+        width: +item.empaque_ancho,
+        height: +item.empaque_alto,
+        smallPackingWeight: +item.empaque_peso_bruto,
+        product: "",
+        refProduct: ""
+      }
+
 
       for (const material of item.materiales) {
         const productImages: Image[] = [];
@@ -466,17 +479,26 @@ export class ProductsService {
           productImages.push(image);
         }
 
+        // Calcular la suma de las cantidades en trackings_importacion
+        let totalCantidad = 0;
+        for (const tracking of material.trackings_importacion) {
+          totalCantidad += tracking.cantidad;
+        }
+
+
         let tagSku: string = await this.generateUniqueTagSku();
 
         const newProduct = {
           tagSku,
-          availableUnit: item.inventario || 0,
+          availableUnit: item.inventario[0].cantidad || 0,
+          transitUnit: totalCantidad || 0,
+          productArrivalDate: item.trackings_importacion[0].fecha || 0,
           referencePrice: item.precio,
           promoDisccount: item.descuento || 0,
           familia: item.familia,
           supplierSKu: material.codigo,
           apiCode: material.codigo,
-          large: + item.medidas_largo,
+          large: +item.medidas_largo,
           width: +item.medidas_ancho,
           height: +item.medidas_alto,
           weight: +item.medidas_peso_neto,
@@ -541,6 +563,8 @@ export class ProductsService {
 
         let tagSku: string = await this.generateUniqueTagSku();
 
+
+
         const newProduct = {
           tagSku,
           supplierSku: product?.supplierSku,
@@ -589,6 +613,8 @@ export class ProductsService {
     const productCodes: string[] = productsToSave.map(product => product.apiCode);
     const productCodesString: string = productCodes.join(', ');
 
+
+
     // try {
     //   // const transporter = nodemailer.createTransport(this.emailSenderConfig.transport);
     //   const transporter = nodemailer.createTransport({
@@ -621,6 +647,8 @@ export class ProductsService {
       productsToSave
     };
   }
+
+
 
   private async loadCDOProducts() {
     const apiUrl = 'https://apipromocionales.marpico.co/api/inventarios/materialesAPI';
@@ -959,6 +987,8 @@ export class ProductsService {
       productsToSave
     };
   }
+
+
 
 
 
@@ -1968,6 +1998,8 @@ export class ProductsService {
 
     throw new InternalServerErrorException('Unexpected error, check server logs');
   }
+
+
 }
 
 

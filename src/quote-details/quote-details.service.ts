@@ -2002,7 +2002,6 @@ export class QuoteDetailsService {
 
       // % UTILIDAD FINAL CON DESCUENTO
       let PorcentajeUtilidadFinalConDescuento = (UtilidadFinalConDescuento / (TotalGastoAntesDeIva + Retenciones)) * 100;
-      // PorcentajeUtilidadFinalConDescuento = Math.round(PorcentajeUtilidadFinalConDescuento);
 
       console.log(PorcentajeUtilidadFinalConDescuento)
 
@@ -2019,64 +2018,13 @@ export class QuoteDetailsService {
       newQuoteDetail.UtilidadFinal = UtilidadFinalConDescuento;
       newQuoteDetail.porcentajeUtilidadFinal = PorcentajeUtilidadFinalConDescuento;
 
-
-
       cartQuoteDb.ivaTotal += IvaSnTotalFinal;
       cartQuoteDb.subTotal += SubTotalFinalesDeIva;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-      //* SE HACE DESCUENTO ADICIONAL POR EL COMERCIAL (YA HECHO)
-      // let additionalDisccount: number = newQuoteDetail.additionalDiscount > 0 ? totalPrice * (1 - newQuoteDetail.additionalDiscount) : 0;
-      // totalPrice -= additionalDisccount;
-
-
-      //* PRECIO TOTAL ANTES DE IVA (YA HECHO)
-
-
-
-      //* IVA DE LA VENTA
-      // const iva: number = (product.iva / 100) * totalPrice || 0;
-      // totalPrice += iva;
-      // totalCost += iva;
-
-      //* CALCULAR PRECIO FINAL AL CLIENTE, REDONDEANDO DECIMALES
-      // Math.round(newQuoteDetail.totalValue);
-
-      //* CALCULAR EL COSTO DE LA RETENCIÓN EN LA FUENTE
-      // const withholdingAtSource: number = systemConfig.withholdingAtSource || 0;
-      // const withholdingAtSourceValue: number = (totalPrice * withholdingAtSource / 100) || 0;
-
-      // totalPrice += withholdingAtSourceValue;
-      // totalCost += withholdingAtSourceValue;
-      // cartQuoteDb.withholdingAtSourceValue = withholdingAtSourceValue;
-
-      //* CALCULAR UTILIDAD DEL NEGOCIO
-      // const businessUtility = (totalPrice - (totalCost - withholdingAtSourceValue)) || 0;
-      // newQuoteDetail.businessUtility = businessUtility;
-
-      //* CALCULAR RENTABILIDAD DEL NEGOCIO
-      // const profitability: number = (businessUtility / totalPrice) || 0;
-      // newQuoteDetail.profitability = profitability;
-
-      //* CALCULAR DESCUENTO
-      // const discount: number = (product.promoDisccount / 100) * totalPrice || 0;
-
       newQuoteDetail.discountPercentage = 0; // reutilizar
 
       newQuoteDetail.discount = product.promoDisccount;
-      // totalPrice -= discount;
 
       //* CALCULAR SUBTOTAL CON DESCUENTO
 
@@ -2086,12 +2034,10 @@ export class QuoteDetailsService {
       cartQuoteDb.totalPrice += TotalVenta;
 
       // //TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
-      // newQuoteDetail.maximumDiscount = 20;
-
       console.log(newQuoteDetail.transportTotalPrice)
 
-      await this.cartQuoteRepository.save(cartQuoteDb);
-      await this.quoteDetailRepository.save(newQuoteDetail);
+      // await this.cartQuoteRepository.save(cartQuoteDb);
+      // await this.quoteDetailRepository.save(newQuoteDetail);
 
       return {
         newQuoteDetail,

@@ -864,7 +864,7 @@ export class CartQuotesService {
     };
 
     const cartQuoteResponse = await this.cartQuoteRepository.save(cartQuote);
-    console.log()
+    console.log(cartQuoteResponse)
     
     if (cartQuote.state.name.toLowerCase() == 'en proceso') {
       console.log(cartQuote?.user?.email);
@@ -1081,7 +1081,11 @@ export class CartQuotesService {
                           <p>Valor total: ${formattedTotalPrice} </p>
                           <p>Fecha: ${formattedDate} </p>
                           <p>Estado: <h2> ${cartQuote.state.name} </h2></p>
-
+                          <p>Ingresa a E-Bulky.com y continua con tu compra!</p>
+                            </br>
+                            <a style="padding: .7em 2em; background: #0a54f2; color:white" target="_black
+                            " href="https://tag-web-16776.web.app">!Continuar comprando!</a>
+                            <p></p>
                         </div>
                     </div>
                 </div>
@@ -1098,7 +1102,8 @@ export class CartQuotesService {
 
     return {
       cartQuote,
-      purchaseOrderCreated
+      purchaseOrderCreated,
+      cartQuoteResponse
     };
   }
 
