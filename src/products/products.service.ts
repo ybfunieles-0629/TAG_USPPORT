@@ -487,12 +487,20 @@ export class ProductsService {
 
 
         let tagSku: string = await this.generateUniqueTagSku();
-
+        const availableUnit =
+          item.inventario && item.inventario.length > 0
+            ? item.inventario[0].cantidad || 0
+            : 0;
+        
+        
         const newProduct = {
           tagSku,
-          availableUnit: item.inventario[0].cantidad || 0,
+          availableUnit,
           transitUnit: totalCantidad || 0,
-          productArrivalDate: item.trackings_importacion[0].fecha || 0,
+          productArrivalDate:
+            item.trackings_importacion && item.trackings_importacion.length > 0
+              ? item.trackings_importacion[0].fecha || 0
+              : 0,
           referencePrice: item.precio,
           promoDisccount: item.descuento || 0,
           familia: item.familia,
