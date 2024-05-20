@@ -492,7 +492,13 @@ export class ProductsService {
             ? item.inventario[0].cantidad || 0
             : 0;
         
-        
+        const colorProducts: CategorySupplier = await this.colorRepository.findOne({
+          where: {
+            name: Like(`%${material.color_nombre}%`)
+          }
+        });
+
+
         const newProduct = {
           tagSku,
           availableUnit,

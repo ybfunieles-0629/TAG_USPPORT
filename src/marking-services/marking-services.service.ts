@@ -228,7 +228,7 @@ export class MarkingServicesService {
     console.log(markingService)
 
 
-    // await this.markingServiceRepository.remove(markingService);
+    await this.markingServiceRepository.remove(markingService);
 
     return {
       markingService
