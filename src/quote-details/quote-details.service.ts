@@ -653,11 +653,16 @@ export class QuoteDetailsService {
               totalMarking += TransportPricesMarkingFedex;
               totalCost += TransportPricesMarkingFedex;
 
+              console.log(totalMarking)
+
               valorTransporteMarcacion += TransportPricesMarkingFedex;
 
               //* ADICIONAR EL MARGEN DE GANANCIA POR SERVICIO DE TRANSPORTE
               const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * TransportPricesMarkingFedex || 0;
+              console.log(supplierFinancingPercentage)
+
               totalMarking += supplierFinancingPercentage;
+              console.log(totalMarking)
 
               markingService.markingTransportPrice = (TransportPricesMarkingFedex + supplierFinancingPercentage) || 0;
               markingService.calculatedMarkingPrice = totalMarking;
@@ -4065,7 +4070,7 @@ export class QuoteDetailsService {
               totalMarking += marginForDialingServices;
 
 
-
+              console.log(totalMarking)
 
               //* CALCULAR EL COSTO DEL TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL PROVEEDOR
               // Calcular precio transporte al cliente
@@ -4082,17 +4087,22 @@ export class QuoteDetailsService {
               } else {
                 console.error('Error: dataPrecio no es de tipo numérico.');
               }
+              console.log(TransportPricesMarkingFedex)
 
-
+              console.log(TransportPricesMarkingFedex)
               markingService.markingTransportPrice = TransportPricesMarkingFedex;
               totalMarking += TransportPricesMarkingFedex;
               totalCost += TransportPricesMarkingFedex;
 
+              console.log(totalMarking)
+
               valorTransporteMarcacion += TransportPricesMarkingFedex;
 
               //* ADICIONAR EL MARGEN DE GANANCIA POR SERVICIO DE TRANSPORTE
-              const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * markingTransportPrice || 0;
+              const supplierFinancingPercentage: number = (systemConfig.supplierFinancingPercentage / 100) * TransportPricesMarkingFedex || 0;
+              console.log(supplierFinancingPercentage)
               totalMarking += supplierFinancingPercentage;
+              console.log(totalMarking)
 
               markingService.markingTransportPrice = (TransportPricesMarkingFedex + supplierFinancingPercentage) || 0;
               markingService.calculatedMarkingPrice = totalMarking;
@@ -4106,6 +4116,8 @@ export class QuoteDetailsService {
               updatedQuoteDetail.markingWithProductSupplierTransport = TransportPricesMarkingFedex;
 
 
+              console.log(ValorTotalMarcacion)
+              console.log(valorTransporteMarcacion)
               // await this.markingServiceRepository.save(markingService); //descomentar
               // await this.markingServicePropertyRepository.save(markingService);
             };
@@ -4115,7 +4127,7 @@ export class QuoteDetailsService {
     };
 
 
-
+    console.log(ValorTotalMarcacion)
 
 
 
