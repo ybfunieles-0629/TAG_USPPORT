@@ -1439,8 +1439,8 @@ export class QuoteDetailsService {
       // //TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
       console.log(newQuoteDetail.transportTotalPrice)
 
-      await this.cartQuoteRepository.save(cartQuoteDb);
-      await this.quoteDetailRepository.save(newQuoteDetail);
+      // await this.cartQuoteRepository.save(cartQuoteDb);
+      // await this.quoteDetailRepository.save(newQuoteDetail);
 
       return {
         newQuoteDetail,
@@ -4526,10 +4526,9 @@ console.log()
     console.log(CostoTotalTransporteDeEntrega)
     console.log(marginFian)
 
-    let alculoSubTotalInicial = valorTransporteMarcacion + SubTotalCostoMarcacion + CuatroPorMilMarcacion;
 
     let sumaF6F7 = marginCli + marginFian;
-    let SubTotalTransporte = alculoSubTotalInicial * (1 + (maerginTrans + sumaF6F7));
+    let SubTotalTransporte = CostoTotalTransporteDeEntrega * (1 + (maerginTrans + sumaF6F7));
 
     // SUBTOTAL TRANSPORTE
     SubTotalTransporte = (Math.ceil(SubTotalTransporte));
@@ -4563,24 +4562,14 @@ console.log()
     // TOTAL PRECIO TRANSPORTE DE ENTREGA
     const TotalPrecioTransporteDeEntrega = SubTotalTransporte + FeeTransporteTotalCalculado;
     console.log(TotalPrecioTransporteDeEntrega)
+    updatedQuoteDetail.transportTotalPrice = TotalPrecioTransporteDeEntrega;
 
 
-    //* CALCULAR EL IVA DEL TRANSPORTE
-    let IvaSubTotalTransporte: number = (19 / 100) * SubTotalTransporte;
-    IvaSubTotalTransporte = Math.round(IvaSubTotalTransporte);
-    console.log(IvaSubTotalTransporte)
 
 
-    // TOTAL PRECIO TRANSPORTE DE ENTREGA
-    let transporteConIva = TotalPrecioTransporteDeEntrega + IvaSubTotalTransporte;
-    console.log(transporteConIva)
 
 
-    // SUMA CONTONIA DEL TRANSPORTE TOTAL
-    ValorTotalDeTransporteGeneral += (transporteConIva)
 
-    console.log(ValorTotalDeTransporteGeneral)
-    updatedQuoteDetail.transportTotalPrice = ValorTotalDeTransporteGeneral;
 
 
 
@@ -4600,9 +4589,10 @@ console.log()
     let marginFDS = marginForDialingServices / 100;
     // Convertir porcentajes a valores decimales
     let F40 = (SubTotalCostoMarcacion);
+    let calculoSubTotalInicial = SubTotalCostoMarcacion + CuatroPorMilMarcacion + valorTransporteMarcacionx;
 
     // Evaluar la fórmula
-    let SubTotalSinFeeMarcacion = (SubTotalCostoMarcacion + CuatroPorMilMarcacion) * (1 + (marginFDS + sumaF6F7));
+    let SubTotalSinFeeMarcacion = (calculoSubTotalInicial) * (1 + (marginFDS + sumaF6F7));
     console.log(SubTotalSinFeeMarcacion)
 
 
@@ -4619,7 +4609,7 @@ console.log()
     let segundoCalculoMarcacion = primerCalculoMarcacion * F8;
     let tercerCalculoMarcacion = segundoCalculoMarcacion * F8;
     let cuartoCalculoMarcacion = tercerCalculoMarcacion * F8;
-
+    
     let resultadoMarcacion = primerCalculoMarcacion + segundoCalculoMarcacion + tercerCalculoMarcacion + cuartoCalculoMarcacion;
     let FeeMarcacionTotalCalculado = resultadoMarcacion;
     FeeMarcacionTotalCalculado = Math.round(FeeMarcacionTotalCalculado);
@@ -4630,15 +4620,23 @@ console.log()
 
 
     // TOTAL PRECIO MARCACION DE ENTREGA
-    const TotalPrecioMarcacionDeEntrega = SubTotalSinFeeMarcacion + FeeMarcacionTotalCalculado;
+    const SubTotalPrecioMarcacionDeEntrega = SubTotalSinFeeMarcacion + FeeMarcacionTotalCalculado;
+    console.log(SubTotalPrecioMarcacionDeEntrega);
+
+    //* IVA FEE MARCACION
+    const IvaFeeMarcacion: number = (19 * SubTotalSinFeeMarcacion) / 100 || 0;
+    console.log(IvaFeeMarcacion)
+    
+    // TOTAL PRECIO MARCACION CON IVA
+    const TotalPrecioMarcacionDeEntrega = SubTotalPrecioMarcacionDeEntrega + IvaFeeMarcacion;
     console.log(TotalPrecioMarcacionDeEntrega);
 
-    // //* IVA FEE MARCACION
-    // const IvaFeeMarcacion: number = (19 / 100) * SubTotalConFeeMarcacion || 0;
 
-    // // TOTAL PRECIO MARCACION CON IVA
-    // const TotalPrecioMarcacionDeEntrega = SubTotalConFeeMarcacion + IvaFeeMarcacion;
-    // console.log(TotalPrecioMarcacionDeEntrega);
+
+
+
+
+
 
 
 
@@ -4647,8 +4645,8 @@ console.log()
     // SUB TOTAL TODOS LOS FEE
     console.log(SubTotalFeeMuestra)
     console.log(TotalPrecioTransporteDeEntrega)
-    console.log(TotalPrecioMarcacionDeEntrega)
-    let SubTotalFees = SubTotalFeeMuestra + TotalPrecioTransporteDeEntrega + TotalPrecioMarcacionDeEntrega;
+    console.log(SubTotalPrecioMarcacionDeEntrega)
+    let SubTotalFees = SubTotalFeeMuestra + TotalPrecioTransporteDeEntrega + SubTotalPrecioMarcacionDeEntrega;
     SubTotalFees = Math.round(SubTotalFees);
     console.log(SubTotalFees);
 
@@ -4929,10 +4927,10 @@ console.log()
 
     let updatedCartQuote: CartQuote = cartQuoteDb;
 
-    // if (saveData == 1) {
-    //   updatedCartQuote = await this.cartQuoteRepository.save(cartQuoteDb);
-    //   await this.quoteDetailRepository.save(quoteDetail);
-    // }
+    if (saveData == 1) {
+      updatedCartQuote = await this.cartQuoteRepository.save(cartQuoteDb);
+      await this.quoteDetailRepository.save(quoteDetail);
+    }
 
     return {
       updatedQuoteDetail,
