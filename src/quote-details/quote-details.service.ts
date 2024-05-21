@@ -668,7 +668,7 @@ export class QuoteDetailsService {
 
               newQuoteDetail.markingWithProductSupplierTransport = TransportPricesMarkingFedex;
 
-              await this.markingServiceRepository.save(markingService); // 
+              // await this.markingServiceRepository.save(markingService); // 
               // await this.markingServicePropertyRepository.save(markingService);
             };
           };
@@ -3680,6 +3680,8 @@ export class QuoteDetailsService {
 
     const updatedQuoteDetail = plainToClass(QuoteDetail, quoteDetail);
 
+    console.log(updatedQuoteDetail)
+
     if (updateQuoteDetailDto.quantities) {
       updatedQuoteDetail.quantities = updateQuoteDetailDto.quantities;
     };
@@ -3995,7 +3997,6 @@ export class QuoteDetailsService {
     } else {
       console.error('Error: dataPrecio no es de tipo numérico.');
     }
-    console.log(CuatroPorMilTransporte);
 
 
     // COSTO TOTAL TRANSPORTE DE ENTREGA
@@ -4009,50 +4010,10 @@ export class QuoteDetailsService {
     let valorTransporteMarcacion = 0;
     let valorTransporteMarcacionx = 0;
 
-
+    console.log(updatedQuoteDetail)
 
     const markingServices: MarkingService[] = updatedQuoteDetail?.markingServices || [];
     console.log(markingServices)
-
-
-    // console.log(updatedQuoteDetail.markingServices.length)
-    // if (updatedQuoteDetail.markingServices.length > 0) {
-    //   // Guardamos las markin que vengan del carrito
-    //   let MarcasExistentes: MarkingService[] = await this.markingServiceRepository.find({
-    //     where: {
-    //       quoteDetail: { id },
-    //     },
-    //     relations: [
-    //       'marking',
-    //       'logos',
-    //       'quoteDetail',
-    //     ],
-    //   });
-    //   console.log(MarcasExistentes);
-
-    //   //Eliminar logos
-    //   for (const markingServiceUno of MarcasExistentes) {
-    //     console.log(markingServiceUno)
-
-    //     for (const logo of markingServiceUno.logos) {
-    //       const logoId:any = logo?.id;
-    //       console.log(logoId)
-    //       const logoToRemove = await this.LogoService.findOne(logoId); 
-    //       console.log(logoToRemove)
-
-    //       if (logoToRemove) {
-    //           await this.LogoService.remove(logoToRemove);
-    //       } else {
-    //           console.log(`No se encontró el logo con ID: ${logoId}`);
-    //       }
-
-    //     }
-
-    //     console.log(markingServiceUno.id)
-    //     let id: any = markingServiceUno.id || ''; 
-    //     await this.markingServiceRepository.remove(markingServiceUno);
-    //   };
-    // }
 
 
     //* Buscamos los datos de la referencia
@@ -4079,7 +4040,6 @@ export class QuoteDetailsService {
               console.log(markedServicePrice.unitPrice)
 
               let totalMarking: number = (quantity * markedServicePrice.unitPrice);
-              updatedQuoteDetail.markingTotalPrice = totalMarking;
 
               // marking = markingServiceProperty?.externalSubTechnique?.marking;
               marking = markingService?.marking;
@@ -4146,7 +4106,7 @@ export class QuoteDetailsService {
               updatedQuoteDetail.markingWithProductSupplierTransport = TransportPricesMarkingFedex;
 
 
-              //await this.markingServiceRepository.save(markingService); //descomentar
+              // await this.markingServiceRepository.save(markingService); //descomentar
               // await this.markingServicePropertyRepository.save(markingService);
             };
           };
@@ -4172,6 +4132,7 @@ export class QuoteDetailsService {
     let SubTotalCostoMarcacion = ValorTotalMarcacion || 0;
     SubTotalCostoMarcacion = Math.round(SubTotalCostoMarcacion)
     console.log(SubTotalCostoMarcacion)
+    updatedQuoteDetail.markingTotalPrice = ValorTotalMarcacion;
 
 
     //* CALCULAR EL IVA
@@ -4224,7 +4185,7 @@ export class QuoteDetailsService {
 
 
 
-
+console.log()
 
 
 
