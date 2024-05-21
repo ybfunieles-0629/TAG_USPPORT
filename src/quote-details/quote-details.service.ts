@@ -213,6 +213,7 @@ export class QuoteDetailsService {
     });
 
 
+    console.log(cartQuote)
     let condigoPostalCliente = cartQuote?.client?.user?.company?.postalCode;
     console.log(condigoPostalCliente)
 
@@ -1141,7 +1142,7 @@ export class QuoteDetailsService {
       // Convertir porcentajes a valores decimales
       let F40 = (CostoTotalTransporteDeEntrega);
 
-      let alculoSubTotalInicial = valorTransporteMarcacionx + SubTotalCostoMarcacion + CuatroPorMilMarcacion;
+    let alculoSubTotalInicial = valorTransporteMarcacionx + CuatroPorMilMarcacion +  SubTotalCostoMarcacion ;
       console.log(valorTransporteMarcacionx)
       console.log(SubTotalCostoMarcacion)
       console.log(CuatroPorMilMarcacion)
@@ -1185,7 +1186,7 @@ export class QuoteDetailsService {
       console.log(SubTotalPrecioMarcacionDeEntrega);
 
       //* IVA FEE MARCACION
-      const IvaFeeMarcacion: number = (19 / 100) * SubTotalPrecioMarcacionDeEntrega || 0;
+    const IvaFeeMarcacion: number = (19 / 100) * SubTotalSinFeeMarcacion || 0;
 
       // // TOTAL PRECIO MARCACION CON IVA
       let TotalPrecioMarcacionDeEntrega = SubTotalPrecioMarcacionDeEntrega + IvaFeeMarcacion;
@@ -1439,8 +1440,8 @@ export class QuoteDetailsService {
       // //TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
       console.log(newQuoteDetail.transportTotalPrice)
 
-      await this.cartQuoteRepository.save(cartQuoteDb);
-      await this.quoteDetailRepository.save(newQuoteDetail);
+      // await this.cartQuoteRepository.save(cartQuoteDb);
+      // await this.quoteDetailRepository.save(newQuoteDetail);
 
       return {
         newQuoteDetail,
