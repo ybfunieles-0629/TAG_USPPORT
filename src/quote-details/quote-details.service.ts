@@ -213,7 +213,6 @@ export class QuoteDetailsService {
     });
 
 
-
     let condigoPostalCliente = cartQuote?.client?.user?.company?.postalCode;
     console.log(condigoPostalCliente)
 
@@ -701,7 +700,7 @@ export class QuoteDetailsService {
 
 
       // TOTAL COSTO MARCACIÓN
-      let TotalCostoMarcacion = SubTotalCostoMarcacion + IvaMarcacion + valorTransporteMarcacion;
+    let TotalCostoMarcacion = SubTotalCostoMarcacion + IvaMarcacion + valorTransporteMarcacionx;
       TotalCostoMarcacion = Math.round(TotalCostoMarcacion)
       console.log(TotalCostoMarcacion)
 
@@ -1389,6 +1388,7 @@ export class QuoteDetailsService {
       console.log(TotalVenta);
       newQuoteDetail.totalValue = TotalVenta;
 
+    console.log()
 
 
 
