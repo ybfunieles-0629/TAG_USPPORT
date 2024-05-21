@@ -1439,8 +1439,8 @@ export class QuoteDetailsService {
       // //TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
       console.log(newQuoteDetail.transportTotalPrice)
 
-      // await this.cartQuoteRepository.save(cartQuoteDb);
-      // await this.quoteDetailRepository.save(newQuoteDetail);
+      await this.cartQuoteRepository.save(cartQuoteDb);
+      await this.quoteDetailRepository.save(newQuoteDetail);
 
       return {
         newQuoteDetail,
