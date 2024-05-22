@@ -609,9 +609,11 @@ export class CartQuotesService {
       cartQuote.user = user;
     };
 
+
     if (stateDb.name.toLowerCase() == 'rechazada') {
       cartQuote.isAllowed = false;
     };
+
 
     if (stateDb.name.toLowerCase() == 'en proceso') {
       //const commercialId: string = user?.client?.commercialId;
@@ -633,63 +635,63 @@ export class CartQuotesService {
       // if (!commercialUser)
       //   throw new NotFoundException(`Commercial user with id ${commercialId} not found`);
 
-      try {
-        const transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASSWORD,
-          },
-        });
+      // try {
+      //   const transporter = nodemailer.createTransport({
+      //     service: 'gmail',
+      //     auth: {
+      //       user: process.env.EMAIL_USER,
+      //       pass: process.env.EMAIL_PASSWORD,
+      //     },
+      //   });
 
-        const formattedDate = new Intl.DateTimeFormat('es-CO', { dateStyle: 'full', timeStyle: 'short' }).format(cartQuote.createdAt);
-        const formattedTotalPrice = cartQuote.totalPrice.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
+      //   const formattedDate = new Intl.DateTimeFormat('es-CO', { dateStyle: 'full', timeStyle: 'short' }).format(cartQuote.createdAt);
+      //   const formattedTotalPrice = cartQuote.totalPrice.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
 
-        await transporter.sendMail({
-          from: this.emailSenderConfig.transport.from,
-          to: [cartQuote.user.email],
-          subject: 'Solicitud de cotización',
-          html: `
-            <div class="container" style="
-                    width: 100%;
-                    background-color: #f1f3f5;
-                    padding:5em 0">
-                    <nav style="width: 100%; height: 6em; background-color: #0a54f2"></nav>
-                    <div class="container" style="
-                      background-color: white;
-                      width: 80%;
-                      border-radius: 5px;
-                      position: relative;
-                      top: -50px;
-                      margin: auto;
-                      display: flex;
-                        justify-content: start;
-                        padding: 3em 3em ;
-                        flex-direction: column;
-                        align-items: center;
-                    ">
-                        <div class="logo">
-                            <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
-                        </div>
-                        <hr>
-                        <div class="contenido">
-                          <h1>Solicitud de Aprobación de Cotización</h1>
-                          <p>Señor Comercial, el cliente ${user.name} le ha enviado una solicitud de cotización para la compra de productos </p>
-                          <p>Nombre:  ${cartQuote.quoteName} </p>
-                          <p>Descripción: ${cartQuote.description} </p>
-                           <p>Valor total: ${formattedTotalPrice} </p>
-                          <p>Fecha: ${formattedDate} </p>
-                        </div>
-                    </div>
-                </div>
-            `,
-        });
+      //   await transporter.sendMail({
+      //     from: this.emailSenderConfig.transport.from,
+      //     to: [cartQuote.user.email],
+      //     subject: 'Solicitud de cotización',
+      //     html: `
+      //       <div class="container" style="
+      //               width: 100%;
+      //               background-color: #f1f3f5;
+      //               padding:5em 0">
+      //               <nav style="width: 100%; height: 6em; background-color: #0a54f2"></nav>
+      //               <div class="container" style="
+      //                 background-color: white;
+      //                 width: 80%;
+      //                 border-radius: 5px;
+      //                 position: relative;
+      //                 top: -50px;
+      //                 margin: auto;
+      //                 display: flex;
+      //                   justify-content: start;
+      //                   padding: 3em 3em ;
+      //                   flex-direction: column;
+      //                   align-items: center;
+      //               ">
+      //                   <div class="logo">
+      //                       <img  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+      //                   </div>
+      //                   <hr>
+      //                   <div class="contenido">
+      //                     <h1>Solicitud de Aprobación de Cotización</h1>
+      //                     <p>Señor Comercial, el cliente ${user.name} le ha enviado una solicitud de cotización para la compra de productos </p>
+      //                     <p>Nombre:  ${cartQuote.quoteName} </p>
+      //                     <p>Descripción: ${cartQuote.description} </p>
+      //                      <p>Valor total: ${formattedTotalPrice} </p>
+      //                     <p>Fecha: ${formattedDate} </p>
+      //                   </div>
+      //               </div>
+      //           </div>
+      //       `,
+      //   });
 
 
-      } catch (error) {
-        console.log('Failed to send the email', error);
-        throw new InternalServerErrorException(`Internal server error`);
-      }
+      // } catch (error) {
+      //   console.log('Failed to send the email', error);
+      //   throw new InternalServerErrorException(`Internal server error`);
+      // }
     };
 
     if (updateCartQuoteDto.generateOrder) {
