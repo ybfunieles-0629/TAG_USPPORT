@@ -315,6 +315,7 @@ export class RefProductsService {
             valueSinIva: 0,
             valueConIva: 0,
             value: 0,
+            valueIva: 0,
             totalCostoProduccionSinIva: 0,
             totalCostoProduccion: 0,
             totalValue: 0,
@@ -825,7 +826,8 @@ export class RefProductsService {
           prices.valueSinIva = SubtotalPrecioVenta;
           prices.valueConIva = PrecioVentaTotal;
           prices.totalValue = SubtotalPrecioVenta;
-          prices.value = SubtotalPrecioVentaUnitario;
+          prices.value = SubtotalPrecioVentaUnitario; 
+          prices.valueIva = PrecioVentaTotalUnitaria; 
 
           burnPriceTable.push(prices);
 
@@ -2597,6 +2599,7 @@ export class RefProductsService {
           let prices = {
             quantity: staticQuantities[i],
             value: 0,
+            valueIva:0,
             valueSinIva: 0,
             valueConIva: 0,
             totalCostoProduccionSinIva: 0,
@@ -3125,11 +3128,12 @@ export class RefProductsService {
           //******************************************************************************************************** */
 
           prices.totalCostoProduccionSinIva = SubTotalAntesDeIva,
-            prices.totalCostoProduccion = TotalCostoDelProducto;
+          prices.totalCostoProduccion = TotalCostoDelProducto;
           prices.valueSinIva = SubtotalPrecioVenta;
           prices.valueConIva = PrecioVentaTotal;
           prices.totalValue = SubtotalPrecioVenta;
           prices.value = SubtotalPrecioVentaUnitario;
+          prices.valueIva = PrecioVentaTotalUnitaria; 
 
 
 
