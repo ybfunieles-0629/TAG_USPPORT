@@ -26,8 +26,10 @@ export class MarkingServicesController {
   createMultiple(
     @Body() createMarkingServices: CreateMarkingServiceDto[],
     @GetUser() user: User,
+    @Query('quoteDetail') quoteDetail: string,
+
   ) {
-    return this.markingServicesService.createMultiple(createMarkingServices, user);
+    return this.markingServicesService.createMultiple(createMarkingServices, user, quoteDetail);
   }
 
   @Get()

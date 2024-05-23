@@ -11,6 +11,7 @@ import { ExternalSubTechnique } from '../external-sub-techniques/entities/extern
 import { MarkingServiceProperty } from '../marking-service-properties/entities/marking-service-property.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { User } from '../users/entities/user.entity';
+import { QuoteDetail } from 'src/quote-details/entities/quote-detail.entity';
 
 @Injectable()
 export class MarkingServicesService {
@@ -26,6 +27,9 @@ export class MarkingServicesService {
 
     @InjectRepository(MarkingServiceProperty)
     private readonly markingServicePropertyRepository: Repository<MarkingServiceProperty>,
+
+    @InjectRepository(QuoteDetail)
+    private readonly quoteDetailRepository: Repository<QuoteDetail>,
   ) { }
 
   async create(createMarkingServiceDto: CreateMarkingServiceDto, user: User) {
@@ -71,8 +75,17 @@ export class MarkingServicesService {
     };
   }
 
-  async createMultiple(createMarkingServices: CreateMarkingServiceDto[], user: User) {
+
+
+
+
+
+
+
+  async createMultiple(createMarkingServices: CreateMarkingServiceDto[], user: User, quoteDetail = "") {
     const createdMarkingServices: MarkingService[] = [];
+
+    console.log(quoteDetail)
 
     for (const createMarkingServiceDto of createMarkingServices) {
       const newMarkingService = plainToClass(MarkingService, createMarkingServiceDto);
@@ -112,7 +125,42 @@ export class MarkingServicesService {
 
       const markingService: MarkingService = await this.markingServiceRepository.save(newMarkingService);
 
+      console.log(markingService.id)
       createdMarkingServices.push(markingService);
+      if (quoteDetail) {
+        console.log(quoteDetail)
+
+        // Find the MarkingService entity
+        const markingServiceData = await this.markingServiceRepository.findOne({
+          where: { id: markingService.id },
+        });
+
+        console.log(markingServiceData)
+        if (!markingServiceData) {
+          throw new NotFoundException(`markingServiceData with id ${markingServiceData} not found`);
+        }
+
+        // Find the QuoteDetail entity
+        const quoteDetailData = await this.quoteDetailRepository.findOne({
+          where: { id: quoteDetail },
+        });
+
+        console.log(quoteDetailData)
+        if (!quoteDetailData) {
+          throw new NotFoundException(`QuoteDetail with id ${quoteDetailData} not found`);
+        }
+
+        // Update the MarkingService entity
+        markingServiceData.quoteDetail = quoteDetailData;
+
+        // Save the updated entity
+        const dadada = await this.markingServiceRepository.save(markingServiceData);
+
+        console.log(dadada)
+
+      } else {
+        console.log("no tengo dato")
+      }
     };
 
     return {

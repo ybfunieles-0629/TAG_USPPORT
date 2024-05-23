@@ -27,7 +27,7 @@ import { LogosModule } from 'src/logos/logos.module';
     CategoryTagModule,
     forwardRef(() => ClientsModule),
     forwardRef(() => LocalTransportPricesModule),
-    MarkingServicesModule,
+    forwardRef(() => MarkingServicesModule), 
     MarkingServicePropertiesModule,
     forwardRef(() => ProductsModule),
     SystemConfigsModule,

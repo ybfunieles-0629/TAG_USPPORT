@@ -1432,7 +1432,7 @@ export class QuoteDetailsService {
       newQuoteDetail.businessMarginProfit = businessMarginProfit;
       cartQuoteDb.totalPrice += TotalVenta;
 
-      // //TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
+      //* TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
 
       await this.cartQuoteRepository.save(cartQuoteDb);
       await this.quoteDetailRepository.save(newQuoteDetail);

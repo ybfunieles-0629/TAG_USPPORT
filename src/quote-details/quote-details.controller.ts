@@ -44,6 +44,7 @@ export class QuoteDetailsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateQuoteDetailDto: UpdateQuoteDetailDto,
     @Query('save') save: number,
+
   ) {
     return this.quoteDetailsService.update(id, updateQuoteDetailDto, save);
   }
