@@ -359,7 +359,7 @@ export class QuoteDetailsService {
 
 
 
-
+    newQuoteDetail.unitPrice = totalPrice;
 
 
 
@@ -1443,8 +1443,8 @@ export class QuoteDetailsService {
 
       // //TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
 
-      // await this.cartQuoteRepository.save(cartQuoteDb);
-      // await this.quoteDetailRepository.save(newQuoteDetail);
+      await this.cartQuoteRepository.save(cartQuoteDb);
+      await this.quoteDetailRepository.save(newQuoteDetail);
 
       return {
         newQuoteDetail,
