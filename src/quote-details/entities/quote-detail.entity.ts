@@ -225,7 +225,10 @@ export class QuoteDetail {
   })
   porcentajeUtilidadFinal: number;
 
-
+  @Column('int', {
+    default:0
+  })
+  hasIva: number;
 
 
 

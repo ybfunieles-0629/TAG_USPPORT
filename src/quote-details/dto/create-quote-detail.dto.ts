@@ -116,6 +116,9 @@ export class CreateQuoteDetailDto {
 
 
 
+  @IsOptional()
+  @IsInt()
+  hasIva: number;
 
 
 }
