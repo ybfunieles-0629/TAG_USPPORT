@@ -52,7 +52,7 @@ export class Client {
   manageBrands: number;
 
   @Column('int', {
-
+    default: 1,
   })
   manageOrders: number;
 
