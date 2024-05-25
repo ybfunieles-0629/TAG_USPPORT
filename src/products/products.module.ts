@@ -17,6 +17,7 @@ import { SystemConfigsModule } from '../system-configs/system-configs.module';
 import { LocalTransportPricesModule } from '../local-transport-prices/local-transport-prices.module';
 import { DisccountModule } from '../disccount/disccount.module';
 import { CategoryTagModule } from '../category-tag/category-tag.module';
+import { CompaniesModule } from 'src/companies/companies.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { CategoryTagModule } from '../category-tag/category-tag.module';
     MarkingServicePropertiesModule,
     RefProductsModule,
     UsersModule,
+    CompaniesModule,
     VariantReferenceModule,
     TypeOrmModule.forFeature([Product])
   ],

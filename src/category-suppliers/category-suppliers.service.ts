@@ -421,10 +421,12 @@ export class CategorySuppliersService {
           'categoryTag',
           'supplier',
           'supplier.user',
+          'supplier.user.company',
           'refProducts',
         ],
       });
 
+      console.log(results)
       categorySuppliers.push(...results);
     }
 
@@ -466,6 +468,7 @@ export class CategorySuppliersService {
         'categoryTag',
         'supplier',
         'supplier.user',
+        'supplier.user.company',
         'refProducts',
       ],
     });
@@ -487,6 +490,7 @@ export class CategorySuppliersService {
         'categoryTag',
         'supplier',
         'supplier.user',
+        'supplier.user.company',
         'refProducts'
       ],
     });
@@ -508,6 +512,7 @@ export class CategorySuppliersService {
         'categoryTag',
         'supplier',
         'supplier.user',
+        'supplier.user.company',
         'refProducts',
       ],
     });

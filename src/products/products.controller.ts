@@ -15,7 +15,7 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) { }
 
   @Post('/load')
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
   loadProducts(
     @Query('supplier') supplier: string,
   ) {

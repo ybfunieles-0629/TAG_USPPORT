@@ -1394,6 +1394,20 @@ export class RefProductsService {
   };
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   async filterProducts(filterRefProductsDto: FilterRefProductsDto, paginationDto: PaginationDto) {
     const { limit = 1, offset = 0, margin, clientId, feeMarca = 0 } = paginationDto;
 
@@ -2123,6 +2137,21 @@ export class RefProductsService {
   }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
   async filterReferencesByIsAllowed(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
 
