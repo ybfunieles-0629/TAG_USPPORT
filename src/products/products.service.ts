@@ -76,7 +76,7 @@ export class ProductsService {
     @InjectRepository(VariantReference)
     private readonly variantReferenceRepository: Repository<VariantReference>,
 
-    
+
     @InjectRepository(Company)
     private readonly companyRepository: Repository<Company>,
 
@@ -497,7 +497,7 @@ export class ProductsService {
           item.inventario && item.inventario.length > 0
             ? item.inventario[0].cantidad || 0
             : 0;
-        
+
         // const colorProducts: CategorySupplier = await this.colorRepository.findOne({
         //   where: {
         //     name: Like(`%${material.color_nombre}%`)
@@ -672,6 +672,14 @@ export class ProductsService {
 
 
   private async loadPromoOpcionProducts() {
+
+    // ARREGLOS GENERALES
+    const refProductsToSave = [];
+    const productsToSave = [];
+    const cleanedRefProducts = [];
+
+
+    // URL API
     const apiUrl = 'https://promocionalesenlinea.net/api/all-products';
 
     console.log(apiUrl)
@@ -682,14 +690,14 @@ export class ProductsService {
 
     const config = {
       headers: {
-        'Content-Type': 'application/json', 
+        'Content-Type': 'application/json',
       },
     };
 
 
     try {
       const response = await axios.post(apiUrl, bodyData, config);
-      
+
       const { success, response: responseData } = response.data;
       if (success) {
         const cantidadExistente = responseData.length;
@@ -712,149 +720,210 @@ export class ProductsService {
 
 
 
+        // COMENZAMOS A ARMAR EL ARREGLO DE DATOS DEL REFERENCIAS
+
+        const RefProductsNoCompleteCategory: any[] = [];
+        
+        for (const item of responseData) {
+          let keyword = item.nombrePadre;
+
+          const images: Image[] = [];
+
+
+          for (const imagen of item.imagenesPadre) {
+            const newImage = {
+              url: imagen,
+            };
+
+            const createdImage: Image = this.imageRepository.create(newImage);
+            const savedImage: Image = await this.imageRepository.save(createdImage);
+
+            images.push(savedImage);
+          }
+
+          const categorySuppliers: CategorySupplier[] = [];
+          const categoryTags: CategoryTag[] = [];
+          let categorySupplier: CategorySupplier = null;
+          let categoryTag: CategoryTag = null;
+
+          try {
+            categorySupplier = await this.categorySupplierRepository.findOne({
+              where: {
+                name: item.categorias,
+              },
+              relations: ['categoryTag'],
+            });
+          } catch (error) {
+            console.error('Error al buscar la categoría:', error);
+          }
+
+          if (categorySupplier) {
+            try {
+              categoryTag = await this.categoryTagRepository.findOne({
+                where: {
+                  id: categorySupplier.categoryTag?.id,
+                },
+              });
+            } catch (error) {
+              console.error('Error al buscar la etiqueta de categoría:', error);
+            }
+
+            if (categoryTag) {
+              categoryTags.push(categoryTag);
+            }
+
+            categorySuppliers.push(categorySupplier);
+          } else {
+            RefProductsNoCompleteCategory.push(item.skuPadre)
+            console.warn(`Categoría con nombre ${item.categorias} no encontrada.`);
+            continue;
+          }
+
+          if (!categorySupplier)
+            throw new NotFoundException(`Category not found`);
+
+          let newRefProduct = {
+            name: item.nombrePadre,
+            referenceCode: item.skuPadre,
+            shortDescription: item.nombrePadre,
+            description: item.descripcion,
+            mainCategory: categorySupplier?.id || '',
+            tagCategory: categorySupplier?.categoryTag?.id || '',
+            keywords: keyword,
+            large: 0,
+            width: 0,
+            height: 0,
+            weight: 0,
+            importedNational: 1,
+            markedDesignArea: item.impresion?.areaImpresion || '',
+            supplier: company?.users[0]?.supplier,
+            personalizableMarking: 0,
+            images,
+          }
+
+          cleanedRefProducts.push(newRefProduct);
+
+          for (const material of item.hijos) {
+            const productImages: Image[] = [];
+
+            for (const imagen of material.imagenesHijo) {
+              const image: Image = this.imageRepository.create({
+                url: imagen,
+              });
+
+              await this.imageRepository.save(image);
+
+              productImages.push(image);
+            }
+
+            let tagSku: string = await this.generateUniqueTagSku();
+
+            const newProduct = {
+              tagSku,
+              availableUnit: item.inventario || 0,
+              referencePrice: 0,
+              promoDisccount: 0,
+              familia: item.skuPadre,
+              supplierSKu: material.skuHijo,
+              apiCode: material.skuHijo,
+              large: 0,
+              width: 0,
+              height: 0,
+              weight: 0,
+              material,
+            };
+
+            productsToSave.push(newProduct);
+          };
+        }
 
 
 
-        // for (const item of responseData) {
-        //   let keyword = item.nombrePadre;
+        // INICIAMOS A GUARDAR LOS DATOS
 
-        //   const images: Image[] = [];
+        const refProductCodes: string[] = [];
+        const refProductCodesString: string = refProductCodes.join(', ');
+        const updatedProductsCode: string[] = [];
+        const RefProductsExisting: any[] = [];
 
 
-        //   for (const imagen of item.imagenesPadre) {
-        //     const newImage = {
-        //       url: imagen,
+        // GUARDAMOS LAS REFERENCIAS INICIALMENTE 
+        for (const refProduct of cleanedRefProducts) {
+          const refProductExists = await this.refProductRepository.findOne({
+            where: { referenceCode: refProduct.referenceCode },
+          });
+          
+          if (refProductExists) {
+            RefProductsExisting.push(refProduct)
+            console.log(`Ref product with reference code ${refProduct.referenceCode} is already registered`);
+          } else {
+            const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
+
+            refProductsToSave.push(savedRefProduct);
+          }
+        }
+
+
+
+
+
+        // GUARDAMOS LOS PRODUCTOS RELACIONADAS A LA REFERENCIA
+        // for (const refProduct of cleanedRefProducts) {
+     
+        //   const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
+        //   refProductsToSave.push(savedRefProduct);
+
+
+
+
+        //   //* ---------- LOAD PRODUCTS ----------*//
+        //   for (const product of productsToSave) {
+        //     const refProduct = await this.refProductRepository.findOne({
+        //       where: {
+        //         referenceCode: product.familia,
+        //       },
+        //     });
+
+        //     if (!refProduct)
+        //       throw new NotFoundException(`Ref product for product with familia ${product.familia} not found`);
+
+        //     const productColor: string = product?.color?.toLowerCase() || '';
+
+        //     const color: Color = await this.colorRepository
+        //       .createQueryBuilder('color')
+        //       .where('LOWER(color.name) =:productColor', { productColor })
+        //       .getOne();
+
+        //     const colors: Color[] = [];
+
+        //     if (color) {
+        //       color.refProductId = refProduct?.id;
+
+        //       const savedColor: Color = await this.colorRepository.save(color);
         //     };
 
-        //     const createdImage: Image = this.imageRepository.create(newImage);
-        //     const savedImage: Image = await this.imageRepository.save(createdImage);
+        //     let tagSku: string = await this.generateUniqueTagSku();
 
-        //     images.push(savedImage);
-        //   }
+        //     const newProduct = {
+        //       tagSku,
+        //       supplierSku: product?.supplierSku,
+        //       apiCode: product?.apiCode,
+        //       variantReferences: [],
+        //       large: +product?.large || 0,
+        //       width: +product?.width || 0,
+        //       height: +product?.height || 0,
+        //       weight: +product?.weight || 0,
+        //       colors,
+        //       referencePrice: product.referencePrice,
+        //       promoDisccount: product?.promoDisccount,
+        //       availableUnit: product?.inventario,
+        //       refProduct,
+        //     };
 
-        //   const categorySuppliers: CategorySupplier[] = [];
-        //   const categoryTags: CategoryTag[] = [];
+        //     const productExists = productsInDb.find((product) => product.apiCode == product.apiCode);
 
-        //   const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
-        //     where: {
-        //       apiReferenceId: item.subcategoria_1.categoria.jerarquia,
-        //     },
-        //     relations: [
-        //       'categoryTag'
-        //     ],
-        //   });
-
-        //   const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
-        //     where: {
-        //       id: categorySupplier?.categoryTag?.id,
-        //     },
-        //   });
-
-        //   if (categoryTag)
-        //     categoryTags.push(categoryTag);
-
-        //   categorySuppliers.push(categorySupplier);
-
-        //   if (item.subcategoria_2 != null || item.subcategoria_2 != undefined) {
-        //     const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
-        //       where: {
-        //         apiReferenceId: item.subcategoria_1.categoria.jerarquia,
-        //       },
-        //       relations: [
-        //         'categoryTag'
-        //       ],
-        //     });
-
-        //     const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
-        //       where: {
-        //         id: categorySupplier?.categoryTag?.id,
-        //       },
-        //     });
-
-        //     if (categoryTag)
-        //       categoryTags.push(categoryTag);
-
-        //     categorySuppliers.push(categorySupplier);
+           
         //   };
-
-        //   if (item.subcategoria_3 != null || item.subcategoria_2 != undefined) {
-        //     const categorySupplier: CategorySupplier = await this.categorySupplierRepository.findOne({
-        //       where: {
-        //         apiReferenceId: item.subcategoria_1.categoria.jerarquia,
-        //       },
-        //       relations: [
-        //         'categoryTag'
-        //       ],
-        //     });
-
-        //     const categoryTag: CategoryTag = await this.categoryTagRepository.findOne({
-        //       where: {
-        //         id: categorySupplier?.categoryTag?.id,
-        //       },
-        //     });
-
-        //     if (categoryTag)
-        //       categoryTags.push(categoryTag);
-
-        //     categorySuppliers.push(categorySupplier);
-        //   };
-
-        //   if (!categorySupplier)
-        //     throw new NotFoundException(`Category with id ${item.subcategoria_1.categoria.jerarquia} not found`);
-
-        //   let newRefProduct = {
-        //     name: item.descripcion_comercial,
-        //     referenceCode: item.familia,
-        //     shortDescription: item.descripcion_comercial,
-        //     description: item.descripcion_larga,
-        //     mainCategory: categorySupplier?.id || '',
-        //     tagCategory: categorySupplier?.categoryTag?.id || '',
-        //     keywords: keyword,
-        //     large: +item.empaque_largo,
-        //     width: +item.empaque_ancho,
-        //     height: +item.empaque_alto,
-        //     weight: +item.medidas_peso_neto,
-        //     importedNational: 1,
-        //     markedDesignArea: item.area_impresion || '',
-        //     supplier: user.supplier,
-        //     personalizableMarking: item.tecnica_marca_codigo || 0,
-        //     images,
-        //   }
-
-        //   cleanedRefProducts.push(newRefProduct);
-
-          // for (const material of item.materiales) {
-          //   const productImages: Image[] = [];
-
-          //   for (const imagen of material.imagenes) {
-          //     const image: Image = this.imageRepository.create({
-          //       url: imagen.file,
-          //     });
-
-          //     await this.imageRepository.save(image);
-
-          //     productImages.push(image);
-          //   }
-
-          //   let tagSku: string = await this.generateUniqueTagSku();
-
-          //   const newProduct = {
-          //     tagSku,
-          //     availableUnit: item.inventario || 0,
-          //     referencePrice: item.precio,
-          //     promoDisccount: item.descuento || 0,
-          //     familia: item.familia,
-          //     supplierSKu: material.codigo,
-          //     apiCode: material.codigo,
-          //     large: + item.medidas_largo,
-          //     width: +item.medidas_ancho,
-          //     height: +item.medidas_alto,
-          //     weight: +item.medidas_peso_neto,
-          //     material,
-          //   };
-
-          //   productsToSave.push(newProduct);
-          // };
         // }
 
 
@@ -862,21 +931,20 @@ export class ProductsService {
 
 
 
+        // if (refProductsToSave.length === 0 && productsToSave.length === 0)
+        //   throw new BadRequestException(`There are no new or updated products to save`);
+
+        // const productCodes: string[] = productsToSave.map(product => product.apiCode);
+        // const productCodesString: string = productCodes.join(', ');
 
 
 
+        if (refProductsToSave.length === 0)
+          throw new BadRequestException(`There are no new products to save`);
 
-
-
-
-
-
-
-
-
-     
+    
         return {
-          response: responseData
+          response: refProductsToSave, RefProductsExisting
         };
       } else {
         throw new Error('La API no devolvió una respuesta exitosa');
