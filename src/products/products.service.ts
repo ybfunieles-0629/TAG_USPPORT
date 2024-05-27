@@ -671,7 +671,7 @@ export class ProductsService {
 
 
 
-  private async loadPromoOpcionProducts() {
+  private async loadPromoOpcionRefProducts() {
 
     // ARREGLOS GENERALES
     const refProductsToSave = [];
@@ -701,7 +701,6 @@ export class ProductsService {
       const { success, response: responseData } = response.data;
       if (success) {
         const cantidadExistente = responseData.length;
-        console.log('Response Data:', responseData);
 
 
         // CONSULTAMOS LA IFORMACIÓN DE LA EMPRESA Y ACCEDEMOS A SU PROVEEDOR
@@ -723,7 +722,7 @@ export class ProductsService {
         // COMENZAMOS A ARMAR EL ARREGLO DE DATOS DEL REFERENCIAS
 
         const RefProductsNoCompleteCategory: any[] = [];
-        
+
         for (const item of responseData) {
           let keyword = item.nombrePadre;
 
@@ -735,10 +734,10 @@ export class ProductsService {
               url: imagen,
             };
 
-            const createdImage: Image = this.imageRepository.create(newImage);
-            const savedImage: Image = await this.imageRepository.save(createdImage);
+            // const createdImage: Image = this.imageRepository.create(newImage);
+            // const savedImage: Image = await this.imageRepository.save(createdImage);
 
-            images.push(savedImage);
+            // images.push(savedImage);
           }
 
           const categorySuppliers: CategorySupplier[] = [];
@@ -847,84 +846,81 @@ export class ProductsService {
         const RefProductsExisting: any[] = [];
 
 
-        // GUARDAMOS LAS REFERENCIAS INICIALMENTE 
-        for (const refProduct of cleanedRefProducts) {
-          const refProductExists = await this.refProductRepository.findOne({
-            where: { referenceCode: refProduct.referenceCode },
-          });
-          
-          if (refProductExists) {
-            RefProductsExisting.push(refProduct)
-            console.log(`Ref product with reference code ${refProduct.referenceCode} is already registered`);
-          } else {
-            const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
-
-            refProductsToSave.push(savedRefProduct);
-          }
-        }
-
-
-
-
-
-        // GUARDAMOS LOS PRODUCTOS RELACIONADAS A LA REFERENCIA
+        // GUARDAMOS LAS REFERENCIAS INICIALMENTE
         // for (const refProduct of cleanedRefProducts) {
-     
-        //   const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
-        //   refProductsToSave.push(savedRefProduct);
+        //   const refProductExists = await this.refProductRepository.findOne({
+        //     where: { referenceCode: refProduct.referenceCode },
+        //   });
 
+        //   if (refProductExists) {
+        //     RefProductsExisting.push(refProduct)
+        //     console.log(`Ref product with reference code ${refProduct.referenceCode} is already registered`);
+        //   } else {
+        //     const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
 
-
-
-        //   //* ---------- LOAD PRODUCTS ----------*//
-        //   for (const product of productsToSave) {
-        //     const refProduct = await this.refProductRepository.findOne({
-        //       where: {
-        //         referenceCode: product.familia,
-        //       },
-        //     });
-
-        //     if (!refProduct)
-        //       throw new NotFoundException(`Ref product for product with familia ${product.familia} not found`);
-
-        //     const productColor: string = product?.color?.toLowerCase() || '';
-
-        //     const color: Color = await this.colorRepository
-        //       .createQueryBuilder('color')
-        //       .where('LOWER(color.name) =:productColor', { productColor })
-        //       .getOne();
-
-        //     const colors: Color[] = [];
-
-        //     if (color) {
-        //       color.refProductId = refProduct?.id;
-
-        //       const savedColor: Color = await this.colorRepository.save(color);
-        //     };
-
-        //     let tagSku: string = await this.generateUniqueTagSku();
-
-        //     const newProduct = {
-        //       tagSku,
-        //       supplierSku: product?.supplierSku,
-        //       apiCode: product?.apiCode,
-        //       variantReferences: [],
-        //       large: +product?.large || 0,
-        //       width: +product?.width || 0,
-        //       height: +product?.height || 0,
-        //       weight: +product?.weight || 0,
-        //       colors,
-        //       referencePrice: product.referencePrice,
-        //       promoDisccount: product?.promoDisccount,
-        //       availableUnit: product?.inventario,
-        //       refProduct,
-        //     };
-
-        //     const productExists = productsInDb.find((product) => product.apiCode == product.apiCode);
-
-           
-        //   };
+        //     refProductsToSave.push(savedRefProduct);
+        //   }
         // }
+
+
+
+        // URL API
+        const apiUrlStock = 'https://promocionalesenlinea.net/api/all-stocks';
+        const responseStock = await axios.post(apiUrlStock, bodyData, config);
+
+        const { success, response: Stocks } = responseStock.data;
+        console.log('Response Data:', Stocks);
+
+
+        //GUARDAMOS LOS PRODUCTOS RELACIONADAS A LA REFERENCIA
+        for (const product of productsToSave) {
+          const refProduct = await this.refProductRepository.findOne({
+            where: {
+              referenceCode: product.familia,
+            },
+          });
+
+          if (!refProduct)
+            throw new NotFoundException(`Ref product for product with familia ${product.familia} not found`);
+
+          const productColor: string = product?.color?.toLowerCase() || '';
+
+          const color: Color = await this.colorRepository
+            .createQueryBuilder('color')
+            .where('LOWER(color.name) =:productColor', { productColor })
+            .getOne();
+
+          const colors: Color[] = [];
+
+          if (color) {
+            color.refProductId = refProduct?.id;
+            // const savedColor: Color = await this.colorRepository.save(color);
+          };
+
+          let tagSku: string = await this.generateUniqueTagSku();
+
+          const newProduct = {
+            tagSku,
+            supplierSku: product?.supplierSku,
+            apiCode: product?.apiCode,
+            variantReferences: [],
+            large: 0,
+            width: 0,
+            height: 0,
+            weight: 0,
+            colors,
+            referencePrice: product.referencePrice,
+            promoDisccount: product?.promoDisccount,
+            availableUnit: product?.inventario,
+            refProduct,
+          };
+          //
+          // const productExists = productsInDb.find((product) => product.apiCode == product.apiCode);
+
+          console.log(newProduct)
+
+        };
+
 
 
 
@@ -939,13 +935,13 @@ export class ProductsService {
 
 
 
-        if (refProductsToSave.length === 0)
-          throw new BadRequestException(`There are no new products to save`);
+        // if (refProductsToSave.length === 0)
+        //   throw new BadRequestException(`There are no new products to save`);
 
-    
-        return {
-          response: refProductsToSave, RefProductsExisting
-        };
+
+        // return {
+        //   response: refProductsToSave, RefProductsExisting
+        // };
       } else {
         throw new Error('La API no devolvió una respuesta exitosa');
       }
@@ -956,6 +952,218 @@ export class ProductsService {
   }
 
 
+  private async loadPromoOpcionProducts() {
+
+    // ARREGLOS GENERALES
+    const refProductsToSave = [];
+    const productsToSave = [];
+    const cleanedRefProducts = [];
+
+
+    // URL API
+    const apiUrl = 'https://promocionalesenlinea.net/api/all-products';
+
+    const bodyData = {
+      user: 'COL0238',
+      password: 'h1xSgEICLQB2nqE19y2k',
+    };
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+
+    try {
+      const response = await axios.post(apiUrl, bodyData, config);
+
+      const { success, response: responseData } = response.data;
+      if (success) {
+        const cantidadExistente = responseData.length;
+
+
+        // CONSULTAMOS LA IFORMACIÓN DE LA EMPRESA Y ACCEDEMOS A SU PROVEEDOR
+        const nameCompany = 'Promo Opciones';
+        const company = await this.companyRepository.findOne({
+          where: { name: nameCompany },
+          relations: ['users', 'users.supplier'],
+        });
+
+        if (!company) {
+          throw new NotFoundException(`Company with name ${nameCompany} not found`);
+        }
+
+        // ID DEL PROVEEDOR DE RODUCTO
+        const supplierId = company?.users[0]?.supplier?.id
+
+
+
+        // COMENZAMOS A ARMAR EL ARREGLO DE DATOS DE LOS PRODUCTOS
+        const RefProductsNoCompleteCategory: any[] = [];
+        // let foundProduct = false;  // Variable de control quitar esto
+
+        for (const item of responseData) {
+          let keyword = item.nombrePadre;
+          // console.log(foundProduct)
+
+          // if (foundProduct) { // Variable de control quitar esto
+          //   continue;  // Si ya encontramos un producto, salimos del bucle interno
+          // }
+          for (const material of item.hijos) {
+
+            // console.log(foundProduct)
+            // if (foundProduct) { // Variable de control quitar esto
+            //   continue;  // Si ya encontramos un producto, salimos del bucle interno
+            // }
+
+
+            const productImages: Image[] = [];
+            // CONSULTA DE CANTIDAD
+            const bodyDataStrock = {
+              "user": "COL0238",
+              "password": "h1xSgEICLQB2nqE19y2k",
+              "sku": material.skuHijo
+            };
+
+
+            // URL API
+            const apiUrlStock = 'https://promocionalesenlinea.net/api/all-stocks';
+            const responseStock = await axios.post(apiUrlStock, bodyDataStrock, config);
+
+            const { success, Stocks } = responseStock.data;
+            let cantidadProducto = 0;
+            for (const stockPro of Stocks) {
+              cantidadProducto = stockPro.Stock || 0;
+            }
+
+            for (const imagen of material.imagenesHijo) {
+              const image: Image = this.imageRepository.create({
+                url: imagen,
+              });
+
+              // await this.imageRepository.save(image);
+              // productImages.push(image);
+            }
+
+            let tagSku: string = await this.generateUniqueTagSku();
+            const newProduct = {
+              tagSku,
+              availableUnit: cantidadProducto || 0,
+              referencePrice: 0,
+              promoDisccount: 0,
+              familia: item.skuPadre,
+              supplierSKu: material.skuHijo,
+              apiCode: material.skuHijo,
+              large: 0,
+              width: 0,
+              height: 0,
+              weight: 0,
+              material,
+              color: material.color,
+            };
+
+            productsToSave.push(newProduct);
+            console.log(newProduct)
+
+            // foundProduct = true;  // Marcamos que ya encontramos un producto // Variable de control quitar esto
+            // console.log(foundProduct)
+            // console.log()
+          };
+        }
+
+
+        console.log(productsToSave)
+
+
+        // INICIAMOS A GUARDAR LOS DATOS
+        const refProductCodes: string[] = [];
+        const refProductCodesString: string = refProductCodes.join(', ');
+        const updatedProductsCode: string[] = [];
+        const RefProductsExisting: any[] = [];
+
+       
+
+        //GUARDAMOS LOS PRODUCTOS RELACIONADAS A LA REFERENCIA
+        for (const product of productsToSave) {
+          const refProduct = await this.refProductRepository.findOne({
+            where: {
+              referenceCode: product.familia,
+            },
+          });
+
+          if (!refProduct)
+            throw new NotFoundException(`Ref product for product with familia ${product.familia} not found`);
+
+          const productColor: string = product?.color?.toLowerCase() || '';
+
+          const color: Color = await this.colorRepository
+            .createQueryBuilder('color')
+            .where('LOWER(color.name) =:productColor', { productColor })
+            .getOne();
+
+          const colors: Color[] = [];
+
+          if (color) {
+            color.refProductId = refProduct?.id;
+            const savedColor: Color = await this.colorRepository.save(color);
+            colors.push(savedColor)
+          };
+
+
+          console.log(colors)
+          let tagSku: string = await this.generateUniqueTagSku();
+
+          const newProduct = {
+            tagSku,
+            supplierSku: product?.supplierSKu,
+            apiCode: product?.apiCode,
+            variantReferences: [],
+            large: 0,
+            width: 0,
+            height: 0,
+            weight: 0,
+            colors,
+            referencePrice: product.referencePrice,
+            promoDisccount: product?.promoDisccount || 0 ,
+            availableUnit: product?.availableUnit,
+            refProduct,
+          };
+
+          console.log(newProduct)
+
+          const createdProduct: Product = this.productRepository.create(newProduct);
+          const savedProduct: Product = await this.productRepository.save(createdProduct);
+
+        };
+
+
+
+
+
+
+
+        // if (refProductsToSave.length === 0 && productsToSave.length === 0)
+        //   throw new BadRequestException(`There are no new or updated products to save`);
+
+        // const productCodes: string[] = productsToSave.map(product => product.apiCode);
+        // const productCodesString: string = productCodes.join(', ');
+
+        // if (refProductsToSave.length === 0)
+        //   throw new BadRequestException(`There are no new products to save`);
+
+        // return {
+        //   response: refProductsToSave, RefProductsExisting
+        // };
+
+      } else {
+        throw new Error('La API no devolvió una respuesta exitosa');
+      }
+    } catch (error) {
+      console.error('Error al cargar los productos:', error);
+      throw new Error('Error al cargar los productos');
+    }
+  }
 
 
 

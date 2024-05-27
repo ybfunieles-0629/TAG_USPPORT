@@ -1091,10 +1091,16 @@ export class RefProductsService {
     };
   }
 
+
+
+
+
+
+
+
   async findAllList(paginationDto: PaginationDto) {
     const totalCount = await this.refProductRepository.count();
 
-    console.log("entro aqui")
     const { limit = totalCount, offset = 0, calculations = 0, supplier = 0, dashboard = 0, margin = 0, clientId = '', feeMarca=0 } = paginationDto;
 
     let user;
@@ -1185,6 +1191,7 @@ export class RefProductsService {
           .leftJoinAndSelect('rp.categorySuppliers', 'rpCategorySuppliers')
           .leftJoinAndSelect('rp.categoryTags', 'rpCategoryTags')
           .leftJoinAndSelect('rp.products', 'product')
+          .leftJoinAndSelect('supplier.user', 'supplierUser')
           .leftJoinAndSelect('supplier.user', 'supplierUser')
           .take(limit)
           .skip(offset)
@@ -2151,7 +2158,7 @@ export class RefProductsService {
 
 
 
-  
+
   async filterReferencesByIsAllowed(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
 
