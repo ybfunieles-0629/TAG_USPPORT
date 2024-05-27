@@ -1012,7 +1012,7 @@ export class ProductsService {
           // }
           for (const material of item.hijos) {
 
-            // console.log(foundProduct)
+            // // console.log(foundProduct)
             // if (foundProduct) { // Variable de control quitar esto
             //   continue;  // Si ya encontramos un producto, salimos del bucle interno
             // }
@@ -1074,6 +1074,7 @@ export class ProductsService {
 
 
         console.log(productsToSave)
+        console.log()
 
 
         // INICIAMOS A GUARDAR LOS DATOS
@@ -1082,7 +1083,8 @@ export class ProductsService {
         const updatedProductsCode: string[] = [];
         const RefProductsExisting: any[] = [];
 
-       
+        const productsInDb = await this.productRepository.find();
+
 
         //GUARDAMOS LOS PRODUCTOS RELACIONADAS A LA REFERENCIA
         for (const product of productsToSave) {
@@ -1125,15 +1127,30 @@ export class ProductsService {
             weight: 0,
             colors,
             referencePrice: product.referencePrice,
-            promoDisccount: product?.promoDisccount || 0 ,
+            promoDisccount: product?.promoDisccount || 0,
             availableUnit: product?.availableUnit,
             refProduct,
           };
 
-          console.log(newProduct)
+          const productExists = await this.productRepository.findOne({
+            where: {
+              apiCode: newProduct.apiCode,
+            },
+          });
 
-          const createdProduct: Product = this.productRepository.create(newProduct);
-          const savedProduct: Product = await this.productRepository.save(createdProduct);
+          console.log(productExists)
+          if (productExists) {
+            console.log("Producto regstrado")
+          } else {
+            const createdProduct: Product = this.productRepository.create(newProduct);
+            const savedProduct: Product = await this.productRepository.save(createdProduct);
+          }
+
+
+
+
+
+
 
         };
 
