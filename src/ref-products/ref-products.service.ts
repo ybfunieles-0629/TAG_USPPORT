@@ -1192,7 +1192,6 @@ export class RefProductsService {
           .leftJoinAndSelect('rp.categoryTags', 'rpCategoryTags')
           .leftJoinAndSelect('rp.products', 'product')
           .leftJoinAndSelect('supplier.user', 'supplierUser')
-          .leftJoinAndSelect('supplier.user', 'supplierUser')
           .take(limit)
           .skip(offset)
           .getMany();
