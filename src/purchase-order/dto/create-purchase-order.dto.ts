@@ -98,8 +98,10 @@ export class CreatePurchaseOrderDto {
   @IsString()
   costValue: number;
 
-
-
+  
+  @IsOptional()
+  @IsString()
+  orderClientNumber: string;
 
 
 }

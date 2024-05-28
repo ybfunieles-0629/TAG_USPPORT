@@ -1042,8 +1042,8 @@ export class ProductsService {
                 url: imagen,
               });
 
-              // await this.imageRepository.save(image);
-              // productImages.push(image);
+              await this.imageRepository.save(image);
+              productImages.push(image);
             }
 
             let tagSku: string = await this.generateUniqueTagSku();
@@ -1061,6 +1061,7 @@ export class ProductsService {
               weight: 0,
               material,
               color: material.color,
+              images: productImages
             };
 
             productsToSave.push(newProduct);
@@ -1130,6 +1131,7 @@ export class ProductsService {
             promoDisccount: product?.promoDisccount || 0,
             availableUnit: product?.availableUnit,
             refProduct,
+            images: product.images
           };
 
           const productExists = await this.productRepository.findOne({
@@ -1141,6 +1143,23 @@ export class ProductsService {
           console.log(productExists)
           if (productExists) {
             console.log("Producto regstrado")
+            // Actualizar producto existente
+            productExists.tagSku = newProduct.tagSku;
+            productExists.supplierSku = newProduct.supplierSku;
+            productExists.variantReferences = newProduct.variantReferences;
+            productExists.large = newProduct.large;
+            productExists.width = newProduct.width;
+            productExists.height = newProduct.height;
+            productExists.weight = newProduct.weight;
+            productExists.referencePrice = newProduct.referencePrice;
+            productExists.promoDisccount = newProduct.promoDisccount;
+            productExists.availableUnit = newProduct.availableUnit;
+            productExists.refProduct = newProduct.refProduct;
+            productExists.colors = newProduct.colors;
+            productExists.images = newProduct.images;
+
+            await this.productRepository.save(productExists);
+            console.log("Producto actualizado");
           } else {
             const createdProduct: Product = this.productRepository.create(newProduct);
             const savedProduct: Product = await this.productRepository.save(createdProduct);

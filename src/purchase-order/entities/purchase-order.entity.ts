@@ -148,7 +148,10 @@ export class PurchaseOrder {
   purchaseDate: Date;
 
 
+  @Column('varchar', {
 
+  })
+  orderClientNumber: string;
 
 
   @CreateDateColumn()
