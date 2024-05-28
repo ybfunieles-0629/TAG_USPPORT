@@ -154,6 +154,13 @@ export class PurchaseOrder {
   orderClientNumber: string;
 
 
+
+  @Column('varchar', {
+
+  })
+  nameBrandClient: string;
+
+
   @CreateDateColumn()
   createdAt: Date;
 

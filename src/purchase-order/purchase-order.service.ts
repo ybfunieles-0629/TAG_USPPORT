@@ -13,6 +13,7 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { User } from '../users/entities/user.entity';
 import { Client } from '../clients/entities/client.entity';
 import { ShippingGuide } from '../shipping-guides/entities/shipping-guide.entity';
+import { Brand } from 'src/brands/entities/brand.entity';
 
 @Injectable()
 export class PurchaseOrderService {
@@ -29,6 +30,11 @@ export class PurchaseOrderService {
     @InjectRepository(Client)
     private readonly clientRepository: Repository<Client>,
 
+    @InjectRepository(Brand)
+    private readonly brandRepository: Repository<Brand>,
+
+
+  
     @InjectRepository(ShippingGuide)
     private readonly shippingGuideRepository: Repository<ShippingGuide>,
   ) { }
@@ -183,6 +189,7 @@ export class PurchaseOrderService {
       console.log(count)
     };   
 
+
     const finalResults = await Promise.all(
       results.map(async (purchaseOrder: PurchaseOrder) => {
         const commercialUser: User = await this.userRepository.findOne({
@@ -200,10 +207,19 @@ export class PurchaseOrderService {
           ],
         });
 
+
+        const brandClient: Brand = await this.brandRepository.findOne({
+          where: {
+            id: purchaseOrder.nameBrandClient,
+          },
+        });
+
+
         return {
           ...purchaseOrder,
           commercialUser,
           clientUser,
+          brandClient,
         };
       })
     );

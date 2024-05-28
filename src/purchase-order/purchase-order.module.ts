@@ -9,6 +9,7 @@ import { StatesModule } from '../states/states.module';
 import { UsersModule } from '../users/users.module';
 import { ClientsModule } from '../clients/clients.module';
 import { ShippingGuidesModule } from '../shipping-guides/shipping-guides.module';
+import { BrandsModule } from 'src/brands/brands.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ShippingGuidesModule } from '../shipping-guides/shipping-guides.module'
     UsersModule,
     StatesModule,
     ShippingGuidesModule,
+    BrandsModule,
     TypeOrmModule.forFeature([PurchaseOrder]),
   ],
   controllers: [PurchaseOrderController],

@@ -101,7 +101,12 @@ export class CreatePurchaseOrderDto {
   
   @IsOptional()
   @IsString()
-  orderClientNumber: string;
+  orderClientNumber:string;
 
+
+
+  @IsOptional()
+  @IsString()
+  nameBrandClient:string
 
 }

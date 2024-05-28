@@ -792,6 +792,7 @@ export class CartQuotesService {
         clientUser: cartQuote.client.id,
         commercialUser: cartQuote.user.id,
         value: cartQuote.totalPrice,
+        nameBrandClient: cartQuote.brandId, 
         state
       };
 
