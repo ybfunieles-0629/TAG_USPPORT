@@ -336,13 +336,13 @@ export class QuoteDetailsService {
     const packing: Packing = product.packings.length > 0 ? product.packings[0] : product?.refProduct?.packings[0] || undefined;
     const packingUnities: number = product.packings.length > 0 ? product?.packings[0]?.unities : product?.refProduct?.packings[0]?.unities || 0;
 
-    console.log(packing)
+    if (!packing)
+      throw new NotFoundException(`Lo sentimos, este producto no tiene empaque, comunicate `);
 
     //* CALCULAR EL VOLUMEN DEL EMPAQUE DEL PRODUCTO
     let boxesQuantity: number = (quantity / packingUnities) || 0;
 
     if (quantity <= packingUnities) { boxesQuantity = 1 || 0; } else { boxesQuantity = Math.ceil(quantity / packingUnities) || 0; }
-
 
 
     //* CALCULAR EL VOLUMEN DEL PAQUETE
@@ -1434,8 +1434,8 @@ export class QuoteDetailsService {
 
       //* TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
 
-      await this.cartQuoteRepository.save(cartQuoteDb);
-      await this.quoteDetailRepository.save(newQuoteDetail);
+      // await this.cartQuoteRepository.save(cartQuoteDb);
+      // await this.quoteDetailRepository.save(newQuoteDetail);
 
       return {
         newQuoteDetail,
