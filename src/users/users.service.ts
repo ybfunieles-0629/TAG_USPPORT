@@ -995,7 +995,12 @@ export class UsersService {
             .leftJoinAndSelect('adminClientsUser.company', 'adminClientsUserCompany')
             .leftJoinAndSelect('user.client', 'client')
             .leftJoinAndSelect('client.addresses', 'clientAddresses')
+            
+            .leftJoinAndSelect('client.admin', 'clientAdmin') // Relación cliente a admin
+            .leftJoinAndSelect('clientAdmin.user', 'clientAdminUser') // Relación admin a usuario
+
             .leftJoinAndSelect('user.supplier', 'supplier')
+            
             .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
             .take(limit)
             .skip(offset)
@@ -1146,6 +1151,14 @@ export class UsersService {
       results: paginatedResults
     };
   }
+
+
+
+
+
+
+
+
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.findOne({
