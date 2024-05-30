@@ -659,8 +659,9 @@ export class UsersService {
                             <h1>Recuperación de contraseña!</h1>
                             <p style="color: #0a54f2">Hola ${user.name}</p>
 
-                            <p>Recibimos tu solicitud para recuperar tu contraseña en E-Bulky y aquí te lo compartimos:</p>
-                            <p>Si deseas establecer una nueva contraseña haz clic en el botón de abajo que te llevará a nuestra sección para establecer tu nueva contraseña. </p>
+                            <p>Hemos recibido tu solicitud para recuperar tu contraseña en E-Bulky.com.</p>
+                            <p>Si no has sido tú, te recomendamos revisar tu cuenta, cambiar tu contraseña y contactarnos inmediatamente.</p>
+                            <p>Si deseas establecer una nueva contraseña haz clic en el botón de abajo que te llevará a nuestra sección de restablecimiento de contraseñas. </p>
                             </br>
                             <a style="padding: .7em 2em; background: #0a54f2; color:white" target="_black
                             " href="https://tag-web-16776.web.app/auth/change-password?t=${token}">!Cambiar contraseña!</a>
@@ -908,6 +909,21 @@ export class UsersService {
     };
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   async filterUsersByManyRoles(roles: FilterManyByRolesDto, user: User, paginationDto: PaginationDto) {
     let count: number = 0;
 
@@ -1056,6 +1072,10 @@ export class UsersService {
             .leftJoinAndSelect('adminClientsUser.company', 'adminClientsUserCompany')
             .leftJoinAndSelect('user.client', 'client')
             .leftJoinAndSelect('client.addresses', 'clientAddresses')
+
+            .leftJoinAndSelect('client.admin', 'clientAdmin') // Acceso desde cliente a admin
+            .leftJoinAndSelect('clientAdmin.user', 'clientAdminUser') // Acc
+            
             .leftJoinAndSelect('user.supplier', 'supplier')
             .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
             .take(limit)
@@ -1110,6 +1130,8 @@ export class UsersService {
       .leftJoinAndSelect('adminClients.user', 'adminClientsUser')
       .leftJoinAndSelect('user.client', 'client')
       .leftJoinAndSelect('client.addresses', 'clientAddresses')
+      .leftJoinAndSelect('client.admin', 'clientAdmin') // Acceso desde cliente a admin
+      .leftJoinAndSelect('clientAdmin.user', 'clientAdminUser') // Acceso desde admin a usuario
       .leftJoinAndSelect('user.supplier', 'supplier')
       .leftJoinAndSelect('supplier.subSupplierProductType', 'subSupplierProductType')
       .getOne();

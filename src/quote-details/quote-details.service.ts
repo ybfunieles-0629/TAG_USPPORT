@@ -559,7 +559,7 @@ export class QuoteDetailsService {
     console.log(CostoTotalTransporteDeEntrega)
 
 
-    // SUMA CONTONIA DEL TRANSPORTE TOTAL
+    // SUMA CONTONIA DEL TRANSPORTE TOTAL // 20000
 
 
 
@@ -598,7 +598,7 @@ export class QuoteDetailsService {
 
               console.log(markedServicePrice.unitPrice)
 
-              let totalMarking: number = (quantity * markedServicePrice.unitPrice);
+              let totalMarking: number = (quantity * markedServicePrice.unitPrice); // 20.000
 
               // marking = markingServiceProperty?.externalSubTechnique?.marking;
               marking = markingService?.marking;
@@ -676,7 +676,7 @@ export class QuoteDetailsService {
 
 
       // valorTransporteMarcacionx = (data)
-      console.log(ValorTotalMarcacion)
+      console.log(ValorTotalMarcacion) // 40000
 
 
 

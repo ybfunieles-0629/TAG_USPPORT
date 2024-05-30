@@ -162,6 +162,9 @@ export class PurchaseOrderService {
         .leftJoinAndSelect('refProductSupplier.user', 'refProductSupplierUser')
         .leftJoinAndSelect('purchase.state', 'purchaseState')
         .leftJoinAndSelect('purchase.commercialQualification', 'commercialQualification')
+        .leftJoinAndSelect('cartQuote.quoteDetails', 'quoteDetails') // Añadido para acceder a QuoteDetail
+        .leftJoinAndSelect('quoteDetails.markingServices', 'markingServices') // Añadido para acceder a MarkingService
+
         .skip(offset)
         .take(limit)
         .getMany();
@@ -182,6 +185,9 @@ export class PurchaseOrderService {
         .leftJoinAndSelect('refProductSupplier.user', 'refProductSupplierUser')
         .leftJoinAndSelect('purchase.state', 'purchaseState')
         .leftJoinAndSelect('purchase.commercialQualification', 'commercialQualification')
+        .leftJoinAndSelect('cartQuote.quoteDetails', 'quoteDetails') // Añadido para acceder a QuoteDetail
+        .leftJoinAndSelect('quoteDetails.markingServices', 'markingServices') // Añadido para acceder a MarkingService
+
         .skip(offset)
         .take(limit)
         .getMany();
