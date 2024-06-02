@@ -144,4 +144,14 @@ export class CreateProductDto {
   @IsArray()
   @IsString({ each: true })
   disccounts?: string[];
+
+
+
+  @IsOptional()
+  @IsString()
+  medidas?: string;
+
+
+
+
 }

@@ -195,6 +195,17 @@ export class Product {
   })
   updatedBy: string;
 
+
+
+
+  @Column('varchar', {
+
+  })
+  medidas: string;
+
+
+
+
   @CreateDateColumn()
   createdAt: Date;
 
