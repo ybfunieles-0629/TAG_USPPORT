@@ -1,10 +1,11 @@
 import { BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, getManager } from 'typeorm';
 import { classToPlain, plainToClass } from 'class-transformer';
 import { v4 as uuidv4 } from 'uuid';
 import * as nodemailer from 'nodemailer';
 import axios from 'axios';
+
 
 import { CreateCartQuoteDto } from './dto/create-cart-quote.dto';
 import { UpdateCartQuoteDto } from './dto/update-cart-quote.dto';
@@ -588,15 +589,15 @@ export class CartQuotesService {
 
   // Función para obtener el próximo número de orden
 async  getNextOrderNumber(fieldName: string): Promise<string> {
-  // const entityManager = getManager();
-  // const result = await entityManager
-  //   .createQueryBuilder()
-  //   .select(`MAX(purchaseOrder.${fieldName})`, 'max')
-  //   .from('purchaseOrder', 'purchaseOrder')
-  //   .getRawOne();
+  const entityManager = getManager();
+  const result = await entityManager
+    .createQueryBuilder()
+    .select(`MAX(purchaseOrder.${fieldName})`, 'max')
+    .from('purchaseOrder', 'purchaseOrder')
+    .getRawOne();
 
-  // const lastOrderNumber = result.max;
-  // const nextOrderNumber = lastOrderNumber ? parseInt(lastOrderNumber) + 1 : 1;
+  const lastOrderNumber = result.max;
+  const nextOrderNumber = lastOrderNumber ? parseInt(lastOrderNumber) + 1 : 1;
   return nextOrderNumber.toString();
 }
 
@@ -803,8 +804,8 @@ async  getNextOrderNumber(fieldName: string): Promise<string> {
  
 
       // Obtener los próximos números de orden
-      const nextTagOrderNumber = await getNextOrderNumber('tagOrderNumber');
-      const nextClientOrderNumber = await getNextOrderNumber('clientOrderNumber');
+      const nextTagOrderNumber = await this.getNextOrderNumber('tagOrderNumber');
+      const nextClientOrderNumber = await this.getNextOrderNumber('clientOrderNumber');
 
 
       const purchaseOrderData = {
