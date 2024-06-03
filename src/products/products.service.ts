@@ -947,13 +947,21 @@ export class ProductsService {
             RefProductsExistingUpdate.push(refProductUpdate)
 
           } else {
+            // Guardar el nuevo producto de referencia
             const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
             refProductsToSave.push(savedRefProduct);
-            console.log(savedRefProduct)
-            // Actualizar refProductId en los colores asociados
+            console.log(savedRefProduct);
+
+            // Verificar y guardar relación refProduct-color
             for (const color of savedRefProduct.colors) {
-              color.refProductId = savedRefProduct.id;
-              await this.colorRepository.save(color);
+              const existingColorRelation = await this.colorRepository.findOne({
+                where: { id: color.id, refProductId: savedRefProduct.id },
+              });
+
+              if (!existingColorRelation) {
+                color.refProductId = savedRefProduct.id;
+                await this.colorRepository.save(color);
+              }
             }
           }
         }
