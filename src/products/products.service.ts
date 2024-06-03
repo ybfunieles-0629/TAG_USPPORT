@@ -923,6 +923,20 @@ export class ProductsService {
             where: { referenceCode: refProduct.referenceCode },
           });
 
+
+          for (const color of refProduct.colors) {
+            const existingColorRelation = await this.colorRepository.findOne({
+              where: { id: color.id, refProductId: refProductExists.id },
+            });
+
+            if (!existingColorRelation) {
+              color.refProductId = refProductExists.id;
+              await this.colorRepository.save(color);
+            } else {
+              continue;
+            }
+          }
+            
           if (refProductExists) {
             const updatedRefProductData = {};
             for (const key in refProduct) {
@@ -938,16 +952,7 @@ export class ProductsService {
 
             const refProductUpdate = await this.refProductRepository.save(updatedRefProduct);
 
-            for (const color of refProduct.colors) {
-              const existingColorRelation = await this.colorRepository.findOne({
-                where: { id: color.id, refProductId: refProductExists.id },
-              });
-
-              if (!existingColorRelation) {
-                color.refProductId = refProductExists.id;
-                await this.colorRepository.save(color);
-              }
-            }
+            
           } else {
             // Guardar el nuevo producto de referencia
             const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
