@@ -1431,11 +1431,10 @@ export class ProductsService {
       ))
     );
 
+    this.loadCDO_PromocionesProducts();
     return uniqueRefProductsToSave;
 
   }
-
-
 
   // Actualización de productos de la referencia de CDO PROMOSIONES
   private async loadCDO_PromocionesProducts() {
@@ -1646,7 +1645,6 @@ export class ProductsService {
       console.error(`Error al cargar los productos: ${error}`);
     }
   }
-
   // =========================================================
 
 
@@ -1677,7 +1675,7 @@ export class ProductsService {
     } else if (supplierName.toLowerCase().trim() == 'promoopciones') {
       await this.loadPromoOpcionRefProducts();
     } else if (supplierName.toLowerCase().trim() == 'cdo') {
-      await this.loadCDO_PromocionesProducts();
+      await this.loadCDO_PromocionesRefProducts();
     } else {
       await this.loadMarpicoProducts();
       await this.loadPromosProducts();

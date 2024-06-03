@@ -58,4 +58,20 @@ export class PackingsController {
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.packingsService.remove(id);
   }
+
+
+
+
+
+
+  // Actuaizar paquetes de las apis
+  @Post('/loadPacking')
+  loadProducts(
+    @Query('supplier') supplier: string,
+  ) {
+    return this.packingsService.loadPakingSupplier(supplier);
+  }
+
+
+  
 }

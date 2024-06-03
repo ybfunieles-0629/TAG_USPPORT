@@ -2,6 +2,7 @@ import { Injectable, BadRequestException, InternalServerErrorException, Logger, 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
+import axios from 'axios';
 
 import { CreatePackingDto } from './dto/create-packing.dto';
 import { UpdatePackingDto } from './dto/update-packing.dto';
@@ -194,4 +195,99 @@ export class PackingsService {
 
     throw new InternalServerErrorException('Unexpected error, check server logs');
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //* ---------- LOAD ALL PRODUCTS FROM EXT APIS ---------- *//
+  async loadPakingSupplier(supplier: string) {
+    const supplierName: string = supplier || '';
+    console.log(supplierName)
+
+    if (supplierName.toLowerCase().trim() == 'marpico') {
+      // await this.loadMarpicoProducts();
+    } else if (supplierName.toLowerCase().trim() == 'promoopciones') {
+      await this.loadPackingPromoOpcion();
+    } else if (supplierName.toLowerCase().trim() == 'cdo') {
+      await this.loadPackingPromoOpcion();
+    }
+  }
+
+
+  async loadPackingPromoOpcion() {
+    // URL API
+    const apiUrl = 'https://promocionalesenlinea.net/api/all-products';
+
+    console.log(apiUrl);
+    const bodyData = {
+      user: 'COL0238',
+      password: 'h1xSgEICLQB2nqE19y2k',
+    };
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    try {
+      const response = await axios.post(apiUrl, bodyData, config);
+
+      const { success, response: responseData } = response.data;
+      if (success) {
+        for (const item of responseData) {
+          // Buscar referencia de producto por skuPadre
+          const refProduct = await this.refProductRepository.findOne({
+            where: { referenceCode: item.skuPadre },
+            relations: ['packings'],
+          });
+
+          console.log(item.skuPadre)
+          console.log(refProduct)
+          if (refProduct) {
+            // Verificar si ya existe un packing asociado a la referencia
+            let packing = refProduct.packings && refProduct.packings.length > 0 ? refProduct.packings[0] : null;
+
+            // Si no existe un packing, crear uno nuevo
+            if (!packing) {
+              packing = new Packing();
+              packing.refProduct = refProduct;
+            }
+
+            // Actualizar los datos del packing
+            packing.unities = parseInt(item.paquete.PiezasCaja);
+            packing.large = parseFloat(item.paquete.largo);
+            packing.width = parseFloat(item.paquete.ancho);
+            packing.height = parseFloat(item.paquete.alto);
+            packing.smallPackingWeight = parseFloat(item.paquete.pesoNeto);
+
+            // Guardar o actualizar el packing asociado a la referencia
+            await this.packingRepository.save(packing);
+          } else {
+            console.log(`Referencia de producto con skuPadre ${item.skuPadre} no encontrada.`);
+          }
+        }
+      } else {
+        console.log('API response was not successful.');
+      }
+    } catch (error) {
+      console.error('Error fetching data from API:', error);
+    }
+  }
+
+
+
+
+
 }
