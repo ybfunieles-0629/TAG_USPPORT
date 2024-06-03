@@ -574,6 +574,35 @@ export class CartQuotesService {
     };
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+  // Función para obtener el próximo número de orden
+async  getNextOrderNumber(fieldName: string): Promise<string> {
+  // const entityManager = getManager();
+  // const result = await entityManager
+  //   .createQueryBuilder()
+  //   .select(`MAX(purchaseOrder.${fieldName})`, 'max')
+  //   .from('purchaseOrder', 'purchaseOrder')
+  //   .getRawOne();
+
+  // const lastOrderNumber = result.max;
+  // const nextOrderNumber = lastOrderNumber ? parseInt(lastOrderNumber) + 1 : 1;
+  return nextOrderNumber.toString();
+}
+
+
+
+
   async changeStatus(user: User, id: string, updateCartQuoteDto: UpdateCartQuoteDto) {
     const cartQuote = await this.cartQuoteRepository.findOne({
       where: {
@@ -771,12 +800,18 @@ export class CartQuotesService {
 
       let expirationDate: Date = new Date();
       expirationDate.setDate(expirationDate.getDate() + 30);
+ 
+
+      // Obtener los próximos números de orden
+      const nextTagOrderNumber = await getNextOrderNumber('tagOrderNumber');
+      const nextClientOrderNumber = await getNextOrderNumber('clientOrderNumber');
+
 
       const purchaseOrderData = {
         deliveryAddress: cartQuote.deliveryAddress,
         destinationCity: cartQuote.destinationCity,
-        tagOrderNumber: uuidv4(),
-        clientOrderNumber: uuidv4(),
+        tagOrderNumber: nextTagOrderNumber,
+        clientOrderNumber: nextClientOrderNumber,
         approvalDate: cartQuote.updatedAt,
         creationDate: cartQuote.createdAt,
         // paymentDate: new Date(),

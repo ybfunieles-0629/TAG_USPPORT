@@ -49,7 +49,7 @@ export class PurchaseOrderService {
         where: {
           id: createPurchaseOrderDto.state,
         },
-      });
+      }); 
 
       if (createPurchaseOrderDto.approvalDate || createPurchaseOrderDto.creationDate || createPurchaseOrderDto.paymentDate) {
         createPurchaseOrderDto.approvalDate = new Date(createPurchaseOrderDto.approvalDate);
@@ -108,6 +108,14 @@ export class PurchaseOrderService {
       newPurchaseOrder
     };
   }
+
+
+
+
+
+
+
+
 
   async findAll(paginationDto: PaginationDto, user: User) {
     let count: number = await this.purchaseOrderRepository.count();
