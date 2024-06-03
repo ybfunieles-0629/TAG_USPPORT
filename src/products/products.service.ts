@@ -924,10 +924,6 @@ export class ProductsService {
           });
 
           if (refProductExists) {
-            RefProductsExisting.push(refProduct)
-            console.log(`Ref product with reference code ${refProduct.referenceCode} is already registered`);
-
-            // Crear un objeto de actualización con datos no vacíos
             const updatedRefProductData = {};
             for (const key in refProduct) {
               if (refProduct[key] !== '' && refProduct[key] !== null && refProduct[key] !== undefined) {
@@ -935,17 +931,23 @@ export class ProductsService {
               }
             }
 
-            // Fusionar el objeto de actualización con los datos existentes
             const updatedRefProduct = {
               ...refProductExists,
               ...updatedRefProductData,
             };
 
-            // Guardar la referencia actualizada
             const refProductUpdate = await this.refProductRepository.save(updatedRefProduct);
-            console.log(refProductUpdate)
-            RefProductsExistingUpdate.push(refProductUpdate)
 
+            for (const color of refProduct.colors) {
+              const existingColorRelation = await this.colorRepository.findOne({
+                where: { id: color.id, refProductId: refProductExists.id },
+              });
+
+              if (!existingColorRelation) {
+                color.refProductId = refProductExists.id;
+                await this.colorRepository.save(color);
+              }
+            }
           } else {
             // Guardar el nuevo producto de referencia
             const savedRefProduct: RefProduct = await this.refProductRepository.save(refProduct);
