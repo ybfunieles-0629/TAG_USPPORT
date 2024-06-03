@@ -712,7 +712,7 @@ export class ProductsService {
 
 
     // CONSULTAMOS LA IFORMACIÓN DE LA EMPRESA Y ACCEDEMOS A SU PROVEEDOR
-    const nameCompany = 'Promo Opciones';
+    const nameCompany = 'Marpico SAS';
     const company = await this.companyRepository.findOne({
       where: { name: nameCompany },
       relations: ['users', 'users.supplier'],
@@ -725,7 +725,7 @@ export class ProductsService {
     // ID DEL PROVEEDOR DE RODUCTO
     const supplierId = company?.users[0]?.supplier?.id
 
-
+    console.log(company?.users[0]?.supplier)
 
     try {
       // const response = await axios.post(apiUrl, bodyData, config);
@@ -893,10 +893,10 @@ export class ProductsService {
             mainCategory: categorySupplier?.id || '',
             tagCategory: categorySupplier?.categoryTag?.id || '',
             keywords: keyword,
-            large: +item.medidas_largo,
-            width: +item.medidas_ancho,
-            height: +item.medidas_alto,
-            weight: +item.medidas_peso_neto,
+            large: parseFloat(item.medidas_largo) || 0, // Valores por defecto
+            width: parseFloat(item.medidas_ancho) || 0,
+            height: parseFloat(item.medidas_alto) || 0,
+            weight: parseFloat(item.medidas_peso_neto) || 0,
             importedNational: 1,
             markedDesignArea: item.area_impresion || '',
             supplier: company?.users[0]?.supplier,
