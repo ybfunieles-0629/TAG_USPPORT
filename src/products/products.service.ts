@@ -6,7 +6,7 @@ import * as nodemailer from 'nodemailer';
 import axios from 'axios';
 import * as AWS from 'aws-sdk';
 import { v4 as uuidv4 } from 'uuid';
-// import { delay } from 'bluebird';
+import { delay } from 'bluebird';
 
 import { Product } from './entities/product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -1459,7 +1459,7 @@ export class ProductsService {
     };
 
     const MAX_RETRIES = 5;
-    const RETRY_DELAY = 2000; // 2 segundos
+    const RETRY_DELAY = 200; // 1 segundos
 
     async function fetchProductsWithRetries(url, params, config, retries) {
       try {
@@ -1467,7 +1467,7 @@ export class ProductsService {
       } catch (error) {
         if (retries > 0 && (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT')) {
           console.warn(`Error de conexión, reintentando en ${RETRY_DELAY / 1000} segundos...`);
-          // await delay(RETRY_DELAY);
+          await delay(RETRY_DELAY);
           return fetchProductsWithRetries(url, params, config, retries - 1);
         } else {
           throw error;
@@ -1501,6 +1501,25 @@ export class ProductsService {
                   productImages.push(savedImage);
                 }
 
+
+                // Verificación para material.color
+                const colorName = material.color ? material.color.name : 'unknown color';
+                const hexadecimalValue = material.color ? material.color.hexadecimalValue : 'unknown hex';
+
+                // Verificación para color en base de datos
+                let color: Color;
+                color = await this.colorRepository.findOne({ where: { name: colorName } });
+
+                if (!color) {
+                  color = this.colorRepository.create({ name: colorName, hexadecimalValue });
+                  color = await this.colorRepository.save(color);
+                } else if (!color.hexadecimalValue) {
+                  color.hexadecimalValue = hexadecimalValue;
+                  color = await this.colorRepository.save(color);
+                }
+
+
+
                 let tagSku: string = await this.generateUniqueTagSku();
                 const newProduct = {
                   tagSku,
@@ -1515,7 +1534,7 @@ export class ProductsService {
                   height: 0,
                   weight: 0,
                   material,
-                  color: material.color.name,
+                  color: color.name,
                   images: productImages
                 };
 
