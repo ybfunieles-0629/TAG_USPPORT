@@ -1152,10 +1152,6 @@ export class RefProductsService {
       } else {
         results = await this.refProductRepository
           .createQueryBuilder('rp')
-          .where('rp.weight > :weight', { weight: 0 })
-          .andWhere('rp.height > :height', { height: 0 })
-          .andWhere('rp.width > :width', { width: 0 })
-          .andWhere('rp.large > :large', { large: 0 })
           .leftJoinAndSelect('rp.supplier', 'supplier')
           .leftJoinAndSelect('rp.categorySuppliers', 'rpCategorySuppliers')
           .leftJoinAndSelect('rp.categoryTags', 'rpCategoryTags')
