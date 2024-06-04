@@ -709,8 +709,6 @@ export class ProductsService {
       },
     };
 
-
-
     // CONSULTAMOS LA IFORMACIÓN DE LA EMPRESA Y ACCEDEMOS A SU PROVEEDOR
     const nameCompany = 'Marpico SAS';
     const company = await this.companyRepository.findOne({
@@ -829,6 +827,7 @@ export class ProductsService {
               },
               relations: ['categoryTag'],
             });
+            
           } catch (error) {
             console.error('Error al buscar la categoría:', error);
           }
@@ -924,6 +923,7 @@ export class ProductsService {
           });
 
 
+
           for (const color of refProduct.colors) {
             const existingColorRelation = await this.colorRepository.findOne({
               where: { id: color.id, refProductId: refProductExists.id },
@@ -987,7 +987,7 @@ export class ProductsService {
     }
   }
 
-  // Actualización de productos de la referencia de Promo Opciones
+  // Actualización de productos de la referencia de Marpico === FALTA
   private async loadMarpicoProducts() {
 
     // ARREGLOS GENERALES
@@ -2206,7 +2206,81 @@ export class ProductsService {
 
 
 
+  private readonly categoriesUrl = 'http://api.cataprom.com/rest/categorias';
+  private readonly productsBaseUrl = 'http://api.cataprom.com/rest/categorias';
 
+  async loadProductsProms() {
+    // ARREGLOS GENERALES
+    const refProductsToSave = [];
+    const productsToSave = [];
+    const cleanedRefProducts = [];
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    try {
+      // Consumir la primera API para obtener el listado de categorías
+      const categoriasResponse = await axios.get(this.categoriesUrl, config);
+
+      if (!categoriasResponse.data.success) {
+        // throw new HttpException('Error al obtener categorías', HttpStatus.BAD_REQUEST);
+      }
+
+      const categoriasData = categoriasResponse.data;
+
+      console.log(categoriasData)
+      // Verificar si categoriasData.resultado es un iterable (array)
+      if (!Array.isArray(categoriasData.resultado)) {
+        // throw new HttpException('El resultado de las categorías no es una matriz', HttpStatus.BAD_REQUEST);
+      }
+
+      // Inicializar una lista para almacenar las primeras dos categorías
+      const selectedCategorias = [];
+      const maxCategorias = 2; // Cambia esto al número deseado de categorías
+
+      // Recorrer las categorías y consumir la segunda API para obtener productos
+      for (const categoria of categoriasData.resultado) {
+        if (selectedCategorias.length >= maxCategorias) {
+          break; // Sal del bucle después de obtener el número deseado de categorías
+        }
+
+        const idCategoria = categoria.id;
+        const productosResponse = await axios.get(`${this.productsBaseUrl}/${idCategoria}/productos`, config);
+
+        if (productosResponse.data.success) {
+          const productosData = productosResponse.data;
+
+          console.log(productosData)
+          // Verificar si productosData.resultado es un objeto
+          if (typeof productosData.resultado === 'object') {
+            selectedCategorias.push(productosData.resultado);
+          }
+        } else {
+          // Manejar errores específicos de la solicitud de productos
+          console.error(`Error al obtener productos de categoría ${idCategoria}`);
+        }
+      }
+
+      // Aquí puedes procesar y almacenar los productos obtenidos
+      // Por ejemplo, podrías agregar lógica para llenar refProductsToSave, productsToSave, y cleanedRefProducts
+
+      // Enviar la lista de las primeras dos categorías como resultado
+      return {
+        categorias: selectedCategorias,
+        refProductsToSave,
+        productsToSave,
+        cleanedRefProducts,
+      };
+
+    } catch (error) {
+      console.error(error);
+      // throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+  
 
 
 
@@ -2222,7 +2296,7 @@ export class ProductsService {
     if (supplierName.toLowerCase().trim() == 'marpico') {
       await this.loadMarpicoRefProducts();
     } else if (supplierName.toLowerCase().trim() == 'promos') {
-      await this.loadPromosProducts();
+      await this.loadProductsProms();
     } else if (supplierName.toLowerCase().trim() == 'promoopciones') {
       await this.loadPromoOpcionRefProducts();
     } else if (supplierName.toLowerCase().trim() == 'cdo') {

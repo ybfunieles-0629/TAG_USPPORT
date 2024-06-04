@@ -216,7 +216,7 @@ export class PackingsService {
     console.log(supplierName)
 
     if (supplierName.toLowerCase().trim() == 'marpico') {
-      // await this.loadMarpicoProducts();
+      await this.loadMarpicoRefProducts();
     } else if (supplierName.toLowerCase().trim() == 'promoopciones') {
       await this.loadPackingPromoOpcion();
     } else if (supplierName.toLowerCase().trim() == 'cdo') {
@@ -225,6 +225,7 @@ export class PackingsService {
   }
 
 
+  // EMPAQUE DE PROMO OPCION
   async loadPackingPromoOpcion() {
     // URL API
     const apiUrl = 'https://promocionalesenlinea.net/api/all-products';
@@ -253,8 +254,6 @@ export class PackingsService {
             relations: ['packings'],
           });
 
-          console.log(item.skuPadre)
-          console.log(refProduct)
           if (refProduct) {
             // Verificar si ya existe un packing asociado a la referencia
             let packing = refProduct.packings && refProduct.packings.length > 0 ? refProduct.packings[0] : null;
@@ -286,6 +285,69 @@ export class PackingsService {
     }
   }
 
+
+
+  // EMPAQUE DE MARPICOS
+  private async loadMarpicoRefProducts() {
+
+     // URL API
+    const apiUrl = 'https://apipromocionales.marpico.co/api/inventarios/materialesAPI';
+    const apiKey = 'KZuMI3Fh5yfPSd7bJwqoIicdw2SNtDkhSZKmceR0PsKZzCm1gK81uiW59kL9n76z';
+
+    const config = {
+      headers: {
+        Authorization: `Api-Key ${apiKey}`,
+      },
+    };
+
+
+    try {
+      const { data: { results } } = await axios.get(apiUrl, config);
+
+      if (results) {
+        for (const item of results) {
+         
+          const refProduct = await this.refProductRepository.findOne({
+            where: { referenceCode: item.familia},
+            relations: ['packings'],
+          });
+
+          if (refProduct) {
+            // Verificar si ya existe un packing asociado a la referencia
+            let packing = refProduct.packings && refProduct.packings.length > 0 ? refProduct.packings[0] : null;
+
+            // Si no existe un packing, crear uno nuevo
+            if (!packing) {
+              packing = new Packing();
+              packing.refProduct = refProduct;
+            }
+
+            // Actualizar los datos del packing
+            packing.unities = item.empaque_unds_caja !== null && item.empaque_unds_caja !== undefined ? parseInt(item.empaque_unds_caja) : packing.unities;
+            packing.large = item.empaque_largo !== null && item.empaque_largo !== undefined ? parseFloat(item.empaque_largo) : packing.large;
+            packing.width = item.empaque_ancho !== null && item.empaque_ancho !== undefined ? parseFloat(item.empaque_ancho) : packing.width;
+            packing.height = item.empaque_alto !== null && item.empaque_alto !== undefined ? parseFloat(item.empaque_alto) : packing.height;
+            packing.smallPackingWeight = item.empaque_peso_neto !== null && item.empaque_peso_neto !== undefined ? parseFloat(item.empaque_peso_neto) : packing.smallPackingWeight;
+
+
+            // Guardar o actualizar el packing asociado a la referencia
+            const packingUpdate = await this.packingRepository.save(packing);
+            console.log("--")
+            console.log(packingUpdate)
+          } else {
+            console.log(`Referencia de producto con skuPadre ${item.skuPadre} no encontrada.`);
+          }
+        }
+
+
+      } else {
+        throw new Error('La API no devolvió una respuesta exitosa');
+      }
+    } catch (error) {
+      console.error('Error al cargar los productos:', error);
+      throw new Error('Error al cargar los productos');
+    }
+  }
 
 
 
