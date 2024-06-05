@@ -11,6 +11,7 @@ import { plainToClass } from 'class-transformer';
 import { SupplierPrice } from './entities/supplier-price.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { User } from '../users/entities/user.entity';
+import { RefProduct } from 'src/ref-products/entities/ref-product.entity';
 
 @Injectable()
 export class SupplierPricesService {
@@ -26,7 +27,148 @@ export class SupplierPricesService {
 
     @InjectRepository(ListPrice)
     private readonly listPriceRepository: Repository<ListPrice>,
+
+
+    @InjectRepository(RefProduct)
+    private readonly refproductRepository: Repository<RefProduct>,
+
+
+    
   ) { }
+
+
+  //   async create(createSupplierPriceDto: CreateSupplierPriceDto) {
+
+  //   console.log(createSupplierPriceDto)
+  //   const ListSupplierPrice: SupplierPrice[] = [];
+
+  //   const newSupplierPrice = plainToClass(SupplierPrice, createSupplierPriceDto);
+
+  //   const supplier = await this.supplierRepository.findOne({
+  //     where: {
+  //       id: createSupplierPriceDto.supplier,
+  //     },
+  //   });
+
+  //   if (!supplier)
+  //     throw new NotFoundException(`Supplier with id ${createSupplierPriceDto.supplier} not found`);
+
+  //   if (!supplier.isActive)
+  //     throw new NotFoundException(`Supplier with id ${createSupplierPriceDto.supplier} is currently inactive`);
+
+
+
+
+  //   console.log(createSupplierPriceDto.allProducts)
+
+  //   if (createSupplierPriceDto.allProducts) {
+
+  //     // Encuentra el RefProduct correspondiente al ID
+  //     const refProduct = await this.refproductRepository.findOne({ where: { id: createSupplierPriceDto.refProduct } });
+  //     if (!refProduct) {
+  //       throw new Error('No se encontró un producto de referencia con el ID proporcionado');
+  //     }
+
+  //     console.log(refProduct)
+
+  //     const refProducts = await this.productRepository.find({
+  //       where: {
+  //         refProduct: {
+  //           id: refProduct.id,
+  //         },
+  //       },
+  //     });
+
+  //     if (!refProducts)
+  //       throw new NotFoundException(`Product with id ${createSupplierPriceDto.product} not found`);
+
+  //     console.log(refProducts.length)
+  //     console.log(refProducts)
+
+
+
+
+  //     for (const item of refProducts) {
+
+  //       const listPrices: ListPrice[] = [];
+
+  //       if (createSupplierPriceDto.listPrices) {
+
+  //         for (const listPriceId of createSupplierPriceDto.listPrices) {
+  //           const listPrice = await this.listPriceRepository.findOne({
+  //             where: {
+  //               id: listPriceId,
+  //             },
+  //           });
+
+  //           if (!listPrice)
+  //             throw new NotFoundException(`List price with id ${listPriceId} not found`);
+
+  //           if (!listPrice.isActive)
+  //             throw new NotFoundException(`List price with id ${listPriceId} is currently inactive`);
+
+  //           listPrices.push(listPrice);
+  //         }
+
+  //         newSupplierPrice.listPrices = listPrices;
+  //       }
+
+  //       newSupplierPrice.supplier = supplier;
+  //       newSupplierPrice.product = item;
+
+  //       const listPricesCreate = await this.supplierPriceRepository.save(newSupplierPrice);
+  //       ListSupplierPrice.push(listPricesCreate);
+  //     }
+  //   } else {
+
+  //     const product = await this.productRepository.findOne({
+  //       where: {
+  //         id: createSupplierPriceDto.product,
+  //       },
+  //     });
+
+  //     if (!product)
+  //       throw new NotFoundException(`Product with id ${createSupplierPriceDto.product} not found`);
+
+  //     if (!product.isActive)
+  //       throw new NotFoundException(`Product with id ${createSupplierPriceDto.product} is currently inactive`);
+
+  //     const listPrices: ListPrice[] = [];
+
+  //     if (createSupplierPriceDto.listPrices) {
+  //       for (const listPriceId of createSupplierPriceDto.listPrices) {
+  //         const listPrice = await this.listPriceRepository.findOne({
+  //           where: {
+  //             id: listPriceId,
+  //           },
+  //         });
+
+  //         if (!listPrice)
+  //           throw new NotFoundException(`List price with id ${listPriceId} not found`);
+
+  //         if (!listPrice.isActive)
+  //           throw new NotFoundException(`List price with id ${listPriceId} is currently inactive`);
+
+  //         listPrices.push(listPrice);
+  //       }
+
+  //       newSupplierPrice.listPrices = listPrices;
+  //     }
+
+  //     newSupplierPrice.supplier = supplier;
+  //     newSupplierPrice.product = product;
+
+  //     const PricesCreate = await this.supplierPriceRepository.save(newSupplierPrice);
+  //     ListSupplierPrice.push(PricesCreate);
+  //   }
+
+  //   return {
+  //     ListSupplierPrice
+  //   };
+  // }
+
+  
+
 
   async create(createSupplierPriceDto: CreateSupplierPriceDto) {
     const newSupplierPrice = plainToClass(SupplierPrice, createSupplierPriceDto);

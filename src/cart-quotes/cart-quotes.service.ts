@@ -811,8 +811,8 @@ async  getNextOrderNumber(fieldName: string): Promise<string> {
       const purchaseOrderData = {
         deliveryAddress: cartQuote.deliveryAddress,
         destinationCity: cartQuote.destinationCity,
-        tagOrderNumber: nextTagOrderNumber,
-        clientOrderNumber: nextClientOrderNumber,
+        tagOrderNumber: uuidv4(),
+        clientOrderNumber: uuidv4(),
         approvalDate: cartQuote.updatedAt,
         creationDate: cartQuote.createdAt,
         // paymentDate: new Date(),

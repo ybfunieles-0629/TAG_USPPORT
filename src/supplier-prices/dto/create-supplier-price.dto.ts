@@ -1,4 +1,4 @@
-import { IsArray, IsString } from 'class-validator';
+import { IsArray, IsString, IsOptional, IsBoolean } from 'class-validator';
 
 export class CreateSupplierPriceDto {
   @IsString()
@@ -10,4 +10,15 @@ export class CreateSupplierPriceDto {
   @IsArray()
   @IsString({ each: true })
   listPrices?: string[];
+
+
+  @IsOptional()
+  @IsString()
+  refProduct: string;
+
+  @IsOptional()
+  @IsBoolean()
+  allProducts: boolean;
+
+  
 }

@@ -8,6 +8,7 @@ import { SupplierPrice } from './entities/supplier-price.entity';
 import { SuppliersModule } from '../suppliers/suppliers.module';
 import { ProductsModule } from '../products/products.module';
 import { ListPricesModule } from '../list-prices/list-prices.module';
+import { RefProductsModule } from 'src/ref-products/ref-products.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ListPricesModule } from '../list-prices/list-prices.module';
     SuppliersModule,
     ProductsModule,
     ListPricesModule,
+    RefProductsModule,
     TypeOrmModule.forFeature([SupplierPrice]),
   ],
   controllers: [SupplierPricesController],
