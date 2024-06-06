@@ -8,6 +8,7 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { GetUser } from '../users/decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { DiscountQuoteDetailDto } from './dto/discount-price.dto';
+import { CalculateSummaryDto } from './dto/calculate-price-summary.tdo';
 
 @Controller('quote-details')
 export class QuoteDetailsController {
@@ -98,6 +99,16 @@ export class QuoteDetailsController {
 
 
 
+
+
+  @Post('/summary')
+  @UseGuards(AuthGuard())
+  productSummary(
+    @Body() calculateSummaryDto: CalculateSummaryDto,
+    @GetUser() user: User,
+  ) {
+    return this.quoteDetailsService.productSummary(calculateSummaryDto, user);
+  } 
 
 
 

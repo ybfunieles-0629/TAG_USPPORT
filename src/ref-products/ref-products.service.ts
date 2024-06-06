@@ -248,7 +248,7 @@ export class RefProductsService {
       //   1, 2,
       // ];
     } else {
-      staticQuantities = [1];
+      staticQuantities = [1, 200000];
     }
 
     const clientSended: Client = await this.clientRepository.findOne({
