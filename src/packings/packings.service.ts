@@ -220,12 +220,13 @@ export class PackingsService {
     } else if (supplierName.toLowerCase().trim() == 'promoopciones') {
       await this.loadPackingPromoOpcion();
     } else if (supplierName.toLowerCase().trim() == 'cdo') {
-      await this.loadPackingPromoOpcion();
+      await this.loadPackingCDO();
     }
   }
 
 
   // EMPAQUE DE PROMO OPCION
+  // ==================================
   async loadPackingPromoOpcion() {
     // URL API
     const apiUrl = 'https://promocionalesenlinea.net/api/all-products';
@@ -284,10 +285,12 @@ export class PackingsService {
       console.error('Error fetching data from API:', error);
     }
   }
+  // ==================================
 
 
 
   // EMPAQUE DE MARPICOS
+  // ==================================
   private async loadMarpicoRefProducts() {
 
      // URL API
@@ -348,8 +351,81 @@ export class PackingsService {
       throw new Error('Error al cargar los productos');
     }
   }
+  // ==================================
 
 
+  
 
+  // EMPAQUE DE CDO
+  // ==================================
+  private async loadPackingCDO() {
+    const apiUrl = 'http://api.colombia.cdopromocionales.com/v2/products';
+    const authToken = 'GpW1y2YseY76cVk08qkTAQ';
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const arrayPaking: any[] = [];
+
+    const response = await axios.get(apiUrl, {
+      params: {
+        auth_token: authToken,
+      },
+      ...config,
+    });
+
+    if (response.status === 200) {
+      const products = response.data;
+      console.log(products);
+
+      for (const item of products) {
+        // Buscar referencia de producto por referenceCode
+        const refProduct = await this.refProductRepository.findOne({
+          where: { referenceCode: item.code },
+          relations: ['packings'],
+        });
+
+        console.log(refProduct);
+        if (refProduct) {
+          // Verificar si ya existe un packing asociado a la referencia
+          let packing = refProduct.packings && refProduct.packings.length > 0 ? refProduct.packings[0] : null;
+
+          // Si no existe un packing, crear uno nuevo
+          if (!packing) {
+            packing = new Packing();
+            packing.refProduct = refProduct;
+          }
+
+          // Convertir y validar datos del packing
+          const unities = parseInt(item.packing.quantity);
+          const large = parseFloat(item.packing.depth);
+          const width = parseFloat(item.packing.width);
+          const height = parseFloat(item.packing.height);
+          const smallPackingWeight = parseFloat(item.packing.weight);
+
+          // Verificar si los valores son válidos antes de asignarlos
+          packing.unities = isNaN(unities) ? 0 : unities;
+          packing.large = isNaN(large) ? 0 : large;
+          packing.width = isNaN(width) ? 0 : width;
+          packing.height = isNaN(height) ? 0 : height;
+          packing.smallPackingWeight = isNaN(smallPackingWeight) ? 0 : smallPackingWeight;
+
+          // Guardar o actualizar el packing asociado a la referencia
+          const dataUpdate = await this.packingRepository.save(packing);
+          console.log(dataUpdate)
+          arrayPaking.push(dataUpdate)
+        } else {
+          console.log(`Referencia de producto con referenceCode ${item.code} no encontrada.`);
+        }
+      }
+    }
+
+    return arrayPaking;
+  }
+
+  // ==================================
 
 }

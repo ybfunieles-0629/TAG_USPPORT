@@ -56,6 +56,9 @@ export class CalculateSummaryDto {
     client: string;
 
 
+    @IsString()
+    brandId: string; 
+
     @IsBoolean()
     hasSample: boolean;
 

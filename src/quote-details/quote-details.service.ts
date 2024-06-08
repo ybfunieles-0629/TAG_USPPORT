@@ -40,6 +40,10 @@ export class QuoteDetailsService {
     @InjectRepository(Brand)
     private readonly brandRepository: Repository<Brand>,
 
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+
+
     @InjectRepository(Client)
     private readonly clientRepository: Repository<Client>,
 
@@ -3367,7 +3371,7 @@ export class QuoteDetailsService {
 
     newQuoteDetail.createdBy = user.id;
 
-    const ClientCartQuote: Client = await this.clientRepository.findOne({
+    const ClientCartQuote: User = await this.userRepository.findOne({
       where: {
         id: calculateSummaryDto.client,
       },
@@ -3378,11 +3382,7 @@ export class QuoteDetailsService {
       ],
     });
 
-
-    console.log(ClientCartQuote)
-    let condigoPostalCliente = ClientCartQuote?.user?.company?.postalCode;
-    console.log(condigoPostalCliente)
-
+    let condigoPostalCliente = ClientCartQuote?.company?.postalCode;
 
     if (!ClientCartQuote)
       throw new NotFoundException(`Cart quote with id ${ClientCartQuote} not found`);
@@ -3407,10 +3407,9 @@ export class QuoteDetailsService {
     if (!product)
       throw new NotFoundException(`Product with id ${calculateSummaryDto.product} not found`);
 
-    let markingTotalPrice: number = 0;
+    const markingServices: MarkingServiceProperty[] = [];
 
     if (calculateSummaryDto?.markingServiceProperty || calculateSummaryDto?.markingServiceProperty?.length > 0) {
-      const markingServices: MarkingServiceProperty[] = [];
 
       for (const markingServiceId of calculateSummaryDto.markingServiceProperty) {
         const markingService: MarkingServiceProperty = await this.markingServicePropertyRepository.findOne({
@@ -3418,10 +3417,9 @@ export class QuoteDetailsService {
             id: markingServiceId,
           },
           relations: [
-            'marking',
-            'marking.company',
-            'markingServiceProperty',
-            'markingServiceProperty.markedServicePrices',
+            'markedServicePrices',
+            'refProducts',
+            'products'
           ],
         });
 
@@ -3432,8 +3430,171 @@ export class QuoteDetailsService {
           throw new BadRequestException(`Marking service with id ${markingServiceId} is currently inactive`);
 
         markingServices.push(markingService);
+        console.log(markingServices)
       }
+    }
 
+
+
+
+
+    //* ------------- CALCULOS ------------- *//
+    const quantity: number = newQuoteDetail.quantities || 0;
+    let totalPrice: number = newQuoteDetail.unitPrice || 0;
+    let totalTransportPrice: number = 0;
+    let totalCost: number = 0;
+    let productVolume: number = 0;
+    let totalVolume: number = 0;
+
+
+    console.log(quantity)
+    console.log(totalPrice)
+
+    // DATOS A FUTURO PARA CALCULAR TRANSPORTES
+
+    //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL MARCADO
+    let markingTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
+      .createQueryBuilder('localTransportPrice')
+      .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
+      .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
+      .getMany();
+
+
+
+    //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL CLIENTE : fedex
+
+    let tokenFedeex;
+    try {
+      tokenFedeex = await this.obtenerTokenFedex();
+      console.log(tokenFedeex);
+      // Ahora puedes hacer lo que necesites con el token, por ejemplo, hacer una solicitud utilizando el token.
+    } catch (error) {
+      // Maneja el error si ocurre alguno al obtener el token
+      console.error('Error al usar el token de FedEx:', error);
+    }
+
+
+
+    //* VERIFICAR SI EL PRODUCTO TIENE EMPAQUE
+    const packing: Packing = product.packings.length > 0 ? product.packings[0] : product?.refProduct?.packings[0] || undefined;
+    const packingUnities: number = product.packings.length > 0 ? product?.packings[0]?.unities : product?.refProduct?.packings[0]?.unities || 0;
+
+    if (!packing)
+      throw new NotFoundException(`Lo sentimos, este producto no tiene empaque, comunicate `);
+
+    //* CALCULAR EL VOLUMEN DEL EMPAQUE DEL PRODUCTO
+    let boxesQuantity: number = (quantity / packingUnities) || 0;
+
+    if (quantity <= packingUnities) { boxesQuantity = 1 || 0; } else { boxesQuantity = Math.ceil(quantity / packingUnities) || 0; }
+
+
+    //* CALCULAR EL VOLUMEN DEL PAQUETE
+    const packingVolume: number = (packing?.height * packing?.width * packing?.large) || 0;
+    totalVolume = (packingVolume * boxesQuantity) || 0;
+
+
+
+
+
+
+
+
+
+
+
+    //* OBTENER LA CONFIGURACIÓN DEL SISTEMA
+    const systemConfigDb: SystemConfig[] = await this.systemConfigRepository.find();
+    const systemConfig: SystemConfig = systemConfigDb[0];
+
+    //* SE SOLICITA MUESTRA
+    let ValorMuestraIndividual = 0;
+    let TotalMuestra = 0;
+    let TransporteMuestra = 0;
+    let TotalGastoMuestra = 0;
+    let CuatroPorMilMuestra = 0;
+    let CostoTotalMuestra = 0
+    let IvaMuestra = 0;
+    let ValorTotalDeTransporteGeneral = 0;
+
+    if (hasSample) {
+
+      //* CALCULAR EL PRECIO DE LA MUESTRA
+
+      newQuoteDetail.hasSample = true;
+      const productHasFreeSample: boolean = product?.freeSample == 1 ? true : false;
+      newQuoteDetail.sampleValue = 0;
+
+      if (!productHasFreeSample) {
+        const samplePrice: number = product?.samplePrice || 0;
+        ValorMuestraIndividual = samplePrice;
+        if (samplePrice <= 0) {
+          const referencePrice: number = product?.referencePrice || 0;
+          totalPrice += referencePrice;
+          ValorMuestraIndividual = referencePrice;
+        };
+        console.log(ValorMuestraIndividual)
+
+
+
+        // IVA A LA MUESTRA
+
+        if (product.iva > 0 || product.iva != undefined) {
+          IvaMuestra = (product.iva / 100) * ValorMuestraIndividual;
+          totalPrice += IvaMuestra;
+          // console.log(totalPrice)
+        };
+
+        if (product.iva == 0) {
+          IvaMuestra = (19 / 100) * ValorMuestraIndividual;
+          totalPrice += IvaMuestra;
+          // console.log(totalPrice)
+        }
+        console.log(IvaMuestra)
+
+        // TOTAL MUESTRA === VARIABLE GLOBAL
+        TotalMuestra = ValorMuestraIndividual + IvaMuestra;
+        console.log(TotalMuestra)
+
+
+        // Calcular precio transporte al cliente
+        let dataPrecio = await this.calcularPreciosFedex(tokenFedeex, condigoPostalCliente, condigoPostalCliente, boxesQuantity, packing.large, packing.width, packing.height);
+
+        if (typeof dataPrecio === 'number') {
+          // COSTO TRANSPORTE DE ENTREGA
+          TransporteMuestra = dataPrecio;
+        } else {
+          console.error('Error: dataPrecio no es de tipo numérico.');
+        }
+        console.log(TransporteMuestra);
+
+
+        // }
+
+        console.log(TransporteMuestra);
+
+        // SUMA CONTONIA DEL TRANSPORTE TOTAL
+        newQuoteDetail.sampleTransportValue = TransporteMuestra;
+
+        // TOTAL GASTOS MUESTRA === VARIABLE GLOBAL
+        TotalGastoMuestra = TotalMuestra + TransporteMuestra;
+
+
+        // CUATRO POR MIL MUESTRA 
+        CuatroPorMilMuestra = TotalGastoMuestra * 0.004 || 0;
+        newQuoteDetail.transportServices4x1000 = CuatroPorMilMuestra;
+        console.log(CuatroPorMilMuestra)
+
+
+        // COSTO TOTAL MUESTRA === VARIABLE GLOBAL
+        CostoTotalMuestra = TotalGastoMuestra + CuatroPorMilMuestra;
+        console.log(CostoTotalMuestra)
+
+        // totalPrice += samplePrice;
+        newQuoteDetail.sampleValue = CostoTotalMuestra;
+
+      };
+    } else {
+      newQuoteDetail.hasSample = false;
     };
 
 
@@ -3446,716 +3607,661 @@ export class QuoteDetailsService {
 
 
 
+    // CALCULOS DEL TRANSPORTE
 
+    //* CALCULAR EL VOLUMEN DEL PRODUCTO
+    productVolume = (product?.height * product?.weight * product?.large) || 0;
 
+    //* DATOS DEL CLIENTE
+    const cartQuoteClient: Client = ClientCartQuote?.client;
+    const clientUser: User = ClientCartQuote?.client?.user;
+    let clientType: string = '';
 
+    //* PRECIO ESCOGIDO EN EL DETALLE DEL PRODUCTO ANTES DEL CARRITO
+    const burnQuantity: number = newQuoteDetail?.unitPrice || 0;
+    totalCost += burnQuantity;
 
 
 
+    //* CALCULA EL COSTO DE TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL MARCADO
+    const markingClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
+      ? markingTransportPrices.sort((a, b) => {
+        const diffA = Math.abs(a.volume - totalVolume);
+        const diffB = Math.abs(b.volume - totalVolume);
+        return diffA - diffB;
+      })[0]
+      : undefined;
 
+    const { origin: markingOrigin, destination: markingDestination, price: markingTransportPrice, volume: markingTransportVolume } = markingClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
 
 
+    // COSTO SERVICIO DE MARCACIÓN, UN SOLO COSTO POR TODAS LAS MARCACIONES
+    console.log(markingTransportPrice)
 
 
+    //* CALCULAR EL COSTO DE TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL CLIENTE
+    const clientClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
+      ? markingTransportPrices.sort((a, b) => {
+        const diffA = Math.abs(a.volume - totalVolume);
+        const diffB = Math.abs(b.volume - totalVolume);
+        return diffA - diffB;
+      })[0]
+      : undefined;
 
+    const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
 
 
+    // Calcular precio transporte al cliente
+    let dataPrecio = await this.calcularPreciosFedex(tokenFedeex, condigoPostalCliente, condigoPostalCliente, boxesQuantity, packing.large, packing.width, packing.height);
+    console.log((typeof dataPrecio))
 
+    let CuatroPorMilTransporte = 0;
+    let CostoTransporteDeEntrega;
 
-    // const cartQuoteDb: CartQuote = await this.cartQuoteRepository.findOne({
-    //   where: {
-    //     id: newQuoteDetail.cartQuote.id,
-    //   }
-    // });
+    if (typeof dataPrecio === 'number') {
 
-    // if (!cartQuoteDb)
-    //   throw new NotFoundException(`Cart quote with id ${newQuoteDetail.cartQuote.id} not found`);
+      // COSTO TRANSPORTE DE ENTREGA
+      CostoTransporteDeEntrega = dataPrecio;
 
-    // cartQuoteDb.totalPrice += newQuoteDetail.total || 0;
-    // cartQuoteDb.productsQuantity += newQuoteDetail.quantities || 0;
+      CuatroPorMilTransporte = dataPrecio * 0.004 || 0;
+    } else {
+      console.error('Error: dataPrecio no es de tipo numérico.');
+    }
+    console.log(CuatroPorMilTransporte);
 
+    // COSTO TOTAL TRANSPORTE DE ENTREGA
+    const CostoTotalTransporteDeEntrega = CostoTransporteDeEntrega + CuatroPorMilTransporte;
+    console.log(CostoTotalTransporteDeEntrega)
 
 
-    // //* ------------- CALCULOS ------------- *//
-    // const quantity: number = newQuoteDetail.quantities || 0;
-    // let totalPrice: number = newQuoteDetail.unitPrice || 0;
-    // let totalTransportPrice: number = 0;
-    // let totalCost: number = 0;
-    // let productVolume: number = 0;
-    // let totalVolume: number = 0;
+    // INICIO CALCULO DE SERVICIO DE MARCACIÓN
+    let ValorTotalMarcacion = 0;
+    let valorTransporteMarcacion = 0;
+    let valorTransporteMarcacionx = 0;
 
 
-    // console.log(quantity)
-    // console.log(totalPrice)
+    console.log(markingServices)
+    //* Buscamos los datos de la referencia
+    const quoteDetailRefProduct: RefProduct = product.refProduct;
+    console.log(quoteDetailRefProduct);
+    let marking: Marking;
 
-    // // DATOS A FUTURO PARA CALCULAR TRANSPORTES
+    // Preguntamos si es personalizable ?
+ 
+        for (const markingService of markingServices) {
+        //   let markingServicePropertyPrice: number = 0;
 
-    // //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL MARCADO
-    // let markingTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
-    //   .createQueryBuilder('localTransportPrice')
-    //   .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
-    //   .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: 'bogota' })
-    //   .getMany();
+        //   const markingServiceProperty: MarkingServiceProperty = markingService?.markingServiceProperty;
+        //   console.log(markingServiceProperty)
+          for (const markedServicePrice of markingService.markedServicePrices) {
 
+            // Codigo postal del proveedor de marcación
+              console.log(markedServicePrice)
 
+            if (quantity >= markedServicePrice.minRange && quantity <= markedServicePrice.maxRange) {
 
-    // //* OBTENER LOS PRECIOS DE TRANSPORTE DEL PROVEEDOR AL CLIENTE
-    // const clientTransportPrices: LocalTransportPrice[] = await this.localTransportPriceRepository
-    //   .createQueryBuilder('localTransportPrice')
-    //   .where('LOWER(localTransportPrice.origin) =:origin', { origin: 'bogota' })
-    //   .andWhere('LOWER(localTransportPrice.destination) =:destination', { destination: cartQuote.destinationCity.toLowerCase().trim() })
-    //   .getMany();
+              let totalMarking: number = (quantity * markedServicePrice.unitPrice);
+              // marking = markingService?.marking;
+              console.log(markedServicePrice.unitPrice)
+              console.log(totalMarking)
 
-    // //TODO: UTILIZAR LA API DE FEDEX
-    // //TODO: UTILIZAR LA API DE FEDEX
-    // let tokenFedeex;
-    // try {
-    //   tokenFedeex = await this.obtenerTokenFedex();
-    //   console.log(tokenFedeex);
-    //   // Ahora puedes hacer lo que necesites con el token, por ejemplo, hacer una solicitud utilizando el token.
-    // } catch (error) {
-    //   // Maneja el error si ocurre alguno al obtener el token
-    //   console.error('Error al usar el token de FedEx:', error);
-    // }
+              ValorTotalMarcacion += totalMarking;
 
+            };
+          };
+        };
+     
 
 
-    // //* VERIFICAR SI EL PRODUCTO TIENE EMPAQUE
-    // const packing: Packing = product.packings.length > 0 ? product.packings[0] : product?.refProduct?.packings[0] || undefined;
-    // const packingUnities: number = product.packings.length > 0 ? product?.packings[0]?.unities : product?.refProduct?.packings[0]?.unities || 0;
+    // valorTransporteMarcacionx = (data)
+    console.log(ValorTotalMarcacion)
 
-    // if (!packing)
-    //   throw new NotFoundException(`Lo sentimos, este producto no tiene empaque, comunicate `);
 
-    // //* CALCULAR EL VOLUMEN DEL EMPAQUE DEL PRODUCTO
-    // let boxesQuantity: number = (quantity / packingUnities) || 0;
+    // COTO TRANSPORTE MARCACIÓN ==== VARIABLE GLOBAL 
+    valorTransporteMarcacionx = markingTransportPrice;
+    console.log(valorTransporteMarcacionx)
 
-    // if (quantity <= packingUnities) { boxesQuantity = 1 || 0; } else { boxesQuantity = Math.ceil(quantity / packingUnities) || 0; }
 
+    //SUBTOTAL COSTO MARCACIÓN
+    let SubTotalCostoMarcacion = ValorTotalMarcacion || 0;
+    SubTotalCostoMarcacion = Math.round(SubTotalCostoMarcacion)
+    console.log(SubTotalCostoMarcacion)
 
-    // //* CALCULAR EL VOLUMEN DEL PAQUETE
-    // const packingVolume: number = (packing?.height * packing?.width * packing?.large) || 0;
-    // totalVolume = (packingVolume * boxesQuantity) || 0;
+    newQuoteDetail.markingTotalPrice = SubTotalCostoMarcacion;
+    newQuoteDetail.markingWithProductSupplierTransport = valorTransporteMarcacionx;
 
 
+    //* CALCULAR EL IVA
+    let IvaMarcacion: number = (19 / 100) * SubTotalCostoMarcacion;
+    IvaMarcacion = Math.round(IvaMarcacion)
+    console.log(IvaMarcacion)
 
 
+    // TOTAL COSTO MARCACIÓN
+    let TotalCostoMarcacion = SubTotalCostoMarcacion + IvaMarcacion + valorTransporteMarcacionx;
+    TotalCostoMarcacion = Math.round(TotalCostoMarcacion)
+    console.log(TotalCostoMarcacion)
 
 
+    //* CALCULAR EL 4X1000
+    let CuatroPorMilMarcacion: number = TotalCostoMarcacion * 0.004 || 0;
+    CuatroPorMilMarcacion = Math.round(CuatroPorMilMarcacion)
+    console.log(CuatroPorMilMarcacion)
 
+    //COSTO TOTAL MARCACIÓN
+    let CostoTotalMarcacion = TotalCostoMarcacion + CuatroPorMilMarcacion;
+    CostoTotalMarcacion = Math.round(CostoTotalMarcacion)
+    console.log(CostoTotalMarcacion)
 
 
 
+    // SUBTOTAL
+    TransporteMuestra = Math.round(TransporteMuestra);
+    CuatroPorMilMuestra = Math.round(CuatroPorMilMuestra);
 
-    // newQuoteDetail.unitPrice = totalPrice;
+    let SubTotal = ValorMuestraIndividual + TransporteMuestra + CuatroPorMilMuestra + CostoTotalTransporteDeEntrega + SubTotalCostoMarcacion + CuatroPorMilMarcacion;
+    SubTotal = Math.round(SubTotal)
+    console.log(SubTotal)
 
+    // IVA SUBTOTAL
+    let IvaSubtotal = IvaMuestra + IvaMarcacion;
+    IvaSubtotal = Math.round(IvaSubtotal)
+    console.log(IvaSubtotal)
 
 
+    // TOTAL GASTOS DE ADICIONALES
+    let TotalGastosAdicionales = CostoTotalMuestra + CostoTotalTransporteDeEntrega + CostoTotalMarcacion;
+    TotalGastosAdicionales = Math.round(TotalGastosAdicionales)
+    console.log(TotalGastosAdicionales)
 
-    // //* OBTENER LA CONFIGURACIÓN DEL SISTEMA
-    // const systemConfigDb: SystemConfig[] = await this.systemConfigRepository.find();
-    // const systemConfig: SystemConfig = systemConfigDb[0];
 
-    // //* SE SOLICITA MUESTRA
-    // let ValorMuestraIndividual = 0;
-    // let TotalMuestra = 0;
-    // let TransporteMuestra = 0;
-    // let TotalGastoMuestra = 0;
-    // let CuatroPorMilMuestra = 0;
-    // let CostoTotalMuestra = 0
-    // let IvaMuestra = 0;
-    // let ValorTotalDeTransporteGeneral = 0;
 
-    // if (hasSample) {
 
-    //   //* CALCULAR EL PRECIO DE LA MUESTRA
 
-    //   newQuoteDetail.hasSample = true;
-    //   const productHasFreeSample: boolean = product?.freeSample == 1 ? true : false;
-    //   newQuoteDetail.sampleValue = 0;
 
-    //   if (!productHasFreeSample) {
-    //     const samplePrice: number = product?.samplePrice || 0;
-    //     ValorMuestraIndividual = samplePrice;
-    //     if (samplePrice <= 0) {
-    //       const referencePrice: number = product?.referencePrice || 0;
-    //       totalPrice += referencePrice;
-    //       ValorMuestraIndividual = referencePrice;
-    //     };
-    //     console.log(ValorMuestraIndividual)
 
 
 
-    //     // IVA A LA MUESTRA
+    // SECCION INGRESOS POR ADICIONALES		=========================================================> 
 
-    //     if (product.iva > 0 || product.iva != undefined) {
-    //       IvaMuestra = (product.iva / 100) * ValorMuestraIndividual;
-    //       totalPrice += IvaMuestra;
-    //       // console.log(totalPrice)
-    //     };
+    // MARGEN DE LA CATEGORIA
+    const mainCategoryTag: CategoryTag = await this.categoryTagRepository.findOne({
+      where: {
+        id: product?.refProduct?.tagCategory,
+      },
+    });
 
-    //     if (product.iva == 0) {
-    //       IvaMuestra = (19 / 100) * ValorMuestraIndividual;
-    //       totalPrice += IvaMuestra;
-    //       // console.log(totalPrice)
-    //     }
-    //     console.log(IvaMuestra)
+    //* MARGEN DE GANANCIA DEL PROVEEDOR
+    const profitMarginSupplier: number = product?.refProduct?.supplier?.profitMargin || 0;
 
 
-    //     // TOTAL MUESTRA === VARIABLE GLOBAL
-    //     TotalMuestra = ValorMuestraIndividual + IvaMuestra;
-    //     console.log(TotalMuestra)
+    //* ADICIONAR EL % DE MARGEN DE GANANCIA DE CLIENTE
+    let MargenCliente = 0;
+    let MargenPorFinanciacion = 0;
+    if (clientType == 'cliente corporativo secundario') {
+      //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
+      const mainClient: Client = await this.clientRepository
+        .createQueryBuilder('client')
+        .leftJoinAndSelect('client.user', 'clientUser')
+        .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
+        .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
+        .leftJoinAndSelect('clientUserCompany.users', 'companyUsers')
+        .andWhere('companyUsers.isCoorporative =:isCoorporative', { isCoorporative: 1 })
+        .andWhere('companyUsers.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
+        .getOne();
 
+      totalPrice += mainClient?.margin;
+      MargenCliente = mainClient?.margin;
+      console.log(MargenCliente)
+    } else {
+      MargenCliente = 10;
+      console.log(MargenCliente)
 
-    //     // Transporte de la Muestra
-    //     // if (newQuoteDetail?.cartQuote?.destinationCity?.toLowerCase() == 'bogota') {
-    //     //   const clientClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
-    //     //     ? markingTransportPrices.sort((a, b) => {
-    //     //       const diffA = Math.abs(a.volume - totalVolume);
-    //     //       const diffB = Math.abs(b.volume - totalVolume);
-    //     //       return diffA - diffB;
-    //     //     })[0]
-    //     //     : undefined;
+    };
 
-    //     //   const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
+    totalPrice += ClientCartQuote?.client?.margin || 0;
 
-    //     //   totalPrice += clientTransportPrice;
 
-    //     //   // newQuoteDetail.transportTotalPrice = 0;
-    //     //   // newQuoteDetail.transportTotalPrice += clientTransportPrice || 0;
-    //     //   // newQuoteDetail.sampleValue += clientTransportPrice || 0;
+    // DEFINIR EL TIPO DE CLIENTE QUE ES EL CLIENTE
+    if (clientUser) {
+      if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 1)
+        clientType = 'cliente corporativo secundario';
+      else if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 0)
+        clientType = 'cliente corporativo principal';
+    };
 
-    //     //   TransporteMuestra = clientTransportPrice;
 
-    //     // } else {
-    //     //TODO: FEDEX
+    // nuevo Yeison
+    let financeCostProfist: any = await this.systemFinancingCostProfit.find();
+    console.log(financeCostProfist)
 
-    //     // newQuoteDetail.transportTotalPrice += TransporteMuestra;
 
 
-    //     // Calcular precio transporte al cliente
-    //     let dataPrecio = await this.calcularPreciosFedex(tokenFedeex, condigoPostalCliente, condigoPostalCliente, boxesQuantity, packing.large, packing.width, packing.height);
+    // DIAS DE PAGO DEL CLIENTE CORPOATIV
+    let DiasPagoClienteCorporativo = 0;
+    let DiasPagoClienteCorporativoRentabilidad = 0;
 
-    //     if (typeof dataPrecio === 'number') {
-    //       // COSTO TRANSPORTE DE ENTREGA
-    //       TransporteMuestra = dataPrecio;
-    //     } else {
-    //       console.error('Error: dataPrecio no es de tipo numérico.');
-    //     }
-    //     console.log(TransporteMuestra);
 
+    //* MARGEN POR FINANCIACIÓN 
+    // const MargenPorFinanciacion: number = 0;
 
-    //     // }
+    let paymentDays: any[] = [];
+    for (const paymentDate of financeCostProfist) {
+      let data = {
+        day: paymentDate.days,
+        percentage: paymentDate.financingPercentage / 100,
+        rentability: 0
+      }
 
-    //     console.log(TransporteMuestra);
+      paymentDays.push(data)
+    }
 
-    //     // SUMA CONTONIA DEL TRANSPORTE TOTAL
-    //     newQuoteDetail.sampleTransportValue = TransporteMuestra;
 
-    //     // TOTAL GASTOS MUESTRA === VARIABLE GLOBAL
-    //     TotalGastoMuestra = TotalMuestra + TransporteMuestra;
+    console.log(paymentDays)
 
 
-    //     // CUATRO POR MIL MUESTRA 
-    //     CuatroPorMilMuestra = TotalGastoMuestra * 0.004 || 0;
-    //     newQuoteDetail.transportServices4x1000 = CuatroPorMilMuestra;
-    //     console.log(CuatroPorMilMuestra)
 
+    // Días de pago de Cliente NO Corporativo
+    const day60 = paymentDays.find(item => item.day === 1);
+    DiasPagoClienteCorporativo = day60 ? day60.day : 0;
+    DiasPagoClienteCorporativoRentabilidad = day60 ? day60.financingPercentage : 0; //yeison
 
-    //     // COSTO TOTAL MUESTRA === VARIABLE GLOBAL
-    //     CostoTotalMuestra = TotalGastoMuestra + CuatroPorMilMuestra;
-    //     console.log(CostoTotalMuestra)
 
-    //     // totalPrice += samplePrice;
-    //     newQuoteDetail.sampleValue = CostoTotalMuestra;
+    let marginProfit: number = 0;
 
-    //   };
-    // } else {
-    //   newQuoteDetail.hasSample = false;
-    // };
+    marginProfit = systemConfig.noCorporativeClientsMargin;
 
 
+    // Días de pago de Cliente NO Corporativo
+    console.log(day60)
 
 
+    //* SI EL CLIENTE ES SECUNDARIO
+    if (clientType == 'cliente corporativo secundario') {
+      //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
+      const mainClient: Client = await this.clientRepository
+        .createQueryBuilder('client')
+        .leftJoinAndSelect('client.user', 'clientUser')
+        .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
+        .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
+        .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
+        .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
+        .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
+        .getOne();
 
+      marginProfit = mainClient.margin || 0;
+      const paymentTerms: number = mainClient.paymentTerms || 0;
 
+      //Capturamos los dias fr pago del cliente corporativo.
+      DiasPagoClienteCorporativo = paymentTerms || 0;
 
+      let percentageDiscount: number = 0;
 
+      paymentDays.forEach(paymentDay => {
+        if (paymentDay.day == paymentTerms) {
+          percentageDiscount = paymentDay.percentage;
+        };
+      });
 
+      // Precio original * (1 - Descuento individual) * (1 - Descuento general)
+      MargenPorFinanciacion = percentageDiscount;
 
+      let value: number = totalPrice * (1 - percentageDiscount);
+      totalPrice = Math.round(value);
+    };
 
-    // // CALCULOS DEL TRANSPORTE
+    //* SI EL CLIENTE ES PRINCIPAL
+    if (clientType == 'cliente corporativo principal') {
+      const margin: number = cartQuoteClient.margin || 0;
+      marginProfit = margin;
+      const paymentTerms: number = cartQuoteClient.paymentTerms || 0;
 
-    // //* CALCULAR EL VOLUMEN DEL PRODUCTO
-    // productVolume = (product?.height * product?.weight * product?.large) || 0;
+      //Capturamos los dias fr pago del cliente corporativo.
+      DiasPagoClienteCorporativo = paymentTerms || 0;
 
-    // //* DATOS DEL CLIENTE
-    // const cartQuoteClient: Client = cartQuote?.client;
-    // const clientUser: User = cartQuote?.client?.user;
-    // let clientType: string = '';
+      let percentageDiscount: number = 0;
 
-    // //* PRECIO ESCOGIDO EN EL DETALLE DEL PRODUCTO ANTES DEL CARRITO
-    // const burnQuantity: number = newQuoteDetail?.unitPrice || 0;
-    // totalCost += burnQuantity;
+      paymentDays.forEach(paymentDay => {
+        if (paymentDay.day == paymentTerms) {
+          percentageDiscount = paymentDay.percentage;
+        };
+      });
 
+      MargenPorFinanciacion = percentageDiscount;
 
+      let value: number = totalPrice * (1 - percentageDiscount);
+      totalPrice = Math.round(value);
+    };
 
-    // //* CALCULA EL COSTO DE TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL MARCADO
-    // const markingClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
-    //   ? markingTransportPrices.sort((a, b) => {
-    //     const diffA = Math.abs(a.volume - totalVolume);
-    //     const diffB = Math.abs(b.volume - totalVolume);
-    //     return diffA - diffB;
-    //   })[0]
-    //   : undefined;
 
-    // const { origin: markingOrigin, destination: markingDestination, price: markingTransportPrice, volume: markingTransportVolume } = markingClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
 
+    console.log(DiasPagoClienteCorporativo)
+    console.log(marginProfit)
+    MargenCliente = marginProfit;
 
-    // console.log("markingTransportPrice")
-    // console.log(markingTransportPrice)
+    let SumaInicial: number = 0;
 
+    console.log(ValorMuestraIndividual)
+    console.log(TransporteMuestra)
+    console.log(CuatroPorMilMuestra)
 
+    console.log(+mainCategoryTag.categoryMargin)
+    console.log(profitMarginSupplier)
 
-    // //* CALCULAR EL COSTO DE TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL CLIENTE
-    // const clientClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
-    //   ? markingTransportPrices.sort((a, b) => {
-    //     const diffA = Math.abs(a.volume - totalVolume);
-    //     const diffB = Math.abs(b.volume - totalVolume);
-    //     return diffA - diffB;
-    //   })[0]
-    //   : undefined;
+    console.log(MargenCliente)
+    console.log(MargenPorFinanciacion)
 
-    // const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
 
 
-    // // Calcular precio transporte al cliente
-    // let dataPrecio = await this.calcularPreciosFedex(tokenFedeex, condigoPostalCliente, condigoPostalCliente, boxesQuantity, packing.large, packing.width, packing.height);
-    // console.log((typeof dataPrecio))
+    SumaInicial = ValorMuestraIndividual + TransporteMuestra + CuatroPorMilMuestra;
+    console.log(SumaInicial)
 
-    // let CuatroPorMilTransporte = 0;
-    // let CostoTransporteDeEntrega;
 
-    // if (typeof dataPrecio === 'number') {
+    let sumaSecundaria: number = 0;
+    sumaSecundaria = (1 + (+mainCategoryTag.categoryMargin + profitMarginSupplier) / 100)
+    console.log(sumaSecundaria)
 
-    //   // COSTO TRANSPORTE DE ENTREGA
-    //   CostoTransporteDeEntrega = dataPrecio;
 
-    //   CuatroPorMilTransporte = dataPrecio * 0.004 || 0;
-    // } else {
-    //   console.error('Error: dataPrecio no es de tipo numérico.');
-    // }
-    // console.log(CuatroPorMilTransporte);
+    let sumaTerciaria: number = 0;
+    sumaTerciaria = (1 + (MargenCliente + (MargenPorFinanciacion * 100)) / 100)
+    console.log(sumaTerciaria)
 
 
-    // // COSTO TOTAL TRANSPORTE DE ENTREGA
-    // const CostoTotalTransporteDeEntrega = CostoTransporteDeEntrega + CuatroPorMilTransporte;
-    // console.log(CostoTotalTransporteDeEntrega)
+    // SUBTOTAL ==== VARIABLE GLOBAL
+    let SubtotalIngresosAdicionales = (SumaInicial * sumaSecundaria) * sumaTerciaria;
 
+    SubtotalIngresosAdicionales = Math.round(SubtotalIngresosAdicionales);
+    console.log(SubtotalIngresosAdicionales)
 
-    // // SUMA CONTONIA DEL TRANSPORTE TOTAL // 20000
 
 
+    // MARCA Y/O FEE DEL CLIENTE DEL CARRITO == VARIABLE GLOBAL 
+    let feeMarcaCliente = 0;
+    console.log(clientType)
 
+    if (clientType.toLowerCase() == 'cliente corporativo secundario' || clientType.toLowerCase() == 'cliente corporativo principal') {
+      const brandId = calculateSummaryDto?.brandId;
+      console.log(brandId)
 
 
+      if (brandId != '') {
+        const cartQuoteBrand: Brand = await this.brandRepository.findOne({
+          where: {
+            id: brandId,
+          },
+        });
 
-    // // INICIO CALCULO DE SERVICIO DE MARCACIÓN
-    // let ValorTotalMarcacion = 0;
-    // let valorTransporteMarcacion = 0;
-    // let valorTransporteMarcacionx = 0;
+        if (!cartQuoteBrand)
+          throw new NotFoundException(`Brand with id ${brandId} not found`);
+        console.log(cartQuoteBrand)
 
+        if (cartQuoteBrand) {
+          const fee: number = (+cartQuoteBrand.fee / 100) * totalPrice || 0;
+          feeMarcaCliente = +cartQuoteBrand.fee;
+          totalPrice += fee;
+          totalCost += fee;
+        };
+      };
+    };
 
-    // const markingServices: MarkingService[] = newQuoteDetail?.markingServices || [];
-    // console.log(markingServices)
-    // //* Buscamos los datos de la referencia
-    // const quoteDetailRefProduct: RefProduct = product.refProduct;
-    // console.log(quoteDetailRefProduct);
-    // let marking: Marking;
-    // let datoTransporte;
+    console.log(feeMarcaCliente)
 
-    // // Preguntamos si es personalizable ?
-    // if (quoteDetailRefProduct?.personalizableMarking == 1) {
-    //   if (markingServices || markingServices.length > 0) {
-    //     console.log(markingServices)
-    //     for (const markingService of markingServices) {
-    //       let markingServicePropertyPrice: number = 0;
 
-    //       const markingServiceProperty: MarkingServiceProperty = markingService?.markingServiceProperty;
-    //       console.log(markingServiceProperty)
-    //       for (const markedServicePrice of markingServiceProperty.markedServicePrices) {
 
-    //         // Codigo postal del proveedor de marcación
-    //         console.log(markingService?.marking?.company?.postalCode)
 
-    //         if (quantity >= markedServicePrice.minRange && quantity <= markedServicePrice.maxRange) {
 
-    //           let totalMarking: number = (quantity * markedServicePrice.unitPrice);
-    //           marking = markingService?.marking;
 
 
-    //           console.log(markedServicePrice.unitPrice)
-    //           console.log(totalMarking)
+    // =========================== CALCULO FEE MUESTRA
 
-    //           markingService.calculatedMarkingPrice = totalMarking;
-    //           markingService.markingTransportPrice = markingTransportPrice;
-    //           ValorTotalMarcacion += totalMarking;
 
-    //           await this.markingServiceRepository.save(markingService);
-    //         };
-    //       };
-    //     };
-    //   };
-    // };
+    // ======== CALCULO FEE ITERATIVO MUESTRA
+    let calculoMagenes = (1 + (marginProfit + MargenPorFinanciacion) / 100);
+    let feeDecimal = 1 + (feeMarcaCliente / 100);
 
+    let valorBase = SubtotalIngresosAdicionales;
 
-    // // valorTransporteMarcacionx = (data)
-    // console.log(ValorTotalMarcacion)
+    let F29 = SubtotalIngresosAdicionales;
+    let F6 = marginProfit / 100;
+    let F7 = MargenPorFinanciacion;
+    let F8 = feeMarcaCliente / 100;
 
 
+    let primerCalculo = F29 * (1 + F6 + F7) * F8;
+    let segundoCalculo = primerCalculo * F8;
+    let tercerCalculo = segundoCalculo * F8;
+    let cuartoCalculo = tercerCalculo * F8;
 
-    // // COTO TRANSPORTE MARCACIÓN ==== VARIABLE GLOBAL 
-    // valorTransporteMarcacionx = markingTransportPrice;
-    // // markingService.markingTransportPrice = TransportPricesMarkingFedex;
+    let resultado = primerCalculo + segundoCalculo + tercerCalculo + cuartoCalculo;
+    let FeeMuestraTotalCalculado = resultado;
+    FeeMuestraTotalCalculado = Math.round(FeeMuestraTotalCalculado);
+    console.log(FeeMuestraTotalCalculado)
+    // ======== FIN CALCULO FEE ITERATIVO MUESTRA
 
-    // console.log(valorTransporteMarcacionx)
 
+    // SUBTOTAL
+    let SubTotalFeeMuestra = SubtotalIngresosAdicionales + FeeMuestraTotalCalculado;
+    SubTotalFeeMuestra = Math.round(SubTotalFeeMuestra);
+    console.log(SubTotalFeeMuestra)
 
-    // //SUBTOTAL COSTO MARCACIÓN
-    // let SubTotalCostoMarcacion = ValorTotalMarcacion || 0;
-    // SubTotalCostoMarcacion = Math.round(SubTotalCostoMarcacion)
-    // console.log(SubTotalCostoMarcacion)
 
-    // newQuoteDetail.markingTotalPrice = SubTotalCostoMarcacion;
-    // newQuoteDetail.markingWithProductSupplierTransport = valorTransporteMarcacionx;
+    //* CALCULAR EL IVA yeison
+    let IvaSubTotal: number = (19 / 100) * SubTotalFeeMuestra;
+    IvaSubTotal = Math.round(IvaSubTotal);
+    console.log(IvaSubTotal)
 
 
-    // //* CALCULAR EL IVA
-    // let IvaMarcacion: number = (19 / 100) * SubTotalCostoMarcacion;
-    // IvaMarcacion = Math.round(IvaMarcacion)
-    // console.log(IvaMarcacion)
+    // TOTAL PRECIO MUESTRA CON IVA
+    let TotalPrecioMuestraConIva = SubTotalFeeMuestra + IvaSubTotal;
+    TotalPrecioMuestraConIva = Math.round(TotalPrecioMuestraConIva);
+    console.log(TotalPrecioMuestraConIva)
 
 
-    // // TOTAL COSTO MARCACIÓN
-    // let TotalCostoMarcacion = SubTotalCostoMarcacion + IvaMarcacion + valorTransporteMarcacionx;
-    // TotalCostoMarcacion = Math.round(TotalCostoMarcacion)
-    // console.log(TotalCostoMarcacion)
 
 
-    // //* CALCULAR EL 4X1000
-    // let CuatroPorMilMarcacion: number = TotalCostoMarcacion * 0.004 || 0;
-    // CuatroPorMilMarcacion = Math.round(CuatroPorMilMarcacion)
-    // console.log(CuatroPorMilMarcacion)
 
-    // //COSTO TOTAL MARCACIÓN
-    // let CostoTotalMarcacion = TotalCostoMarcacion + CuatroPorMilMarcacion;
-    // CostoTotalMarcacion = Math.round(CostoTotalMarcacion)
-    // console.log(CostoTotalMarcacion)
 
 
 
-    // // SUBTOTAL
-    // TransporteMuestra = Math.round(TransporteMuestra);
-    // CuatroPorMilMuestra = Math.round(CuatroPorMilMuestra);
 
-    // let SubTotal = ValorMuestraIndividual + TransporteMuestra + CuatroPorMilMuestra + CostoTotalTransporteDeEntrega + SubTotalCostoMarcacion + CuatroPorMilMarcacion;
-    // SubTotal = Math.round(SubTotal)
-    // console.log(SubTotal)
 
-    // // IVA SUBTOTAL
-    // let IvaSubtotal = IvaMuestra + IvaMarcacion;
-    // IvaSubtotal = Math.round(IvaSubtotal)
-    // console.log(IvaSubtotal)
 
 
-    // // TOTAL GASTOS DE ADICIONALES
-    // let TotalGastosAdicionales = CostoTotalMuestra + CostoTotalTransporteDeEntrega + CostoTotalMarcacion;
-    // TotalGastosAdicionales = Math.round(TotalGastosAdicionales)
-    // console.log(TotalGastosAdicionales)
 
 
 
+    // =========================== CALCULO FEE TRANSPORTE
 
+    // MARGEN DEL TRANSPORTE (PARAMETRIZACION)
+    const marginForTransportServices: number = systemConfig.marginForTransportServices || 0;
 
 
+    console.log(marginForTransportServices)
+    // Convertimos los porcentajes a valores decimales
+    let maerginTrans = (marginForTransportServices) / 100;
+    let marginCli = (marginProfit) / 100;
+    let marginFian = (MargenPorFinanciacion);
 
 
+    console.log(marginCli)
+    console.log(marginFian)
+    console.log(maerginTrans)
+    console.log(CostoTotalTransporteDeEntrega)
+    console.log(marginFian)
 
-    // // SECCION INGRESOS POR ADICIONALES		=========================================================> 
 
-    // // MARGEN DE LA CATEGORIA
-    // const mainCategoryTag: CategoryTag = await this.categoryTagRepository.findOne({
-    //   where: {
-    //     id: product?.refProduct?.tagCategory,
-    //   },
-    // });
+    let sumaF6F7 = marginCli + marginFian;
+    let SubTotalTransporte = CostoTotalTransporteDeEntrega * (1 + (maerginTrans + sumaF6F7));
 
-    // //* MARGEN DE GANANCIA DEL PROVEEDOR
-    // const profitMarginSupplier: number = product?.refProduct?.supplier?.profitMargin || 0;
+    // SUBTOTAL TRANSPORTE
+    SubTotalTransporte = (Math.ceil(SubTotalTransporte));
+    console.log(SubTotalTransporte)
 
 
-    // //* ADICIONAR EL % DE MARGEN DE GANANCIA DE CLIENTE
-    // let MargenCliente = 0;
-    // let MargenPorFinanciacion = 0;
-    // if (clientType == 'cliente corporativo secundario') {
-    //   //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
-    //   const mainClient: Client = await this.clientRepository
-    //     .createQueryBuilder('client')
-    //     .leftJoinAndSelect('client.user', 'clientUser')
-    //     .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
-    //     .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
-    //     .leftJoinAndSelect('clientUserCompany.users', 'companyUsers')
-    //     .andWhere('companyUsers.isCoorporative =:isCoorporative', { isCoorporative: 1 })
-    //     .andWhere('companyUsers.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
-    //     .getOne();
 
-    //   totalPrice += mainClient?.margin;
-    //   MargenCliente = mainClient?.margin;
-    //   console.log(MargenCliente)
-    // } else {
-    //   MargenCliente = 10;
-    //   console.log(MargenCliente)
 
-    // };
 
-    // totalPrice += cartQuote?.client?.margin || 0;
 
 
-    // // DEFINIR EL TIPO DE CLIENTE QUE ES EL CLIENTE
-    // if (clientUser) {
-    //   if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 1)
-    //     clientType = 'cliente corporativo secundario';
-    //   else if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 0)
-    //     clientType = 'cliente corporativo principal';
-    // };
+    // ======== CALCULO FEE ITERATIVO TRANSPORTE 
+    let F36 = SubTotalTransporte;
+    F6 = marginProfit / 100;
+    F7 = MargenPorFinanciacion;
+    F8 = feeMarcaCliente / 100;
 
+    console.log(F8)
 
-    // // nuevo Yeison
-    // let financeCostProfist: any = await this.systemFinancingCostProfit.find();
-    // console.log(financeCostProfist)
+    let primerCalculoTransporte = F36 * (1 + F6 + F7) * F8;
+    let segundoCalculoTransporte = primerCalculoTransporte * F8;
+    let tercerCalculoTransporte = segundoCalculoTransporte * F8;
+    let cuartoCalculoTransporte = tercerCalculoTransporte * F8;
 
+    let resultadoTransporte = primerCalculoTransporte + segundoCalculoTransporte + tercerCalculoTransporte + cuartoCalculoTransporte;
+    let FeeTransporteTotalCalculado = resultadoTransporte;
+    FeeTransporteTotalCalculado = Math.round(FeeTransporteTotalCalculado);
+    console.log(FeeTransporteTotalCalculado)
+    // ======== FIN CALCULO FEE ITERATIVO TRANSPORTE
 
 
-    // // DIAS DE PAGO DEL CLIENTE CORPOATIV
-    // let DiasPagoClienteCorporativo = 0;
-    // let DiasPagoClienteCorporativoRentabilidad = 0;
 
 
-    // //* MARGEN POR FINANCIACIÓN 
-    // // const MargenPorFinanciacion: number = 0;
+    // SUBTOTAL PRECIO TRANSPORTE DE ENTREGA
+    const TotalPrecioTransporteDeEntrega = SubTotalTransporte + FeeTransporteTotalCalculado;
+    console.log(TotalPrecioTransporteDeEntrega)
 
-    // let paymentDays: any[] = [];
-    // for (const paymentDate of financeCostProfist) {
-    //   let data = {
-    //     day: paymentDate.days,
-    //     percentage: paymentDate.financingPercentage / 100,
-    //     rentability: 0
-    //   }
+    newQuoteDetail.transportTotalPrice = TotalPrecioTransporteDeEntrega;
 
-    //   paymentDays.push(data)
-    // }
 
 
-    // console.log(paymentDays)
 
 
 
-    // // Días de pago de Cliente NO Corporativo
-    // const day60 = paymentDays.find(item => item.day === 1);
-    // DiasPagoClienteCorporativo = day60 ? day60.day : 0;
-    // DiasPagoClienteCorporativoRentabilidad = day60 ? day60.financingPercentage : 0; //yeison
 
 
-    // let marginProfit: number = 0;
 
-    // marginProfit = systemConfig.noCorporativeClientsMargin;
 
 
-    // // Días de pago de Cliente NO Corporativo
-    // console.log(day60)
 
 
-    // //* SI EL CLIENTE ES SECUNDARIO
-    // if (clientType == 'cliente corporativo secundario') {
-    //   //* BUSCAR EL CLIENTE PRINCIPAL DEL CLIENTE SECUNDARIO
-    //   const mainClient: Client = await this.clientRepository
-    //     .createQueryBuilder('client')
-    //     .leftJoinAndSelect('client.user', 'clientUser')
-    //     .leftJoinAndSelect('clientUser.company', 'clientUserCompany')
-    //     .where('clientUserCompany.id =:companyId', { companyId: clientUser.company.id })
-    //     .leftJoinAndSelect('clientUserCompany.user', 'companyUser')
-    //     .andWhere('companyUser.isCoorporative =:isCoorporative', { isCoorporative: 1 })
-    //     .andWhere('companyUser.mainSecondaryUser =:mainSecondaryUser', { mainSecondaryUser: 0 })
-    //     .getOne();
 
-    //   marginProfit = mainClient.margin || 0;
-    //   const paymentTerms: number = mainClient.paymentTerms || 0;
 
-    //   //Capturamos los dias fr pago del cliente corporativo.
-    //   DiasPagoClienteCorporativo = paymentTerms || 0;
 
-    //   let percentageDiscount: number = 0;
 
-    //   paymentDays.forEach(paymentDay => {
-    //     if (paymentDay.day == paymentTerms) {
-    //       percentageDiscount = paymentDay.percentage;
-    //     };
-    //   });
 
-    //   // Precio original * (1 - Descuento individual) * (1 - Descuento general)
-    //   MargenPorFinanciacion = percentageDiscount;
 
-    //   let value: number = totalPrice * (1 - percentageDiscount);
-    //   totalPrice = Math.round(value);
-    // };
 
-    // //* SI EL CLIENTE ES PRINCIPAL
-    // if (clientType == 'cliente corporativo principal') {
-    //   const margin: number = cartQuoteClient.margin || 0;
-    //   marginProfit = margin;
-    //   const paymentTerms: number = cartQuoteClient.paymentTerms || 0;
 
-    //   //Capturamos los dias fr pago del cliente corporativo.
-    //   DiasPagoClienteCorporativo = paymentTerms || 0;
 
-    //   let percentageDiscount: number = 0;
 
-    //   paymentDays.forEach(paymentDay => {
-    //     if (paymentDay.day == paymentTerms) {
-    //       percentageDiscount = paymentDay.percentage;
-    //     };
-    //   });
 
-    //   MargenPorFinanciacion = percentageDiscount;
 
-    //   let value: number = totalPrice * (1 - percentageDiscount);
-    //   totalPrice = Math.round(value);
-    // };
 
 
+    // =========================== CALCULO FEE MARCACION
 
-    // console.log(DiasPagoClienteCorporativo)
-    // console.log(marginProfit)
-    // MargenCliente = marginProfit;
+    // MARGEN SERVICIO DE MARCACIÓN (PARAMETRIZACIÓN)
+    const marginForDialingServices: number = systemConfig.marginForDialingServices || 0;
 
-    // let SumaInicial: number = 0;
+    console.log(SubTotalCostoMarcacion)
+    console.log(CuatroPorMilMarcacion)
+    console.log(marginForDialingServices)
+    console.log(marginCli)
+    console.log(marginFian)
+    console.log(sumaF6F7)
 
-    // console.log(ValorMuestraIndividual)
-    // console.log(TransporteMuestra)
-    // console.log(CuatroPorMilMuestra)
 
-    // console.log(+mainCategoryTag.categoryMargin)
-    // console.log(profitMarginSupplier)
+    let marginFDS = marginForDialingServices / 100;
+    // Convertir porcentajes a valores decimales
+    let F40 = (CostoTotalTransporteDeEntrega);
 
-    // console.log(MargenCliente)
-    // console.log(MargenPorFinanciacion)
+    let alculoSubTotalInicial = valorTransporteMarcacionx + CuatroPorMilMarcacion + SubTotalCostoMarcacion;
+    console.log(valorTransporteMarcacionx)
+    console.log(SubTotalCostoMarcacion)
+    console.log(CuatroPorMilMarcacion)
 
+    console.log(marginFDS)
+    console.log(sumaF6F7)
+    console.log(alculoSubTotalInicial)
+    const marginForDialingServicesConversion = marginForDialingServices / 100;
+    console.log(marginForDialingServicesConversion)
 
+    // Evaluar la fórmula
+    let SubTotalSinFeeMarcacion = (alculoSubTotalInicial) * (1 + (marginForDialingServicesConversion + sumaF6F7));
+    console.log(SubTotalSinFeeMarcacion)
 
-    // SumaInicial = ValorMuestraIndividual + TransporteMuestra + CuatroPorMilMuestra;
-    // console.log(SumaInicial)
 
 
-    // let sumaSecundaria: number = 0;
-    // sumaSecundaria = (1 + (+mainCategoryTag.categoryMargin + profitMarginSupplier) / 100)
-    // console.log(sumaSecundaria)
 
 
-    // let sumaTerciaria: number = 0;
-    // sumaTerciaria = (1 + (MargenCliente + (MargenPorFinanciacion * 100)) / 100)
-    // console.log(sumaTerciaria)
+    // ======== CALCULO FEE ITERATIVO MARCACION
+    let F41 = SubTotalSinFeeMarcacion;
+    F6 = marginProfit / 100;
+    F7 = MargenPorFinanciacion;
+    F8 = feeMarcaCliente / 100;
 
+    let primerCalculoMarcacion = F41 * (1 + F6 + F7) * F8;
+    let segundoCalculoMarcacion = primerCalculoMarcacion * F8;
+    let tercerCalculoMarcacion = segundoCalculoMarcacion * F8;
+    let cuartoCalculoMarcacion = tercerCalculoMarcacion * F8;
 
-    // // SUBTOTAL ==== VARIABLE GLOBAL
-    // let SubtotalIngresosAdicionales = (SumaInicial * sumaSecundaria) * sumaTerciaria;
+    let resultadoMarcacion = primerCalculoMarcacion + segundoCalculoMarcacion + tercerCalculoMarcacion + cuartoCalculoMarcacion;
+    let FeeMarcacionTotalCalculado = resultadoMarcacion;
+    FeeMarcacionTotalCalculado = Math.round(FeeMarcacionTotalCalculado);
+    console.log(FeeMarcacionTotalCalculado)
+    // ======== FIN CALCULO FEE ITERATIVO MARCACION
 
-    // SubtotalIngresosAdicionales = Math.round(SubtotalIngresosAdicionales);
-    // console.log(SubtotalIngresosAdicionales)
 
 
 
-    // // MARCA Y/O FEE DEL CLIENTE DEL CARRITO == VARIABLE GLOBAL 
-    // let feeMarcaCliente = 0;
-    // console.log(clientType)
+    // TOTAL PRECIO MARCACION DE ENTREGA
+    let SubTotalPrecioMarcacionDeEntrega = SubTotalSinFeeMarcacion + FeeMarcacionTotalCalculado;
+    console.log(SubTotalPrecioMarcacionDeEntrega);
 
-    // if (clientType.toLowerCase() == 'cliente corporativo secundario' || clientType.toLowerCase() == 'cliente corporativo principal') {
-    //   const brandId = cartQuote.brandId;
-    //   console.log(brandId)
+    //* IVA FEE MARCACION
+    const IvaFeeMarcacion: number = (19 / 100) * SubTotalSinFeeMarcacion || 0;
 
+    // // TOTAL PRECIO MARCACION CON IVA
+    let TotalPrecioMarcacionDeEntrega = SubTotalPrecioMarcacionDeEntrega + IvaFeeMarcacion;
+    console.log(TotalPrecioMarcacionDeEntrega);
 
-    //   if (brandId != '') {
-    //     const cartQuoteBrand: Brand = await this.brandRepository.findOne({
-    //       where: {
-    //         id: brandId,
-    //       },
-    //     });
 
-    //     if (!cartQuoteBrand)
-    //       throw new NotFoundException(`Brand with id ${brandId} not found`);
-    //     console.log(cartQuoteBrand)
 
-    //     if (cartQuoteBrand) {
-    //       const fee: number = (+cartQuoteBrand.fee / 100) * totalPrice || 0;
-    //       feeMarcaCliente = +cartQuoteBrand.fee;
-    //       totalPrice += fee;
-    //       totalCost += fee;
-    //       newQuoteDetail.aditionalClientFee = fee;
-    //       cartQuote.fee = fee;
-    //     };
-    //   };
-    // };
 
-    // console.log(feeMarcaCliente)
 
+    // SUB TOTAL TODOS LOS FEE
 
+    console.log(SubTotalFeeMuestra);
+    console.log(TotalPrecioTransporteDeEntrega);
+    console.log(SubTotalPrecioMarcacionDeEntrega);
 
+    let SubTotalFees = SubTotalFeeMuestra + TotalPrecioTransporteDeEntrega + SubTotalPrecioMarcacionDeEntrega;
+    SubTotalFees = Math.round(SubTotalFees);
+    console.log(SubTotalFees);
 
 
+    // IVAS TODOS LOS FEE
+    let IvasTotalFees = (19 / 100) * SubTotalFees || 0;
+    IvasTotalFees = Math.round(IvasTotalFees);
+    console.log(IvasTotalFees);
 
 
-    // // =========================== CALCULO FEE MUESTRA
+    // TOTAL INGRESOS DE ADICIONALES
+    let TotalIngresosAdicionales = SubTotalFees + IvasTotalFees;
+    TotalIngresosAdicionales = Math.round(TotalIngresosAdicionales);
+    console.log(TotalIngresosAdicionales);
 
 
-    // // ======== CALCULO FEE ITERATIVO MUESTRA
-    // let calculoMagenes = (1 + (marginProfit + MargenPorFinanciacion) / 100);
-    // let feeDecimal = 1 + (feeMarcaCliente / 100);
 
-    // let valorBase = SubtotalIngresosAdicionales;
 
-    // let F29 = SubtotalIngresosAdicionales;
-    // let F6 = marginProfit / 100;
-    // let F7 = MargenPorFinanciacion;
-    // let F8 = feeMarcaCliente / 100;
 
 
-    // let primerCalculo = F29 * (1 + F6 + F7) * F8;
-    // let segundoCalculo = primerCalculo * F8;
-    // let tercerCalculo = segundoCalculo * F8;
-    // let cuartoCalculo = tercerCalculo * F8;
 
-    // let resultado = primerCalculo + segundoCalculo + tercerCalculo + cuartoCalculo;
-    // let FeeMuestraTotalCalculado = resultado;
-    // FeeMuestraTotalCalculado = Math.round(FeeMuestraTotalCalculado);
-    // console.log(FeeMuestraTotalCalculado)
-    // // ======== FIN CALCULO FEE ITERATIVO MUESTRA
 
 
-    // // SUBTOTAL
-    // let SubTotalFeeMuestra = SubtotalIngresosAdicionales + FeeMuestraTotalCalculado;
-    // SubTotalFeeMuestra = Math.round(SubTotalFeeMuestra);
-    // console.log(SubTotalFeeMuestra)
 
 
-    // //* CALCULAR EL IVA yeison
-    // let IvaSubTotal: number = (19 / 100) * SubTotalFeeMuestra;
-    // IvaSubTotal = Math.round(IvaSubTotal);
-    // console.log(IvaSubTotal)
 
 
-    // // TOTAL PRECIO MUESTRA CON IVA
-    // let TotalPrecioMuestraConIva = SubTotalFeeMuestra + IvaSubTotal;
-    // TotalPrecioMuestraConIva = Math.round(TotalPrecioMuestraConIva);
-    // console.log(TotalPrecioMuestraConIva)
 
 
 
@@ -4166,219 +4272,12 @@ export class QuoteDetailsService {
 
 
 
+    // TERCERA PARTE DEL CALCULO RENTABILIDAD FINAL ================================================================>
 
 
-
-
-
-    // // =========================== CALCULO FEE TRANSPORTE
-
-    // // MARGEN DEL TRANSPORTE (PARAMETRIZACION)
-    // const marginForTransportServices: number = systemConfig.marginForTransportServices || 0;
-
-
-    // console.log(marginForTransportServices)
-    // // Convertimos los porcentajes a valores decimales
-    // let maerginTrans = (marginForTransportServices) / 100;
-    // let marginCli = (marginProfit) / 100;
-    // let marginFian = (MargenPorFinanciacion);
-
-
-    // console.log(marginCli)
-    // console.log(marginFian)
-    // console.log(maerginTrans)
-    // console.log(CostoTotalTransporteDeEntrega)
-    // console.log(marginFian)
-
-
-    // let sumaF6F7 = marginCli + marginFian;
-    // let SubTotalTransporte = CostoTotalTransporteDeEntrega * (1 + (maerginTrans + sumaF6F7));
-
-    // // SUBTOTAL TRANSPORTE
-    // SubTotalTransporte = (Math.ceil(SubTotalTransporte));
-    // console.log(SubTotalTransporte)
-
-
-
-
-
-
-
-    // // ======== CALCULO FEE ITERATIVO TRANSPORTE 
-    // let F36 = SubTotalTransporte;
-    // F6 = marginProfit / 100;
-    // F7 = MargenPorFinanciacion;
-    // F8 = feeMarcaCliente / 100;
-
-    // console.log(F8)
-
-    // let primerCalculoTransporte = F36 * (1 + F6 + F7) * F8;
-    // let segundoCalculoTransporte = primerCalculoTransporte * F8;
-    // let tercerCalculoTransporte = segundoCalculoTransporte * F8;
-    // let cuartoCalculoTransporte = tercerCalculoTransporte * F8;
-
-    // let resultadoTransporte = primerCalculoTransporte + segundoCalculoTransporte + tercerCalculoTransporte + cuartoCalculoTransporte;
-    // let FeeTransporteTotalCalculado = resultadoTransporte;
-    // FeeTransporteTotalCalculado = Math.round(FeeTransporteTotalCalculado);
-    // console.log(FeeTransporteTotalCalculado)
-    // // ======== FIN CALCULO FEE ITERATIVO TRANSPORTE
-
-
-
-
-    // // SUBTOTAL PRECIO TRANSPORTE DE ENTREGA
-    // const TotalPrecioTransporteDeEntrega = SubTotalTransporte + FeeTransporteTotalCalculado;
-    // console.log(TotalPrecioTransporteDeEntrega)
-
-    // newQuoteDetail.transportTotalPrice = TotalPrecioTransporteDeEntrega;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // // =========================== CALCULO FEE MARCACION
-
-    // // MARGEN SERVICIO DE MARCACIÓN (PARAMETRIZACIÓN)
-    // const marginForDialingServices: number = systemConfig.marginForDialingServices || 0;
-
-    // console.log(SubTotalCostoMarcacion)
-    // console.log(CuatroPorMilMarcacion)
-    // console.log(marginForDialingServices)
-    // console.log(marginCli)
-    // console.log(marginFian)
-    // console.log(sumaF6F7)
-
-
-    // let marginFDS = marginForDialingServices / 100;
-    // // Convertir porcentajes a valores decimales
-    // let F40 = (CostoTotalTransporteDeEntrega);
-
-    // let alculoSubTotalInicial = valorTransporteMarcacionx + CuatroPorMilMarcacion + SubTotalCostoMarcacion;
-    // console.log(valorTransporteMarcacionx)
-    // console.log(SubTotalCostoMarcacion)
-    // console.log(CuatroPorMilMarcacion)
-
-    // console.log(marginFDS)
-    // console.log(sumaF6F7)
-    // console.log(alculoSubTotalInicial)
-    // const marginForDialingServicesConversion = marginForDialingServices / 100;
-    // console.log(marginForDialingServicesConversion)
-
-    // // Evaluar la fórmula
-    // let SubTotalSinFeeMarcacion = (alculoSubTotalInicial) * (1 + (marginForDialingServicesConversion + sumaF6F7));
-    // console.log(SubTotalSinFeeMarcacion)
-
-
-
-
-
-    // // ======== CALCULO FEE ITERATIVO MARCACION
-    // let F41 = SubTotalSinFeeMarcacion;
-    // F6 = marginProfit / 100;
-    // F7 = MargenPorFinanciacion;
-    // F8 = feeMarcaCliente / 100;
-
-    // let primerCalculoMarcacion = F41 * (1 + F6 + F7) * F8;
-    // let segundoCalculoMarcacion = primerCalculoMarcacion * F8;
-    // let tercerCalculoMarcacion = segundoCalculoMarcacion * F8;
-    // let cuartoCalculoMarcacion = tercerCalculoMarcacion * F8;
-
-    // let resultadoMarcacion = primerCalculoMarcacion + segundoCalculoMarcacion + tercerCalculoMarcacion + cuartoCalculoMarcacion;
-    // let FeeMarcacionTotalCalculado = resultadoMarcacion;
-    // FeeMarcacionTotalCalculado = Math.round(FeeMarcacionTotalCalculado);
-    // console.log(FeeMarcacionTotalCalculado)
-    // // ======== FIN CALCULO FEE ITERATIVO MARCACION
-
-
-
-
-    // // TOTAL PRECIO MARCACION DE ENTREGA
-    // let SubTotalPrecioMarcacionDeEntrega = SubTotalSinFeeMarcacion + FeeMarcacionTotalCalculado;
-    // console.log(SubTotalPrecioMarcacionDeEntrega);
-
-    // //* IVA FEE MARCACION
-    // const IvaFeeMarcacion: number = (19 / 100) * SubTotalSinFeeMarcacion || 0;
-
-    // // // TOTAL PRECIO MARCACION CON IVA
-    // let TotalPrecioMarcacionDeEntrega = SubTotalPrecioMarcacionDeEntrega + IvaFeeMarcacion;
-    // console.log(TotalPrecioMarcacionDeEntrega);
-
-
-
-
-
-    // // SUB TOTAL TODOS LOS FEE
-
-    // console.log(SubTotalFeeMuestra);
-    // console.log(TotalPrecioTransporteDeEntrega);
-    // console.log(SubTotalPrecioMarcacionDeEntrega);
-
-    // let SubTotalFees = SubTotalFeeMuestra + TotalPrecioTransporteDeEntrega + SubTotalPrecioMarcacionDeEntrega;
-    // SubTotalFees = Math.round(SubTotalFees);
-    // console.log(SubTotalFees);
-
-
-    // // IVAS TODOS LOS FEE
-    // let IvasTotalFees = (19 / 100) * SubTotalFees || 0;
-    // IvasTotalFees = Math.round(IvasTotalFees);
-    // console.log(IvasTotalFees);
-
-
-    // // TOTAL INGRESOS DE ADICIONALES
-    // let TotalIngresosAdicionales = SubTotalFees + IvasTotalFees;
-    // TotalIngresosAdicionales = Math.round(TotalIngresosAdicionales);
-    // console.log(TotalIngresosAdicionales);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // // TERCERA PARTE DEL CALCULO RENTABILIDAD FINAL ================================================================>
-
-
-    // // TOTAL INGRESOS ANTES DE IVA
-    // const TotalIngresosAntesDeIva = newQuoteDetail?.unitPrice + SubTotalFees;
-    // console.log(TotalIngresosAntesDeIva)
+    // TOTAL INGRESOS ANTES DE IVA
+    const TotalIngresosAntesDeIva = newQuoteDetail?.unitPrice + SubTotalFees;
+    console.log(TotalIngresosAntesDeIva)
 
 
     // console.log(DiasPagoClienteCorporativo)
@@ -4498,87 +4397,23 @@ export class QuoteDetailsService {
 
     // // VALORES FINALES DE VENTA ========================
 
-    // // SUBTOTAL CON DESCUENTO
-    // const SubTotalFinalesDeIva = TotalIngresosAntesDeIva;
-    // console.log(SubTotalFinalesDeIva);
+    // SUBTOTAL CON DESCUENTO
+    const SubTotalFinalesDeIva = TotalIngresosAntesDeIva;
+    console.log(SubTotalFinalesDeIva);
 
-    // newQuoteDetail.subTotal = SubTotalFinalesDeIva;
-    // newQuoteDetail.totalAdditionalDiscount = 0;
-    // newQuoteDetail.subTotalWithDiscount = newQuoteDetail.subTotal || 0;
-    // newQuoteDetail.totalCost = SubTotalFinalesDeIva; // Subtotal con descuento
-    // newQuoteDetail.totalValueWithoutIva = newQuoteDetail.subTotal || 0;
+    let IvaSnTotalFinal: number = (19 / 100) * SubTotalFinalesDeIva;
+    IvaSnTotalFinal = Math.round(IvaSnTotalFinal);
+    console.log(IvaSnTotalFinal);
 
 
-    // let IvaSnTotalFinal: number = (19 / 100) * SubTotalFinalesDeIva;
-    // IvaSnTotalFinal = Math.round(IvaSnTotalFinal);
-    // console.log(IvaSnTotalFinal);
+    let TotalVenta: number = SubTotalFinalesDeIva + IvaSnTotalFinal;
+    TotalVenta = Math.round(TotalVenta);
+    console.log(TotalVenta);
 
 
-    // newQuoteDetail.iva = IvaSnTotalFinal;
-
-
-    // let TotalVenta: number = SubTotalFinalesDeIva + IvaSnTotalFinal;
-    // TotalVenta = Math.round(TotalVenta);
-    // console.log(TotalVenta);
-    // newQuoteDetail.totalValue = TotalVenta;
-
-    // console.log()
-
-
-
-    // // UTILIDADES FINALES
-
-
-    // // UTILIDAD FINAL CON DESCUENTO
-    // let UtilidadFinalConDescuento = SubTotalFinalesDeIva - TotalGastoAntesDeIva - Retenciones
-    // UtilidadFinalConDescuento = Math.round(UtilidadFinalConDescuento);
-
-    // console.log(UtilidadFinalConDescuento)
-
-    // newQuoteDetail.businessUtility = UtilidadFinalConDescuento;
-
-    // // % UTILIDAD FINAL CON DESCUENTO
-    // let PorcentajeUtilidadFinalConDescuento = (UtilidadFinalConDescuento / (TotalGastoAntesDeIva + Retenciones)) * 100;
-
-    // console.log(PorcentajeUtilidadFinalConDescuento)
-
-
-
-
-
-
-    // // Datos a guardar
-    // newQuoteDetail.totalGasto = TotalGastoAntesDeIva;
-    // newQuoteDetail.totalIngresos = TotalIngresosAntesDeIva;
-    // newQuoteDetail.rentabilidadMininaEsperada = RentabiliadMinimaEsperada;
-    // newQuoteDetail.descuentoSugerido = resultadoDescuentoSgerido;
-    // newQuoteDetail.UtilidadFinal = UtilidadFinalConDescuento;
-    // newQuoteDetail.porcentajeUtilidadFinal = PorcentajeUtilidadFinalConDescuento;
-
-    // cartQuoteDb.ivaTotal += IvaSnTotalFinal;
-    // cartQuoteDb.subTotal += SubTotalFinalesDeIva;
-
-
-    // newQuoteDetail.discountPercentage = 0; // reutilizar
-
-    // newQuoteDetail.discount = product.promoDisccount;
-
-    // //* CALCULAR SUBTOTAL CON DESCUENTO
-
-    // //* CALCULAR % MARGEN DE GANANCIA DEL NEGOCIO Y MAXIMO DESCUENTO PERMITIDO AL COMERCIAL
-    // const businessMarginProfit: number = (totalPrice - newQuoteDetail.totalValueWithoutIva);
-    // newQuoteDetail.businessMarginProfit = businessMarginProfit;
-    // cartQuoteDb.totalPrice += TotalVenta;
-
-    // //* TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
-
-    // // await this.cartQuoteRepository.save(cartQuoteDb);
-    // // await this.quoteDetailRepository.save(newQuoteDetail);
-
-    // return {
-    //   newQuoteDetail,
-    //   cartQuoteDb
-    // };
+    return {
+      newQuoteDetail,
+    };
   };
 
 
