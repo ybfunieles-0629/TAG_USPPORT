@@ -32,6 +32,7 @@ import { SystemConfig } from '../system-configs/entities/system-config.entity';
 import { CategoryTag } from '../category-tag/entities/category-tag.entity';
 import { Company } from 'src/companies/entities/company.entity';
 import { IsHexadecimal } from 'class-validator';
+import { Suscription } from 'src/suscriptions/entities/suscription.entity';
 
 
 @Injectable()
@@ -65,6 +66,9 @@ export class ProductsService {
 
     @InjectRepository(Image)
     private readonly imageRepository: Repository<Image>,
+
+     @InjectRepository(Suscription)
+    private readonly suscriptionRepository: Repository<Suscription>,
 
     @InjectRepository(MarkingServiceProperty)
     private readonly markingServicePropertyRepository: Repository<MarkingServiceProperty>,
@@ -3066,19 +3070,21 @@ export class ProductsService {
       productDescription
     } = requireProductDto;
 
+    let suscriptores: any[] = [];
     let image: string;
 
     if (tipo == 1) {
 
-      
+      let suscriptoresData = await this.suscriptionRepository.find();
+
+      for (const emails of suscriptoresData) {
+        suscriptores.push(emails.email)
+      }
 
       if (file != undefined || file != null) {
         const uniqueFilename = `request-${uuidv4()}-${file.originalname}`;
-
         file.originalname = uniqueFilename;
-
         const imageUrl = await this.uploadToAws(file);
-
         image = imageUrl;
       };
 
@@ -3102,8 +3108,8 @@ export class ProductsService {
 
         await transporter.sendMail({
           from: this.emailSenderConfig.transport.from,
-          to: ['zoomm.yeison@gmail.com'],
-          subject: 'Solicitud de producto',
+          to: suscriptores,
+          subject: 'Nuevas Ofertas y Descuentos Esperan por Ti en E-Bulky',
           html:
             `
             <div class= "container" style="width: 100 %; background- color: #f1f3f5;padding: 5em 0">
@@ -3127,7 +3133,7 @@ export class ProductsService {
                               <div class="contenido" style = "padding:0.7em 2em" >
                                 <h1>Bienvenido / a! </h1>
                                 
-                                  <p style="color: #0a54f2;">Hola ${email},</p>
+                                  <p style="color: #0a54f2;">Hola!</p>
                                     <p>Te damos una cálida bienvenida a nuestra familia E-Bulky. Estamos encantados de tenerte con nosotros y estamos comprometidos a mejorar cada día para ofrecerte lo que necesitas.</p>
                                     <p>¡Descubre nuestro nuevo portafolio de productos, promociones exclusivas, descuentos irresistibles y muchos otros servicios diseñados para ti!</p>
                                     

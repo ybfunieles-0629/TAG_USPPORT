@@ -18,6 +18,7 @@ import { LocalTransportPricesModule } from '../local-transport-prices/local-tran
 import { DisccountModule } from '../disccount/disccount.module';
 import { CategoryTagModule } from '../category-tag/category-tag.module';
 import { CompaniesModule } from 'src/companies/companies.module';
+import { SuscriptionsModule } from 'src/suscriptions/suscriptions.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { CompaniesModule } from 'src/companies/companies.module';
     UsersModule,
     CompaniesModule,
     VariantReferenceModule,
+    SuscriptionsModule,
     TypeOrmModule.forFeature([Product])
   ],
   controllers: [ProductsController],
