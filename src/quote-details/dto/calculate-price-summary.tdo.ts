@@ -16,6 +16,10 @@ export class CalculateSummaryDto {
 
 
     @IsInt()
+    unitPriceCantidad: number; 
+
+
+    @IsInt()
     @IsOptional()
     totalCostoProduccion: number;
 

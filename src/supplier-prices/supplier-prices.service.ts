@@ -171,6 +171,10 @@ export class SupplierPricesService {
 
 
   async create(createSupplierPriceDto: CreateSupplierPriceDto) {
+
+    console.log(createSupplierPriceDto)
+    const ListSupplierPrice: SupplierPrice[] = [];
+
     const newSupplierPrice = plainToClass(SupplierPrice, createSupplierPriceDto);
 
     const supplier = await this.supplierRepository.findOne({
@@ -185,50 +189,128 @@ export class SupplierPricesService {
     if (!supplier.isActive)
       throw new NotFoundException(`Supplier with id ${createSupplierPriceDto.supplier} is currently inactive`);
 
-    const product = await this.productRepository.findOne({
-      where: {
-        id: createSupplierPriceDto.product,
-      },
-    });
 
-    if (!product)
-      throw new NotFoundException(`Product with id ${createSupplierPriceDto.product} not found`);
 
-    if (!product.isActive)
-      throw new NotFoundException(`Product with id ${createSupplierPriceDto.product} is currently inactive`);
 
-    const listPrices: ListPrice[] = [];
+    console.log(createSupplierPriceDto.allProducts)
 
-    if (createSupplierPriceDto.listPrices) {
-      for (const listPriceId of createSupplierPriceDto.listPrices) {
-        const listPrice = await this.listPriceRepository.findOne({
-          where: {
-            id: listPriceId,
-          },
-        });
+    if (createSupplierPriceDto.allProducts) {
 
-        if (!listPrice)
-          throw new NotFoundException(`List price with id ${listPriceId} not found`);
-
-        if (!listPrice.isActive)
-          throw new NotFoundException(`List price with id ${listPriceId} is currently inactive`);
-
-        listPrices.push(listPrice);
+      // Encuentra el RefProduct correspondiente al ID
+      const refProduct = await this.refproductRepository.findOne({ where: { id: createSupplierPriceDto.refProduct } });
+      if (!refProduct) {
+        throw new Error('No se encontró un producto de referencia con el ID proporcionado');
       }
 
-      newSupplierPrice.listPrices = listPrices;
+      console.log(refProduct)
+
+      const refProducts = await this.productRepository.find({
+        where: {
+          refProduct: {
+            id: refProduct.id,
+          },
+        },
+      });
+
+      if (!refProducts)
+        throw new NotFoundException(`Product with id ${createSupplierPriceDto.product} not found`);
+
+      console.log(refProducts.length)
+      console.log(refProducts)
+
+
+
+
+      for (const item of refProducts) {
+
+        const listPrices: ListPrice[] = [];
+
+        if (createSupplierPriceDto.listPrices) {
+
+          for (const listPriceId of createSupplierPriceDto.listPrices) {
+            const listPrice = await this.listPriceRepository.findOne({
+              where: {
+                id: listPriceId,
+              },
+            });
+
+            if (!listPrice)
+              throw new NotFoundException(`List price with id ${listPriceId} not found`);
+
+            if (!listPrice.isActive)
+              throw new NotFoundException(`List price with id ${listPriceId} is currently inactive`);
+
+            listPrices.push(listPrice);
+          }
+
+          newSupplierPrice.listPrices = listPrices;
+        }
+
+        newSupplierPrice.supplier = supplier;
+        newSupplierPrice.product = item;
+
+        console.log(newSupplierPrice)
+        const listPricesCreate = await this.supplierPriceRepository.save(newSupplierPrice);
+        ListSupplierPrice.push(listPricesCreate);
+      }
+    } else {
+
+      const product = await this.productRepository.findOne({
+        where: {
+          id: createSupplierPriceDto.product,
+        },
+      });
+
+      if (!product)
+        throw new NotFoundException(`Product with id ${createSupplierPriceDto.product} not found`);
+
+      if (!product.isActive)
+        throw new NotFoundException(`Product with id ${createSupplierPriceDto.product} is currently inactive`);
+
+      const listPrices: ListPrice[] = [];
+
+      if (createSupplierPriceDto.listPrices) {
+        for (const listPriceId of createSupplierPriceDto.listPrices) {
+          const listPrice = await this.listPriceRepository.findOne({
+            where: {
+              id: listPriceId,
+            },
+          });
+
+          if (!listPrice)
+            throw new NotFoundException(`List price with id ${listPriceId} not found`);
+
+          if (!listPrice.isActive)
+            throw new NotFoundException(`List price with id ${listPriceId} is currently inactive`);
+
+          listPrices.push(listPrice);
+        }
+
+        newSupplierPrice.listPrices = listPrices;
+      }
+
+      newSupplierPrice.supplier = supplier;
+      newSupplierPrice.product = product;
+
+      const PricesCreate = await this.supplierPriceRepository.save(newSupplierPrice);
+      ListSupplierPrice.push(PricesCreate);
     }
 
-    newSupplierPrice.supplier = supplier;
-    newSupplierPrice.product = product;
-
-    await this.supplierPriceRepository.save(newSupplierPrice);
-
     return {
-      newSupplierPrice
+      ListSupplierPrice
     };
   }
 
+
+
+
+
+
+
+
+
+
+  
   async findAll(paginationDto: PaginationDto, user: User) {
     const count: number = await this.supplierPriceRepository.count();
 

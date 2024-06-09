@@ -3363,6 +3363,20 @@ export class QuoteDetailsService {
   // REUMEN DEL PRODUCTS HOME 
 
   async productSummary(calculateSummaryDto: CalculateSummaryDto, user: User) {
+
+
+    let dataReturn = {
+      valorUnitario: calculateSummaryDto.unitPriceCantidad, // Listo
+      valorUnitarioTotal: calculateSummaryDto.unitPrice, // Listo
+      valorTotal: calculateSummaryDto.unitPrice, // Listo
+      valorMarcacion: 0, // Listo
+      valorTransporte: 0,
+      valorMuestra: 0, // Listo
+      valorMuestraTransporte: 0, // Listo
+      valorTotalMuestra: 0, // Listo
+      valorTotalAdicionales: 0,
+    }
+
     const hasSample: boolean = calculateSummaryDto.hasSample;
 
     delete (calculateSummaryDto.hasSample);
@@ -3377,11 +3391,13 @@ export class QuoteDetailsService {
       },
       relations: [
         'client',
+        'client.user',
         'company',
         'brands',
       ],
     });
 
+    console.log(ClientCartQuote)
     let condigoPostalCliente = ClientCartQuote?.company?.postalCode;
 
     if (!ClientCartQuote)
@@ -3520,9 +3536,9 @@ export class QuoteDetailsService {
 
       //* CALCULAR EL PRECIO DE LA MUESTRA
 
-      newQuoteDetail.hasSample = true;
+      // newQuoteDetail.hasSample = true;
       const productHasFreeSample: boolean = product?.freeSample == 1 ? true : false;
-      newQuoteDetail.sampleValue = 0;
+      // newQuoteDetail.sampleValue = 0;
 
       if (!productHasFreeSample) {
         const samplePrice: number = product?.samplePrice || 0;
@@ -3573,7 +3589,7 @@ export class QuoteDetailsService {
         console.log(TransporteMuestra);
 
         // SUMA CONTONIA DEL TRANSPORTE TOTAL
-        newQuoteDetail.sampleTransportValue = TransporteMuestra;
+        // newQuoteDetail.sampleTransportValue = TransporteMuestra;
 
         // TOTAL GASTOS MUESTRA === VARIABLE GLOBAL
         TotalGastoMuestra = TotalMuestra + TransporteMuestra;
@@ -3581,7 +3597,7 @@ export class QuoteDetailsService {
 
         // CUATRO POR MIL MUESTRA 
         CuatroPorMilMuestra = TotalGastoMuestra * 0.004 || 0;
-        newQuoteDetail.transportServices4x1000 = CuatroPorMilMuestra;
+        // newQuoteDetail.transportServices4x1000 = CuatroPorMilMuestra;
         console.log(CuatroPorMilMuestra)
 
 
@@ -3590,7 +3606,11 @@ export class QuoteDetailsService {
         console.log(CostoTotalMuestra)
 
         // totalPrice += samplePrice;
-        newQuoteDetail.sampleValue = CostoTotalMuestra;
+        // newQuoteDetail.sampleValue = CostoTotalMuestra;
+
+        dataReturn.valorMuestra += ValorMuestraIndividual;
+        dataReturn.valorMuestraTransporte += TransporteMuestra;
+        dataReturn.valorTotalMuestra += CostoTotalMuestra;
 
       };
     } else {
@@ -3612,10 +3632,13 @@ export class QuoteDetailsService {
     //* CALCULAR EL VOLUMEN DEL PRODUCTO
     productVolume = (product?.height * product?.weight * product?.large) || 0;
 
+    console.log(ClientCartQuote)
     //* DATOS DEL CLIENTE
     const cartQuoteClient: Client = ClientCartQuote?.client;
-    const clientUser: User = ClientCartQuote?.client?.user;
+    const clientUser: User = ClientCartQuote?.client.user;
     let clientType: string = '';
+
+    console.log(clientUser)
 
     //* PRECIO ESCOGIDO EN EL DETALLE DEL PRODUCTO ANTES DEL CARRITO
     const burnQuantity: number = newQuoteDetail?.unitPrice || 0;
@@ -3715,7 +3738,7 @@ export class QuoteDetailsService {
 
     // valorTransporteMarcacionx = (data)
     console.log(ValorTotalMarcacion)
-
+    dataReturn.valorMarcacion += ValorTotalMarcacion; 
 
     // COTO TRANSPORTE MARCACIÓN ==== VARIABLE GLOBAL 
     valorTransporteMarcacionx = markingTransportPrice;
@@ -3727,8 +3750,8 @@ export class QuoteDetailsService {
     SubTotalCostoMarcacion = Math.round(SubTotalCostoMarcacion)
     console.log(SubTotalCostoMarcacion)
 
-    newQuoteDetail.markingTotalPrice = SubTotalCostoMarcacion;
-    newQuoteDetail.markingWithProductSupplierTransport = valorTransporteMarcacionx;
+    // newQuoteDetail.markingTotalPrice = SubTotalCostoMarcacion;
+    // newQuoteDetail.markingWithProductSupplierTransport = valorTransporteMarcacionx;
 
 
     //* CALCULAR EL IVA
@@ -3823,6 +3846,7 @@ export class QuoteDetailsService {
 
 
     // DEFINIR EL TIPO DE CLIENTE QUE ES EL CLIENTE
+    console.log(clientUser)
     if (clientUser) {
       if (clientUser.isCoorporative == 1 && clientUser.mainSecondaryUser == 1)
         clientType = 'cliente corporativo secundario';
@@ -3912,6 +3936,7 @@ export class QuoteDetailsService {
 
     //* SI EL CLIENTE ES PRINCIPAL
     if (clientType == 'cliente corporativo principal') {
+      console.log(cartQuoteClient)
       const margin: number = cartQuoteClient.margin || 0;
       marginProfit = margin;
       const paymentTerms: number = cartQuoteClient.paymentTerms || 0;
@@ -3924,8 +3949,12 @@ export class QuoteDetailsService {
       paymentDays.forEach(paymentDay => {
         if (paymentDay.day == paymentTerms) {
           percentageDiscount = paymentDay.percentage;
+
+          console.log(paymentDay)
         };
       });
+
+      console.log(percentageDiscount)
 
       MargenPorFinanciacion = percentageDiscount;
 
@@ -4129,7 +4158,8 @@ export class QuoteDetailsService {
     const TotalPrecioTransporteDeEntrega = SubTotalTransporte + FeeTransporteTotalCalculado;
     console.log(TotalPrecioTransporteDeEntrega)
 
-    newQuoteDetail.transportTotalPrice = TotalPrecioTransporteDeEntrega;
+    dataReturn.valorTransporte += TotalPrecioTransporteDeEntrega;
+    // newQuoteDetail.transportTotalPrice = TotalPrecioTransporteDeEntrega;
 
 
 
@@ -4274,125 +4304,10 @@ export class QuoteDetailsService {
 
     // TERCERA PARTE DEL CALCULO RENTABILIDAD FINAL ================================================================>
 
-
     // TOTAL INGRESOS ANTES DE IVA
     const TotalIngresosAntesDeIva = newQuoteDetail?.unitPrice + SubTotalFees;
     console.log(TotalIngresosAntesDeIva)
 
-
-    // console.log(DiasPagoClienteCorporativo)
-    // // Dias de pago del cliente 
-
-    // const C23 = createQuoteDetailDto.totalCostoProduccion; // Ttoal costo producción
-    // // const C16 = marginProfit / 100; // 20% Financiacion cliente
-    // const C16 = systemConfig.supplierFinancingPercentage / 100; // 20% Financiacion cliente
-    // const F62 = DiasPagoClienteCorporativo; // Dias de pago
-    // const C49 = TotalGastosAdicionales; // Gastos adicionales
-
-    // let resultadoCostoFnanciarion = (C23 * (C16 / 30) * (F62 + 15)) + (C49 * (C16 / 30) * (F62 + 15));
-    // resultadoCostoFnanciarion = Math.round(resultadoCostoFnanciarion);
-    // console.log(resultadoCostoFnanciarion)
-
-    // // hasta aqui todo bien
-
-
-
-
-    // // FEE REGISTRADO EN EL CARRITO == FEE SELECCIONADO AL INICIAR SESION
-    // const Fee = feeMarcaCliente || 0;
-    // const ResultFee = TotalIngresosAntesDeIva * Fee / 100;
-    // console.log(Fee)
-
-    // // RESULTADO PORCEENTAJE FEE 
-    // let porcentajeFee = (Fee / 100) * TotalIngresosAntesDeIva;
-    // porcentajeFee = Math.round(porcentajeFee);
-    // console.log(porcentajeFee)
-
-    // // TOTAL GASTOS ANTES DE IVA === VARIABEL GOBAL 
-    // const TotalGastoAntesDeIva = SubTotal + createQuoteDetailDto.totalCostoProduccionSinIva + resultadoCostoFnanciarion + ResultFee;
-    // console.log(TotalGastoAntesDeIva)
-
-
-    // // UTILIDAD DE VENTAS == VARIABLE GLOBAL 
-    // const UtilidadDeVentas = TotalIngresosAntesDeIva - TotalGastoAntesDeIva;
-    // console.log(UtilidadDeVentas)
-
-
-    // // % UTILIDAD DE VENTAS ROI == VARIABLE GLOBAL 
-    // const UtilidadDeVentasROI = (UtilidadDeVentas / TotalGastoAntesDeIva) * 100;
-    // const ProcentajeUtilidadDeVentasROI = parseFloat(UtilidadDeVentasROI.toFixed(2));
-
-    // console.log(ProcentajeUtilidadDeVentasROI)
-
-    // // RETENCIONES === VARIABLE GLOBAL 
-    // let ValueRetenciones = systemConfig.withholdingAtSource / 100;
-    // console.log(ValueRetenciones)
-    // console.log(TotalIngresosAntesDeIva)
-    // let Retenciones = (TotalIngresosAntesDeIva * ValueRetenciones);
-    // Retenciones = Math.round(Retenciones);
-    // console.log(Retenciones)
-
-    // newQuoteDetail.withholdingAtSourceValue = Retenciones;
-
-
-
-
-
-
-    // // UTILIDAD COMERCIALES
-
-    // //UTILIDAD - LIQUIDEZ FINAL
-    // console.log(TotalIngresosAntesDeIva)
-    // console.log(TotalGastoAntesDeIva)
-    // console.log(Retenciones)
-    // const UtilidadLiquidezFinal = TotalIngresosAntesDeIva - TotalGastoAntesDeIva - Retenciones
-    // console.log(UtilidadLiquidezFinal);
-
-
-    // // % UTILIDAD ROI - LIQUIDEZ FINAL
-    // let PorcentajeUtilidadRoi_LiquidezFinal = (UtilidadLiquidezFinal / TotalGastoAntesDeIva) * 100;
-    // PorcentajeUtilidadRoi_LiquidezFinal = Math.round(PorcentajeUtilidadRoi_LiquidezFinal * 100) / 100;
-    // console.log(PorcentajeUtilidadRoi_LiquidezFinal);
-
-
-
-    // // RATIO UTILIDAD MENSUAL
-    // let RatiosUtilidadMensual = (PorcentajeUtilidadRoi_LiquidezFinal / DiasPagoClienteCorporativo) * 30;
-    // // RatiosUtilidadMensual = Math.round(RatiosUtilidadMensual * 100 ) / 100;
-    // console.log(RatiosUtilidadMensual);
-
-
-
-
-    // // RENTABILIDAD MINIMA ESPERADA
-
-    // let F622 = DiasPagoClienteCorporativo;
-    // let C566 = 0.04; // 4.0% en formato decimal
-    // let C54 = 0.08; // 8.0% en formato decimal
-
-    // // Comprueba si F622 es mayor que 30
-    // let RentabiliadMinima =
-    //   F622 > 30 ? (C566 / 30) * F622 : (C54 / 30) * F622;
-
-    // // Formatea el resultado como porcentaje
-    // let RentabiliadMinimaEsperada = parseFloat((RentabiliadMinima * 100).toFixed(2));
-    // console.log(RentabiliadMinimaEsperada);
-    // newQuoteDetail.profitability = RentabiliadMinimaEsperada;
-
-    // console.log()
-
-    // // DESCUENTO SUGERIDO AL COMERCIAL
-    // const F72 = UtilidadLiquidezFinal;
-    // const C60 = TotalGastoAntesDeIva;
-    // const F69 = Retenciones;
-    // const F76 = RentabiliadMinimaEsperada / 100; // Convertir el porcentaje a decimal (4%)
-    // const F60 = TotalIngresosAntesDeIva;
-
-    // const resultadoDescuentoSgerido = ((F72 - ((C60 + F69) * F76)) / F60) * 100; // Calculamos el resultado en porcentaje
-
-    // //TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
-    // newQuoteDetail.maximumDiscount = resultadoDescuentoSgerido;
-    // console.log(resultadoDescuentoSgerido)
 
 
     // // VALORES FINALES DE VENTA ========================
@@ -4410,9 +4325,14 @@ export class QuoteDetailsService {
     TotalVenta = Math.round(TotalVenta);
     console.log(TotalVenta);
 
+    dataReturn.valorTotalAdicionales += dataReturn.valorMarcacion + dataReturn.valorTransporte + dataReturn.valorMuestraTransporte;
+    
+
+    dataReturn.valorTotal = SubTotalFinalesDeIva;
+
 
     return {
-      newQuoteDetail,
+      dataReturn,
     };
   };
 

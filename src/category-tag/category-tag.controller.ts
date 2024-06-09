@@ -17,9 +17,10 @@ export class CategoryTagController {
   @Post('request')
   @UseGuards(AuthGuard())
   requestCategory(
+    @GetUser() user: User,
     @Body() createCategoryTagDto: CreateCategoryTagDto,
   ) {
-    return this.categoryTagService.requestCategory(createCategoryTagDto);
+    return this.categoryTagService.requestCategory(createCategoryTagDto, user);
   }
 
   @Post('send-message')

@@ -28,7 +28,9 @@ export class CategoryTagService {
     @Inject('EMAIL_CONFIG') private emailSenderConfig,
   ) { }
 
-  async requestCategory(createCategoryTagDto: CreateCategoryTagDto) {
+  async requestCategory(createCategoryTagDto: CreateCategoryTagDto, user: User) {
+
+    console.log(user)
     try {
       const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -40,13 +42,50 @@ export class CategoryTagService {
 
       await transporter.sendMail({
         from: this.emailSenderConfig.transport.from,
-        to: ['puertodaniela586@gmail.com', 'locarr785@gmail.com', 'yeison.descargas@gmail.com'],
+        to: ['puertodaniela586@gmail.com', 'locarr785@gmail.com', 'zoomm.yeison.@gmail.com'],
         subject: 'Solicitud de categoría Tag',
         html: `
-          Nombre de la categoría: ${createCategoryTagDto.name} <br />
-          Categoría TAG padre: ${createCategoryTagDto.parentCategory} <br />
-          Descripción: ${createCategoryTagDto.description} <br />
-        `,
+                      <div class="container" style="
+                        width: 100%;
+                        background-color: #f1f3f5;
+                        padding:5em 0">
+                        <nav style="width: 100%; height: 6em; background-color: #0a54f2"></nav>
+                        <div class="container" style="
+                          background-color: white;
+                          width: 80%;
+                          border-radius: 5px;
+                          position: relative;
+                          top: -50px;
+                          margin: auto;
+                          display: flex;
+                            justify-content: start;
+                            padding: 3em 3em ;
+                            flex-direction: column;
+                            align-items: center;
+                        ">
+                            <div class="logo">
+                                <img style="width:50%; margin: 2em"  src="https://tag-web-16776.web.app/assets/icon/logo.png" alt="" />
+                            </div>
+                            <hr>
+                            <div class="contenido" style="padding:0.7em 2em">
+                            <h1>SOLICITUD DE NUEVA CATEGORIA</h1>
+                            <p>¡Hola E-Bulky!</p>
+                            <p>El proveedor ${user.name}, ha realizado una solicitud de una nueva categoria, con la siguiente información</p>
+                            </br>
+                            <h3>Información de la Categoria Solicitada</h3>
+                            <p>Nombre de la categoría: ${createCategoryTagDto.name}</p>
+                            <p>Categoría TAG padre: ${createCategoryTagDto.parentCategory}</p>
+                            <p>Descripción: ${createCategoryTagDto.description}</p><br>
+                            <h3>Información del solicitante</h3>
+                            <p>Nombre: ${user.name}</p>
+                            <p>Email: ${user.email}</p>
+                            <p>Telefono: ${user.phone}</p>
+                            <p>Compañia: ${user?.company?.name}</p>
+                            <p>Tipo de compañia: ${user?.company?.companyType}</p>
+                            </div>
+                        </div>
+                    </div>
+                `,
       });
 
       return {
