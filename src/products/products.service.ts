@@ -3056,7 +3056,7 @@ export class ProductsService {
     };
   }
 
-  async requireProduct(requireProductDto: RequireProductDto, file: Express.Multer.File) {
+  async requireProduct(requireProductDto: RequireProductDto, file: Express.Multer.File, tipo=0) {
     const {
       name,
       email,
@@ -3067,6 +3067,107 @@ export class ProductsService {
     } = requireProductDto;
 
     let image: string;
+
+    if (tipo == 1) {
+
+      
+
+      if (file != undefined || file != null) {
+        const uniqueFilename = `request-${uuidv4()}-${file.originalname}`;
+
+        file.originalname = uniqueFilename;
+
+        const imageUrl = await this.uploadToAws(file);
+
+        image = imageUrl;
+      };
+
+      try {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD,
+          },
+        });
+
+        const attachments = [];
+        if (image) {
+          attachments.push({
+            filename: file.originalname,
+            path: image,
+            cid: image
+          });
+        }
+
+        await transporter.sendMail({
+          from: this.emailSenderConfig.transport.from,
+          to: ['zoomm.yeison@gmail.com'],
+          subject: 'Solicitud de producto',
+          html:
+            `
+            <div class= "container" style="width: 100 %; background- color: #f1f3f5;padding: 5em 0">
+                  <nav style = "width: 100%; height: 6em; background-color: #0a54f2" > </nav>
+                    <div class="container" style = "
+                          background - color: white;
+                          width: 80 %;
+                          border - radius: 5px;
+                          position: relative;
+                          top: -50px;
+                          margin: auto;
+                          display: flex;
+                          justify - content: start;
+                          padding: 3em 3em;
+                          flex - direction: column;
+                          align - items: center;
+                          ">
+                          <div class="logo" style = "margin-right:1em" >
+                            <img style="width:80%; margin: 2em"  src = "https://tag-web-16776.web.app/assets/icon/logo.png" alt = "" />
+                              <hr>
+                              <div class="contenido" style = "padding:0.7em 2em" >
+                                <h1>Bienvenido / a! </h1>
+                                
+                                  <p style="color: #0a54f2;">Hola ${email},</p>
+                                    <p>Te damos una cálida bienvenida a nuestra familia E-Bulky. Estamos encantados de tenerte con nosotros y estamos comprometidos a mejorar cada día para ofrecerte lo que necesitas.</p>
+                                    <p>¡Descubre nuestro nuevo portafolio de productos, promociones exclusivas, descuentos irresistibles y muchos otros servicios diseñados para ti!</p>
+                                    
+                                    <h2>Nuestras Ofertas Exclusivas:</h2>
+                                    <ul>
+                                        <li>Descuentos de hasta el 50% en productos seleccionados.</li>
+                                        <li>Promociones de temporada.</li>
+                                        <li>Nuevas llegadas cada semana.</li>
+                                    </ul>
+                                    
+                                    <p>No te pierdas estas increíbles oportunidades. ¡Regístrate ahora en nuestra plataforma para acceder a estas ofertas y más!</p>
+
+                                    <a style = "padding: .7em 2em; background: #0a54f2; color:white" target = "_black" href="https://e-bulky.com/" class="button">Regístrate en E-Bulky</a>
+                                    
+                                    <p>Gracias por elegirnos. Estamos aquí para hacer tu experiencia de compra más fácil y gratificante.</p>
+
+                                    <p>Saludos cordiales,<br>El equipo de E-Bulky</p>
+
+                                    <p>P.S. Abajo encontrarás nuestro portafolio en formato PDF. ¡No te lo pierdas!</p>
+                                    
+                                </br>
+                                </br>
+                                </br>
+
+                                <p> Ingresa al boton de abajo y deja tu comentario si deseas cancelar tu suscripción, !Gracias¡</p>
+                                </br>
+                                <a style = "padding: .7em 2em; background: #0a54f2; color:white" target = "_black" href="http://localhost:4200/app/home/unsubscribe?dataUser=6">!Cancelar suscripción!</a>
+                              </div>
+                          </div>
+                      </div>
+              </div>
+        `,
+          attachments: attachments
+        });
+      } catch (error) {
+        console.log('Failed to send the product request email', error);
+        throw new InternalServerErrorException(`Internal server error`);
+      }
+
+    }
 
     if (file != undefined || file != null) {
       const uniqueFilename = `request-${uuidv4()}-${file.originalname}`;
@@ -3090,7 +3191,7 @@ export class ProductsService {
       const attachments = [];
       if (image) {
         attachments.push({
-          filename: 'image.png',
+          filename: 'producto.png',
           path: image,
           cid: image
         });

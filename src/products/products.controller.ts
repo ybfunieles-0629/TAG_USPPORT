@@ -48,13 +48,14 @@ export class ProductsController {
   }
 
   @Post('require/product')
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
   @UseInterceptors(FileInterceptor('image'))
   requireProduct(
     @Body() requireProductDto: RequireProductDto,
     @UploadedFile() file: Express.Multer.File,
+    @Query('tipo') tipo: number,
   ) {
-    return this.productsService.requireProduct(requireProductDto, file);
+    return this.productsService.requireProduct(requireProductDto, file, tipo);
   }
 
   @Get()

@@ -49,6 +49,7 @@ export class CreateProductDto {
   @IsString()
   updateReason?: string;
 
+  @IsOptional()
   @IsInt()
   availableUnit?: number;
 
