@@ -3173,9 +3173,8 @@ export class ProductsService {
         throw new InternalServerErrorException(`Internal server error`);
       }
 
-    }
-
-    if (file != undefined || file != null) {
+    } else {
+        if (file != undefined || file != null) {
       const uniqueFilename = `request-${uuidv4()}-${file.originalname}`;
 
       file.originalname = uniqueFilename;
@@ -3249,6 +3248,9 @@ export class ProductsService {
       console.log('Failed to send the product request email', error);
       throw new InternalServerErrorException(`Internal server error`);
     }
+    }
+
+  
   };
 
   async desactivate(id: string) {

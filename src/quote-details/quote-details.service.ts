@@ -3608,9 +3608,9 @@ export class QuoteDetailsService {
         // totalPrice += samplePrice;
         // newQuoteDetail.sampleValue = CostoTotalMuestra;
 
-        dataReturn.valorMuestra += ValorMuestraIndividual;
-        dataReturn.valorMuestraTransporte += TransporteMuestra;
-        dataReturn.valorTotalMuestra += CostoTotalMuestra;
+        dataReturn.valorMuestra = ValorMuestraIndividual;
+        dataReturn.valorMuestraTransporte = TransporteMuestra;
+        dataReturn.valorTotalMuestra = CostoTotalMuestra;
 
       };
     } else {
@@ -3738,7 +3738,7 @@ export class QuoteDetailsService {
 
     // valorTransporteMarcacionx = (data)
     console.log(ValorTotalMarcacion)
-    dataReturn.valorMarcacion += ValorTotalMarcacion; 
+    dataReturn.valorMarcacion = ValorTotalMarcacion; 
 
     // COTO TRANSPORTE MARCACIÓN ==== VARIABLE GLOBAL 
     valorTransporteMarcacionx = markingTransportPrice;
@@ -4158,7 +4158,7 @@ export class QuoteDetailsService {
     const TotalPrecioTransporteDeEntrega = SubTotalTransporte + FeeTransporteTotalCalculado;
     console.log(TotalPrecioTransporteDeEntrega)
 
-    dataReturn.valorTransporte += TotalPrecioTransporteDeEntrega;
+    dataReturn.valorTransporte = TotalPrecioTransporteDeEntrega;
     // newQuoteDetail.transportTotalPrice = TotalPrecioTransporteDeEntrega;
 
 
@@ -4325,7 +4325,7 @@ export class QuoteDetailsService {
     TotalVenta = Math.round(TotalVenta);
     console.log(TotalVenta);
 
-    dataReturn.valorTotalAdicionales += dataReturn.valorMarcacion + dataReturn.valorTransporte + dataReturn.valorMuestraTransporte;
+    dataReturn.valorTotalAdicionales = dataReturn.valorMarcacion + dataReturn.valorTransporte + dataReturn.valorMuestraTransporte;
     
 
     dataReturn.valorTotal = SubTotalFinalesDeIva;
