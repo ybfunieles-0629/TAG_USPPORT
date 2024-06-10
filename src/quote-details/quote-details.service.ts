@@ -3645,21 +3645,29 @@ export class QuoteDetailsService {
     totalCost += burnQuantity;
 
 
+    let markingTransportPriceValue = 0;
+    console.log(markingServices)
+    console.log(markingServices.length)
+    if (markingServices.length > 0) {
+          //* CALCULA EL COSTO DE TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL MARCADO
+          const markingClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
+            ? markingTransportPrices.sort((a, b) => {
+              const diffA = Math.abs(a.volume - totalVolume);
+              const diffB = Math.abs(b.volume - totalVolume);
+              return diffA - diffB;
+            })[0]
+            : undefined;
 
-    //* CALCULA EL COSTO DE TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL MARCADO
-    const markingClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
-      ? markingTransportPrices.sort((a, b) => {
-        const diffA = Math.abs(a.volume - totalVolume);
-        const diffB = Math.abs(b.volume - totalVolume);
-        return diffA - diffB;
-      })[0]
-      : undefined;
+          const { origin: markingOrigin, destination: markingDestination, price: markingTransportPrice, volume: markingTransportVolume } = markingClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
 
-    const { origin: markingOrigin, destination: markingDestination, price: markingTransportPrice, volume: markingTransportVolume } = markingClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
+      markingTransportPriceValue = markingTransportPrice;
+      
+    }
+
+    console.log(markingTransportPriceValue)
 
 
     // COSTO SERVICIO DE MARCACIÓN, UN SOLO COSTO POR TODAS LAS MARCACIONES
-    console.log(markingTransportPrice)
 
 
     //* CALCULAR EL COSTO DE TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL CLIENTE
@@ -3673,13 +3681,15 @@ export class QuoteDetailsService {
 
     const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
 
-
-    // Calcular precio transporte al cliente
-    let dataPrecio = await this.calcularPreciosFedex(tokenFedeex, condigoPostalCliente, condigoPostalCliente, boxesQuantity, packing.large, packing.width, packing.height);
-    console.log((typeof dataPrecio))
-
+    
     let CuatroPorMilTransporte = 0;
     let CostoTransporteDeEntrega;
+
+
+    if (markingServices.length > 0 && hasSample) {
+        // Calcular precio transporte al cliente
+    let dataPrecio = await this.calcularPreciosFedex(tokenFedeex, condigoPostalCliente, condigoPostalCliente, boxesQuantity, packing.large, packing.width, packing.height);
+    console.log((typeof dataPrecio))
 
     if (typeof dataPrecio === 'number') {
 
@@ -3691,6 +3701,9 @@ export class QuoteDetailsService {
       console.error('Error: dataPrecio no es de tipo numérico.');
     }
     console.log(CuatroPorMilTransporte);
+    }
+
+  
 
     // COSTO TOTAL TRANSPORTE DE ENTREGA
     const CostoTotalTransporteDeEntrega = CostoTransporteDeEntrega + CuatroPorMilTransporte;
@@ -3741,7 +3754,7 @@ export class QuoteDetailsService {
     dataReturn.valorMarcacion = ValorTotalMarcacion; 
 
     // COTO TRANSPORTE MARCACIÓN ==== VARIABLE GLOBAL 
-    valorTransporteMarcacionx = markingTransportPrice;
+    valorTransporteMarcacionx = markingTransportPriceValue;
     console.log(valorTransporteMarcacionx)
 
 
@@ -3776,7 +3789,7 @@ export class QuoteDetailsService {
     CostoTotalMarcacion = Math.round(CostoTotalMarcacion)
     console.log(CostoTotalMarcacion)
 
-
+        console.log()
 
     // SUBTOTAL
     TransporteMuestra = Math.round(TransporteMuestra);
@@ -4158,7 +4171,7 @@ export class QuoteDetailsService {
     const TotalPrecioTransporteDeEntrega = SubTotalTransporte + FeeTransporteTotalCalculado;
     console.log(TotalPrecioTransporteDeEntrega)
 
-    dataReturn.valorTransporte = TotalPrecioTransporteDeEntrega;
+    dataReturn.valorTransporte = TotalPrecioTransporteDeEntrega || 0;
     // newQuoteDetail.transportTotalPrice = TotalPrecioTransporteDeEntrega;
 
 
@@ -4325,10 +4338,10 @@ export class QuoteDetailsService {
     TotalVenta = Math.round(TotalVenta);
     console.log(TotalVenta);
 
-    dataReturn.valorTotalAdicionales = dataReturn.valorMarcacion + dataReturn.valorTransporte + dataReturn.valorMuestraTransporte;
+    dataReturn.valorTotalAdicionales = (dataReturn.valorMarcacion + dataReturn.valorTransporte + dataReturn.valorMuestraTransporte) || 0;
     
 
-    dataReturn.valorTotal = SubTotalFinalesDeIva;
+    dataReturn.valorTotal = SubTotalFinalesDeIva || 0;
 
 
     return {
