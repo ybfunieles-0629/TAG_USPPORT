@@ -77,16 +77,6 @@ export class CalculateSummaryDto {
     markingServiceProperty?: string[];
 
 
-    @IsString()
-    @IsUUID()
-    createdBy: string;
-
-
-    @IsOptional()
-    @IsString()
-    @IsUUID()
-    updatedBy?: string;
-
 
 
     @IsOptional()

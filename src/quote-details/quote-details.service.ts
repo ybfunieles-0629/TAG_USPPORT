@@ -618,7 +618,7 @@ export class QuoteDetailsService {
               markingService.markingTransportPrice = markingTransportPrice;
               ValorTotalMarcacion += totalMarking;
 
-              await this.markingServiceRepository.save(markingService); 
+              await this.markingServiceRepository.save(markingService);
             };
           };
         };
@@ -627,7 +627,7 @@ export class QuoteDetailsService {
 
 
     // valorTransporteMarcacionx = (data)
-    console.log(ValorTotalMarcacion) 
+    console.log(ValorTotalMarcacion)
 
 
 
@@ -2632,7 +2632,7 @@ export class QuoteDetailsService {
           console.log(markingServiceProperty)
           for (const markedServicePrice of markingServiceProperty.markedServicePrices) {
             //* VERIFICAR QUE LA CANTIDAD SE ENCUENTRE ENTRE EL RANGO DEL PRECIO SERVICIO MARCADO
-          
+
             if (quantity >= markedServicePrice.minRange && quantity <= markedServicePrice.maxRange) {
 
               console.log(markedServicePrice.unitPrice)
@@ -2646,7 +2646,7 @@ export class QuoteDetailsService {
               markingService.calculatedMarkingPrice = totalMarking;
 
               ValorTotalMarcacion += totalMarking;
-              await this.markingServiceRepository.save(markingService); 
+              await this.markingServiceRepository.save(markingService);
 
             };
           };
@@ -3634,8 +3634,8 @@ export class QuoteDetailsService {
 
     console.log(ClientCartQuote)
     //* DATOS DEL CLIENTE
-    const cartQuoteClient: Client = ClientCartQuote?.client;
-    const clientUser: User = ClientCartQuote?.client.user;
+      const cartQuoteClient: Client = ClientCartQuote?.client || {} as Client;
+      const clientUser: User = ClientCartQuote?.client?.user || {} as User;
     let clientType: string = '';
 
     console.log(clientUser)
@@ -3649,19 +3649,19 @@ export class QuoteDetailsService {
     console.log(markingServices)
     console.log(markingServices.length)
     if (markingServices.length > 0) {
-          //* CALCULA EL COSTO DE TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL MARCADO
-          const markingClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
-            ? markingTransportPrices.sort((a, b) => {
-              const diffA = Math.abs(a.volume - totalVolume);
-              const diffB = Math.abs(b.volume - totalVolume);
-              return diffA - diffB;
-            })[0]
-            : undefined;
+      //* CALCULA EL COSTO DE TRANSPORTE DE LA ENTREGA DEL PRODUCTO AL MARCADO
+      const markingClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
+        ? markingTransportPrices.sort((a, b) => {
+          const diffA = Math.abs(a.volume - totalVolume);
+          const diffB = Math.abs(b.volume - totalVolume);
+          return diffA - diffB;
+        })[0]
+        : undefined;
 
-          const { origin: markingOrigin, destination: markingDestination, price: markingTransportPrice, volume: markingTransportVolume } = markingClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
+      const { origin: markingOrigin, destination: markingDestination, price: markingTransportPrice, volume: markingTransportVolume } = markingClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
 
       markingTransportPriceValue = markingTransportPrice;
-      
+
     }
 
     console.log(markingTransportPriceValue)
@@ -3681,29 +3681,29 @@ export class QuoteDetailsService {
 
     const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
 
-    
+
     let CuatroPorMilTransporte = 0;
     let CostoTransporteDeEntrega;
 
 
-if ((markingServices && markingServices.length > 0) || hasSample) {
-        // Calcular precio transporte al cliente
-    let dataPrecio = await this.calcularPreciosFedex(tokenFedeex, condigoPostalCliente, condigoPostalCliente, boxesQuantity, packing.large, packing.width, packing.height);
-    console.log((typeof dataPrecio))
+    if ((markingServices && markingServices.length > 0) || hasSample) {
+      // Calcular precio transporte al cliente
+      let dataPrecio = await this.calcularPreciosFedex(tokenFedeex, condigoPostalCliente, condigoPostalCliente, boxesQuantity, packing.large, packing.width, packing.height);
+      console.log((typeof dataPrecio))
 
-    if (typeof dataPrecio === 'number') {
+      if (typeof dataPrecio === 'number') {
 
-      // COSTO TRANSPORTE DE ENTREGA
-      CostoTransporteDeEntrega = dataPrecio;
+        // COSTO TRANSPORTE DE ENTREGA
+        CostoTransporteDeEntrega = dataPrecio;
 
-      CuatroPorMilTransporte = dataPrecio * 0.004 || 0;
-    } else {
-      console.error('Error: dataPrecio no es de tipo numérico.');
+        CuatroPorMilTransporte = dataPrecio * 0.004 || 0;
+      } else {
+        console.error('Error: dataPrecio no es de tipo numérico.');
+      }
+      console.log(CuatroPorMilTransporte);
     }
-    console.log(CuatroPorMilTransporte);
-    }
 
-  
+
 
     // COSTO TOTAL TRANSPORTE DE ENTREGA
     const CostoTotalTransporteDeEntrega = CostoTransporteDeEntrega + CuatroPorMilTransporte;
@@ -3723,35 +3723,35 @@ if ((markingServices && markingServices.length > 0) || hasSample) {
     let marking: Marking;
 
     // Preguntamos si es personalizable ?
- 
-        for (const markingService of markingServices) {
-        //   let markingServicePropertyPrice: number = 0;
 
-        //   const markingServiceProperty: MarkingServiceProperty = markingService?.markingServiceProperty;
-        //   console.log(markingServiceProperty)
-          for (const markedServicePrice of markingService.markedServicePrices) {
+    for (const markingService of markingServices) {
+      //   let markingServicePropertyPrice: number = 0;
 
-            // Codigo postal del proveedor de marcación
-              console.log(markedServicePrice)
+      //   const markingServiceProperty: MarkingServiceProperty = markingService?.markingServiceProperty;
+      //   console.log(markingServiceProperty)
+      for (const markedServicePrice of markingService.markedServicePrices) {
 
-            if (quantity >= markedServicePrice.minRange && quantity <= markedServicePrice.maxRange) {
+        // Codigo postal del proveedor de marcación
+        console.log(markedServicePrice)
 
-              let totalMarking: number = (quantity * markedServicePrice.unitPrice);
-              // marking = markingService?.marking;
-              console.log(markedServicePrice.unitPrice)
-              console.log(totalMarking)
+        if (quantity >= markedServicePrice.minRange && quantity <= markedServicePrice.maxRange) {
 
-              ValorTotalMarcacion += totalMarking;
+          let totalMarking: number = (quantity * markedServicePrice.unitPrice);
+          // marking = markingService?.marking;
+          console.log(markedServicePrice.unitPrice)
+          console.log(totalMarking)
 
-            };
-          };
+          ValorTotalMarcacion += totalMarking;
+
         };
-     
+      };
+    };
+
 
 
     // valorTransporteMarcacionx = (data)
     console.log(ValorTotalMarcacion)
-    dataReturn.valorMarcacion = ValorTotalMarcacion; 
+    dataReturn.valorMarcacion = ValorTotalMarcacion;
 
     // COTO TRANSPORTE MARCACIÓN ==== VARIABLE GLOBAL 
     valorTransporteMarcacionx = markingTransportPriceValue;
@@ -3789,7 +3789,7 @@ if ((markingServices && markingServices.length > 0) || hasSample) {
     CostoTotalMarcacion = Math.round(CostoTotalMarcacion)
     console.log(CostoTotalMarcacion)
 
-        console.log()
+    console.log()
 
     // SUBTOTAL
     TransporteMuestra = Math.round(TransporteMuestra);
@@ -4339,7 +4339,7 @@ if ((markingServices && markingServices.length > 0) || hasSample) {
     console.log(TotalVenta);
 
     dataReturn.valorTotalAdicionales = (dataReturn.valorMarcacion + dataReturn.valorTransporte + dataReturn.valorMuestraTransporte) || 0;
-    
+
 
     dataReturn.valorTotal = SubTotalFinalesDeIva || 0;
 
