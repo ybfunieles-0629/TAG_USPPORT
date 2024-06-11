@@ -3686,7 +3686,7 @@ export class QuoteDetailsService {
     let CostoTransporteDeEntrega;
 
 
-    if (markingServices.length > 0 && hasSample) {
+if ((markingServices && markingServices.length > 0) || hasSample) {
         // Calcular precio transporte al cliente
     let dataPrecio = await this.calcularPreciosFedex(tokenFedeex, condigoPostalCliente, condigoPostalCliente, boxesQuantity, packing.large, packing.width, packing.height);
     console.log((typeof dataPrecio))
