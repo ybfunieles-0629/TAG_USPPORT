@@ -3075,7 +3075,7 @@ export class ProductsService {
 
     if (tipo == 1) {
 
-      let suscriptoresData = await this.suscriptionRepository.find();
+      let suscriptoresData = await this.suscriptionRepository.find({ where: { isActive:true } });
 
       for (const emails of suscriptoresData) {
         suscriptores.push(emails.email)
