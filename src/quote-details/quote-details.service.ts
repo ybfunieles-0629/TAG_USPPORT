@@ -3366,8 +3366,8 @@ export class QuoteDetailsService {
 
 
     let dataReturn = {
-      valorUnitario: calculateSummaryDto.unitPriceCantidad, // Listo
-      valorUnitarioTotal: calculateSummaryDto.unitPrice, // Listo
+      valorUnitario: calculateSummaryDto.unitPriceCantidad || 0, // Listo
+      valorUnitarioTotal: calculateSummaryDto.unitPrice || 0, // Listo
       valorTotal: calculateSummaryDto.unitPrice, // Listo
       valorMarcacion: 0, // Listo
       valorTransporte: 0,

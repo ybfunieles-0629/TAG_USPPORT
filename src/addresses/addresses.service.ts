@@ -96,17 +96,28 @@ export class AddressesService {
       ...updateAddressDto
     });
 
+    const addressTotal:any = await this.addressRepository.find({
+      where: {
+        clientUser:address.clientUser
+      },
+    });
+
+    for (const ad of addressTotal) {
+        ad.isPrimary = 0;
+        await this.addressRepository.save(ad);
+    }
+
     if (!address)
       throw new NotFoundException(`Address with id ${id} not found`);
-
     address.updatedBy = user.id;
-
     await this.addressRepository.save(address);
 
     return {
       address
     };
   }
+
+
 
   async desactivate(id: string) {
     const address: Address = await this.addressRepository.findOneBy({ id });

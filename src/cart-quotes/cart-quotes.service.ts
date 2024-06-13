@@ -312,7 +312,7 @@ export class CartQuotesService {
 
 
   async filterByClient(id: string, paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0, isCommercial = 0, isAllowed = 1 } = paginationDto;
+    const { limit = 100000, offset = 0, isCommercial = 0, isAllowed = 1 } = paginationDto;
 
     let count: number = 0;
 
@@ -407,7 +407,6 @@ export class CartQuotesService {
         .leftJoinAndSelect('supplier.disccounts', 'disccounts')
         .leftJoinAndSelect('disccounts.disccounts', 'discounts')
         .leftJoinAndSelect('refProduct.packings', 'refPackings')
-        .take(limit)
         .skip(offset)
         .getMany();
     }

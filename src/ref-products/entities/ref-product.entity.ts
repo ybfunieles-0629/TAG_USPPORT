@@ -137,6 +137,16 @@ export class RefProduct {
   })
   isActive: boolean;
 
+
+  
+  @Column('varchar', {
+
+  })
+  medidas: string;
+
+
+
+  
   @Column('varchar', {
 
   })
