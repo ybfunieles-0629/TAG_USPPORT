@@ -359,14 +359,14 @@ export class CategoryTagService {
   private async uploadToAws(file: Express.Multer.File) {
     AWS.config.update({
       accessKeyId: 'AKIAT4TACBZFK2MS62VU',
-      secretAccessKey: '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',
-      region: 'us-east-2',
+      secretAccessKey: 'BOacc1jqMqzXRQtbEG41lsncSbt8Gtn4vh1d5S7I',
+      region: 'us-east-1',
     });
 
     const s3 = new AWS.S3();
 
     const params = {
-      Bucket: 'tag-support-storage',
+      Bucket: 'tag-support-document',
       Key: file.originalname,
       Body: file.buffer,
     }
