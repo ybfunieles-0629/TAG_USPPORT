@@ -618,7 +618,7 @@ export class QuoteDetailsService {
               markingService.markingTransportPrice = markingTransportPrice;
               ValorTotalMarcacion += totalMarking;
 
-              // await this.markingServiceRepository.save(markingService);
+              await this.markingServiceRepository.save(markingService);
             };
           };
         };
@@ -1389,8 +1389,8 @@ export class QuoteDetailsService {
 
     //* TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
 
-    // await this.cartQuoteRepository.save(cartQuoteDb);
-    // await this.quoteDetailRepository.save(newQuoteDetail);
+    await this.cartQuoteRepository.save(cartQuoteDb);
+    await this.quoteDetailRepository.save(newQuoteDetail);
 
     return {
       newQuoteDetail,
