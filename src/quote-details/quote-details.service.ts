@@ -424,42 +424,42 @@ export class QuoteDetailsService {
         console.log(TotalMuestra)
 
 
-        // Transporte de la Muestra
-        // if (newQuoteDetail?.cartQuote?.destinationCity?.toLowerCase() == 'bogota') {
-        //   const clientClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
-        //     ? markingTransportPrices.sort((a, b) => {
-        //       const diffA = Math.abs(a.volume - totalVolume);
-        //       const diffB = Math.abs(b.volume - totalVolume);
-        //       return diffA - diffB;
-        //     })[0]
-        //     : undefined;
+        //Transporte de la Muestra
+        if (newQuoteDetail?.cartQuote?.destinationCity?.toLowerCase() == 'bogota') {
+          const clientClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
+            ? markingTransportPrices.sort((a, b) => {
+              const diffA = Math.abs(a.volume - totalVolume);
+              const diffB = Math.abs(b.volume - totalVolume);
+              return diffA - diffB;
+            })[0]
+            : undefined;
 
-        //   const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
+          const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
 
-        //   totalPrice += clientTransportPrice;
+          totalPrice += clientTransportPrice;
 
-        //   // newQuoteDetail.transportTotalPrice = 0;
-        //   // newQuoteDetail.transportTotalPrice += clientTransportPrice || 0;
-        //   // newQuoteDetail.sampleValue += clientTransportPrice || 0;
+          // newQuoteDetail.transportTotalPrice = 0;
+          // newQuoteDetail.transportTotalPrice += clientTransportPrice || 0;
+          // newQuoteDetail.sampleValue += clientTransportPrice || 0;
 
-        //   TransporteMuestra = clientTransportPrice;
+          TransporteMuestra = clientTransportPrice;
 
-        // } else {
+        } 
         //TODO: FEDEX
 
         // newQuoteDetail.transportTotalPrice += TransporteMuestra;
 
 
         // Calcular precio transporte al cliente
-        let dataPrecio = await this.calcularPreciosFedex(tokenFedeex, condigoPostalCliente, condigoPostalCliente, boxesQuantity, packing.large, packing.width, packing.height);
+        // let dataPrecio = await this.calcularPreciosFedex(tokenFedeex, condigoPostalCliente, condigoPostalCliente, boxesQuantity, packing.large, packing.width, packing.height);
 
-        if (typeof dataPrecio === 'number') {
-          // COSTO TRANSPORTE DE ENTREGA
-          TransporteMuestra = dataPrecio;
-        } else {
-          console.error('Error: dataPrecio no es de tipo numérico.');
-        }
-        console.log(TransporteMuestra);
+        // if (typeof dataPrecio === 'number') {
+        //   // COSTO TRANSPORTE DE ENTREGA
+        //   TransporteMuestra = dataPrecio;
+        // } else {
+        //   console.error('Error: dataPrecio no es de tipo numérico.');
+        // }
+        // console.log(TransporteMuestra);
 
 
         // }
@@ -618,7 +618,7 @@ export class QuoteDetailsService {
               markingService.markingTransportPrice = markingTransportPrice;
               ValorTotalMarcacion += totalMarking;
 
-              await this.markingServiceRepository.save(markingService);
+              // await this.markingServiceRepository.save(markingService);
             };
           };
         };
@@ -1389,8 +1389,8 @@ export class QuoteDetailsService {
 
     //* TODO MÁXIMO DESCUENTO PERMITIDO AL COMERCIAL
 
-    await this.cartQuoteRepository.save(cartQuoteDb);
-    await this.quoteDetailRepository.save(newQuoteDetail);
+    // await this.cartQuoteRepository.save(cartQuoteDb);
+    // await this.quoteDetailRepository.save(newQuoteDetail);
 
     return {
       newQuoteDetail,
@@ -3572,19 +3572,32 @@ export class QuoteDetailsService {
         console.log(TotalMuestra)
 
 
+        
+          //Transporte de la Muestra
+        if (newQuoteDetail?.cartQuote?.destinationCity?.toLowerCase() == 'bogota') {
+          const clientClosestTransport: LocalTransportPrice | undefined = markingTransportPrices.length > 0
+            ? markingTransportPrices.sort((a, b) => {
+              const diffA = Math.abs(a.volume - totalVolume);
+              const diffB = Math.abs(b.volume - totalVolume);
+              return diffA - diffB;
+            })[0]
+            : undefined;
+
+          const { origin: clientOrigin, destination: clientDestination, price: clientTransportPrice, volume: clientTransportVolume } = clientClosestTransport || { origin: '', destination: '', price: 0, volume: 0 };
+
+          totalPrice += clientTransportPrice;
+
+          // newQuoteDetail.transportTotalPrice = 0;
+          // newQuoteDetail.transportTotalPrice += clientTransportPrice || 0;
+          // newQuoteDetail.sampleValue += clientTransportPrice || 0;
+
+          TransporteMuestra = clientTransportPrice;
+
+        } 
+
+
         // Calcular precio transporte al cliente
-        let dataPrecio = await this.calcularPreciosFedex(tokenFedeex, condigoPostalCliente, condigoPostalCliente, boxesQuantity, packing.large, packing.width, packing.height);
-
-        if (typeof dataPrecio === 'number') {
-          // COSTO TRANSPORTE DE ENTREGA
-          TransporteMuestra = dataPrecio;
-        } else {
-          console.error('Error: dataPrecio no es de tipo numérico.');
-        }
-        console.log(TransporteMuestra);
-
-
-        // }
+      
 
         console.log(TransporteMuestra);
 
