@@ -43,18 +43,22 @@ export class CompaniesController {
     return this.companiesService.findOne(term);
   }
 
+
+
   @Get('/download/:file')
   @UseGuards(AuthGuard())
   async downloadFile(
     @Param('file') file: string,
     @Res() res: Response,
   ) {
-    const fileStream = await this.companiesService.downloadFromAws(file, res);
-  
-    fileStream.on('end', () => {
-      res.end();
-    });
+    try {
+      await this.companiesService.downloadDocumentS3(file, res);
+    } catch (error) {
+      console.error(`Error downloading file: ${error.message}`);
+      res.status(500).send('Error downloading file');
+    }
   }
+
 
   @Patch(':id')
   @UseGuards(AuthGuard())

@@ -17,10 +17,53 @@ import { UpdateCompanyDto } from './dto/update-company.dto';
 export class CompaniesService {
   private readonly logger: Logger = new Logger('CompaniesService');
 
+    private s3: AWS.S3;
+
+  
   constructor(
     @InjectRepository(Company)
     private readonly companyRepository: Repository<Company>,
-  ) { }
+  ) { 
+
+
+     AWS.config.update({
+      accessKeyId: process.env.AWS_ACCESS_KEY,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: process.env.AWS_REGION,
+    });
+    this.s3 = new AWS.S3();
+
+
+  }
+
+
+
+  async downloadDocumentS3(file: string, res: Response): Promise<void> {
+    const params = {
+      Bucket: process.env.AWS_BUCKET,
+      Key: file,
+    };
+
+    try {
+      console.log(`Attempting to retrieve file from S3 with key: ${file}`);
+      const s3Stream = this.s3.getObject(params).createReadStream();
+
+      s3Stream.on('error', (err: AWS.AWSError) => {
+        console.error(`Error occurred while retrieving file: ${err.message}`);
+        if (err.code === 'NoSuchKey') {
+          res.status(404).send('File not found');
+        } else {
+          res.status(500).send('Error retrieving file from S3');
+        }
+      });
+
+      s3Stream.pipe(res);
+    } catch (error) {
+      console.error(`Unexpected error: ${error.message}`);
+      this.handleDbExceptions(error);
+    }
+  }
+
 
   async create(createCompanyDto: CreateCompanyDto, files: Record<string, Express.Multer.File>) {
     const newCompany = plainToClass(Company, createCompanyDto);
@@ -236,6 +279,8 @@ export class CompaniesService {
 
     s3Stream.pipe(res);
     return s3Stream;
+
+    
   }
 
   async deleteFromAws(files: string[]) {
