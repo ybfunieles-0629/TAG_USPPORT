@@ -24,13 +24,6 @@ export class AddressesService {
   async create(createAddressDto: CreateAddressDto, user: User) {
     console.log(createAddressDto)
 
-    // const newAddress: Address = this.addressRepository.create(createAddressDto);
-    // console.log(newAddress)
-    // newAddress.createdBy = user.id;
-    // // newAddress.client = createAddressDto.clientId;
-    // this.addressRepository.save(newAddress);
-
-    // Crear una nueva instancia de Address con los datos del DTO
     const newAddress = new Address();
     newAddress.country = createAddressDto.country;
     newAddress.city = createAddressDto.city;
@@ -89,6 +82,27 @@ export class AddressesService {
       address
     };
   }
+
+
+  
+  async findOneClient(id: string) {
+
+    const addressTotal:any = await this.addressRepository.find({
+      where: {
+        clientUser: id, isPrimary:1
+      },
+    });
+
+    if (!addressTotal)
+      throw new NotFoundException(`Address with ${id} not found`);
+
+    return {
+      addressTotal
+    };
+  }
+
+ 
+
 
   async update(id: string, updateAddressDto: UpdateAddressDto, user: User) {
     const address: Address = await this.addressRepository.preload({

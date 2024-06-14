@@ -33,7 +33,15 @@ export class AddressesController {
   }
 
 
+  @Get('/byClient/:id') // Dirección por cliente
+  @UseGuards(AuthGuard())
+  findOneClient(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.addressesService.findOneClient(id);
+  }
 
+  
 
 
   @Get(':term')
