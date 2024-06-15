@@ -2162,7 +2162,7 @@ export class ProductsService {
       }
 
       // Verificar si categoriasData.resultado es un iterable (array)
-      if (!Array.isArray(categoriasData.resultado)) {
+      if (!Array.isArray(categoriasData)) {
         // throw new HttpException('El resultado de las categorías no es una matriz', HttpStatus.BAD_REQUEST);
       }
 
