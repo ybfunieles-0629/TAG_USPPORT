@@ -67,7 +67,7 @@ export class ProductsService {
     @InjectRepository(Image)
     private readonly imageRepository: Repository<Image>,
 
-     @InjectRepository(Suscription)
+    @InjectRepository(Suscription)
     private readonly suscriptionRepository: Repository<Suscription>,
 
     @InjectRepository(MarkingServiceProperty)
@@ -2161,23 +2161,25 @@ export class ProductsService {
         // throw new HttpException('Error al obtener categorías', HttpStatus.BAD_REQUEST);
       }
 
-      console.log("-------------------------")
       // Verificar si categoriasData.resultado es un iterable (array)
       if (!Array.isArray(categoriasData.resultado)) {
         // throw new HttpException('El resultado de las categorías no es una matriz', HttpStatus.BAD_REQUEST);
       }
 
-      
+
       categoriasData = categoriasResponse.data;
-      console.log("categoriasData")
-      console.log(categoriasData.resultado)
 
       // Inicializar una lista para almacenar las primeras dos categorías
       const selectedCategorias = [];
 
       // Recorrer las categorías y consumir la segunda API para obtener productos
       for (const categoria of categoriasData.resultado) {
-        
+
+
+        console.log("categoriasData")
+        console.log(categoria)
+        console.log("-------------------------")
+
 
         const idCategoria = categoria.id;
         const productosResponse = await axios.get(`http://api.cataprom.com/rest/categorias/${idCategoria}/productos`, config);
@@ -3064,7 +3066,7 @@ export class ProductsService {
     };
   }
 
-  async requireProduct(requireProductDto: RequireProductDto, file: Express.Multer.File, tipo=0) {
+  async requireProduct(requireProductDto: RequireProductDto, file: Express.Multer.File, tipo = 0) {
     const {
       name,
       email,
@@ -3079,7 +3081,7 @@ export class ProductsService {
 
     if (tipo == 1) {
 
-      let suscriptoresData = await this.suscriptionRepository.find({ where: { isActive:true } });
+      let suscriptoresData = await this.suscriptionRepository.find({ where: { isActive: true } });
 
       for (const emails of suscriptoresData) {
         suscriptores.push(emails.email)
@@ -3178,39 +3180,39 @@ export class ProductsService {
       }
 
     } else {
-        if (file != undefined || file != null) {
-      const uniqueFilename = `request-${uuidv4()}-${file.originalname}`;
+      if (file != undefined || file != null) {
+        const uniqueFilename = `request-${uuidv4()}-${file.originalname}`;
 
-      file.originalname = uniqueFilename;
+        file.originalname = uniqueFilename;
 
-      const imageUrl = await this.uploadToAws(file);
+        const imageUrl = await this.uploadToAws(file);
 
-      image = imageUrl;
-    };
+        image = imageUrl;
+      };
 
-    try {
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASSWORD,
-        },
-      });
-
-      const attachments = [];
-      if (image) {
-        attachments.push({
-          filename: 'producto.png',
-          path: image,
-          cid: image
+      try {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD,
+          },
         });
-      }
 
-      await transporter.sendMail({
-        from: this.emailSenderConfig.transport.from,
-        to: ['puertodaniela586@gmail.com', 'locarr785@gmail.com', 'zoomm.yeison@gmail.com'],
-        subject: 'Solicitud de producto',
-        html: `
+        const attachments = [];
+        if (image) {
+          attachments.push({
+            filename: 'producto.png',
+            path: image,
+            cid: image
+          });
+        }
+
+        await transporter.sendMail({
+          from: this.emailSenderConfig.transport.from,
+          to: ['puertodaniela586@gmail.com', 'locarr785@gmail.com', 'zoomm.yeison@gmail.com'],
+          subject: 'Solicitud de producto',
+          html: `
         <div class="container" style="
                 width: 100%;
                 background-color: #f1f3f5;
@@ -3246,15 +3248,15 @@ export class ProductsService {
                 </div>
             </div>
         `,
-        attachments: attachments
-      });
-    } catch (error) {
-      console.log('Failed to send the product request email', error);
-      throw new InternalServerErrorException(`Internal server error`);
-    }
+          attachments: attachments
+        });
+      } catch (error) {
+        console.log('Failed to send the product request email', error);
+        throw new InternalServerErrorException(`Internal server error`);
+      }
     }
 
-  
+
   };
 
   async desactivate(id: string) {
