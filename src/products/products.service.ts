@@ -2163,34 +2163,34 @@ export class ProductsService {
     
     console.log("categoriasData")
     console.log(categoriasData)
-    
-    if (!categoriasData.success) {
-      console.error("Error al obtener categorías:", categoriasData);
-      throw new Error('Error al obtener categorías');
-    }
+
+    // if (!categoriasData.success) {
+    //   console.error("Error al obtener categorías:", categoriasData);
+    //   throw new Error('Error al obtener categorías');
+    // }
 
 
-    // Verificar si categoriasData.resultado es un iterable (array)
-    if (!Array.isArray(categoriasData.resultado)) {
-      console.error("El resultado de las categorías no es una matriz:", categoriasData.resultado);
-      throw new Error('El resultado de las categorías no es una matriz');
-    } else {
+    // // Verificar si categoriasData.resultado es un iterable (array)
+    // if (!Array.isArray(categoriasData.resultado)) {
+    //   console.error("El resultado de las categorías no es una matriz:", categoriasData.resultado);
+    //   throw new Error('El resultado de las categorías no es una matriz');
+    // } else {
     
-      console.log("Longitud")
-      console.log(categoriasData.resultado.length)
+    //   console.log("Longitud")
+    //   console.log(categoriasData.resultado.length)
       
-    }
+    // }
 
     // Inicializar una lista para almacenar las primeras dos categorías
-    const selectedCategorias = [];
+    // const selectedCategorias = [];
 
 
-    // Recorrer las categorías y consumir la segunda API para obtener productos
-    for (const categoria of categoriasData.resultado) {
-      console.log("Procesando categoría:", categoria);
-      const idCategoria = categoria.id;
+    // // Recorrer las categorías y consumir la segunda API para obtener productos
+    // for (const categoria of categoriasData.resultado) {
+    //   console.log("Procesando categoría:", categoria);
+    //   const idCategoria = categoria.id;
      
-    }
+    // }
 
     // Enviar la lista de las primeras dos categorías como resultado
     return {
