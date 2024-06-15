@@ -2152,50 +2152,46 @@ export class ProductsService {
   let productosData: any;
   let categoriasData: any;
 
-  console.log("Iniciando carga de productos promocionales de referencia...");
   try {
     // Consumir la primera API para obtener el listado de categorías
-    console.log("Realizando petición a:", this.categoriesUrl);
     const categoriasResponse = await axios.get(this.categoriesUrl, config);
-
     categoriasData = categoriasResponse.data;
-
     
-    console.log("categoriasData")
-    console.log(categoriasData)
-
-    // if (!categoriasData.success) {
-    //   console.error("Error al obtener categorías:", categoriasData);
-    //   throw new Error('Error al obtener categorías');
-    // }
-
-
-    // // Verificar si categoriasData.resultado es un iterable (array)
-    // if (!Array.isArray(categoriasData.resultado)) {
-    //   console.error("El resultado de las categorías no es una matriz:", categoriasData.resultado);
-    //   throw new Error('El resultado de las categorías no es una matriz');
-    // } else {
-    
-    //   console.log("Longitud")
-    //   console.log(categoriasData.resultado.length)
-      
-    // }
-
     // Inicializar una lista para almacenar las primeras dos categorías
-    // const selectedCategorias = [];
+    const selectedCategorias = [];
 
 
-    // // Recorrer las categorías y consumir la segunda API para obtener productos
-    // for (const categoria of categoriasData.resultado) {
-    //   console.log("Procesando categoría:", categoria);
-    //   const idCategoria = categoria.id;
+    // Recorrer las categorías y consumir la segunda API para obtener productos
+    for (const categoria of categoriasData.resultado) {
+      const idCategoria = categoria.id;
+
+      // Añadir más logs antes y después de la petición
+      const productosResponse = await axios.get(`http://api.cataprom.com/rest/categorias/${idCategoria}/productos`, config);
+      console.log("productosResponse");
+      console.log(productosResponse);
+
+      // if (productosResponse.data.success) {
+      //   productosData = productosResponse.data;
+      //   console.log("Datos de productos obtenidos:", productosData);
+
+      //   // Verificar si productosData.resultado es un array
+      //   if (Array.isArray(productosData.resultado)) {
+      //     selectedCategorias.push({
+      //       categoria: categoria.nombre,
+      //       productos: productosData.resultado
+      //     });
+      //   } else {
+      //     console.error("El resultado de los productos no es un array:", productosData.resultado);
+      //   }
+      // } else {
+      //   console.error(`Error al obtener productos de categoría ${idCategoria}:`, productosResponse.data);
+      // }
      
-    // }
+    }
 
-    // Enviar la lista de las primeras dos categorías como resultado
     return {
       categorias: categoriasData,
-      // productos: selectedCategorias // Devolver los productos obtenidos
+      productos: selectedCategorias 
     };
 
   } catch (error) {
