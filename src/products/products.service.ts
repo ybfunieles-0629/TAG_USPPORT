@@ -2167,25 +2167,23 @@ export class ProductsService {
 
       // Añadir más logs antes y después de la petición
       const productosResponse = await axios.get(`http://api.cataprom.com/rest/categorias/${idCategoria}/productos`, config);
-      console.log("productosResponse");
-      console.log(productosResponse);
+      
+      if (productosResponse.data.success) {
+        productosData = productosResponse.data;
+        console.log("Datos de productos obtenidos:", productosData);
 
-      // if (productosResponse.data.success) {
-      //   productosData = productosResponse.data;
-      //   console.log("Datos de productos obtenidos:", productosData);
-
-      //   // Verificar si productosData.resultado es un array
-      //   if (Array.isArray(productosData.resultado)) {
-      //     selectedCategorias.push({
-      //       categoria: categoria.nombre,
-      //       productos: productosData.resultado
-      //     });
-      //   } else {
-      //     console.error("El resultado de los productos no es un array:", productosData.resultado);
-      //   }
-      // } else {
-      //   console.error(`Error al obtener productos de categoría ${idCategoria}:`, productosResponse.data);
-      // }
+        // Verificar si productosData.resultado es un array
+        if (Array.isArray(productosData.resultado)) {
+          selectedCategorias.push({
+            categoria: categoria.nombre,
+            productos: productosData.resultado
+          });
+        } else {
+          console.error("El resultado de los productos no es un array:", productosData.resultado);
+        }
+      } else {
+        console.error(`Error al obtener productos de categoría ${idCategoria}:`, productosResponse.data);
+      }
      
     }
 
