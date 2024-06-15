@@ -2136,7 +2136,6 @@ export class ProductsService {
   // INTEGRACIONES DE PROMOS
   // =========================================================
   private readonly categoriesUrl = 'http://api.cataprom.com/rest/categorias';
-  private readonly productsBaseUrl = 'http://api.cataprom.com/rest/categorias';
 
   async loadPromosRefProducts() {
     // ARREGLOS GENERALES
@@ -2162,28 +2161,30 @@ export class ProductsService {
         // throw new HttpException('Error al obtener categorías', HttpStatus.BAD_REQUEST);
       }
 
-      categoriasData = categoriasResponse.data;
-      console.log("categoriasData")
-      console.log(categoriasData)
       console.log("-------------------------")
       // Verificar si categoriasData.resultado es un iterable (array)
       if (!Array.isArray(categoriasData.resultado)) {
         // throw new HttpException('El resultado de las categorías no es una matriz', HttpStatus.BAD_REQUEST);
       }
 
+      
+      categoriasData = categoriasResponse.data;
+      console.log("categoriasData")
+      console.log(categoriasData.resultado)
+
       // Inicializar una lista para almacenar las primeras dos categorías
       const selectedCategorias = [];
-      const maxCategorias = 2; // Cambia esto al número deseado de categorías
 
       // Recorrer las categorías y consumir la segunda API para obtener productos
       for (const categoria of categoriasData.resultado) {
-        if (selectedCategorias.length >= maxCategorias) {
-          break; // Sal del bucle después de obtener el número deseado de categorías
-        }
+        
 
         const idCategoria = categoria.id;
-        const productosResponse = await axios.get(`${this.productsBaseUrl}/${idCategoria}/productos`, config);
+        const productosResponse = await axios.get(`http://api.cataprom.com/rest/categorias/${idCategoria}/productos`, config);
 
+        console.log("productosResponse")
+        console.log(productosResponse)
+        console.log("--------------")
         if (productosResponse.data.success) {
           productosData = productosResponse.data;
 
