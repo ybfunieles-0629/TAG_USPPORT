@@ -29,6 +29,7 @@ import { DiscountQuoteDetailDto } from './dto/discount-price.dto';
 import { Logo } from 'src/logos/entities/logo.entity';
 import axios from 'axios';
 import { CalculateSummaryDto } from './dto/calculate-price-summary.tdo';
+import { Address } from 'src/addresses/entities/address.entity';
 // import { Log } from 'src/logos/entities/logo.entity';
 
 @Injectable()
@@ -73,6 +74,9 @@ export class QuoteDetailsService {
 
     @InjectRepository(SystemConfig)
     private readonly systemConfigRepository: Repository<SystemConfig>,
+
+      @InjectRepository(Address)
+    private readonly addressRepository: Repository<Address>,
 
     @InjectRepository(FinancingCostProfit)
     private readonly systemFinancingCostProfit: Repository<FinancingCostProfit>,
@@ -3397,8 +3401,15 @@ export class QuoteDetailsService {
       ],
     });
 
-    console.log(ClientCartQuote)
-    let condigoPostalCliente = ClientCartQuote?.company?.postalCode;
+     const addressTotal:any = await this.addressRepository.find({
+      where: {
+        clientUser: ClientCartQuote?.client?.id, isPrimary:1
+      },
+    });
+
+
+    let condigoPostalCliente = addressTotal[0].postalCode || '';
+    console.log(condigoPostalCliente)
 
     if (!ClientCartQuote)
       throw new NotFoundException(`Cart quote with id ${ClientCartQuote} not found`);
@@ -3619,6 +3630,7 @@ export class QuoteDetailsService {
 
 
 
+    console.log()
 
 
 
@@ -3693,7 +3705,7 @@ export class QuoteDetailsService {
 
       if (typeof dataPrecio === 'number') {
 
-        // COSTO TRANSPORTE DE ENTREGA
+        // COSTO TRANSPORTE DE ENTREGA MARCACIÓN
         CostoTransporteDeEntrega = dataPrecio;
 
         CuatroPorMilTransporte = dataPrecio * 0.004 || 0;

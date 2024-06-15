@@ -18,6 +18,7 @@ import { CategoryTagModule } from 'src/category-tag/category-tag.module';
 import { FinancingCostProfitsModule } from 'src/financing-cost-profits/financing-cost-profits.module';
 import { LogosModule } from 'src/logos/logos.module';
 import { UsersModule } from 'src/users/users.module';
+import { AddressesModule } from 'src/addresses/addresses.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { UsersModule } from 'src/users/users.module';
     FinancingCostProfitsModule,
     LogosModule,
     UsersModule,
+    AddressesModule,
     TypeOrmModule.forFeature([QuoteDetail]),
   ],
   controllers: [QuoteDetailsController],

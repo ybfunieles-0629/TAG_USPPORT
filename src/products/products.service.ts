@@ -2163,6 +2163,9 @@ export class ProductsService {
       }
 
       categoriasData = categoriasResponse.data;
+      console.log("categoriasData")
+      console.log(categoriasData)
+      console.log("-------------------------")
       // Verificar si categoriasData.resultado es un iterable (array)
       if (!Array.isArray(categoriasData.resultado)) {
         // throw new HttpException('El resultado de las categorías no es una matriz', HttpStatus.BAD_REQUEST);
