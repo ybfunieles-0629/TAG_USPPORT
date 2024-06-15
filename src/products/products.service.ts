@@ -2169,41 +2169,28 @@ export class ProductsService {
     if (!Array.isArray(categoriasData.resultado)) {
       console.error("El resultado de las categorías no es una matriz:", categoriasData.resultado);
       throw new Error('El resultado de las categorías no es una matriz');
+    } else {
+    
+      console.log("Longitud")
+      console.log(categoriasData.resultado.length)
+      
     }
 
     // Inicializar una lista para almacenar las primeras dos categorías
     const selectedCategorias = [];
 
+
     // Recorrer las categorías y consumir la segunda API para obtener productos
     for (const categoria of categoriasData.resultado) {
       console.log("Procesando categoría:", categoria);
       const idCategoria = categoria.id;
-      console.log(`Realizando petición a: http://api.cataprom.com/rest/categorias/${idCategoria}/productos`);
-      const productosResponse = await axios.get(`http://api.cataprom.com/rest/categorias/${idCategoria}/productos`, config);
-
-      if (productosResponse.data.success) {
-        productosData = productosResponse.data;
-        console.log("Datos de productos obtenidos:", productosData);
-        
-        // Verificar si productosData.resultado es un array
-        if (Array.isArray(productosData.resultado)) {
-          selectedCategorias.push({
-            categoria: categoria.nombre,
-            productos: productosData.resultado
-          });
-        } else {
-          console.error("El resultado de los productos no es un array:", productosData.resultado);
-        }
-      } else {
-        console.error(`Error al obtener productos de categoría ${idCategoria}:`, productosResponse.data);
-      }
+     
     }
 
-    console.log("Productos obtenidos:", selectedCategorias);
     // Enviar la lista de las primeras dos categorías como resultado
     return {
       categorias: categoriasData,
-      productos: selectedCategorias // Devolver los productos obtenidos
+      // productos: selectedCategorias // Devolver los productos obtenidos
     };
 
   } catch (error) {
