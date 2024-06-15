@@ -2138,83 +2138,83 @@ export class ProductsService {
   private readonly categoriesUrl = 'http://api.cataprom.com/rest/categorias';
 
   async loadPromosRefProducts() {
-    // ARREGLOS GENERALES
-    const refProductsToSave = [];
-    const productsToSave = [];
-    const cleanedRefProducts = [];
+  // ARREGLOS GENERALES
+  const refProductsToSave = [];
+  const productsToSave = [];
+  const cleanedRefProducts = [];
 
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-      },
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+
+  let productosData: any;
+  let categoriasData: any;
+
+  console.log("--");
+  try {
+    // Consumir la primera API para obtener el listado de categorías
+    const categoriasResponse = await axios.get(this.categoriesUrl, config);
+
+    categoriasData = categoriasResponse.data;
+
+    if (!categoriasData.success) {
+      throw new Error('Error al obtener categorías');
+    }
+
+    // Verificar si categoriasData.resultado es un iterable (array)
+    if (!Array.isArray(categoriasData.resultado)) {
+      throw new Error('El resultado de las categorías no es una matriz');
+    }
+
+    // Inicializar una lista para almacenar las primeras dos categorías
+    const selectedCategorias = [];
+
+    // Recorrer las categorías y consumir la segunda API para obtener productos
+    for (const categoria of categoriasData.resultado) {
+      console.log("categoriasData");
+      console.log(categoria);
+      console.log("-------------------------");
+
+      const idCategoria = categoria.id;
+      const productosResponse = await axios.get(`http://api.cataprom.com/rest/categorias/${idCategoria}/productos`, config);
+
+      if (productosResponse.data.success) {
+        productosData = productosResponse.data;
+
+        console.log(productosData);
+        // Verificar si productosData.resultado es un objeto
+        if (typeof productosData.resultado === 'object') {
+          selectedCategorias.push(productosData.resultado);
+        }
+      } else {
+        // Manejar errores específicos de la solicitud de productos
+        console.error(`Error al obtener productos de categoría ${idCategoria}`);
+      }
+    }
+
+
+    
+      console.log("productosResponse");
+      console.log(selectedCategorias);
+      console.log("--------------");
+
+    // Aquí puedes procesar y almacenar los productos obtenidos
+    // Por ejemplo, podrías agregar lógica para llenar refProductsToSave, productsToSave, y cleanedRefProducts
+
+    // Enviar la lista de las primeras dos categorías como resultado
+    return {
+      categorias: categoriasData,
+      productos: selectedCategorias // Devolver los productos obtenidos
     };
 
-    let productosData: any;
-    let categoriasData: any;
-
-    console.log("--")
-    try {
-      // Consumir la primera API para obtener el listado de categorías
-      const categoriasResponse = await axios.get(this.categoriesUrl, config);
-
-      if (!categoriasResponse.data.success) {
-        // throw new HttpException('Error al obtener categorías', HttpStatus.BAD_REQUEST);
-      }
-
-      // Verificar si categoriasData.resultado es un iterable (array)
-      if (!Array.isArray(categoriasData)) {
-        // throw new HttpException('El resultado de las categorías no es una matriz', HttpStatus.BAD_REQUEST);
-      }
-
-
-      categoriasData = categoriasResponse.data;
-
-      // Inicializar una lista para almacenar las primeras dos categorías
-      const selectedCategorias = [];
-
-      // Recorrer las categorías y consumir la segunda API para obtener productos
-      for (const categoria of categoriasData.resultado) {
-
-
-        console.log("categoriasData")
-        console.log(categoria)
-        console.log("-------------------------")
-
-
-        const idCategoria = categoria.id;
-        const productosResponse = await axios.get(`http://api.cataprom.com/rest/categorias/${idCategoria}/productos`, config);
-
-        console.log("productosResponse")
-        console.log(productosResponse)
-        console.log("--------------")
-        if (productosResponse.data.success) {
-          productosData = productosResponse.data;
-
-          console.log(productosData)
-          // Verificar si productosData.resultado es un objeto
-          if (typeof productosData.resultado === 'object') {
-            selectedCategorias.push(productosData.resultado);
-          }
-        } else {
-          // Manejar errores específicos de la solicitud de productos
-          console.error(`Error al obtener productos de categoría ${idCategoria}`);
-        }
-      }
-
-      // Aquí puedes procesar y almacenar los productos obtenidos
-      // Por ejemplo, podrías agregar lógica para llenar refProductsToSave, productsToSave, y cleanedRefProducts
-
-      // Enviar la lista de las primeras dos categorías como resultado
-      return {
-        categorias: categoriasData,
-        productosData
-      };
-
-    } catch (error) {
-      console.error(error);
-      // throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  } catch (error) {
+    console.error(error);
+    throw new Error('Error interno del servidor');
   }
+}
+
 
   // =========================================================
 
