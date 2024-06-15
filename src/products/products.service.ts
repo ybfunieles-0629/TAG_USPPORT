@@ -2160,13 +2160,15 @@ export class ProductsService {
 
     categoriasData = categoriasResponse.data;
 
+    
+    console.log("categoriasData")
+    console.log(categoriasData)
+    
     if (!categoriasData.success) {
       console.error("Error al obtener categorías:", categoriasData);
       throw new Error('Error al obtener categorías');
     }
 
-    console.log("categoriasData")
-    console.log(categoriasData)
 
     // Verificar si categoriasData.resultado es un iterable (array)
     if (!Array.isArray(categoriasData.resultado)) {
