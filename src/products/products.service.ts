@@ -2171,9 +2171,6 @@ export class ProductsService {
       categoriasData = categoriasResponse.data;
 
       // Inicializar una lista para almacenar las primeras dos categorías
-
-      // REGISTRO Y / O ACTUALIZACIÓN DE CATEGORIAS:
-      // Mapa para almacenar las categorías por su id
       const categoryMap = new Map();
 
       // Guardar las categorías
@@ -2334,47 +2331,9 @@ export class ProductsService {
                 colors,
               }
 
-                cleanedRefProducts.push(newRefProduct);
-              console.log("------------------")
-              console.log(cleanedRefProducts)
+              cleanedRefProducts.push(newRefProduct);
               }
-              
-           
-
-              
             }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2384,13 +2343,70 @@ export class ProductsService {
         } else {
           console.error(`Error al obtener productos de categoría ${idCategoria}:`, productosResponse.data);
         }
+      }
 
 
 
+      
+
+      // INICIAMOS A GUARDAR LOS DATOS
+      const refProductCodes: string[] = [];
+      const refProductCodesString: string = refProductCodes.join(", ");
+      const updatedProductsCode: string[] = [];
+      const RefProductsExisting: any[] = [];
+      const RefProductsExistingUpdate: any[] = [];
+
+      // GUARDAMOS LAS REFERENCIAS INICIALMENTE
+      for (const refProduct of cleanedRefProducts) {
+        const refProductExists = await this.refProductRepository.findOne({
+          where: { referenceCode: refProduct.referenceCode },
+        });
+
+        if (refProductExists) {
+          RefProductsExisting.push(refProduct);
+          console.log(
+            `Ref product with reference code ${refProduct.referenceCode} is already registered`
+          );
+
+          // Crear un objeto de actualización con datos no vacíos
+          const updatedRefProductData = {};
+          for (const key in refProduct) {
+            if (
+              refProduct[key] !== "" &&
+              refProduct[key] !== null &&
+              refProduct[key] !== undefined
+            ) {
+              updatedRefProductData[key] = refProduct[key];
+            }
+          }
+
+          // Fusionar el objeto de actualización con los datos existentes
+          const updatedRefProduct = {
+            ...refProductExists,
+            ...updatedRefProductData,
+          };
+
+          // Guardar la referencia actualizada
+          const refProductUpdate = await this.refProductRepository.save(
+            updatedRefProduct
+          );
+          console.log("-");
+          RefProductsExistingUpdate.push(refProductUpdate);
+        } else {
+          const savedRefProduct: RefProduct =
+            await this.refProductRepository.save(refProduct);
+          refProductsToSave.push(savedRefProduct);
+          console.log("-");
+          // Actualizar refProductId en los colores asociados
+          for (const color of savedRefProduct.colors) {
+            color.refProductId = savedRefProduct.id;
+            await this.colorRepository.save(color);
+          }
+        }
       }
     } catch (error) {
       console.error("Error interno del servidor:", error);
-      throw new Error('Error interno del servidor');
+      // throw new Error('Error interno del servidor');
     }
 
     return {
