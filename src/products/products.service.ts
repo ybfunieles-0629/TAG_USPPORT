@@ -2135,77 +2135,123 @@ export class ProductsService {
 
   // INTEGRACIONES DE PROMOS
   // =========================================================
-private readonly categoriesUrl = 'http://api.cataprom.com/rest/categorias';
+  private readonly categoriesUrl = 'http://api.cataprom.com/rest/categorias';
 
-async loadPromosRefProducts() {
-  // ARREGLOS GENERALES
-  const refProductsToSave = [];
-  const productsToSave = [];
-  const cleanedRefProducts = [];
-  const selectedCategorias = [];
+  async loadPromosRefProducts() {
+    // ARREGLOS GENERALES
+    const refProductsToSave = [];
+    const productsToSave = [];
+    const cleanedRefProducts = [];
+    const selectedCategorias = [];
 
-  const config = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  };
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
 
-  let productosData: any;
-  let categoriasData: any;
+    let productosData: any;
+    let categoriasData: any;
+    let categorySupplierSearch;
 
-  try {
-    // Consumir la primera API para obtener el listado de categorías
-    console.log("Realizando petición a:", this.categoriesUrl);
-    const categoriasResponse = await axios.get(this.categoriesUrl, config);
-    categoriasData = categoriasResponse.data;
-    
-    // Verificar si la respuesta es exitosa y contiene un array
-    if (!categoriasData.success) {
-      console.error("Error al obtener categorías:", categoriasData);
-      throw new Error('Error al obtener categorías');
+    // CONSULTAMOS LA IFORMACIÓN DE LA EMPRESA Y ACCEDEMOS A SU PROVEEDOR
+    const nameCompany = 'Promos SAS';
+    const company = await this.companyRepository.findOne({
+      where: { name: nameCompany },
+      relations: ['users', 'users.supplier'],
+    });
+
+    if (!company) {
+      throw new NotFoundException(`Company with name ${nameCompany} not found`);
     }
 
-    if (!Array.isArray(categoriasData.resultado)) {
-      console.error("El resultado de las categorías no es un array:", categoriasData.resultado);
-      throw new Error('El resultado de las categorías no es un array');
-    }
 
-    // Recorrer las categorías y consumir la segunda API para obtener productos
-    for (const categoria of categoriasData.resultado) {
-      const idCategoria = categoria.id;
-      productsToSave.push(categoria);
+    try {
+      // Consumir la primera API para obtener el listado de categorías
+      const categoriasResponse = await axios.get(this.categoriesUrl, config);
+      categoriasData = categoriasResponse.data;
 
-      // Añadir más logs antes y después de la petición
-      const productosResponse = await axios.get(`http://api.cataprom.com/rest/categorias/${idCategoria}/productos`, config);
-      productosData = productosResponse.data;
+      // Inicializar una lista para almacenar las primeras dos categorías
 
-      if (productosData) {
-        console.log("Datos de productos obtenidos:", productosData);
+      // REGISTRO Y / O ACTUALIZACIÓN DE CATEGORIAS:
+          // Mapa para almacenar las categorías por su id
+    const categoryMap = new Map();
 
-        // Verificar si productosData.resultado es un array
-        if (Array.isArray(productosData.resultado)) {
-          selectedCategorias.push({
-            categoria: categoria.nombre,
-            productos: productosData.resultado
-          });
-        } else {
-          console.error("El resultado de los productos no es un array:", productosData.resultado);
-        }
+    // Guardar las categorías
+    for (const category of categoriasData.resultado) {
+      let categorySupplierSearch;
+
+      // Verificar si la categoría ya existe
+      categorySupplierSearch = await this.categorySupplierRepository.findOne({
+        where: { origin: 'Promos', apiReferenceId: category.id }, relations: ['categoryTag'],
+      });
+
+      if (!categorySupplierSearch) {
+        // Crear nueva categoría
+        const newCategory = this.categorySupplierRepository.create({
+          offspringType: category.idParent ? 'Padre' : 'Principal',
+          origin: 'Promos',
+          name: category.nombre,
+          description: category.nombre,
+          apiReferenceId: category.id,
+          mainCategory: category.idParent ? category.idParent : '',
+          supplier: company.users[0].supplier,
+        });
+
+        categorySupplierSearch = await this.categorySupplierRepository.save(newCategory);
       } else {
-        console.error(`Error al obtener productos de categoría ${idCategoria}:`, productosResponse.data);
+        // Actualizar la categoría existente
+        categorySupplierSearch.name = category.nombre;
+        categorySupplierSearch.description = category.nombre;
+        categorySupplierSearch.mainCategory = category.idParent ? category.idParent : '';
+        categorySupplierSearch.offspringType = category.idParent ? 'Padre' : 'Principal';
+
+        categorySupplierSearch = await this.categorySupplierRepository.save(categorySupplierSearch);
       }
+
+      categoryMap.set(category.id, categorySupplierSearch.id);
+
+      console.log(categorySupplierSearch.id);
+      }
+      
+
+
+      // Recorrer las categorías y consumir la segunda API para obtener productos
+      for (const categoria of categoriasData.resultado) {
+        const idCategoria = categoria.id;
+        productsToSave.push(categoria)
+
+        // Añadir más logs antes y después de la petición
+        const productosResponse = await axios.get(`http://api.cataprom.com/rest/categorias/${idCategoria}/productos`, config);
+        productosData = productosResponse.data;
+
+        if (productosData) {
+          console.log("Datos de productos obtenidos:", productosData);
+
+          // Verificar si productosData.resultado es un array
+          if (Array.isArray(productosData.resultado)) {
+            selectedCategorias.push({
+              categoria: categoria.nombre,
+              productos: productosData.resultado
+            });
+          } else {
+            console.error("El resultado de los productos no es un array:", productosData.resultado);
+          }
+        } else {
+          console.error(`Error al obtener productos de categoría ${idCategoria}:`, productosResponse.data);
+        }
+      }
+    } catch (error) {
+      console.error("Error interno del servidor:", error);
+      throw new Error('Error interno del servidor');
     }
 
-  } catch (error) {
-    console.error("Error interno del servidor:", error);
-    throw new Error('Error interno del servidor');
-  }
+    return {
+      categorias: productsToSave,
+      productos: selectedCategorias
+    };
 
-  return {
-    categorias: productsToSave,
-    productos: selectedCategorias 
-  };
-}
+  }
 
 
   // =========================================================
