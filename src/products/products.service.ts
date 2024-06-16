@@ -2208,10 +2208,7 @@ export class ProductsService {
 
         categorySupplierSearch = await this.categorySupplierRepository.save(categorySupplierSearch);
       }
-
       categoryMap.set(category.id, categorySupplierSearch.id);
-
-      console.log(categorySupplierSearch.id);
       }
       
 
@@ -2226,8 +2223,6 @@ export class ProductsService {
         productosData = productosResponse.data;
 
         if (productosData) {
-          console.log("Datos de productos obtenidos:", productosData);
-
           // Verificar si productosData.resultado es un array
           if (Array.isArray(productosData.resultado)) {
             selectedCategorias.push({
@@ -2240,6 +2235,14 @@ export class ProductsService {
         } else {
           console.error(`Error al obtener productos de categoría ${idCategoria}:`, productosResponse.data);
         }
+
+
+        // Añadir más logs antes y después de la petición
+        const productosResponseStock = await axios.get(`http://api.cataprom.com/rest/stock/22-01`, config);
+        console.log("productosResponseStock")
+        console.log(productosResponseStock)
+
+
       }
     } catch (error) {
       console.error("Error interno del servidor:", error);
