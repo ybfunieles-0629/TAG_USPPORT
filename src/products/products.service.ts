@@ -2142,6 +2142,7 @@ export class ProductsService {
   const refProductsToSave = [];
   const productsToSave = [];
   const cleanedRefProducts = [];
+  const selectedCategorias = [];
 
   const config = {
     headers: {
@@ -2158,13 +2159,12 @@ export class ProductsService {
     categoriasData = categoriasResponse.data;
     
     // Inicializar una lista para almacenar las primeras dos categorías
-    const selectedCategorias = [];
 
 
     // Recorrer las categorías y consumir la segunda API para obtener productos
     for (const categoria of categoriasData.resultado) {
       const idCategoria = categoria.id;
-
+      productsToSave.push(categoria)
       // Añadir más logs antes y después de la petición
       const productosResponse = await axios.get(`http://api.cataprom.com/rest/categorias/${idCategoria}/productos`, config);
         productosData = productosResponse.data;
@@ -2187,15 +2187,18 @@ export class ProductsService {
      
     }
 
-    return {
-      categorias: categoriasData,
-      productos: selectedCategorias 
-    };
+ 
 
   } catch (error) {
     console.error("Error interno del servidor:", error);
     throw new Error('Error interno del servidor');
-  }
+   }
+   
+      return {
+      categorias: productsToSave,
+      productos: selectedCategorias 
+   };
+   
 }
 
 
