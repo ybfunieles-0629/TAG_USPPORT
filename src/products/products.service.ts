@@ -2276,10 +2276,14 @@ export class ProductsService {
               if (!categorySupplier)
                 throw new NotFoundException(`Category not found`);
 
-
+              let productosResponseStock: any;
+              try {
+                productosResponseStock = await axios.get(`http://api.cataprom.com/rest/stock/${item.referencia}`, config);
+              } catch (error) {
+                console.error("Error interno del servidor:", error);
+              }
 
               // Añadir más logs antes y después de la petición
-              const productosResponseStock = await axios.get(`http://api.cataprom.com/rest/stock/${item.referencia}`, config);
 
               for (const material of productosResponseStock.data.resultado) {
                 
