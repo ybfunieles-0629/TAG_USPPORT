@@ -2135,9 +2135,9 @@ export class ProductsService {
 
   // INTEGRACIONES DE PROMOS
   // =========================================================
-  private readonly categoriesUrl = 'http://api.cataprom.com/rest/categorias';
+private readonly categoriesUrl = 'http://api.cataprom.com/rest/categorias';
 
- async loadPromosRefProducts() {
+async loadPromosRefProducts() {
   // ARREGLOS GENERALES
   const refProductsToSave = [];
   const productsToSave = [];
@@ -2155,20 +2155,30 @@ export class ProductsService {
 
   try {
     // Consumir la primera API para obtener el listado de categorías
+    console.log("Realizando petición a:", this.categoriesUrl);
     const categoriasResponse = await axios.get(this.categoriesUrl, config);
     categoriasData = categoriasResponse.data;
     
-    // Inicializar una lista para almacenar las primeras dos categorías
+    // Verificar si la respuesta es exitosa y contiene un array
+    if (!categoriasData.success) {
+      console.error("Error al obtener categorías:", categoriasData);
+      throw new Error('Error al obtener categorías');
+    }
 
+    if (!Array.isArray(categoriasData.resultado)) {
+      console.error("El resultado de las categorías no es un array:", categoriasData.resultado);
+      throw new Error('El resultado de las categorías no es un array');
+    }
 
     // Recorrer las categorías y consumir la segunda API para obtener productos
     for (const categoria of categoriasData.resultado) {
       const idCategoria = categoria.id;
-      productsToSave.push(categoria)
+      productsToSave.push(categoria);
+
       // Añadir más logs antes y después de la petición
       const productosResponse = await axios.get(`http://api.cataprom.com/rest/categorias/${idCategoria}/productos`, config);
-        productosData = productosResponse.data;
-      
+      productosData = productosResponse.data;
+
       if (productosData) {
         console.log("Datos de productos obtenidos:", productosData);
 
@@ -2184,21 +2194,17 @@ export class ProductsService {
       } else {
         console.error(`Error al obtener productos de categoría ${idCategoria}:`, productosResponse.data);
       }
-     
     }
-
- 
 
   } catch (error) {
     console.error("Error interno del servidor:", error);
     throw new Error('Error interno del servidor');
-   }
-   
-      return {
-      categorias: productsToSave,
-      productos: selectedCategorias 
-   };
-   
+  }
+
+  return {
+    categorias: productsToSave,
+    productos: selectedCategorias 
+  };
 }
 
 
