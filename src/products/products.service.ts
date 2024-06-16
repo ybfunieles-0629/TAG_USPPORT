@@ -2240,7 +2240,7 @@ export class ProductsService {
         // Añadir más logs antes y después de la petición
         const productosResponseStock = await axios.get(`http://api.cataprom.com/rest/stock/22-01`, config);
         console.log("productosResponseStock")
-        console.log(productosResponseStock)
+        console.log(productosResponseStock.data.resultado)
 
 
       }
