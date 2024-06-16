@@ -2226,8 +2226,19 @@ export class ProductsService {
           if (Array.isArray(productosData.resultado)) {
 
             for (const item of productosData.resultado) {
-              let keyword = item.name;
+              let keyword = item.palabrasClaveSeo;
+              // Utilizar expresión regular para extraer las medidas
+              const regex = /Medidas:\s*([\d.]+\s*cm\s*x\s*[\d.]+\s*cm)/;
+              const match = item.descripcionProducto.match(regex);
 
+              let medidas: string | null = null;
+              if (match && match[1]) {
+                medidas = match[1].trim() || '';
+              }
+
+              
+              
+              
               const categorySuppliers: CategorySupplier[] = [];
               const categoryTags: CategoryTag[] = [];
               let categorySupplier: CategorySupplier = null;
@@ -2241,7 +2252,6 @@ export class ProductsService {
               });
 
 
-              console.log(categorySupplier)
               if (categorySupplier) {
                 try {
                   categoryTag = await this.categoryTagRepository.findOne({
@@ -2270,61 +2280,60 @@ export class ProductsService {
 
               // Añadir más logs antes y después de la petición
               const productosResponseStock = await axios.get(`http://api.cataprom.com/rest/stock/${item.referencia}`, config);
-              console.log("------------------")
-              console.log(productosResponseStock.data.resultado)
-              // for (const material of productosResponseStock.data.resultado) {
+
+              for (const material of productosResponseStock.data.resultado) {
                 
-              //      // Inicializar el arreglo de colores sin refProductId
-              // const colors: Color[] = [];
+              // Inicializar el arreglo de colores sin refProductId
+              const colors: Color[] = [];
 
-              // if (material.color) {
-              //     // Buscar si el color ya existe en la base de datos
-              //     let existingColor = await this.colorRepository.findOne({
-              //       where: { name: material.color },
-              //     });
+              if (material.color) {
+                  // Buscar si el color ya existe en la base de datos
+                  let existingColor = await this.colorRepository.findOne({
+                    where: { name: material.color },
+                  });
 
-              //     if (existingColor) {
-              //       // Si el color existe y no tiene valor hexadecimal, actualizarlo
-              //       if (!existingColor.hexadecimalValue) {
-              //         existingColor.hexadecimalValue = material.color.hexadecimalValue || '';
-              //         existingColor = await this.colorRepository.save(existingColor);
-              //       }
-              //       // Agregar el color existente a la lista de colores
-              //       colors.push(existingColor);
-              //     } else {
-              //       // Si el color no existe, crearlo
-              //       const newColor = this.colorRepository.create({
-              //         name: material.color.name,
-              //         hexadecimalValue: material.color.hexadecimalValue || '',
-              //       });
+                  if (existingColor) {
+                    // Si el color existe y no tiene valor hexadecimal, actualizarlo
+                    if (!existingColor.hexadecimalValue) {
+                      existingColor.hexadecimalValue = material.color.hexadecimalValue || '';
+                    }
+                    // Agregar el color existente a la lista de colores
+                    colors.push(existingColor);
+                  } else {
+                    // Si el color no existe, crearlo
+                    const newColor = this.colorRepository.create({
+                      name: material.color.name,
+                    });
 
-              //       const savedColor = await this.colorRepository.save(newColor);
-              //       // Agregar el color creado a la lista de colores
-              //       colors.push(savedColor);
-              //     }
-              //   }
+                    const savedColor = await this.colorRepository.save(newColor);
+                    // Agregar el color creado a la lista de colores
+                    colors.push(savedColor);
+                  }
+                }
 
-              //   let newRefProduct = {
-              //   name: item.name,
-              //   referenceCode: item.code,
-              //   shortDescription: item.description,
-              //   description: item.description,
-              //   mainCategory: categorySupplier?.id || '',
-              //   tagCategory: categorySupplier?.categoryTag?.id || '',
-              //   keywords: keyword,
-              //   large: 0,
-              //   width: 0,
-              //   height: 0,
-              //   weight: 0,
-              //   importedNational: 1,
-              //   supplier: company?.users[0]?.supplier,
-              //   personalizableMarking: 0,
-              //   colors,
-              // }
+                let newRefProduct = {
+                name: item.nombre,
+                referenceCode: item.referencia,
+                shortDescription: item.resumen,
+                description: item.descripcionProducto,
+                mainCategory: categorySupplier?.id || '',
+                tagCategory: categorySupplier?.categoryTag?.id || '',
+                keywords: keyword,
+                large: 0,
+                width: 0,
+                height: 0,
+                weight: 0,
+                medidas: medidas,
+                importedNational: 1,
+                supplier: company?.users[0]?.supplier,
+                personalizableMarking: 0,
+                colors,
+              }
 
-              // cleanedRefProducts.push(newRefProduct);
-              // console.log(cleanedRefProducts)
-              // }
+                cleanedRefProducts.push(newRefProduct);
+              console.log("------------------")
+              console.log(cleanedRefProducts)
+              }
               
            
 
