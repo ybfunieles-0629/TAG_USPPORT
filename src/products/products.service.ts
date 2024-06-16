@@ -2168,7 +2168,7 @@ export class ProductsService {
       // Añadir más logs antes y después de la petición
       const productosResponse = await axios.get(`http://api.cataprom.com/rest/categorias/${idCategoria}/productos`, config);
       
-      if (productosResponse.data.success) {
+      if (productosResponse.data.length > 0) {
         productosData = productosResponse.data;
         console.log("Datos de productos obtenidos:", productosData);
 
