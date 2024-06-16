@@ -1951,7 +1951,6 @@ export class ProductsService {
     return response
   }
 
-
   private async loadCDO_PromocionesProducts() {
 
     // ARREGLOS GENERALES
@@ -2225,10 +2224,13 @@ export class ProductsService {
         if (productosData) {
           // Verificar si productosData.resultado es un array
           if (Array.isArray(productosData.resultado)) {
-            selectedCategorias.push({
-              categoria: categoria.nombre,
-              productos: productosData.resultado
-            });
+
+            console.log("------------------")
+            console.log(productosData.resultado)
+           
+
+
+
           } else {
             console.error("El resultado de los productos no es un array:", productosData.resultado);
           }
@@ -2236,11 +2238,6 @@ export class ProductsService {
           console.error(`Error al obtener productos de categoría ${idCategoria}:`, productosResponse.data);
         }
 
-
-        // Añadir más logs antes y después de la petición
-        const productosResponseStock = await axios.get(`http://api.cataprom.com/rest/stock/22-01`, config);
-        console.log("productosResponseStock")
-        console.log(productosResponseStock.data.resultado)
 
 
       }
