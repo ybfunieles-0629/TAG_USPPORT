@@ -931,10 +931,8 @@ export class RefProductsService {
       } else {
         results = await this.refProductRepository
           .createQueryBuilder('rp')
-          .where('rp.weight > :weight', { weight: 0 })
-          .andWhere('rp.height > :height', { height: 0 })
-          .andWhere('rp.width > :width', { width: 0 })
-          .andWhere('rp.large > :large', { large: 0 })
+          
+          
           .leftJoinAndSelect('rp.supplier', 'supplier')
           .leftJoinAndSelect('rp.images', 'rpImages')
           .leftJoinAndSelect('rp.colors', 'rpColors')
@@ -946,10 +944,7 @@ export class RefProductsService {
           .leftJoinAndSelect('rpExternalSubTechnique.marking', 'rpMarking')
           .leftJoinAndSelect('rp.packings', 'rpPackings')
           .leftJoinAndSelect('rp.products', 'product')
-          .where('product.weight > :weight', { weight: 0 })
-          .andWhere('product.height > :height', { height: 0 })
-          .andWhere('product.width > :width', { width: 0 })
-          .andWhere('product.large > :large', { large: 0 })
+          
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.disccounts', 'productDisccounts')
           .leftJoinAndSelect('product.refProduct', 'productRefProduct')
@@ -1007,10 +1002,7 @@ export class RefProductsService {
           .leftJoinAndSelect('rpExternalSubTechnique.marking', 'rpMarking')
           .leftJoinAndSelect('rp.packings', 'rpPackings')
           .leftJoinAndSelect('rp.products', 'product')
-          .where('product.weight > :weight', { weight: 0 })
-          .andWhere('product.height > :height', { height: 0 })
-          .andWhere('product.width > :width', { width: 0 })
-          .andWhere('product.large > :large', { large: 0 })
+          
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.disccounts', 'productDisccounts')
           .leftJoinAndSelect('product.refProduct', 'productRefProduct')
@@ -1153,10 +1145,8 @@ export class RefProductsService {
       } else {
         results = await this.refProductRepository
           .createQueryBuilder('rp')
-          .where('rp.weight > :weight', { weight: 0 })
-          .andWhere('rp.height > :height', { height: 0 })
-          .andWhere('rp.width > :width', { width: 0 })
-          .andWhere('rp.large > :large', { large: 0 })
+          
+          
           .leftJoinAndSelect('rp.supplier', 'supplier')
           .leftJoinAndSelect('rp.categorySuppliers', 'rpCategorySuppliers')
           .leftJoinAndSelect('rp.categoryTags', 'rpCategoryTags')
@@ -1243,15 +1233,9 @@ export class RefProductsService {
 
     const results: RefProduct[] = await this.refProductRepository
       .createQueryBuilder('refProduct')
-      .where('refProduct.weight > :weight', { weight: 0 })
-      .andWhere('refProduct.height > :height', { height: 0 })
-      .andWhere('refProduct.width > :width', { width: 0 })
-      .andWhere('refProduct.large > :large', { large: 0 })
+      
       .leftJoinAndSelect('refProduct.products', 'product')
-      .where('product.weight > :weight', { weight: 0 })
-      .andWhere('product.height > :height', { height: 0 })
-      .andWhere('product.width > :width', { width: 0 })
-      .andWhere('product.large > :large', { large: 0 })
+      
       .andWhere('product.promoDisccount > 0')
       .leftJoinAndSelect('refProduct.images', 'refProductImages')
       .leftJoinAndSelect('refProduct.colors', 'refProductColors')
@@ -1363,15 +1347,9 @@ export class RefProductsService {
 
     const refProducts: RefProduct[] = await this.refProductRepository
       .createQueryBuilder('refProduct')
-      .where('refProduct.weight > :weight', { weight: 0 })
-      .andWhere('refProduct.height > :height', { height: 0 })
-      .andWhere('refProduct.width > :width', { width: 0 })
-      .andWhere('refProduct.large > :large', { large: 0 })
+      
       .leftJoinAndSelect('refProduct.products', 'product')
-      .where('product.weight > :weight', { weight: 0 })
-      .andWhere('product.height > :height', { height: 0 })
-      .andWhere('product.width > :width', { width: 0 })
-      .andWhere('product.large > :large', { large: 0 })
+      
       .leftJoinAndSelect('product.packings', 'productPackings')
       .leftJoinAndSelect('product.colors', 'productColors')
       .leftJoinAndSelect('refProduct.images', 'refProductImages')
@@ -1442,10 +1420,6 @@ export class RefProductsService {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
           .where('refProduct.tagCategory = :categoryTagId', { categoryTagId })
-          .andWhere('refProduct.weight > :weight', { weight: 0 })
-          .andWhere('refProduct.height > :height', { height: 0 })
-          .andWhere('refProduct.width > :width', { width: 0 })
-          .andWhere('refProduct.large > :large', { large: 0 })
           .leftJoinAndSelect('refProduct.images', 'images')
           .leftJoinAndSelect('refProduct.categorySuppliers', 'categorySuppliers')
           .leftJoinAndSelect('refProduct.colors', 'refProductColors')
@@ -1457,10 +1431,6 @@ export class RefProductsService {
           .leftJoinAndSelect('externalSubTechnique.marking', 'marking')
           .leftJoinAndSelect('refProduct.packings', 'packings')
           .leftJoinAndSelect('refProduct.products', 'products')
-          // .andWhere('products.weight > :weight', { weight: 0 })
-          // .andWhere('products.height > :height', { height: 0 })
-          // .andWhere('products.width > :width', { width: 0 })
-          // .andWhere('products.large > :large', { large: 0 })
           .leftJoinAndSelect('products.colors', 'colors')
           .leftJoinAndSelect('products.supplierPrices', 'supplierPrices')
           .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
@@ -1520,10 +1490,7 @@ export class RefProductsService {
       } else {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
-          .where('refProduct.weight > :weight', { weight: 0 })
-          .andWhere('refProduct.height > :height', { height: 0 })
-          .andWhere('refProduct.width > :width', { width: 0 })
-          .andWhere('refProduct.large > :large', { large: 0 })
+          
           .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
           .leftJoinAndSelect('refProduct.colors', 'refProductColors')
           .leftJoinAndSelect('refProduct.packings', 'packings')
@@ -1537,10 +1504,7 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
           .leftJoinAndSelect('refProduct.images', 'images')
           .leftJoinAndSelect('refProduct.products', 'product')
-          .where('product.weight > :weight', { weight: 0 })
-          .andWhere('product.height > :height', { height: 0 })
-          .andWhere('product.width > :width', { width: 0 })
-          .andWhere('product.large > :large', { large: 0 })
+          
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.colors', 'productColors')
           .leftJoinAndSelect('product.refProduct', 'productRefProduct')
@@ -1604,10 +1568,7 @@ export class RefProductsService {
       } else {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
-          .where('refProduct.weight > :weight', { weight: 0 })
-          .andWhere('refProduct.height > :height', { height: 0 })
-          .andWhere('refProduct.width > :width', { width: 0 })
-          .andWhere('refProduct.large > :large', { large: 0 })
+          
           .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
           .leftJoinAndSelect('refProduct.colors', 'refProductColors')
           .leftJoinAndSelect('refProduct.packings', 'packings')
@@ -1621,10 +1582,7 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
           .leftJoinAndSelect('refProduct.images', 'images')
           .leftJoinAndSelect('refProduct.products', 'product')
-          .where('product.weight > :weight', { weight: 0 })
-          .andWhere('product.height > :height', { height: 0 })
-          .andWhere('product.width > :width', { width: 0 })
-          .andWhere('product.large > :large', { large: 0 })
+          
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.supplierPrices', 'supplierPrices')
           .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
@@ -1669,10 +1627,7 @@ export class RefProductsService {
       } else {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
-          .where('refProduct.weight > :weight', { weight: 0 })
-          .andWhere('refProduct.height > :height', { height: 0 })
-          .andWhere('refProduct.width > :width', { width: 0 })
-          .andWhere('refProduct.large > :large', { large: 0 })
+          
           .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
           .leftJoinAndSelect('refProduct.colors', 'refProductColors')
           .leftJoinAndSelect('refProduct.packings', 'packings')
@@ -1686,10 +1641,7 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
           .leftJoinAndSelect('refProduct.images', 'images')
           .leftJoinAndSelect('refProduct.products', 'product')
-          .where('product.weight > :weight', { weight: 0 })
-          .andWhere('product.height > :height', { height: 0 })
-          .andWhere('product.width > :width', { width: 0 })
-          .andWhere('product.large > :large', { large: 0 })
+          
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.supplierPrices', 'supplierPrices')
           .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
@@ -1736,10 +1688,7 @@ export class RefProductsService {
       } else {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
-          .where('refProduct.weight > :weight', { weight: 0 })
-          .andWhere('refProduct.height > :height', { height: 0 })
-          .andWhere('refProduct.width > :width', { width: 0 })
-          .andWhere('refProduct.large > :large', { large: 0 })
+          
           .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
           .leftJoinAndSelect('refProduct.colors', 'refProductColors')
           .leftJoinAndSelect('refProduct.packings', 'packings')
@@ -1753,10 +1702,7 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
           .leftJoinAndSelect('refProduct.images', 'images')
           .leftJoinAndSelect('refProduct.products', 'product')
-          .where('product.weight > :weight', { weight: 0 })
-          .andWhere('product.height > :height', { height: 0 })
-          .andWhere('product.width > :width', { width: 0 })
-          .andWhere('product.large > :large', { large: 0 })
+          
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.supplierPrices', 'supplierPrices')
           .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
@@ -1805,10 +1751,7 @@ export class RefProductsService {
       } else {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
-          .where('refProduct.weight > :weight', { weight: 0 })
-          .andWhere('refProduct.height > :height', { height: 0 })
-          .andWhere('refProduct.width > :width', { width: 0 })
-          .andWhere('refProduct.large > :large', { large: 0 })
+          
           .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
           .leftJoinAndSelect('refProduct.colors', 'refProductColors')
           .leftJoinAndSelect('refProduct.packings', 'packings')
@@ -1822,10 +1765,7 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
           .leftJoinAndSelect('refProduct.images', 'images')
           .leftJoinAndSelect('refProduct.products', 'product')
-          .where('product.weight > :weight', { weight: 0 })
-          .andWhere('product.height > :height', { height: 0 })
-          .andWhere('product.width > :width', { width: 0 })
-          .andWhere('product.large > :large', { large: 0 })
+          
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.supplierPrices', 'supplierPrices')
           .leftJoinAndSelect('supplierPrices.listPrices', 'listPrices')
@@ -1864,10 +1804,7 @@ export class RefProductsService {
         } else {
           const refProducts: RefProduct[] = await this.refProductRepository
             .createQueryBuilder('refProduct')
-            .where('refProduct.weight > :weight', { weight: 0 })
-            .andWhere('refProduct.height > :height', { height: 0 })
-            .andWhere('refProduct.width > :width', { width: 0 })
-            .andWhere('refProduct.large > :large', { large: 0 })
+            
             .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
             .leftJoinAndSelect('refProduct.colors', 'refProductColors')
             .leftJoinAndSelect('refProduct.packings', 'packings')
@@ -1881,10 +1818,7 @@ export class RefProductsService {
             .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
             .leftJoinAndSelect('refProduct.images', 'images')
             .leftJoinAndSelect('refProduct.products', 'product')
-            .where('product.weight > :weight', { weight: 0 })
-            .andWhere('product.height > :height', { height: 0 })
-            .andWhere('product.width > :width', { width: 0 })
-            .andWhere('product.large > :large', { large: 0 })
+            
             .leftJoinAndSelect('product.images', 'productImages')
             .leftJoinAndSelect('product.colors', 'productColors')
             .leftJoinAndSelect('product.refProduct', 'productRefProduct')
@@ -1921,10 +1855,7 @@ export class RefProductsService {
         } else {
           const refProducts: RefProduct[] = await this.refProductRepository
             .createQueryBuilder('refProduct')
-            .where('refProduct.weight > :weight', { weight: 0 })
-            .andWhere('refProduct.height > :height', { height: 0 })
-            .andWhere('refProduct.width > :width', { width: 0 })
-            .andWhere('refProduct.large > :large', { large: 0 })
+            
             .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
             .leftJoinAndSelect('refProduct.colors', 'refProductColors')
             .leftJoinAndSelect('refProduct.packings', 'packings')
@@ -1938,10 +1869,7 @@ export class RefProductsService {
             .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
             .leftJoinAndSelect('refProduct.images', 'images')
             .leftJoinAndSelect('refProduct.products', 'product')
-            .where('product.weight > :weight', { weight: 0 })
-            .andWhere('product.height > :height', { height: 0 })
-            .andWhere('product.width > :width', { width: 0 })
-            .andWhere('product.large > :large', { large: 0 })
+            
             .leftJoinAndSelect('product.images', 'productImages')
             .leftJoinAndSelect('product.colors', 'productColors')
             .leftJoinAndSelect('product.supplierPrices', 'supplierPrices')
@@ -1986,10 +1914,7 @@ export class RefProductsService {
       } else {
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
-          .where('refProduct.weight > :weight', { weight: 0 })
-          .andWhere('refProduct.height > :height', { height: 0 })
-          .andWhere('refProduct.width > :width', { width: 0 })
-          .andWhere('refProduct.large > :large', { large: 0 })
+          
           .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
           .leftJoinAndSelect('refProduct.colors', 'refProductColors')
           .leftJoinAndSelect('refProduct.packings', 'packings')
@@ -2003,10 +1928,7 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
           .leftJoinAndSelect('refProduct.images', 'images')
           .leftJoinAndSelect('refProduct.products', 'product')
-          .where('product.weight > :weight', { weight: 0 })
-          .andWhere('product.height > :height', { height: 0 })
-          .andWhere('product.width > :width', { width: 0 })
-          .andWhere('product.large > :large', { large: 0 })
+          
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.refProduct', 'productRefProduct')
           .leftJoinAndSelect('productRefProduct.deliveryTimes', 'productRefProductDeliveryTimes')
@@ -2056,10 +1978,7 @@ export class RefProductsService {
         console.log(filterRefProductsDto)
         const refProducts: RefProduct[] = await this.refProductRepository
           .createQueryBuilder('refProduct')
-          .where('refProduct.weight > :weight', { weight: 0 })
-          .andWhere('refProduct.height > :height', { height: 0 })
-          .andWhere('refProduct.width > :width', { width: 0 })
-          .andWhere('refProduct.large > :large', { large: 0 })
+          
           .andWhere('refProduct.referenceCode > :referenceCode', { filterRefProductsDto })
           .leftJoinAndSelect('refProduct.deliveryTimes', 'deliveryTimes')
           .leftJoinAndSelect('refProduct.packings', 'packings')
@@ -2074,10 +1993,7 @@ export class RefProductsService {
           .leftJoinAndSelect('refProduct.variantReferences', 'variantReferences')
           .leftJoinAndSelect('refProduct.images', 'images')
           .leftJoinAndSelect('refProduct.products', 'product')
-          .where('product.weight > :weight', { weight: 0 })
-          .andWhere('product.height > :height', { height: 0 })
-          .andWhere('product.width > :width', { width: 0 })
-          .andWhere('product.large > :large', { large: 0 })
+          
           .leftJoinAndSelect('product.images', 'productImages')
           .leftJoinAndSelect('product.refProduct', 'productRefProduct')
           .leftJoinAndSelect('productRefProduct.deliveryTimes', 'productRefProductDeliveryTimes')
